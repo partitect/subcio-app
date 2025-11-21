@@ -1,0 +1,55 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Styled, Archivo Black, 58, &H00006dff, &H000000FF, &H00000000, &H00000000, 1, 0, 0, 0, 100, 100, 0, 0, 1, 2, 8, 8, 20, 20, 40, 0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:00.62,Styled,,0,0,0,,{\k62}Kleine
+Dialogue: 0,0:00:00.62,0:00:01.10,Styled,,0,0,0,,{\k48}Wolke
+Dialogue: 0,0:00:01.10,0:00:01.40,Styled,,0,0,0,,{\k30}flieg'
+Dialogue: 0,0:00:01.62,0:00:01.82,Styled,,0,0,0,,{\k20}so
+Dialogue: 0,0:00:01.82,0:00:02.24,Styled,,0,0,0,,{\k42}weit,
+Dialogue: 0,0:00:02.56,0:00:02.84,Styled,,0,0,0,,{\k28}über
+Dialogue: 0,0:00:02.84,0:00:03.38,Styled,,0,0,0,,{\k54}Häuser,
+Dialogue: 0,0:00:03.56,0:00:03.96,Styled,,0,0,0,,{\k40}über
+Dialogue: 0,0:00:03.96,0:00:04.44,Styled,,0,0,0,,{\k48}Zeit.
+Dialogue: 0,0:00:04.76,0:00:04.92,Styled,,0,0,0,,{\k16}Siehst
+Dialogue: 0,0:00:04.92,0:00:05.10,Styled,,0,0,0,,{\k18}du
+Dialogue: 0,0:00:05.10,0:00:05.64,Styled,,0,0,0,,{\k54}Hunde,
+Dialogue: 0,0:00:05.82,0:00:06.06,Styled,,0,0,0,,{\k24}siehst
+Dialogue: 0,0:00:06.06,0:00:06.36,Styled,,0,0,0,,{\k30}du
+Dialogue: 0,0:00:06.36,0:00:06.84,Styled,,0,0,0,,{\k48}Kuhn,
+Dialogue: 0,0:00:06.96,0:00:07.26,Styled,,0,0,0,,{\k30}grüßt
+Dialogue: 0,0:00:07.26,0:00:07.52,Styled,,0,0,0,,{\k26}die
+Dialogue: 0,0:00:07.52,0:00:08.62,Styled,,0,0,0,,{\k110}Sterne,
+Dialogue: 0,0:00:08.84,0:00:09.12,Styled,,0,0,0,,{\k28}sag'
+Dialogue: 0,0:00:09.50,0:00:09.98,Styled,,0,0,0,,{\k48}hallo
+Dialogue: 0,0:00:09.98,0:00:10.40,Styled,,0,0,0,,{\k42}zum
+Dialogue: 0,0:00:10.40,0:00:11.26,Styled,,0,0,0,,{\k86}Unterzug.
+Dialogue: 0,0:00:11.70,0:00:12.08,Styled,,0,0,0,,{\k38}Kleine
+Dialogue: 0,0:00:12.08,0:00:13.12,Styled,,0,0,0,,{\k104}Wolke
+Dialogue: 0,0:00:13.12,0:00:13.68,Styled,,0,0,0,,{\k56}flieg',
+Dialogue: 0,0:00:13.68,0:00:14.36,Styled,,0,0,0,,{\k68}flieg',
+Dialogue: 0,0:00:14.36,0:00:16.00,Styled,,0,0,0,,{\k164}flieg',
+Dialogue: 0,0:00:16.00,0:00:16.36,Styled,,0,0,0,,{\k36}nimm
+Dialogue: 0,0:00:16.36,0:00:16.68,Styled,,0,0,0,,{\k32}uns
+Dialogue: 0,0:00:16.68,0:00:17.14,Styled,,0,0,0,,{\k46}mit,
+Dialogue: 0,0:00:17.64,0:00:18.30,Styled,,0,0,0,,{\k66}wohin
+Dialogue: 0,0:00:18.30,0:00:18.88,Styled,,0,0,0,,{\k58}du
+Dialogue: 0,0:00:18.88,0:00:20.48,Styled,,0,0,0,,{\k160}fliegst.
+Dialogue: 0,0:00:20.82,0:00:21.24,Styled,,0,0,0,,{\k42}Über
+Dialogue: 0,0:00:21.24,0:00:23.36,Styled,,0,0,0,,{\k212}Regenbogen
+Dialogue: 0,0:00:23.36,0:00:24.10,Styled,,0,0,0,,{\k74}durch
+Dialogue: 0,0:00:24.10,0:00:24.70,Styled,,0,0,0,,{\k60}das
+Dialogue: 0,0:00:24.70,0:00:25.08,Styled,,0,0,0,,{\k38}Licht,
+Dialogue: 0,0:00:25.34,0:00:25.54,Styled,,0,0,0,,{\k20}komm
+Dialogue: 0,0:00:25.54,0:00:25.80,Styled,,0,0,0,,{\k26}wir
+Dialogue: 0,0:00:25.80,0:00:26.98,Styled,,0,0,0,,{\k118}träumen,
+Dialogue: 0,0:00:27.06,0:00:27.56,Styled,,0,0,0,,{\k50}du
+Dialogue: 0,0:00:27.56,0:00:28.14,Styled,,0,0,0,,{\k58}und
+Dialogue: 0,0:00:28.14,0:00:28.78,Styled,,0,0,0,,{\k64}ich.

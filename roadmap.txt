@@ -1,0 +1,19 @@
+- PyCaps Studio
+bu uygulama videolardan local whisper aracılığıyle dinamik efektli altyazılar oluşturur. ve render eder.
+uygulamanın ana özelliği captcut tarzında harika eğlenceli altyazılar oluşturmak.
+yapılacak işler
+1 - tüm altyazı hazır stilleri birbirine benziyor sadece renkleri değişik ve çalışmayan altyazı stilleri var.
+2 -  tipokrafi, renk değiştirme, font değiştirme, font büyüklüğü, aaltyazı konumu gibi ayarlar işlevsel değil. bu ayarlar değiştirildiğinde anında önizlemede görebilmeliyiz.
+3 - uygulamaya bekleme anlarında lottie animasynlar eklenecek.
+4. uygulamada temelde 5 ekran olacak.
+ - landing page
+ - video seçme ekranı
+ - transkript ekranı
+ - altyazı stilleri ayarları ekranı
+ - render ve indirme ekranı
+ -- video seçme ekranında video seçilecek ileri dediğimizde transkript ekranına gidecek.
+ -- transkript ekranında whisper ın modelini seçip dilersek dil seçimi de yapıp altyazı oluştur butonuna bastığımızda lottie animasyonu ile bekleme anı olacak. sonra altyazılar oluşacak ve onları önizlemede görebileceğiz. ve gerekirse altyazı textlerini de düzenleyebileceğiz.
+ -- sonraki ekran altyazı stilleri ayarları ekranı olacak. burada altyazı stilleri ayarlanacak. hazır stillerden seçilecek veya ayarlamalar yapılacak. bu ekran çok önemli. burada yapılan ayarlar bir session cookie storage gibi bi yerde tutulacak. ve sonraki ekrana aktarılacak çünkü buradaki yaptığımız tüm stil ayarları renderda çıkan video ile birebir aynı olmalı.
+ -- render ekranı videonun kalitesini ismini ayarlayabileceğimiz bir ekran olacak. video render edildikten sonra burada gözükecek kullanıcı isterse indirebilir.
+ 5- uygulamanın en önemli özelliği dediğim gibi hazır altyazı stilleri. bu stiller birbirinden benzersiz animasyonlu efektli altyazı stilleri.
+ -- 

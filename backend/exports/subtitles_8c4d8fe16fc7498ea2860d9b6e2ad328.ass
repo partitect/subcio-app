@@ -1,0 +1,63 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Styled, Impact, 54, &H0000d4ff, &H000000FF, &H00000000, &H00141450, 1, 0, 0, 0, 100, 100, 0, 0, 3, 2, 0, 8, 20, 20, 80, 0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:02.90,0:00:03.66,Styled,,0,0,0,,{\k76\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Merhaba
+Dialogue: 0,0:00:03.66,0:00:04.42,Styled,,0,0,0,,{\k76\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}çocuklar.
+Dialogue: 0,0:00:04.66,0:00:04.86,Styled,,0,0,0,,{\k20\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Biliyor
+Dialogue: 0,0:00:04.86,0:00:05.86,Styled,,0,0,0,,{\k100\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}musunuz?
+Dialogue: 0,0:00:05.96,0:00:06.46,Styled,,0,0,0,,{\k50\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Ormanların
+Dialogue: 0,0:00:06.46,0:00:06.96,Styled,,0,0,0,,{\k50\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}kralı
+Dialogue: 0,0:00:06.96,0:00:07.58,Styled,,0,0,0,,{\k62\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}aslanlar
+Dialogue: 0,0:00:07.58,0:00:08.03,Styled,,0,0,0,,{\k45\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}aslında
+Dialogue: 0,0:00:08.03,0:00:08.44,Styled,,0,0,0,,{\k40\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}tembel
+Dialogue: 0,0:00:08.44,0:00:09.64,Styled,,0,0,0,,{\k120\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}hayvanlardır.
+Dialogue: 0,0:00:09.90,0:00:10.18,Styled,,0,0,0,,{\k28\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Çünkü
+Dialogue: 0,0:00:10.18,0:00:10.44,Styled,,0,0,0,,{\k26\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}bir
+Dialogue: 0,0:00:10.44,0:00:10.56,Styled,,0,0,0,,{\k12\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}gün
+Dialogue: 0,0:00:10.56,0:00:10.98,Styled,,0,0,0,,{\k42\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}içinde
+Dialogue: 0,0:00:10.98,0:00:11.30,Styled,,0,0,0,,{\k32\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}tam
+Dialogue: 0,0:00:11.30,0:00:11.62,Styled,,0,0,0,,{\k32\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}20
+Dialogue: 0,0:00:11.62,0:00:11.90,Styled,,0,0,0,,{\k28\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}saat
+Dialogue: 0,0:00:11.90,0:00:12.72,Styled,,0,0,0,,{\k82\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}uyurlar.
+Dialogue: 0,0:00:13.14,0:00:13.36,Styled,,0,0,0,,{\k22\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Geriye
+Dialogue: 0,0:00:13.36,0:00:13.74,Styled,,0,0,0,,{\k38\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}kalan
+Dialogue: 0,0:00:13.74,0:00:14.42,Styled,,0,0,0,,{\k68\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}saatlerde
+Dialogue: 0,0:00:14.42,0:00:15.04,Styled,,0,0,0,,{\k62\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}avlanır
+Dialogue: 0,0:00:15.04,0:00:15.22,Styled,,0,0,0,,{\k18\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}ya
+Dialogue: 0,0:00:15.22,0:00:15.34,Styled,,0,0,0,,{\k12\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}da
+Dialogue: 0,0:00:15.34,0:00:15.74,Styled,,0,0,0,,{\k40\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}güneşin
+Dialogue: 0,0:00:15.74,0:00:16.07,Styled,,0,0,0,,{\k33\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}tadını
+Dialogue: 0,0:00:16.07,0:00:16.86,Styled,,0,0,0,,{\k78\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}çıkarırlar.
+Dialogue: 0,0:00:17.26,0:00:17.88,Styled,,0,0,0,,{\k62\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Uyku,
+Dialogue: 0,0:00:18.12,0:00:18.50,Styled,,0,0,0,,{\k38\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}onları
+Dialogue: 0,0:00:18.50,0:00:18.90,Styled,,0,0,0,,{\k40\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}güçlü
+Dialogue: 0,0:00:18.90,0:00:19.58,Styled,,0,0,0,,{\k68\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}yapar.
+Dialogue: 0,0:00:19.88,0:00:20.12,Styled,,0,0,0,,{\k24\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Şimdi
+Dialogue: 0,0:00:20.12,0:00:20.42,Styled,,0,0,0,,{\k30\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}siz
+Dialogue: 0,0:00:20.42,0:00:21.22,Styled,,0,0,0,,{\k80\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}söyleyin,
+Dialogue: 0,0:00:21.50,0:00:21.74,Styled,,0,0,0,,{\k24\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}aslan
+Dialogue: 0,0:00:21.74,0:00:21.92,Styled,,0,0,0,,{\k18\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}gibi
+Dialogue: 0,0:00:21.92,0:00:22.28,Styled,,0,0,0,,{\k36\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}güçlü
+Dialogue: 0,0:00:22.28,0:00:22.50,Styled,,0,0,0,,{\k22\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}olmak
+Dialogue: 0,0:00:22.50,0:00:22.78,Styled,,0,0,0,,{\k28\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}için
+Dialogue: 0,0:00:22.78,0:00:23.00,Styled,,0,0,0,,{\k22\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}ne
+Dialogue: 0,0:00:23.00,0:00:23.46,Styled,,0,0,0,,{\k46\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}yapmamız
+Dialogue: 0,0:00:23.46,0:00:24.22,Styled,,0,0,0,,{\k76\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}gerekiyor?
+Dialogue: 0,0:00:24.50,0:00:24.78,Styled,,0,0,0,,{\k28\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Tabii
+Dialogue: 0,0:00:24.78,0:00:24.98,Styled,,0,0,0,,{\k20\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}ki
+Dialogue: 0,0:00:24.98,0:00:25.84,Styled,,0,0,0,,{\k86\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}dinlenmemiz
+Dialogue: 0,0:00:25.84,0:00:26.22,Styled,,0,0,0,,{\k38\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}ve
+Dialogue: 0,0:00:26.22,0:00:26.78,Styled,,0,0,0,,{\k56\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}zamanında
+Dialogue: 0,0:00:26.78,0:00:27.28,Styled,,0,0,0,,{\k50\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}uyumamız
+Dialogue: 0,0:00:27.28,0:00:28.10,Styled,,0,0,0,,{\k82\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}gerekiyor.
+Dialogue: 0,0:00:30.10,0:00:31.50,Styled,,0,0,0,,{\k140\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}Altyazı
+Dialogue: 0,0:00:31.50,0:00:31.50,Styled,,0,0,0,,{\k1\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}M
+Dialogue: 0,0:00:31.50,0:00:31.50,Styled,,0,0,0,,{\k1\t(0,100,\fscx110\fscy110)\t(100,200,\fscx100\fscy100)}.K.

@@ -1,0 +1,54 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default, Courier New, 56, &H00FFFFFF, &H000000FF, &H00000000, &H00000000, -1, 0, 0, 0, 100, 100, 0, 0, 1, 2, 0, 5, 10, 10, 10, 1
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:00.00,0:00:00.62,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Kleine
+Dialogue: 1,0:00:00.62,0:00:01.10,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Wolke
+Dialogue: 1,0:00:01.10,0:00:01.39,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}flieg'
+Dialogue: 1,0:00:01.62,0:00:01.82,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}so
+Dialogue: 1,0:00:01.82,0:00:02.24,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}weit,
+Dialogue: 1,0:00:02.56,0:00:02.83,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}über
+Dialogue: 1,0:00:02.83,0:00:03.37,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Häuser,
+Dialogue: 1,0:00:03.56,0:00:03.96,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}über
+Dialogue: 1,0:00:03.96,0:00:04.44,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Zeit.
+Dialogue: 1,0:00:04.75,0:00:04.92,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Siehst
+Dialogue: 1,0:00:04.92,0:00:05.09,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}du
+Dialogue: 1,0:00:05.09,0:00:05.63,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Hunde,
+Dialogue: 1,0:00:05.82,0:00:06.05,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}siehst
+Dialogue: 1,0:00:06.05,0:00:06.36,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}du
+Dialogue: 1,0:00:06.36,0:00:06.83,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Kuhn,
+Dialogue: 1,0:00:06.96,0:00:07.25,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}grüßt
+Dialogue: 1,0:00:07.25,0:00:07.51,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}die
+Dialogue: 1,0:00:07.51,0:00:08.61,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Sterne,
+Dialogue: 1,0:00:08.83,0:00:09.11,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}sag'
+Dialogue: 1,0:00:09.50,0:00:09.98,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}hallo
+Dialogue: 1,0:00:09.98,0:00:10.40,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}zum
+Dialogue: 1,0:00:10.40,0:00:11.25,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Unterzug.
+Dialogue: 1,0:00:11.69,0:00:12.08,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Kleine
+Dialogue: 1,0:00:12.08,0:00:13.11,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Wolke
+Dialogue: 1,0:00:13.11,0:00:13.67,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}flieg',
+Dialogue: 1,0:00:13.67,0:00:14.35,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}flieg',
+Dialogue: 1,0:00:14.35,0:00:16.00,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}flieg',
+Dialogue: 1,0:00:16.00,0:00:16.35,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}nimm
+Dialogue: 1,0:00:16.35,0:00:16.67,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}uns
+Dialogue: 1,0:00:16.67,0:00:17.14,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}mit,
+Dialogue: 1,0:00:17.64,0:00:18.30,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}wohin
+Dialogue: 1,0:00:18.30,0:00:18.87,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}du
+Dialogue: 1,0:00:18.87,0:00:20.48,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}fliegst.
+Dialogue: 1,0:00:20.82,0:00:21.23,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Über
+Dialogue: 1,0:00:21.23,0:00:23.35,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Regenbogen
+Dialogue: 1,0:00:23.35,0:00:24.10,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}durch
+Dialogue: 1,0:00:24.10,0:00:24.69,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}das
+Dialogue: 1,0:00:24.69,0:00:25.07,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}Licht,
+Dialogue: 1,0:00:25.33,0:00:25.53,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}komm
+Dialogue: 1,0:00:25.53,0:00:25.80,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}wir
+Dialogue: 1,0:00:25.80,0:00:26.98,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}träumen,
+Dialogue: 1,0:00:27.05,0:00:27.55,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}du
+Dialogue: 1,0:00:27.55,0:00:28.14,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}und
+Dialogue: 1,0:00:28.14,0:00:28.78,Default,,0,0,0,,{\an5\pos(960,150)\frz90\t(0,100,\frz0)}ich.
