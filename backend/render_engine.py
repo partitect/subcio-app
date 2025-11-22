@@ -29,6 +29,13 @@ class AdvancedRenderer:
         color_primary = hex_to_ass(style.get("primary_color", "&H00FFFFFF"))
         color_outline = hex_to_ass(style.get("outline_color", "&H00000000"))
         color_back = hex_to_ass(style.get("back_color", "&H00000000"))
+        
+        # Karaoke / Advanced Colors
+        self.color_future = hex_to_ass(style.get("color_future", color_primary))
+        self.color_past = hex_to_ass(style.get("color_past", "&H00CCCCCC")) # Default gray for past
+        self.outline_future = hex_to_ass(style.get("outline_future", color_outline))
+        self.outline_past = hex_to_ass(style.get("outline_past", color_outline))
+        
         border = style.get("border", 2)
         shadow = style.get("shadow_blur") or style.get("shadow", 0)
         size = style.get("font_size", 48)
@@ -563,7 +570,91 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
         return self.header + "\n".join(lines)
 
-    # --- 30. Zoom Burst ---
+        return self.header + "\n".join(lines)
+
+    # --- 30. Karaoke Pro (Past/Present/Future) ---
+    def render_karaoke_pro(self) -> str:
+        """
+        Renders all words on screen (or a sliding window).
+        Past words get color_past/outline_past.
+        Present word gets primary_color/outline_color + animation.
+        Future words get color_future/outline_future.
+        """
+        lines = ["[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
+        alignment = int(self.style.get("alignment", 2))
+        screen_h = 1080
+        screen_w = 1920
+        cx = screen_w // 2
+        
+        # Position based on alignment
+        if alignment == 8:
+            cy = 150
+        elif alignment == 5:
+            cy = screen_h // 2
+        else:
+            cy = screen_h - 150
+
+        # We will render the WHOLE sentence for each active word interval.
+        # To avoid too much text on screen, we can implement a sliding window if needed.
+        # For now, let's assume short sentences or show all.
+        # Actually, to be safe for long videos, let's use a window of ~10 words.
+        
+        window_size = 12
+        
+        for i, word in enumerate(self.words):
+            start_ms = int(word['start'] * 1000)
+            end_ms = int(word['end'] * 1000)
+            dur = end_ms - start_ms
+            
+            # Determine window
+            start_idx = max(0, i - window_size // 2)
+            end_idx = min(len(self.words), start_idx + window_size)
+            
+            # Adjust start if we hit the end
+            if end_idx - start_idx < window_size:
+                start_idx = max(0, end_idx - window_size)
+            
+            visible_words = self.words[start_idx:end_idx]
+            
+            # Build the line content
+            line_parts = []
+            
+            for w_idx in range(start_idx, end_idx):
+                w = self.words[w_idx]
+                w_text = w['text']
+                
+                if w_idx < i:
+                    # Past
+                    style = f"{{\\1c{self.color_past}\\3c{self.outline_past}}}"
+                elif w_idx == i:
+                    # Present (Active)
+                    # Add a pop effect or highlight
+                    style = f"{{\\1c{self.style.get('primary_color', '&H00FFFFFF')}\\3c{self.style.get('outline_color', '&H00000000')}\\t(0,100,\\fscx110\\fscy110)\\t(100,{dur},\\fscx100\\fscy100)}}"
+                    # Note: We use raw style dict access for primary because __init__ converts it to ASS already but we want to ensure we use the right one.
+                    # Actually self.style has raw hex, __init__ has local vars.
+                    # Let's use the hex_to_ass helper or just use the ones we parsed if we stored them.
+                    # We didn't store color_primary in self. Let's fix that or re-parse.
+                    # Better: use the defaults we set in __init__ but we didn't make them instance vars.
+                    # I'll just re-parse for now or use the ones I added to self if I add them.
+                    # Wait, I only added color_future/past to self.
+                    # Let's use the values from self.style with helper.
+                    p_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+                    o_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+                    style = f"{{\\1c{p_color}\\3c{o_color}\\t(0,100,\\fscx115\\fscy115)\\t(100,{dur},\\fscx100\\fscy100)}}"
+                else:
+                    # Future
+                    style = f"{{\\1c{self.color_future}\\3c{self.outline_future}}}"
+                
+                line_parts.append(f"{style}{w_text}")
+            
+            full_text = " ".join(line_parts)
+            
+            # Add the line event
+            lines.append(f"Dialogue: 1,{ms_to_ass(start_ms)},{ms_to_ass(end_ms)},Default,,0,0,0,,{{\\an5\\pos({cx},{cy})\\fad(0,0)}}{full_text}")
+            
+        return self.header + "\n".join(lines)
+
+    # --- 31. Zoom Burst ---
     def render_zoom_burst(self) -> str:
         lines = ["[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
         alignment = int(self.style.get("alignment", 2))
