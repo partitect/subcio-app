@@ -1237,4 +1237,92 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             return res
         return self._base_loop(effect)
 
+    # --- DYNAMIC HIGHLIGHT (2-4 Words with Color Transition) ---
+    def render_dynamic_highlight(self) -> str:
+        """
+        Shows 2-4 words at once. Most words are in normal color/style,
+        but the currently spoken word is highlighted with a different color.
+        Color transition is smooth (with effect).
+        No position animation - only color changes.
+        """
+        lines = ["[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
+        
+        alignment = int(self.style.get("alignment", 2))
+        screen_h = 1080
+        cx = 1920 // 2
+        
+        if alignment == 8:
+            cy = 150
+        elif alignment == 5:
+            cy = screen_h // 2
+        else:
+            cy = screen_h - 150
+        
+        # Get colors from style
+        normal_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+        highlight_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+        
+        # Determine group size (2-4 words)
+        min_words = 2
+        max_words = 4
+        
+        for i, word in enumerate(self.words):
+            start_ms = int(word['start'] * 1000)
+            end_ms = int(word['end'] * 1000)
+            dur = end_ms - start_ms
+            
+            # Build word group
+            words_group = []
+            
+            # Calculate how many words to show before and after
+            words_before = min(i, max_words - 1)
+            words_after = min(len(self.words) - i - 1, max_words - 1)
+            
+            # Adjust to keep total between min_words and max_words
+            total_words = 1 + words_before + words_after
+            if total_words > max_words:
+                # Reduce to fit max_words
+                excess = total_words - max_words
+                if words_after > words_before:
+                    words_after -= excess
+                else:
+                    words_before -= excess
+            elif total_words < min_words:
+                # Try to add more words
+                needed = min_words - total_words
+                if i > 0 and words_before < max_words - 1:
+                    add_before = min(needed, i - words_before)
+                    words_before += add_before
+                    needed -= add_before
+                if needed > 0 and words_after < max_words - 1:
+                    add_after = min(needed, len(self.words) - i - 1 - words_after)
+                    words_after += add_after
+            
+            # Build the text with inline color tags
+            text_parts = []
+            
+            # Add previous words (normal color)
+            for j in range(i - words_before, i):
+                if j >= 0:
+                    text_parts.append(f"{{{{\\\\\\\1c{normal_color}}}}}{self.words[j]['text']}")
+            
+            # Current word (highlighted with smooth transition)
+            # Transition: normal -> highlight -> normal
+            transition_time = min(dur, 300)  # Max 300ms for transition
+            current_word_tag = f"{{{{\\\\\\\1c{normal_color}\\\\\\\t(0,{transition_time//2},\\\\\\\1c{highlight_color})\\\\\\\t({dur-transition_time//2},{dur},\\\\\\\1c{normal_color})}}}}{word['text']}"
+            text_parts.append(current_word_tag)
+            
+            # Add next words (normal color)
+            for j in range(i + 1, i + 1 + words_after):
+                if j < len(self.words):
+                    text_parts.append(f"{{{{\\\\\\\1c{normal_color}}}}}{self.words[j]['text']}")
+            
+            # Join with spaces
+            full_text = " ".join(text_parts)
+            
+            # Create dialogue line (no position animation, just color transitions)
+            lines.append(f"Dialogue: 1,{ms_to_ass(start_ms)},{ms_to_ass(end_ms)},Default,,0,0,0,,{{\\\\an5\\\\pos({cx},{cy})\\\\fad(100,100)}}{full_text}")
+        
+        return self.header + "\n".join(lines)
+
 

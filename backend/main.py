@@ -64,20 +64,20 @@ PRESET_STYLE_MAP = {
         "id": "fire-storm"
     },
     "cyber-glitch": {
-        "font": "OverHeat Regular",
+        "font": "Oslla",
         "primary_color": "&H00FFFFFF",
         "secondary_color": "&H0000FFFF",
         "outline_color": "&H000000FF",
-        "shadow_color": "&H00FFFFFF",
+        "shadow_color": "&H000000F5",
         "font_size": 116,
         "letter_spacing": 6,
         "bold": 1,
         "italic": 0,
         "underline": 0,
         "strikeout": 0,
-        "border": 2,
+        "border": 4,
         "shadow": 0,
-        "blur": 1,
+        "blur": 0,
         "opacity": 100,
         "rotation": 0,
         "rotation_x": 0,
@@ -430,6 +430,15 @@ PRESET_STYLE_MAP = {
         "margin_l": 13,
         "margin_r": 13,
         "id": "welcome-my-life"
+    },
+    "dynamic-highlight": {
+        "font": "Poppins",
+        "primary_color": "&H00FFFFFF",
+        "secondary_color": "&H0000FFFF",
+        "outline_color": "&H00000000",
+        "font_size": 60,
+        "alignment": 2,
+        "id": "dynamic-highlight"
     }
 }
 
