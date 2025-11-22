@@ -1,0 +1,1 @@
+dynmic hightlight stilini fade in out stili gibi ekranda kalacak ama aktif kelime renklenecek şekilde düzeltir misin. şu anda kelimeler akıyor. yani 2-3 kelime ekrana gelecek kelimelerde hangisi aktif olduysa renklenecek!

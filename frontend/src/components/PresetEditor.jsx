@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Save, RotateCcw, Plus, Layout, Type, Palette, Zap, MousePointer2 } from "lucide-react";
+import { Save, RotateCcw, Plus, Layout, Type, Palette, Zap, MousePointer2, Camera, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import html2canvas from "html2canvas";
 
 const API_BASE = "http://localhost:8000/api";
 
@@ -44,6 +45,10 @@ export default function PresetEditor() {
     const [loading, setLoading] = useState(false);
     const [aasCatalog, setAasCatalog] = useState("");
     const [showImportModal, setShowImportModal] = useState(false);
+
+    // Preview States
+    const [previewBackground, setPreviewBackground] = useState('gradient'); // gradient, white, black, green, image
+    const previewRef = useRef(null);
 
     // Fetch presets on mount
     useEffect(() => {
@@ -113,8 +118,26 @@ export default function PresetEditor() {
         selectPreset(newPreset);
     };
 
+    const handleCapture = async () => {
+        if (previewRef.current) {
+            try {
+                const canvas = await html2canvas(previewRef.current, {
+                    backgroundColor: null,
+                    scale: 2
+                });
+                const link = document.createElement('a');
+                link.download = `preset-${editedPreset.id}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            } catch (err) {
+                console.error("Screenshot failed:", err);
+                alert("Failed to take screenshot. Make sure html2canvas is installed.");
+            }
+        }
+    };
+
     // --- PREVIEW COMPONENT ---
-    const LivePreview = ({ style }) => {
+    const LivePreview = ({ style, background }) => {
         const containerStyle = {
             fontFamily: style.font || 'Arial',
             fontSize: `${style.font_size || 60}px`,
@@ -133,11 +156,18 @@ export default function PresetEditor() {
             gap: '1rem',
             height: '100%',
             width: '100%',
-            background: 'linear-gradient(45deg, #1a1a2e 0%, #16213e 100%)',
             color: assToHex(style.primary_color),
             position: 'relative',
             overflow: 'hidden',
-            borderRadius: '0.5rem'
+            borderRadius: '0.5rem',
+            // Background Logic
+            background: background === 'gradient' ? 'linear-gradient(45deg, #1a1a2e 0%, #16213e 100%)' :
+                background === 'white' ? '#ffffff' :
+                    background === 'black' ? '#000000' :
+                        background === 'green' ? '#00ff00' : 'transparent',
+            backgroundImage: background === 'image' ? 'url("https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80")' : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
         };
 
         const activeWordStyle = {
@@ -151,10 +181,13 @@ export default function PresetEditor() {
         };
 
         return (
-            <div style={containerStyle}>
-                <div className="absolute inset-0 pointer-events-none opacity-10"
-                    style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
-                </div>
+            <div ref={previewRef} style={containerStyle}>
+                {/* Grid lines (only visible on gradient/black for reference) */}
+                {(background === 'gradient' || background === 'black') && (
+                    <div className="absolute inset-0 pointer-events-none opacity-10"
+                        style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
+                    </div>
+                )}
 
                 <span className="opacity-70">Normal</span>
                 <span style={activeWordStyle}>ACTIVE</span>
@@ -395,8 +428,49 @@ export default function PresetEditor() {
                         <div className="col-span-12 lg:col-span-5">
                             <div className="sticky top-6">
                                 <div className="bg-[#1e293b] rounded-xl border border-white/10 p-1 shadow-2xl">
+                                    {/* Preview Controls */}
+                                    <div className="flex items-center justify-between mb-2 px-2">
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => setPreviewBackground('gradient')}
+                                                className={`w-6 h-6 rounded-full border border-white/20 ${previewBackground === 'gradient' ? 'ring-2 ring-emerald-500' : ''}`}
+                                                style={{ background: 'linear-gradient(45deg, #1a1a2e, #16213e)' }}
+                                                title="Gradient"
+                                            />
+                                            <button
+                                                onClick={() => setPreviewBackground('black')}
+                                                className={`w-6 h-6 rounded-full bg-black border border-white/20 ${previewBackground === 'black' ? 'ring-2 ring-emerald-500' : ''}`}
+                                                title="Black"
+                                            />
+                                            <button
+                                                onClick={() => setPreviewBackground('white')}
+                                                className={`w-6 h-6 rounded-full bg-white border border-white/20 ${previewBackground === 'white' ? 'ring-2 ring-emerald-500' : ''}`}
+                                                title="White"
+                                            />
+                                            <button
+                                                onClick={() => setPreviewBackground('green')}
+                                                className={`w-6 h-6 rounded-full bg-[#00ff00] border border-white/20 ${previewBackground === 'green' ? 'ring-2 ring-emerald-500' : ''}`}
+                                                title="Green Screen"
+                                            />
+                                            <button
+                                                onClick={() => setPreviewBackground('image')}
+                                                className={`w-6 h-6 rounded-full bg-slate-500 border border-white/20 flex items-center justify-center ${previewBackground === 'image' ? 'ring-2 ring-emerald-500' : ''}`}
+                                                title="Image"
+                                            >
+                                                <ImageIcon size={12} />
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={handleCapture}
+                                            className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white transition"
+                                            title="Take Screenshot"
+                                        >
+                                            <Camera size={16} />
+                                        </button>
+                                    </div>
+
                                     <div className="aspect-video w-full bg-black rounded-lg overflow-hidden relative">
-                                        <LivePreview style={editedPreset} />
+                                        <LivePreview style={editedPreset} background={previewBackground} />
                                     </div>
                                     <div className="p-3 text-center">
                                         <p className="text-xs text-slate-500">

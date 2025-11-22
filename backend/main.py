@@ -38,10 +38,10 @@ PRESET_STYLE_MAP = {
     "fire-storm": {
         "font": "Brown Beige",
         "primary_color": "&H00006DFF",
-        "secondary_color": "&H0000FFFF",
+        "secondary_color": "&H00c431a4",
         "outline_color": "&H00000000",
         "shadow_color": "&H00000000",
-        "font_size": 120,
+        "font_size": 30,
         "letter_spacing": 10,
         "bold": 1,
         "italic": 0,
