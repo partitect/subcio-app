@@ -82,7 +82,6 @@ export default function EditorPage() {
 
   const playerRef = useRef<any>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const stylePreviewRef = useRef<HTMLDivElement>(null);
 
   const [project, setProject] = useState<ProjectMeta | null>((location.state as any)?.project || null);
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -186,11 +185,11 @@ export default function EditorPage() {
     const outlineShadows =
       outlineSize > 0
         ? [
-            `-${outlineSize}px 0 ${outlineColor}`,
-            `${outlineSize}px 0 ${outlineColor}`,
-            `0 -${outlineSize}px ${outlineColor}`,
-            `0 ${outlineSize}px ${outlineColor}`,
-          ]
+          `-${outlineSize}px 0 ${outlineColor}`,
+          `${outlineSize}px 0 ${outlineColor}`,
+          `0 -${outlineSize}px ${outlineColor}`,
+          `0 ${outlineSize}px ${outlineColor}`,
+        ]
         : [];
 
     const shadow =
@@ -212,25 +211,25 @@ export default function EditorPage() {
 
     if (!project) {
       axios
-      .get(`${API_BASE}/projects/${projectId}`)
-      .then(({ data }) => {
-        setProject(data);
-        setWords(data.words || []);
-        setVideoUrl(data.video_url || "");
-        const styleFromConfig = (data.config && (data.config as any).style) || {};
-        const normalizedFont = normalizeFontName(fontOptions, styleFromConfig.font || style.font);
-        setStyle((prev) => ({
-          ...prev,
-          ...styleFromConfig,
-          id: styleFromConfig.id || prev.id,
-          font: normalizedFont,
-          primary_color: assToHex(styleFromConfig.primary_color),
-          secondary_color: assToHex(styleFromConfig.secondary_color),
-          outline_color: assToHex(styleFromConfig.outline_color),
-          shadow_color: assToHex(styleFromConfig.shadow_color as string),
-          back_color: assToHex((styleFromConfig as any).back_color as string),
-        }));
-      })
+        .get(`${API_BASE}/projects/${projectId}`)
+        .then(({ data }) => {
+          setProject(data);
+          setWords(data.words || []);
+          setVideoUrl(data.video_url || "");
+          const styleFromConfig = (data.config && (data.config as any).style) || {};
+          const normalizedFont = normalizeFontName(fontOptions, styleFromConfig.font || style.font);
+          setStyle((prev) => ({
+            ...prev,
+            ...styleFromConfig,
+            id: styleFromConfig.id || prev.id,
+            font: normalizedFont,
+            primary_color: assToHex(styleFromConfig.primary_color),
+            secondary_color: assToHex(styleFromConfig.secondary_color),
+            outline_color: assToHex(styleFromConfig.outline_color),
+            shadow_color: assToHex(styleFromConfig.shadow_color as string),
+            back_color: assToHex((styleFromConfig as any).back_color as string),
+          }));
+        })
         .catch((err) => {
           console.error("Project load failed", err);
           setProject({ id: projectId, name: "Not Found" });
@@ -367,50 +366,42 @@ export default function EditorPage() {
   };
 
   const takeScreenshot = async () => {
-    const node = stylePreviewRef.current;
-    if (!node) return;
+    // Capture from the live preview overlay
+    const overlayNode = overlayRef.current;
+    if (!overlayNode) return;
+
+    // The JSOOverlay creates a canvas inside the overlay container
+    const canvas = overlayNode.querySelector("canvas");
+    if (!canvas) {
+      alert("Live preview not ready yet. Play the video to ensure subtitles are rendered.");
+      return;
+    }
 
     const targetWidth = 300;
     const targetHeight = 250;
-    const screenshotScale = 1; // keep final export at ~300x200
-    const clone = node.cloneNode(true) as HTMLElement;
-    clone.style.position = "fixed";
-    clone.style.left = "-9999px";
-    clone.style.top = "0";
-    clone.style.width = `${targetWidth}px`;
-    clone.style.height = `${targetHeight}px`;
-    clone.style.backgroundColor = "#ffffff";
-    clone.style.boxShadow = "none";
-    clone.style.border = "none";
-    clone.style.borderRadius = "0";
-    clone.style.overflow = "hidden";
-    document.body.appendChild(clone);
 
-    const textEl = clone.querySelector("p") as HTMLElement | null;
-    if (textEl) {
-      const available = targetWidth - 40; // account for padding
-      const sw = textEl.scrollWidth || available;
-      if (sw > available) {
-        const scale = Math.max(0.6, Math.min(1, available / sw));
-        textEl.style.transform = `scale(${scale})`;
-        textEl.style.transformOrigin = "center bottom";
-      }
-    }
+    const targetCanvas = document.createElement("canvas");
+    targetCanvas.width = targetWidth;
+    targetCanvas.height = targetHeight;
+    const ctx = targetCanvas.getContext("2d");
+    if (!ctx) return;
 
-    let canvas: HTMLCanvasElement;
-    try {
-      canvas = await html2canvas(clone, {
-        backgroundColor: "#ffffff",
-        scale: screenshotScale,
-        width: targetWidth,
-        height: targetHeight,
-        useCORS: true,
-      });
-    } finally {
-      document.body.removeChild(clone);
-    }
+    // Fill background with slate-900 to match preview style
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
 
-    const image = canvas.toDataURL("image/png");
+    // Draw the source canvas centered and scaled
+    // We want to fit the content within the target
+    // Note: The live canvas might be large (video resolution), so we scale it down
+    const scale = Math.min(targetWidth / canvas.width, targetHeight / canvas.height);
+    const w = canvas.width * scale;
+    const h = canvas.height * scale;
+    const x = (targetWidth - w) / 2;
+    const y = (targetHeight - h) / 2;
+
+    ctx.drawImage(canvas, x, y, w, h);
+
+    const image = targetCanvas.toDataURL("image/png");
     try {
       await axios.post(`${API_BASE}/presets/screenshot`, { id: style.id || "custom", image });
       alert("Preset screenshot saved to /sspresets");
@@ -494,13 +485,13 @@ export default function EditorPage() {
           >
             Back Home
           </button>
-           <button
-          onClick={() => setShowRenderModal(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10"
-        >
-          <Download className="w-4 h-4" />
-          Render & Export
-        </button>
+          <button
+            onClick={() => setShowRenderModal(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10"
+          >
+            <Download className="w-4 h-4" />
+            Render & Export
+          </button>
         </div>
       </header>
 
@@ -609,7 +600,7 @@ export default function EditorPage() {
                       onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
                       className="object-cover w-full h-full"
                     />
-                    
+
                   </div>
                 </button>
               ))}
@@ -895,80 +886,6 @@ export default function EditorPage() {
               </div>
 
               <div className="space-y-2 pt-2 border-t border-white/10">
-                <p className="text-xs text-white/60">Style preview</p>
-                <div
-                  ref={stylePreviewRef}
-                  className="bg-white rounded-xl border border-slate-200 shadow-inner min-h-[180px] relative overflow-hidden"
-                >
-                  <div
-                    className="absolute inset-0 flex px-6"
-                    style={{
-                      justifyContent: alignProps.justify,
-                      alignItems: alignProps.align,
-                      flexDirection: "column",
-                      paddingBottom: `${Math.max(style.margin_v || 0, 0)}px`,
-                      paddingTop: `${Math.max(style.margin_v || 0, 0)}px`,
-                      paddingLeft: `${Math.max(style.margin_l || 0, 0)}px`,
-                      paddingRight: `${Math.max(style.margin_r || 0, 0)}px`,
-                    }}
-                  >
-                    <div
-                      className="pb-6 px-3 rounded-md"
-                      style={{
-                        backgroundColor: (() => {
-                          const c = assToCssColor(style.back_color as string, "transparent");
-                          return c.includes("rgba") && c.endsWith(", 0)") ? "transparent" : c;
-                        })(),
-                        display: "inline-block",
-                        opacity: (style.opacity ?? 100) / 100,
-                        textAlign: alignProps.text,
-                      }}
-                    >
-                      <p
-                        className="font-black"
-                        style={{
-                          fontFamily: previewFontFamily,
-                          fontSize: `${previewFontSize}px`,
-                          lineHeight: 1.05,
-                          color: assToCssColor(style.primary_color as string, "#ffffff"),
-                          backgroundImage:
-                            style.secondary_color && style.secondary_color !== style.primary_color
-                              ? `linear-gradient(180deg, ${assToCssColor(style.primary_color as string)}, ${assToCssColor(
-                                  style.secondary_color as string
-                                )})`
-                              : undefined,
-                          WebkitBackgroundClip:
-                            style.secondary_color && style.secondary_color !== style.primary_color ? "text" : undefined,
-                          WebkitTextFillColor:
-                            style.secondary_color && style.secondary_color !== style.primary_color
-                              ? "transparent"
-                              : assToCssColor(style.primary_color as string, "#ffffff"),
-                          WebkitTextStroke: `${Math.max(style.border || 0, 0)}px ${assToCssColor(style.outline_color as string, "#000")}`,
-                          textShadow: previewTextShadow,
-                          fontWeight: style.bold ? 800 : 700,
-                          fontStyle: style.italic ? "italic" : "normal",
-                          letterSpacing: style.letter_spacing ? `${style.letter_spacing}px` : undefined,
-                          WebkitFontSmoothing: "antialiased",
-                          MozOsxFontSmoothing: "grayscale",
-                          textRendering: "optimizeLegibility",
-                          textAlign: alignProps.text,
-                          whiteSpace: "nowrap",
-                          overflow: "visible",
-                          textOverflow: "clip",
-                          textDecoration: `${style.underline ? "underline" : "none"} ${
-                            style.strikeout ? "line-through" : ""
-                          }`.trim(),
-                          transform: `rotate(${style.rotation || 0}deg) scale(${(style.scale_x || 100) / 100}, ${
-                            (style.scale_y || 100) / 100
-                          }) skew(${style.shear || 0}deg)`,
-                          display: "inline-block",
-                        }}
-                      >
-                        {previewText}
-                      </p>
-                    </div>
-                  </div>
-                </div>
                 <div className="flex items-center gap-3 text-xs text-white/60">
                   <span>Font scale</span>
                   <input
@@ -1025,7 +942,7 @@ export default function EditorPage() {
         </aside>
       </main>
 
-      
+
 
       {showRenderModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-4">

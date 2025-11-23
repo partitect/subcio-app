@@ -17,7 +17,11 @@ export default function JSOOverlay({
       instanceRef.current = null;
     }
 
-    const videoElement = videoRef.current.getInternalPlayer();
+    let videoElement = videoRef.current;
+    if (videoElement && typeof videoElement.getInternalPlayer === 'function') {
+      videoElement = videoElement.getInternalPlayer();
+    }
+
     if (!videoElement || !(videoElement instanceof HTMLVideoElement)) {
       console.warn("JSOOverlay: Valid video element not found");
       return;

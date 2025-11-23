@@ -9,6 +9,7 @@ import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
+from PIL import ImageFont
 
 from fastapi import FastAPI, File, Form, UploadFile, BackgroundTasks, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -70,6 +71,13 @@ def _base_font_name(stem: str) -> str:
 
 def sanitize_font_name_from_path(p: Path) -> tuple[str, str]:
     """Return (display_name, filename) normalized from path."""
+    try:
+        font = ImageFont.truetype(str(p), 10)
+        name = font.getname()[0]
+        if name:
+             return name, p.name
+    except Exception:
+        pass
     return _base_font_name(p.stem), p.name
 
 
@@ -199,12 +207,12 @@ PRESET_STYLE_MAP = {
         "id": "neon-pulse"
     },
     "kinetic-bounce": {
-        "font": "Press Start 2P",
+        "font": "Luckiest Guy",
         "primary_color": "&H00FFFFFF",
         "secondary_color": "&H0000FFFF",
         "outline_color": "&H00000000",
         "shadow_color": "&H00000000",
-        "font_size": 35,
+        "font_size": 100,
         "letter_spacing": 0,
         "bold": 1,
         "italic": 0,
@@ -220,7 +228,7 @@ PRESET_STYLE_MAP = {
         "shear": 0,
         "scale_x": 100,
         "scale_y": 100,
-        "alignment": 2,
+        "alignment": 5,
         "margin_v": 40,
         "margin_l": 10,
         "margin_r": 10,
@@ -493,10 +501,31 @@ PRESET_STYLE_MAP = {
         "id": "pixel-glitch"
     },
     "neon-sign": {
-        "font": "Oslla",
-        "primary_color": "&H00FF00FF",
-        "outline_color": "&H00FF00FF",
-        "font_size": 64,
+        "font": "Patrick Hand",
+        "primary_color": "&H00ffffff",
+        "secondary_color": "&H0000FFFF",
+        "outline_color": "&H00000000",
+        "shadow_color": "&H008e8ecc",
+        "font_size": 120,
+        "letter_spacing": 5,
+        "bold": 1,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "border": 0,
+        "shadow": 6,
+        "blur": 1,
+        "opacity": 100,
+        "rotation": 0,
+        "rotation_x": 0,
+        "rotation_y": -1,
+        "shear": -30,
+        "scale_x": 100,
+        "scale_y": 100,
+        "alignment": 5,
+        "margin_v": 40,
+        "margin_l": 10,
+        "margin_r": 10,
         "id": "neon-sign"
     },
     "karaoke-classic": {
