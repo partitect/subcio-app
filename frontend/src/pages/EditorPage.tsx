@@ -995,7 +995,7 @@ export default function EditorPage() {
           {activeTab === "transcript" && (
             <div className="space-y-2 overflow-y-auto pr-1 max-h-[70vh]">
               {words.map((w, idx) => (
-                <div key={`${w.text}-${idx}`} className={`p-2 rounded-lg border ${idx === activeIndex ? "border-emerald-400/60 bg-emerald-500/5" : "border-white/10 bg-white/5"}`}>
+                <div key={`word-${idx}`} className={`p-2 rounded-lg border ${idx === activeIndex ? "border-emerald-400/60 bg-emerald-500/5" : "border-white/10 bg-white/5"}`}>
                   <div className="flex items-center justify-between text-xs text-white/60 mb-1">
                     <span>
                       {w.start.toFixed(2)}s - {w.end.toFixed(2)}s
