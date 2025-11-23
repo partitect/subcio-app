@@ -378,28 +378,107 @@ export default function EditorPage() {
     }
 
     const targetWidth = 300;
-    const targetHeight = 250;
+    const targetHeight = 150;
 
+    // Create a temp 2D canvas to read pixels (since source might be WebGL)
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+    if (!tempCtx) return;
+
+    // Draw the source canvas to temp to access pixel data
+    tempCtx.drawImage(canvas, 0, 0);
+    const w = tempCanvas.width;
+    const h = tempCanvas.height;
+    const imageData = tempCtx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+
+    // Find bounding box of non-transparent pixels
+    let minX = w, minY = h, maxX = 0, maxY = 0;
+    let found = false;
+
+    // Scan for minY
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (data[(y * w + x) * 4 + 3] > 0) {
+          minY = y;
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+
+    if (!found) {
+      // Empty canvas, just capture center
+      minX = 0; minY = 0; maxX = w; maxY = h;
+    } else {
+      // Scan for maxY
+      for (let y = h - 1; y >= minY; y--) {
+        for (let x = 0; x < w; x++) {
+          if (data[(y * w + x) * 4 + 3] > 0) {
+            maxY = y;
+            break;
+          }
+        }
+        if (maxY > 0) break;
+      }
+
+      // Scan for minX
+      found = false;
+      for (let x = 0; x < w; x++) {
+        for (let y = minY; y <= maxY; y++) {
+          if (data[(y * w + x) * 4 + 3] > 0) {
+            minX = x;
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+
+      // Scan for maxX
+      for (let x = w - 1; x >= minX; x--) {
+        for (let y = minY; y <= maxY; y++) {
+          if (data[(y * w + x) * 4 + 3] > 0) {
+            maxX = x;
+            break;
+          }
+        }
+        if (maxX > 0) break;
+      }
+    }
+
+    // Add padding
+    const padding = 20;
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(w, maxX + padding);
+    maxY = Math.min(h, maxY + padding);
+
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+
+    // Create target canvas
     const targetCanvas = document.createElement("canvas");
     targetCanvas.width = targetWidth;
     targetCanvas.height = targetHeight;
     const ctx = targetCanvas.getContext("2d");
     if (!ctx) return;
 
-    // Fill background with slate-900 to match preview style
-    ctx.fillStyle = "#0f172a";
+    // Fill background
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, targetWidth, targetHeight);
 
-    // Draw the source canvas centered and scaled
-    // We want to fit the content within the target
-    // Note: The live canvas might be large (video resolution), so we scale it down
-    const scale = Math.min(targetWidth / canvas.width, targetHeight / canvas.height);
-    const w = canvas.width * scale;
-    const h = canvas.height * scale;
-    const x = (targetWidth - w) / 2;
-    const y = (targetHeight - h) / 2;
+    // Draw cropped content centered and scaled
+    const scale = Math.min((targetWidth - 20) / contentW, (targetHeight - 20) / contentH);
+    const drawW = contentW * scale;
+    const drawH = contentH * scale;
+    const drawX = (targetWidth - drawW) / 2;
+    const drawY = (targetHeight - drawH) / 2;
 
-    ctx.drawImage(canvas, x, y, w, h);
+    ctx.drawImage(tempCanvas, minX, minY, contentW, contentH, drawX, drawY, drawW, drawH);
 
     const image = targetCanvas.toDataURL("image/png");
     try {
