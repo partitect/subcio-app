@@ -231,3 +231,121 @@ class TikTokBoxGroupRenderer(StyleRenderer):
                     current_x += word_width + spacing
         
         return self.header + "\n".join(lines)
+
+@StyleRegistry.register("karaoke_sentence")
+class SentenceKaraokeRenderer(StyleRenderer):
+    def render(self) -> str:
+        from .utils import group_words_smart, get_text_width
+        from pathlib import Path
+        import os
+        
+        lines = ["[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
+        cx, cy = self.get_center_coordinates()
+        
+        # Group words into chunks (2-3 words)
+        sentences = group_words_smart(self.words, max_per_group=3, max_gap=1.5)
+        
+        active_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+        passive_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+        font_size = int(self.style.get("font_size", 60))
+        font_name = self.style.get("font", "Arial")
+        
+        # Resolve font path
+        fonts_dir = Path(__file__).resolve().parent.parent / "fonts"
+        font_path = None
+        
+        # 1. Try exact match
+        possible_fonts = list(fonts_dir.glob("*"))
+        for f in possible_fonts:
+            if f.stem.lower() == font_name.lower():
+                font_path = str(f)
+                break
+        
+        # 2. If not found, try to find a default fallback that actually exists
+        if not font_path:
+            # Try some common ones that might be in the dir
+            for fallback in ["black_default.ttf", "komika.ttf", "Roboto-Bold.ttf"]:
+                fallback_path = fonts_dir / fallback
+                if fallback_path.exists():
+                    font_path = str(fallback_path)
+                    break
+            
+            # If still nothing, just pick the first ttf
+            if not font_path:
+                ttfs = list(fonts_dir.glob("*.ttf"))
+                if ttfs:
+                    font_path = str(ttfs[0])
+        
+        print(f"DEBUG: Using font for measurement: {font_path}")
+
+        # Reduce spacing since we have accurate width now
+        spacing = int(self.style.get("letter_spacing", 0)) + 20 
+        
+        for sent in sentences:
+            start_ms = int(sent['start'] * 1000)
+            end_ms = int(sent['end'] * 1000)
+            
+            # 1. Calculate total width of the sentence to center it
+            total_width = 0
+            word_widths = []
+            
+            for w in sent['words']:
+                # Measure width using the resolved font
+                # IMPORTANT: Multiply by 1.2 to account for the 115% scaling animation!
+                # We reserve space for the MAX size of the word.
+                base_width = get_text_width(w['text'], font_path, font_size)
+                w_width = int(base_width * 1.2) 
+                
+                word_widths.append(w_width)
+                total_width += w_width
+            
+            # Add spacing between words
+            if len(sent['words']) > 1:
+                total_width += (len(sent['words']) - 1) * spacing
+            
+            # 2. Calculate starting X position
+            current_x = cx - (total_width // 2)
+            
+            # 3. Generate a separate Dialogue line for EACH word
+            # This ensures that when one word scales up, it doesn't push others
+            
+            for i, w in enumerate(sent['words']):
+                w_width = word_widths[i]
+                # Center of the current word
+                word_cx = current_x + (w_width // 2)
+                
+                w_start = int(w['start'] * 1000)
+                w_end = int(w['end'] * 1000)
+                
+                # Relative times for animation
+                rel_start = max(0, w_start - start_ms)
+                rel_end = min(end_ms - start_ms, w_end - start_ms)
+                
+                # Animation: Pop in (50ms), Hold, Pop out (50ms)
+                t_in_start = rel_start
+                t_in_end = min(rel_start + 80, rel_end)
+                
+                t_out_start = max(rel_start, w_end - start_ms - 80)
+                t_out_end = w_end - start_ms
+                
+                # Active State tags (Scale up + Color change)
+                # Note: We use \an5 (center alignment) so scaling happens from center
+                active_tags = f"\\1c{active_color}\\fscx115\\fscy115"
+                passive_tags = f"\\1c{passive_color}\\fscx100\\fscy100"
+                
+                # Construct the text with animation
+                # Initial state -> Animate to Active -> Animate back to Passive
+                text = (
+                    f"{{\\an5\\pos({word_cx},{cy})\\fad(150,150)"
+                    f"\\1c{passive_color}"
+                    f"\\t({t_in_start},{t_in_end},{active_tags})"
+                    f"\\t({t_out_start},{t_out_end},{passive_tags})"
+                    f"}}{w['text']}"
+                )
+                
+                lines.append(f"Dialogue: 1,{ms_to_ass(start_ms)},{ms_to_ass(end_ms)},Default,,0,0,0,,{text}")
+                
+                # Advance X position for next word
+                current_x += w_width + spacing
+            
+        return self.header + "\n".join(lines)

@@ -545,6 +545,15 @@ PRESET_STYLE_MAP = {
         "font_size": 60,
         "alignment": 2,
         "id": "karaoke-pro"
+    },
+    "karaoke-sentence": {
+        "font": "Poppins",
+        "primary_color": "&H00FFFFFF",
+        "secondary_color": "&H0000FFFF",
+        "outline_color": "&H00000000",
+        "font_size": 60,
+        "alignment": 2,
+        "id": "karaoke-sentence"
     }
 }
 

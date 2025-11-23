@@ -6,3 +6,4 @@ av==12.3.0
 numpy==1.26.4
 pydantic==2.6.3
 requests==2.32.5
+Pillow
