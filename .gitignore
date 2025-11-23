@@ -14,3 +14,5 @@ dist/
 build/
 *.log
 backend/exports
+backend/projects/
+frontend/public/sspresets/

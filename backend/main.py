@@ -5,12 +5,14 @@ import shutil
 import subprocess
 import tempfile
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
 from fastapi import FastAPI, File, Form, UploadFile, BackgroundTasks, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from faster_whisper import WhisperModel
 import uvicorn
 
@@ -33,6 +35,8 @@ OUTPUT_DIR = Path(__file__).resolve().parent / "exports"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 FONTS_DIR = Path(__file__).resolve().parent / "fonts"
 FONTS_DIR.mkdir(parents=True, exist_ok=True)
+PROJECTS_DIR = Path(__file__).resolve().parent / "projects"
+PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
 
 PRESET_STYLE_MAP = {
     "fire-storm": {
@@ -712,6 +716,149 @@ def run_ffmpeg_burn(video_path: Path, ass_path: Path, output_path: Path, resolut
         )
 
 
+def generate_thumbnail(video_path: Path, thumb_path: Path):
+    """Grab the first frame as a thumbnail for project cards."""
+    thumb_path.parent.mkdir(parents=True, exist_ok=True)
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(video_path),
+        "-frames:v",
+        "1",
+        "-q:v",
+        "2",
+        str(thumb_path),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"[WARN] Thumbnail generation failed: {result.stderr}")
+
+
+def persist_project(
+    video_path: Path,
+    words: List[dict],
+    language: str,
+    model: str,
+    style: Optional[dict] = None,
+    project_id: Optional[str] = None,
+    name: Optional[str] = None,
+):
+    """Persist a project folder with media + metadata and return its manifest."""
+    pid = project_id or uuid.uuid4().hex
+    project_dir = PROJECTS_DIR / pid
+    project_dir.mkdir(parents=True, exist_ok=True)
+
+    stored_video = project_dir / "video.mp4"
+    if video_path.resolve() != stored_video.resolve():
+        shutil.copy(video_path, stored_video)
+
+    transcript_payload = {"language": language, "model": model, "words": words}
+    (project_dir / "transcript.json").write_text(
+        json.dumps(transcript_payload, indent=2), encoding="utf-8"
+    )
+    (project_dir / "subtitles.json").write_text(
+        json.dumps({"segments": words}, indent=2), encoding="utf-8"
+    )
+
+    created_at = datetime.utcnow().isoformat()
+    config = {
+        "id": pid,
+        "name": name or video_path.stem,
+        "created_at": created_at,
+        "style": style or {},
+        "language": language,
+        "model": model,
+    }
+    (project_dir / "config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
+
+    thumb_path = project_dir / "thumb.jpg"
+    try:
+        generate_thumbnail(stored_video, thumb_path)
+    except Exception as thumb_err:
+        print(f"[WARN] Failed to create thumbnail for {pid}: {thumb_err}")
+
+    return {
+        "id": pid,
+        "name": config["name"],
+        "created_at": created_at,
+        "video_url": f"/projects/{pid}/{stored_video.name}",
+        "thumb_url": f"/projects/{pid}/thumb.jpg",
+        "config": config,
+    }
+
+
+def list_projects() -> List[dict]:
+    projects = []
+    for path in PROJECTS_DIR.iterdir():
+        if not path.is_dir():
+            continue
+        config_path = path / "config.json"
+        config = {}
+        if config_path.exists():
+            try:
+                config = json.loads(config_path.read_text(encoding="utf-8"))
+            except Exception:
+                config = {}
+        thumb = path / "thumb.jpg"
+        video = path / "video.mp4"
+        projects.append(
+            {
+                "id": path.name,
+                "name": config.get("name", path.name),
+                "created_at": config.get("created_at"),
+                "thumb_url": f"/projects/{path.name}/thumb.jpg" if thumb.exists() else None,
+                "video_url": f"/projects/{path.name}/video.mp4" if video.exists() else None,
+            }
+        )
+    return sorted(projects, key=lambda x: x.get("created_at") or "", reverse=True)
+
+
+def load_project(project_id: str) -> dict:
+    project_dir = PROJECTS_DIR / project_id
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    transcript_path = project_dir / "transcript.json"
+    subtitles_path = project_dir / "subtitles.json"
+    config_path = project_dir / "config.json"
+    video_path = project_dir / "video.mp4"
+    thumb_path = project_dir / "thumb.jpg"
+
+    subtitles = []
+    transcript = {}
+    config = {}
+
+    if subtitles_path.exists():
+        try:
+            subtitles = json.loads(subtitles_path.read_text(encoding="utf-8")).get("segments", [])
+        except Exception:
+            subtitles = []
+
+    if transcript_path.exists():
+        try:
+            transcript = json.loads(transcript_path.read_text(encoding="utf-8"))
+        except Exception:
+            transcript = {}
+
+    if config_path.exists():
+        try:
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+        except Exception:
+            config = {}
+
+    return {
+        "id": project_id,
+        "name": config.get("name", project_id),
+        "created_at": config.get("created_at"),
+        "words": subtitles,
+        "transcript": transcript,
+        "config": config,
+        "video_url": f"/projects/{project_id}/video.mp4" if video_path.exists() else None,
+        "thumb_url": f"/projects/{project_id}/thumb.jpg" if thumb_path.exists() else None,
+    }
+
+
 # -----------------------------------------------------------------------------
 # FastAPI app
 # -----------------------------------------------------------------------------
@@ -723,6 +870,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_headers=["*"],
 )
+app.mount("/projects", StaticFiles(directory=PROJECTS_DIR), name="projects")
 
 
 @app.post("/api/transcribe")
@@ -774,8 +922,22 @@ async def transcribe(
                         "confidence": round(getattr(w, "probability", 0) or 0, 3),
                     }
                 )
+        project_meta = persist_project(
+            in_path,
+            words,
+            info.language or (language or "auto"),
+            model_name,
+            name=file.filename,
+        )
     return JSONResponse(
-        {"language": info.language, "device": DEVICE, "model": model_name, "words": words}
+        {
+            "language": info.language,
+            "device": DEVICE,
+            "model": model_name,
+            "words": words,
+            "projectId": project_meta["id"],
+            "project": project_meta,
+        }
     )
 
 
@@ -797,9 +959,10 @@ async def list_fonts():
 @app.post("/api/export")
 async def export_subtitled_video(
     background_tasks: BackgroundTasks = None,
-    video: UploadFile = File(...),
-    words_json: str = Form(...),
-    style_json: str = Form(...),
+    video: UploadFile | None = File(None),
+    words_json: str | None = Form(None),
+    style_json: str | None = Form(None),
+    project_id: str | None = Form(None),
     resolution: str = Form("1080p"),
 ):
     """
@@ -807,8 +970,16 @@ async def export_subtitled_video(
     - words_json: JSON list of dicts with start/end/text
     - style_json: JSON object with style parameters
     """
-    words = json.loads(words_json)
-    incoming_style = json.loads(style_json)
+    if not words_json and not project_id:
+        raise HTTPException(status_code=400, detail="words_json or project_id is required")
+
+    if not video and not project_id:
+        raise HTTPException(status_code=400, detail="video file or project_id is required")
+
+    words = json.loads(words_json) if words_json else load_project(project_id).get("words", [])
+    incoming_style = json.loads(style_json) if style_json else {}
+    if project_id and not incoming_style:
+        incoming_style = load_project(project_id).get("config", {}).get("style", {})
     style_id = incoming_style.get("id")
     # Merge: preset -> incoming (UI overrides preset), then normalize colors.
     style = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
@@ -819,10 +990,17 @@ async def export_subtitled_video(
 
     # Persist artifacts inside backend/exports to avoid Temp cleanup races.
     uid = uuid.uuid4().hex
-    suffix = Path(video.filename).suffix or ".mp4"
-    in_path = OUTPUT_DIR / f"upload_{uid}{suffix}"
-    with in_path.open("wb") as f:
-        f.write(await video.read())
+    cleanup_upload = True
+    if project_id and not video:
+        in_path = PROJECTS_DIR / project_id / "video.mp4"
+        if not in_path.exists():
+            raise HTTPException(status_code=404, detail="Project video not found")
+        cleanup_upload = False
+    else:
+        suffix = Path(video.filename).suffix or ".mp4"
+        in_path = OUTPUT_DIR / f"upload_{uid}{suffix}"
+        with in_path.open("wb") as f:
+            f.write(await video.read())
 
     ass_path = OUTPUT_DIR / f"subtitles_{uid}.ass"
     
@@ -843,14 +1021,16 @@ async def export_subtitled_video(
         raise HTTPException(status_code=500, detail=str(exc))
 
     if not out_path.exists():
-        background_tasks.add_task(lambda: in_path.unlink(missing_ok=True))
+        if cleanup_upload:
+            background_tasks.add_task(lambda: in_path.unlink(missing_ok=True))
         raise HTTPException(
             status_code=500,
             detail=f"Export failed: output file missing at {out_path}",
         )
 
     # Keep .ass and .mp4 for inspection; only remove uploaded source after response.
-    background_tasks.add_task(lambda: in_path.unlink(missing_ok=True))
+    if cleanup_upload:
+        background_tasks.add_task(lambda: in_path.unlink(missing_ok=True))
 
     return FileResponse(
         path=out_path,
@@ -867,6 +1047,7 @@ async def export_subtitled_video(
 async def preview_ass(
     words_json: str = Form(...),
     style_json: str = Form(...),
+    project_id: str | None = Form(None),
 ):
     """
     Generates ASS subtitle content for preview without burning video.
@@ -875,6 +1056,10 @@ async def preview_ass(
     try:
         words = json.loads(words_json)
         incoming_style = json.loads(style_json)
+        if project_id and not words:
+            words = load_project(project_id).get("words", [])
+            if not incoming_style:
+                incoming_style = load_project(project_id).get("config", {}).get("style", {})
         style_id = incoming_style.get("id")
         
         # Merge: preset -> incoming (UI overrides preset)
@@ -889,6 +1074,80 @@ async def preview_ass(
     except Exception as e:
         print(f"Preview Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/projects")
+async def get_projects():
+    """List saved projects with metadata."""
+    return JSONResponse(list_projects())
+
+
+@app.get("/api/projects/{project_id}")
+async def get_project_detail(project_id: str):
+    return JSONResponse(load_project(project_id))
+
+
+@app.post("/api/projects")
+async def create_project(
+    video: UploadFile = File(...),
+    words_json: str | None = Form(None),
+    language: str | None = Form(None),
+    model_name: str = Form(DEFAULT_MODEL),
+    style_json: str | None = Form(None),
+    project_name: str | None = Form(None),
+):
+    """
+    Create a new project by transcribing (if words not provided) and persisting assets.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        in_path = Path(tmpdir) / video.filename
+        with in_path.open("wb") as f:
+            f.write(await video.read())
+
+        incoming_words = json.loads(words_json) if words_json else []
+        detected_language = language or "auto"
+
+        if not incoming_words:
+            model = get_model(model_name)
+            segments, info = model.transcribe(
+                str(in_path),
+                language=language if language else None,
+                word_timestamps=True,
+                vad_filter=False,
+            )
+            words = []
+            for seg in segments:
+                for w in seg.words:
+                    clean_text = w.word.strip().strip('.,!?;:"\'-()[]{}')
+                    if not clean_text:
+                        continue
+                    words.append(
+                        {
+                            "start": round(w.start, 3),
+                            "end": round(w.end, 3),
+                            "text": clean_text,
+                            "confidence": round(getattr(w, "probability", 0) or 0, 3),
+                        }
+                    )
+            incoming_words = words
+            detected_language = info.language or language or "auto"
+
+        incoming_style = json.loads(style_json) if style_json else {}
+        project_meta = persist_project(
+            in_path,
+            incoming_words,
+            detected_language,
+            model_name,
+            style=incoming_style,
+            name=project_name or video.filename,
+        )
+    return JSONResponse(
+        {
+            "projectId": project_meta["id"],
+            "project": project_meta,
+            "words": incoming_words,
+        }
+    )
 
 
 @app.get("/api/presets")
@@ -1248,14 +1507,14 @@ async def save_preset_screenshot(request: Request):
         # Define path: frontend/public/presets-image
         # Assuming backend is in backend/ and frontend is in frontend/
         frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
-        images_dir = frontend_dir / "public" / "presets-image"
+        images_dir = frontend_dir / "public" / "sspresets"
         images_dir.mkdir(parents=True, exist_ok=True)
         
         file_path = images_dir / f"{preset_id}.png"
         
         file_path.write_bytes(image_bytes)
         
-        return {"message": f"Screenshot saved to {file_path}", "path": f"/presets-image/{preset_id}.png"}
+        return {"message": f"Screenshot saved to {file_path}", "path": f"/sspresets/{preset_id}.png"}
         
     except Exception as e:
         print(f"Screenshot Error: {e}")
