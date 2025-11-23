@@ -55,6 +55,9 @@ _WIDTH_PATTERNS = [
 
 def _base_font_name(stem: str) -> str:
     base = stem.replace("_", " ").replace(",", "-")
+    # Insert spaces between camel-case boundaries so "AdventPro" -> "Advent Pro"
+    base = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", base)
+    base = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", base)
     for pat in _WIDTH_PATTERNS:
         base = re.sub(pat, "", base, flags=re.I)
     for pat in _WEIGHT_PATTERNS:
@@ -85,6 +88,20 @@ def load_font_name_list() -> list[dict]:
 
 FONT_ENTRIES: list[dict] = load_font_name_list()
 FONT_NAME_LIST: list[str] = [e["name"] for e in FONT_ENTRIES]
+
+def _normalize_font_token(val: str) -> str:
+    return re.sub(r"[\s_-]+", "", (val or "")).lower()
+
+# Map normalized tokens to display names for consistent ASS font values
+_FONT_TOKEN_MAP = {(_normalize_font_token(e["name"])): e["name"] for e in FONT_ENTRIES}
+
+def resolve_font_name(name: str) -> str:
+    return _FONT_TOKEN_MAP.get(_normalize_font_token(name), name or "Sans")
+
+
+def font_in_pool(name: str) -> bool:
+    token = _normalize_font_token(name)
+    return token in _FONT_TOKEN_MAP
 
 
 def pick_font_for_preset(preset_id: str) -> str:
@@ -641,9 +658,10 @@ PRESET_STYLE_MAP = {
 }
 
 
-# Normalize preset fonts to current pool
+# Normalize preset fonts to current pool only if missing/invalid so manual choices stick
 for _pid, _pstyle in PRESET_STYLE_MAP.items():
-    _pstyle['font'] = pick_font_for_preset(_pid)
+    if not _pstyle.get("font") or not font_in_pool(_pstyle["font"]):
+        _pstyle["font"] = pick_font_for_preset(_pid)
 
 
 def get_model(model_name: str) -> WhisperModel:
@@ -1082,8 +1100,9 @@ async def export_subtitled_video(
     # Merge: preset -> incoming (UI overrides preset), then normalize colors.
     style = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
     # Ensure font exists in current pool
-    if not style.get("font") or style.get("font") not in FONT_NAME_LIST:
+    if not style.get("font") or not font_in_pool(style["font"]):
         style["font"] = pick_font_for_preset(style_id or "default")
+    style["font"] = resolve_font_name(style["font"])
     
     # Debug: Print style_id
     print(f"[DEBUG] Export style_id: {style_id}")
@@ -1165,8 +1184,9 @@ async def preview_ass(
         
         # Merge: preset -> incoming (UI overrides preset)
         style = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
-        if not style.get("font") or style.get("font") not in FONT_NAME_LIST:
+        if not style.get("font") or not font_in_pool(style["font"]):
             style["font"] = pick_font_for_preset(style_id or "default")
+        style["font"] = resolve_font_name(style["font"])
 
         # ALWAYS use AdvancedRenderer
         from render_engine import AdvancedRenderer

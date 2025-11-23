@@ -8,6 +8,7 @@ from styles.utils import (
     hex_to_ass,
     ms_to_ass,
 )
+import re
 
 # Ensure all styles are registered
 import styles
@@ -75,8 +76,10 @@ class GroupedASSRenderer(StyleRenderer):
         preferred_font = (style.get("font") or "Inter").split(",")[0].strip()
         fallback_fonts = list(fonts_dir.glob("*.ttf")) + list(fonts_dir.glob("*.otf"))
         self.font_path = None
+        pref_token = re.sub(r"[\\s_-]+", "", preferred_font).lower()
         for f in fallback_fonts:
-            if f.stem.lower() == preferred_font.lower():
+            stem_token = re.sub(r"[\\s_-]+", "", f.stem).lower()
+            if stem_token == pref_token:
                 self.font_path = str(f)
                 break
         if not self.font_path and fallback_fonts:

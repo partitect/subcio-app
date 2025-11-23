@@ -63,12 +63,15 @@ const normalizeFontName = (options: { name: string; file: string }[], value?: st
       .replace(/[-_]/g, " ")
       .replace(/\b(extra|ultra)?\s*(bold|light|thin|regular|medium|black|heavy|book|semibold)\b/g, "")
       .trim();
+  const key = (s: string) => strip(s).replace(/\s+/g, "");
   const exact = options.find((o) => o.name === value);
   if (exact) return exact.name;
   const icase = options.find((o) => o.name.toLowerCase() === lc);
   if (icase) return icase.name;
   const stripped = options.find((o) => strip(o.name) === strip(value));
   if (stripped) return stripped.name;
+  const compact = options.find((o) => key(o.name) === key(value));
+  if (compact) return compact.name;
   return options[0].name;
 };
 
@@ -152,6 +155,14 @@ export default function EditorPage() {
     () => Math.max(12, Math.round((style.font_size || 56) * previewScale)),
     [style.font_size, previewScale]
   );
+
+  const previewFontFamily = useMemo(() => {
+    const match = fontOptions.find((f) => f.name === style.font);
+    if (match?.file) {
+      return match.file.replace(/\.(ttf|otf)$/i, "");
+    }
+    return style.font || "Inter";
+  }, [fontOptions, style.font]);
 
   const selectedPresetLabel = useMemo(() => {
     const match = presets.find((p) => p.id === style.id);
@@ -916,7 +927,7 @@ export default function EditorPage() {
                       <p
                         className="font-black"
                         style={{
-                          fontFamily: style.font || "Inter",
+                          fontFamily: previewFontFamily,
                           fontSize: `${previewFontSize}px`,
                           lineHeight: 1.05,
                           color: assToCssColor(style.primary_color as string, "#ffffff"),
