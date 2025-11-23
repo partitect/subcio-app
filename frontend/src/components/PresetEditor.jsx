@@ -1,10 +1,58 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
-import { Save, RotateCcw, Plus, Layout, Type, Palette, Zap, MousePointer2, Camera, Image as ImageIcon } from "lucide-react";
+import {
+  Save,
+  RotateCcw,
+  Plus,
+  Layout,
+  Type,
+  Palette,
+  Zap,
+  MousePointer2,
+  Camera,
+  Image as ImageIcon,
+  ChevronLeft,
+  Wand2,
+  ListFilter,
+  Search,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import html2canvas from "html2canvas";
+import { Link } from "react-router-dom";
 
 const API_BASE = "http://localhost:8000/api";
+
+const colorPalettes = [
+  { name: "Fire", primary: "#ff7a2b", outline: "#1f0a00", shadow: "#0c0505" },
+  { name: "Neon", primary: "#ff5cf0", outline: "#1c032f", shadow: "#0b0016" },
+  { name: "Ice", primary: "#8ae3ff", outline: "#0f3a55", shadow: "#04121f" },
+  { name: "Sunset", primary: "#ffd166", outline: "#743c00", shadow: "#2d1100" },
+  { name: "Mono", primary: "#ffffff", outline: "#000000", shadow: "#000000" },
+];
+
+const alignmentPresets = [
+  { key: "top", label: "Ust", alignment: 8, margin: 90 },
+  { key: "middle", label: "Orta", alignment: 5, margin: 40 },
+  { key: "bottom", label: "Alt", alignment: 2, margin: 60 },
+];
+
+const resolveFontStack = (fontName = "Inter") => {
+  const cleaned = fontName.trim();
+  const alt1 = cleaned.replace(/\s+/g, "-");
+  const alt2 = cleaned.replace(/-/g, " ");
+  const stack = [cleaned, alt1, alt2, "Inter"].filter(
+    (v, idx, arr) => v && arr.indexOf(v) === idx
+  );
+  return stack.join(", ");
+};
+
+const detectPreviewMode = (preset) => {
+  const id = preset?.id || "";
+  if (id.includes("group") || id.includes("sentence") || id.includes("box")) {
+    return "group";
+  }
+  return "word";
+};
 
 // Helper: Convert ASS color (&HAABBGGRR) to Hex (#RRGGBB)
 const assToHex = (ass) => {
@@ -45,6 +93,28 @@ export default function PresetEditor() {
     const [loading, setLoading] = useState(false);
     const [aasCatalog, setAasCatalog] = useState("");
     const [showImportModal, setShowImportModal] = useState(false);
+    const [fontOptions, setFontOptions] = useState([]);
+    const [showFontModal, setShowFontModal] = useState(false);
+    const [fontSearch, setFontSearch] = useState("");
+    const [showPaletteModal, setShowPaletteModal] = useState(false);
+    const [previewMode, setPreviewMode] = useState("word");
+    const [aasList, setAasList] = useState([]);
+    const [aasSearch, setAasSearch] = useState("");
+    const [selectedAasPath, setSelectedAasPath] = useState("");
+    const [importingStyle, setImportingStyle] = useState(false);
+    const [importError, setImportError] = useState("");
+    const filteredFonts = useMemo(() => {
+        if (!fontSearch) return fontOptions;
+        return fontOptions.filter((f) =>
+            f.toLowerCase().includes(fontSearch.toLowerCase())
+        );
+    }, [fontOptions, fontSearch]);
+    const filteredAas = useMemo(() => {
+        if (!aasSearch) return aasList;
+        return aasList.filter((p) =>
+            p.name.toLowerCase().includes(aasSearch.toLowerCase())
+        );
+    }, [aasList, aasSearch]);
 
     // Preview States
     const [previewBackground, setPreviewBackground] = useState('gradient'); // gradient, white, black, green, image
@@ -53,6 +123,8 @@ export default function PresetEditor() {
     // Fetch presets on mount
     useEffect(() => {
         fetchPresets();
+        fetchFontList();
+        fetchAasList();
         fetch("/AASPRESETS_CATALOG.txt")
             .then(res => res.text())
             .then(text => setAasCatalog(text))
@@ -74,9 +146,34 @@ export default function PresetEditor() {
         }
     };
 
+    const fetchFontList = async () => {
+        try {
+            const res = await axios.get(`${API_BASE}/fonts`);
+            const fonts = res.data?.fonts || [];
+            setFontOptions(fonts.sort((a, b) => a.localeCompare(b)));
+        } catch (err) {
+            console.error("Failed to fetch fonts", err);
+        }
+    };
+
+    const fetchAasList = async () => {
+        try {
+            const res = await axios.get(`${API_BASE}/aaspresets/list`);
+            const list = res.data || [];
+            setAasList(list);
+            if (list.length && !selectedAasPath) {
+                setSelectedAasPath(list[0].path);
+            }
+        } catch (err) {
+            console.error("Failed to load aas presets", err);
+        }
+    };
+
     const selectPreset = (preset) => {
+        if (!preset) return;
         setSelectedPresetId(preset.id);
         setEditedPreset(JSON.parse(JSON.stringify(preset))); // Deep copy
+        setPreviewMode(detectPreviewMode(preset));
     };
 
     const handleChange = (key, value) => {
@@ -136,10 +233,58 @@ export default function PresetEditor() {
         }
     };
 
+    const handleFontPick = (fontName) => {
+        if (!fontName) return;
+        setEditedPreset(prev => ({ ...prev, font: fontName }));
+        setShowFontModal(false);
+    };
+
+    const applyPalette = (palette) => {
+        setEditedPreset(prev => ({
+            ...prev,
+            primary_color: hexToASS(palette.primary),
+            outline_color: hexToASS(palette.outline),
+            shadow_color: hexToASS(palette.shadow),
+        }));
+        setShowPaletteModal(false);
+    };
+
+    const handlePositionSelect = (pos) => {
+        setEditedPreset(prev => ({
+            ...prev,
+            alignment: pos.alignment,
+            margin_v: pos.margin,
+        }));
+    };
+
+    const handleImportStyle = async () => {
+        if (!selectedAasPath) {
+            setImportError("Lutfen bir AAS dosyasi secin.");
+            return;
+        }
+        setImportingStyle(true);
+        setImportError("");
+        try {
+            const res = await axios.post(`${API_BASE}/aaspresets/extract-style`, { path: selectedAasPath });
+            const imported = res.data || {};
+            setEditedPreset(prev => {
+                const merged = { ...prev, ...imported };
+                setPreviewMode(detectPreviewMode(merged));
+                return merged;
+            });
+            setImportError("Stil uygulandi. Kaydetmeyi unutma.");
+        } catch (err) {
+            console.error("Import failed", err);
+            setImportError("Stil cekilemedi. Loglari kontrol et.");
+        } finally {
+            setImportingStyle(false);
+        }
+    };
+
     // --- PREVIEW COMPONENT ---
-    const LivePreview = ({ style, background }) => {
+    const LivePreview = ({ style, background, mode }) => {
         const containerStyle = {
-            fontFamily: style.font || 'Arial',
+            fontFamily: resolveFontStack(style.font || 'Arial'),
             fontSize: `${style.font_size || 60}px`,
             fontWeight: style.bold ? 'bold' : 'normal',
             fontStyle: style.italic ? 'italic' : 'normal',
@@ -174,10 +319,20 @@ export default function PresetEditor() {
             color: assToHex(style.secondary_color),
             transform: `scale(${style.active_scale ? style.active_scale / 100 : 1.1})`,
             backgroundColor: style.active_bg_color ? assToHex(style.active_bg_color) : 'transparent',
-            padding: style.active_bg_color ? '0 10px' : '0',
+            padding: style.active_bg_color ? '6px 12px' : '0 6px',
             borderRadius: '8px',
             transition: 'all 0.3s ease',
-            display: 'inline-block'
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            lineHeight: 1.1
+        };
+        const passiveStyle = {
+            opacity: 0.55,
+            color: assToHex(style.primary_color),
+            textShadow: containerStyle.textShadow,
+            fontSize: `${(style.font_size || 60) * 0.62}px`,
+            fontFamily: containerStyle.fontFamily,
         };
 
         return (
@@ -189,9 +344,18 @@ export default function PresetEditor() {
                     </div>
                 )}
 
-                <span className="opacity-70">Normal</span>
-                <span style={activeWordStyle}>ACTIVE</span>
-                <span className="opacity-70">Normal</span>
+                {mode === 'group' ? (
+                    <div className="w-full flex flex-col gap-2 items-center text-center px-4">
+                        <span style={passiveStyle}>Grup stili ornek satir</span>
+                        <span style={activeWordStyle}>AKTIF KELIME</span>
+                        <span style={passiveStyle}>Kapanis satiri</span>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-2 items-center">
+                        <span style={activeWordStyle}>AKTIF</span>
+                        <span className="text-[11px] text-slate-200/70 tracking-wide">Kelime modu</span>
+                    </div>
+                )}
             </div>
         );
     };
@@ -201,7 +365,7 @@ export default function PresetEditor() {
     return (
         <div className="min-h-screen bg-[#0f172a] text-white flex">
             {/* SIDEBAR: Preset List */}
-            <div className="w-64 bg-[#1e293b] border-r border-white/10 flex flex-col">
+            <div className="w-64 bg-[#1e293b] border-r border-white/10 flex flex-col max-h-[calc(100vh-20px)]">
                 <div className="p-4 border-b border-white/10 flex justify-between items-center">
                     <h2 className="font-bold text-emerald-400">Presets</h2>
                     <button onClick={handleCreateNew} className="p-1 hover:bg-white/10 rounded transition">
@@ -229,6 +393,13 @@ export default function PresetEditor() {
                 {/* HEADER */}
                 <header className="h-16 bg-[#1e293b] border-b border-white/10 flex items-center justify-between px-6">
                     <div className="flex items-center gap-4">
+                        <Link
+                            to="/"
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-slate-200 hover:text-white hover:border-emerald-400/60 transition"
+                        >
+                            <ChevronLeft size={16} />
+                            Ana ekrana don
+                        </Link>
                         <h1 className="text-xl font-bold">{editedPreset.id}</h1>
                         <span className="px-2 py-0.5 bg-slate-700 rounded text-xs text-slate-300">ID: {editedPreset.id}</span>
                     </div>
@@ -265,12 +436,20 @@ export default function PresetEditor() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="text-xs text-slate-400 mb-1 block">Font Family</label>
-                                        <input
-                                            type="text"
-                                            value={editedPreset.font}
-                                            onChange={(e) => handleChange('font', e.target.value)}
-                                            className="w-full bg-slate-800 border border-white/10 rounded px-3 py-2 text-sm focus:border-emerald-500 outline-none"
-                                        />
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={editedPreset.font}
+                                                onChange={(e) => handleChange('font', e.target.value)}
+                                                className="w-full bg-slate-800 border border-white/10 rounded px-3 py-2 text-sm focus:border-emerald-500 outline-none"
+                                            />
+                                            <button
+                                                onClick={() => setShowFontModal(true)}
+                                                className="px-3 bg-slate-800 border border-white/10 rounded text-xs text-slate-200 hover:border-emerald-400/60 transition"
+                                            >
+                                                Liste
+                                            </button>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="text-xs text-slate-400 mb-1 block">Font Size (px)</label>
@@ -320,6 +499,19 @@ export default function PresetEditor() {
                                                 <span className="text-xs font-mono opacity-50">{assToHex(editedPreset.shadow_color)}</span>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div className="col-span-2 flex flex-wrap gap-2 mt-3">
+                                        {colorPalettes.map((p) => (
+                                            <button
+                                                key={p.name}
+                                                onClick={() => applyPalette(p)}
+                                                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/10 text-[11px] bg-slate-800/80 hover:border-emerald-400/50 transition"
+                                            >
+                                                <span className="w-4 h-4 rounded-full" style={{ background: p.primary }} />
+                                                <span className="w-4 h-4 rounded-full border" style={{ background: p.outline }} />
+                                                {p.name}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             </section>
@@ -377,39 +569,25 @@ export default function PresetEditor() {
                             <section className="bg-[#1e293b] rounded-xl border border-white/10 p-5">
                                 <div className="flex items-center gap-2 mb-4 text-slate-300 border-b border-white/5 pb-2">
                                     <Layout size={18} />
-                                    <h3 className="font-semibold">Layout & Position</h3>
+                                    <h3 className="font-semibold">Konum</h3>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-xs text-slate-400 mb-1 block">Alignment (Numpad)</label>
-                                        <div className="grid grid-cols-3 gap-1 w-24">
-                                            {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(num => (
-                                                <button
-                                                    key={num}
-                                                    onClick={() => handleChange('alignment', num)}
-                                                    className={`h-8 rounded border ${editedPreset.alignment === num
-                                                            ? 'bg-emerald-500 border-emerald-400 text-white'
-                                                            : 'bg-slate-800 border-white/10 text-slate-500 hover:bg-slate-700'
-                                                        }`}
-                                                >
-                                                    {num}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="text-xs text-slate-400 mb-1 block">Vertical Margin</label>
-                                            <input
-                                                type="range" min="0" max="500"
-                                                value={editedPreset.margin_v}
-                                                onChange={(e) => handleChange('margin_v', parseInt(e.target.value))}
-                                                className="w-full accent-emerald-500"
-                                            />
-                                            <span className="text-xs text-right block">{editedPreset.margin_v}px</span>
-                                        </div>
-                                    </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {alignmentPresets.map((pos) => (
+                                        <button
+                                            key={pos.key}
+                                            onClick={() => handlePositionSelect(pos)}
+                                            className={`flex items-center justify-center gap-2 py-3 rounded-lg border text-sm font-semibold transition-all ${editedPreset.alignment === pos.alignment
+                                                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50 shadow-inner shadow-emerald-500/20'
+                                                    : 'bg-slate-800 border-white/10 text-slate-300 hover:border-emerald-400/40 hover:text-white'
+                                                }`}
+                                        >
+                                            {pos.label}
+                                        </button>
+                                    ))}
                                 </div>
+                                <p className="text-xs text-slate-500 mt-3">
+                                    Margin {editedPreset.margin_v || 0}px olarak otomatik ayarlandi; detay ayar gerekmiyorsa bu bolum sade kaldi.
+                                </p>
                             </section>
 
                             {/* 4. IMPORT FROM AAS */}
@@ -460,6 +638,23 @@ export default function PresetEditor() {
                                                 <ImageIcon size={12} />
                                             </button>
                                         </div>
+                                        <div className="flex items-center gap-1 text-[11px]">
+                                            <span className="text-slate-400">Ornek</span>
+                                            <div className="bg-slate-800 border border-white/10 rounded-full p-1 flex gap-1">
+                                                {["word", "group"].map((mode) => (
+                                                    <button
+                                                        key={mode}
+                                                        onClick={() => setPreviewMode(mode)}
+                                                        className={`px-2 py-1 rounded-full text-xs transition ${previewMode === mode
+                                                                ? "bg-emerald-500 text-white shadow-emerald-500/30 shadow"
+                                                                : "text-slate-300 hover:text-white"
+                                                            }`}
+                                                    >
+                                                        {mode === "word" ? "Kelime" : "Grup"}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                         <button
                                             onClick={handleCapture}
                                             className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white transition"
@@ -469,26 +664,34 @@ export default function PresetEditor() {
                                         </button>
                                     </div>
 
-                                    <div className="aspect-video w-full bg-black rounded-lg overflow-hidden relative">
-                                        <LivePreview style={editedPreset} background={previewBackground} />
+                                    <div
+                                        className="w-full bg-black rounded-lg overflow-hidden relative border border-white/10"
+                                        style={{ aspectRatio: "9 / 16", minHeight: "520px", maxHeight: "78vh" }}
+                                    >
+                                        <LivePreview style={editedPreset} background={previewBackground} mode={previewMode} />
                                     </div>
                                     <div className="p-3 text-center">
                                         <p className="text-xs text-slate-500">
-                                            * This preview simulates the Active/Passive style.
-                                            Actual animation depends on the selected preset logic.
+                                            * 9:16 telefona yakin oranda aktif/pasif renkleri gosterir. Animasyon mantigi secilen preset tarafindan belirlenecek.
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Quick Actions */}
                                 <div className="mt-6 grid grid-cols-2 gap-4">
-                                    <button className="p-4 bg-[#1e293b] hover:bg-slate-800 border border-white/10 rounded-xl flex flex-col items-center gap-2 transition group">
+                                    <button
+                                        onClick={() => setShowFontModal(true)}
+                                        className="p-4 bg-[#1e293b] hover:bg-slate-800 border border-white/10 rounded-xl flex flex-col items-center gap-2 transition group"
+                                    >
                                         <MousePointer2 className="text-emerald-400 group-hover:scale-110 transition" />
-                                        <span className="text-sm font-medium">Select Font</span>
+                                        <span className="text-sm font-medium">Font Sec</span>
                                     </button>
-                                    <button className="p-4 bg-[#1e293b] hover:bg-slate-800 border border-white/10 rounded-xl flex flex-col items-center gap-2 transition group">
+                                    <button
+                                        onClick={() => setShowPaletteModal(true)}
+                                        className="p-4 bg-[#1e293b] hover:bg-slate-800 border border-white/10 rounded-xl flex flex-col items-center gap-2 transition group"
+                                    >
                                         <Palette className="text-purple-400 group-hover:scale-110 transition" />
-                                        <span className="text-sm font-medium">Color Palette</span>
+                                        <span className="text-sm font-medium">Renk Paleti</span>
                                     </button>
                                 </div>
                             </div>
@@ -507,18 +710,174 @@ export default function PresetEditor() {
                         >
                             <motion.div
                                 initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-                                className="bg-[#1e293b] w-full max-w-2xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+                                className="bg-[#1e293b] w-full max-w-4xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[82vh]"
                                 onClick={e => e.stopPropagation()}
                             >
                                 <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                                    <h3 className="text-xl font-bold">Import from Catalog</h3>
-                                    <button onClick={() => setShowImportModal(false)} className="text-slate-400 hover:text-white">Close</button>
+                                    <div className="flex items-center gap-2">
+                                        <Wand2 className="text-emerald-400" />
+                                        <h3 className="text-xl font-bold">AAS Stil Iceri Aktar</h3>
+                                    </div>
+                                    <button onClick={() => setShowImportModal(false)} className="text-slate-400 hover:text-white">Kapat</button>
                                 </div>
-                                <div className="p-6 overflow-y-auto flex-1 font-mono text-xs text-slate-300 whitespace-pre-wrap">
-                                    {aasCatalog || "Loading catalog..."}
+                                <div className="p-6 overflow-hidden flex-1 grid grid-cols-12 gap-4">
+                                    <div className="col-span-12 md:col-span-5 bg-slate-900/60 border border-white/5 rounded-xl p-3 flex flex-col">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <ListFilter size={16} className="text-slate-300" />
+                                            <span className="text-sm text-slate-200">AAS Dosyalari</span>
+                                        </div>
+                                        <div className="relative mb-3">
+                                            <Search className="w-4 h-4 absolute left-2 top-2.5 text-slate-500" />
+                                            <input
+                                                value={aasSearch}
+                                                onChange={(e) => setAasSearch(e.target.value)}
+                                                placeholder="Ara..."
+                                                className="w-full bg-slate-800/80 rounded-lg pl-8 pr-3 py-2 text-sm border border-white/10 focus:border-emerald-400/50 outline-none"
+                                            />
+                                        </div>
+                                        <div className="flex-1 overflow-y-auto space-y-1 pr-1">
+                                            {filteredAas.map((file) => (
+                                                <button
+                                                    key={file.path}
+                                                    onClick={() => setSelectedAasPath(file.path)}
+                                                    className={`w-full text-left px-3 py-2 rounded-lg border transition text-sm ${selectedAasPath === file.path
+                                                            ? "border-emerald-400/60 bg-emerald-500/10 text-emerald-200"
+                                                            : "border-white/5 bg-white/5 hover:border-emerald-400/40 text-slate-200"
+                                                        }`}
+                                                >
+                                                    <div className="font-medium">{file.name}</div>
+                                                    <div className="text-[11px] text-slate-400 break-all">{file.path}</div>
+                                                </button>
+                                            ))}
+                                            {!filteredAas.length && (
+                                                <div className="text-slate-400 text-sm">Dosya bulunamadi.</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="col-span-12 md:col-span-7 flex flex-col gap-3">
+                                        <div className="bg-slate-900/60 border border-white/5 rounded-xl p-4 space-y-3 flex-1">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div>
+                                                    <p className="text-sm text-slate-200">Secilen stili mevcut presete uygula.</p>
+                                                    <p className="text-xs text-slate-400">Renk ve fontlar direk kopyalanir; Kaydet ile kalici olur.</p>
+                                                </div>
+                                                <button
+                                                    onClick={handleImportStyle}
+                                                    disabled={importingStyle || !selectedAasPath}
+                                                    className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed"
+                                                >
+                                                    {importingStyle ? "Aktariliyor..." : "Stili uygula"}
+                                                </button>
+                                            </div>
+                                            {importError && (
+                                                <div className="text-xs px-3 py-2 rounded-md border border-white/10 bg-white/5 text-emerald-200">
+                                                    {importError}
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-h-[160px] bg-slate-950/50 border border-white/5 rounded-lg p-3 overflow-y-auto font-mono text-[11px] text-slate-300 whitespace-pre-wrap">
+                                                {aasCatalog || "Catalog yukleniyor..."}
+                                            </div>
+                                        </div>
+                                        <div className="text-[11px] text-slate-400 bg-slate-900/50 border border-white/10 rounded-lg p-3">
+                                            Not: Once listeden bir stil secin, ardından "Stili uygula" ile aktif presete aktarip sag ustten kaydedin.
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="p-4 bg-slate-900/50 border-t border-white/10 text-xs text-slate-500 text-center">
-                                    Copy a style block from above and paste it into a new preset manually (Auto-import coming soon)
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* FONT MODAL */}
+                <AnimatePresence>
+                    {showFontModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setShowFontModal(false)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                                className="bg-[#1e293b] w-full max-w-4xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[82vh]"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className="p-5 border-b border-white/10 flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <MousePointer2 className="text-emerald-400" />
+                                        <h3 className="text-lg font-bold">Font Sec</h3>
+                                    </div>
+                                    <button onClick={() => setShowFontModal(false)} className="text-slate-400 hover:text-white text-sm">Kapat</button>
+                                </div>
+                                <div className="p-5 flex flex-col gap-4 flex-1 overflow-hidden">
+                                    <div className="relative">
+                                        <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+                                        <input
+                                            value={fontSearch}
+                                            onChange={(e) => setFontSearch(e.target.value)}
+                                            placeholder="Font ara..."
+                                            className="w-full bg-slate-800/80 rounded-lg pl-9 pr-3 py-2.5 text-sm border border-white/10 focus:border-emerald-400/50 outline-none"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 overflow-y-auto pr-1 flex-1">
+                                        {(filteredFonts.length ? filteredFonts : ["Poppins", "Inter", "Montserrat"]).map((font) => (
+                                            <button
+                                                key={font}
+                                                onClick={() => handleFontPick(font)}
+                                                className={`w-full text-left p-3 rounded-lg border transition ${editedPreset.font === font
+                                                        ? "border-emerald-400/70 bg-emerald-500/10"
+                                                        : "border-white/10 bg-slate-900/50 hover:border-emerald-400/40"
+                                                    }`}
+                                            >
+                                                <div className="text-[11px] text-slate-400 mb-1"> {font}</div>
+                                                <div style={{ fontFamily: resolveFontStack(font) }} className="text-lg text-slate-100">
+                                                    Aa Bb Cc
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="text-[11px] text-slate-400">Secenekler backend /api/fonts listesinden gelir; secim aninda onizleme guncellenir.</p>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* PALETTE MODAL */}
+                <AnimatePresence>
+                    {showPaletteModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setShowPaletteModal(false)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                                className="bg-[#1e293b] w-full max-w-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className="p-5 border-b border-white/10 flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <Palette className="text-purple-400" />
+                                        <h3 className="text-lg font-bold">Renk Paletleri</h3>
+                                    </div>
+                                    <button onClick={() => setShowPaletteModal(false)} className="text-slate-400 hover:text-white text-sm">Kapat</button>
+                                </div>
+                                <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {colorPalettes.map((p) => (
+                                        <button
+                                            key={p.name}
+                                            onClick={() => applyPalette(p)}
+                                            className="p-4 rounded-xl border border-white/10 bg-slate-900/60 hover:border-emerald-400/50 text-left transition"
+                                        >
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="w-5 h-5 rounded-full" style={{ background: p.primary }} />
+                                                <span className="w-5 h-5 rounded-full border" style={{ background: p.outline }} />
+                                                <span className="w-5 h-5 rounded-full border border-slate-700" style={{ background: p.shadow }} />
+                                            </div>
+                                            <div className="text-sm font-semibold text-slate-100">{p.name}</div>
+                                            <div className="text-[11px] text-slate-400">Primary: {p.primary} • Outline: {p.outline}</div>
+                                        </button>
+                                    ))}
                                 </div>
                             </motion.div>
                         </motion.div>

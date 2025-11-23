@@ -57,7 +57,7 @@ PRESET_STYLE_MAP = {
         "shear": 0,
         "scale_x": 100,
         "scale_y": 100,
-        "alignment": 2,
+        "alignment": 8,
         "margin_v": 40,
         "margin_l": 10,
         "margin_r": 10,
@@ -779,6 +779,21 @@ async def transcribe(
     )
 
 
+@app.get("/api/fonts")
+async def list_fonts():
+    """
+    Returns a list of all available font names from the fonts directory.
+    """
+    try:
+        font_files = list(FONTS_DIR.glob("*.ttf")) + list(FONTS_DIR.glob("*.otf"))
+        # Extract font names without extensions and remove duplicates
+        font_names = sorted(set(f.stem for f in font_files))
+        return JSONResponse({"fonts": font_names})
+    except Exception as e:
+        return JSONResponse({"fonts": [], "error": str(e)}, status_code=500)
+
+
+
 @app.post("/api/export")
 async def export_subtitled_video(
     background_tasks: BackgroundTasks = None,
@@ -883,8 +898,23 @@ async def get_presets():
     """
     try:
         presets_list = []
+        # Default color values for presets missing them
+        defaults = {
+            "primary_color": "&H00FFFFFF",
+            "secondary_color": "&H0000FFFF",
+            "outline_color": "&H00000000",
+            "shadow_color": "&H00000000",
+            "back_color": "&H00000000",
+            "alignment": 2,
+            "margin_v": 40,
+            "bold": 1,
+            "italic": 0
+        }
+        
         for preset_id, preset_data in PRESET_STYLE_MAP.items():
-            presets_list.append(preset_data)
+            # Merge defaults with preset data (preset data takes precedence)
+            complete_preset = {**defaults, **preset_data}
+            presets_list.append(complete_preset)
         return JSONResponse(content=presets_list)
     except Exception as e:
         print(f"Get Presets Error: {e}")
