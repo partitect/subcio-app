@@ -20,6 +20,20 @@ const assToHex = (ass?: string) => {
   const r = padded.slice(6, 8);
   return `#${r}${g}${b}`;
 };
+const assToCssColor = (val?: string, fallback = "#ffffff") => {
+  if (!val) return fallback;
+  if (val.startsWith("#") && val.length === 7) return val;
+  if (val.startsWith("&H") || val.startsWith("&h")) {
+    const clean = val.replace("&H", "").replace("&h", "").replace(/&/g, "").padStart(8, "0");
+    const a = parseInt(clean.slice(0, 2), 16);
+    const b = parseInt(clean.slice(2, 4), 16);
+    const g = parseInt(clean.slice(4, 6), 16);
+    const r = parseInt(clean.slice(6, 8), 16);
+    const alpha = 1 - a / 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(3)})`;
+  }
+  return fallback;
+};
 const hexToAss = (hex?: string) => {
   if (!hex) return "&H00FFFFFF";
   if (hex.startsWith("&H") || hex.startsWith("&h")) return hex;
@@ -118,7 +132,21 @@ export default function EditorPage() {
     [words, currentTime]
   );
 
-  const previewAlignment = "center";
+  const alignProps = useMemo(() => {
+    const align = style.alignment || 2;
+    const map: Record<number, { justify: string; align: string; text: "left" | "center" | "right" }> = {
+      1: { justify: "flex-end", align: "flex-start", text: "left" },
+      2: { justify: "flex-end", align: "center", text: "center" },
+      3: { justify: "flex-end", align: "flex-end", text: "right" },
+      4: { justify: "center", align: "flex-start", text: "left" },
+      5: { justify: "center", align: "center", text: "center" },
+      6: { justify: "center", align: "flex-end", text: "right" },
+      7: { justify: "flex-start", align: "flex-start", text: "left" },
+      8: { justify: "flex-start", align: "center", text: "center" },
+      9: { justify: "flex-start", align: "flex-end", text: "right" },
+    };
+    return map[align] || map[2];
+  }, [style.alignment]);
 
   const previewFontSize = useMemo(
     () => Math.max(12, Math.round((style.font_size || 56) * previewScale)),
@@ -139,10 +167,10 @@ export default function EditorPage() {
 
   const previewTextShadow = useMemo(() => {
     const outlineSize = Math.max(style.border || 0, 0);
-    const outlineColor = (style.outline_color as string) || "#000000";
-    const shadowBlur = Math.max((style.shadow_blur ?? style.blur) || 0, 0);
+    const outlineColor = assToCssColor(style.outline_color as string, "#000000");
+    const shadowBlur = Math.max(style.shadow_blur || 0, style.blur || 0, 0);
     const shadowOffset = Math.max(style.shadow || 0, 0);
-    const shadowColor = (style.shadow_color as string) || "rgba(0,0,0,0.4)";
+    const shadowColor = assToCssColor(style.shadow_color as string, "rgba(0,0,0,0.4)");
 
     const outlineShadows =
       outlineSize > 0
@@ -227,6 +255,11 @@ export default function EditorPage() {
       })
       .catch((err) => console.error("Failed to load fonts", err));
   }, []);
+
+  useEffect(() => {
+    if (!fontOptions.length) return;
+    setStyle((prev) => ({ ...prev, font: normalizeFontName(fontOptions, prev.font) }));
+  }, [fontOptions]);
 
   useEffect(() => {
     if (!words.length) return;
@@ -857,20 +890,27 @@ export default function EditorPage() {
                   className="bg-white rounded-xl border border-slate-200 shadow-inner min-h-[180px] relative overflow-hidden"
                 >
                   <div
-                    className="absolute inset-0 flex justify-center px-6"
+                    className="absolute inset-0 flex px-6"
                     style={{
-                      alignItems: previewAlignment,
+                      justifyContent: alignProps.justify,
+                      alignItems: alignProps.align,
                       flexDirection: "column",
                       paddingBottom: `${Math.max(style.margin_v || 0, 0)}px`,
                       paddingTop: `${Math.max(style.margin_v || 0, 0)}px`,
+                      paddingLeft: `${Math.max(style.margin_l || 0, 0)}px`,
+                      paddingRight: `${Math.max(style.margin_r || 0, 0)}px`,
                     }}
                   >
                     <div
-                      className="text-center pb-6 px-3 rounded-md"
+                      className="pb-6 px-3 rounded-md"
                       style={{
-                        backgroundColor: (style.back_color as string) || "transparent",
+                        backgroundColor: (() => {
+                          const c = assToCssColor(style.back_color as string, "transparent");
+                          return c.includes("rgba") && c.endsWith(", 0)") ? "transparent" : c;
+                        })(),
                         display: "inline-block",
                         opacity: (style.opacity ?? 100) / 100,
+                        textAlign: alignProps.text,
                       }}
                     >
                       <p
@@ -879,15 +919,20 @@ export default function EditorPage() {
                           fontFamily: style.font || "Inter",
                           fontSize: `${previewFontSize}px`,
                           lineHeight: 1.05,
-                          color: (style.primary_color as string) || "#ffffff",
+                          color: assToCssColor(style.primary_color as string, "#ffffff"),
                           backgroundImage:
                             style.secondary_color && style.secondary_color !== style.primary_color
-                              ? `linear-gradient(180deg, ${style.primary_color}, ${style.secondary_color})`
+                              ? `linear-gradient(180deg, ${assToCssColor(style.primary_color as string)}, ${assToCssColor(
+                                  style.secondary_color as string
+                                )})`
                               : undefined,
-                          WebkitBackgroundClip: style.secondary_color && style.secondary_color !== style.primary_color ? "text" : undefined,
+                          WebkitBackgroundClip:
+                            style.secondary_color && style.secondary_color !== style.primary_color ? "text" : undefined,
                           WebkitTextFillColor:
-                            style.secondary_color && style.secondary_color !== style.primary_color ? "transparent" : (style.primary_color as string) || "#ffffff",
-                          WebkitTextStroke: `${Math.max(style.border || 0, 0)}px ${style.outline_color || "#000"}`,
+                            style.secondary_color && style.secondary_color !== style.primary_color
+                              ? "transparent"
+                              : assToCssColor(style.primary_color as string, "#ffffff"),
+                          WebkitTextStroke: `${Math.max(style.border || 0, 0)}px ${assToCssColor(style.outline_color as string, "#000")}`,
                           textShadow: previewTextShadow,
                           fontWeight: style.bold ? 800 : 700,
                           fontStyle: style.italic ? "italic" : "normal",
@@ -895,13 +940,17 @@ export default function EditorPage() {
                           WebkitFontSmoothing: "antialiased",
                           MozOsxFontSmoothing: "grayscale",
                           textRendering: "optimizeLegibility",
+                          textAlign: alignProps.text,
                           whiteSpace: "nowrap",
                           overflow: "visible",
                           textOverflow: "clip",
-                          textDecoration: `${style.underline ? "underline" : "none"} ${style.strikeout ? "line-through" : ""}`.trim(),
-                          transform: `rotate(${style.rotation || 0}deg) scale(${(style.scale_x || 100) / 100}, ${(style.scale_y || 100) / 100}) skew(${style.shear || 0}deg)`,
+                          textDecoration: `${style.underline ? "underline" : "none"} ${
+                            style.strikeout ? "line-through" : ""
+                          }`.trim(),
+                          transform: `rotate(${style.rotation || 0}deg) scale(${(style.scale_x || 100) / 100}, ${
+                            (style.scale_y || 100) / 100
+                          }) skew(${style.shear || 0}deg)`,
                           display: "inline-block",
-                          filter: style.blur ? `blur(${style.blur}px)` : undefined,
                         }}
                       >
                         {previewText}
