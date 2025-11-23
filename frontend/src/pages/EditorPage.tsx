@@ -261,13 +261,13 @@ export default function EditorPage() {
           >
             Back Home
           </button>
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold shadow-lg shadow-emerald-500/30 disabled:opacity-40"
-          >
-            {exporting ? "Rendering..." : "Render & Export"}
-          </button>
+           <button
+          onClick={() => setShowRenderModal(true)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10"
+        >
+          <Download className="w-4 h-4" />
+          Render & Export
+        </button>
         </div>
       </header>
 
@@ -304,7 +304,7 @@ export default function EditorPage() {
             {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} />}
           </div>
 
-          <div className="mt-4 bg-white/5 border-t border-white/10 px-4 py-3 rounded-xl">
+          <div className="ml-2 mr-2 bg-white/5 border-t border-white/10 px-4 py-3 rounded-xl">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Play className="w-4 h-4 text-emerald-300" />
@@ -515,28 +515,7 @@ export default function EditorPage() {
         </aside>
       </main>
 
-      <footer className="px-6 py-3 border-t border-white/10 flex items-center justify-between bg-black/30 backdrop-blur">
-        <div className="flex items-center gap-3">
-          <SlidersHorizontal className="w-4 h-4 text-white/50" />
-          <label className="text-sm text-white/70">Resolution</label>
-          <select
-            value={resolution}
-            onChange={(e) => setResolution(e.target.value)}
-            className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1"
-          >
-            <option value="1080p">1080p</option>
-            <option value="4k">4K</option>
-            <option value="original">Original</option>
-          </select>
-        </div>
-        <button
-          onClick={() => setShowRenderModal(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10"
-        >
-          <Download className="w-4 h-4" />
-          Render & Export
-        </button>
-      </footer>
+      
 
       {showRenderModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-4">
