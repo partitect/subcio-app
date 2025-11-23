@@ -24,15 +24,11 @@ export default function JSOOverlay({
     }
 
     const defaultFonts = [
-      "/fonts/PressStart2P.ttf",
-      "/fonts/komika.ttf",
-      "/fonts/Brown Beige.ttf",
-      "/fonts/Brume-Regular.ttf",
-      "/fonts/OverHeat-Regular.ttf",
-      "/fonts/Monigue.ttf",
-      "/fonts/Oslla.ttf",
-      "/fonts/Tallica-Regular.ttf",
-      "/fonts/Sink.ttf",
+      "/fonts/Bungee-Regular.ttf",
+      "/fonts/RubikSprayPaint-Regular.ttf",
+      "/fonts/LuckiestGuy-Regular.ttf",
+      "/fonts/Grandstander-ExtraBold.ttf",
+      "/fonts/Nunito-ExtraBold.ttf",
     ];
 
     // Initialize JASSUB

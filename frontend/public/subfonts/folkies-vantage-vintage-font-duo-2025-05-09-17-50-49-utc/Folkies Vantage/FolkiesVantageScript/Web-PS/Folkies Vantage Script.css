@@ -1,9 +1,0 @@
-/* Webfont: FolkiesVantageScript-FolkiesV */@font-face {
-    font-family: 'FolkiesVantageScript';
-    src: url('Folkies Vantage Script.woff2') format('woff2'), /* Modern Browsers */
-         url('Folkies Vantage Script.otf') format('opentype'); /* Safari, Android, iOS */
-             font-style: normal;
-    font-weight: normal;
-    text-rendering: optimizeLegibility;
-}
-

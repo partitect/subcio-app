@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 import uuid
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
@@ -38,10 +39,67 @@ FONTS_DIR.mkdir(parents=True, exist_ok=True)
 PROJECTS_DIR = Path(__file__).resolve().parent / "projects"
 PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
 
+
+_WEIGHT_PATTERNS = [
+    r"extrabold", r"extra-bold", r"extra bold", r"extrablack", r"ultrabold", r"ultra-bold",
+    r"bold", r"semibold", r"semi-bold", r"semi bold", r"black", r"heavy",
+    r"regular", r"book", r"medium", r"light", r"thin", r"hairline", r"extralight", r"extra light", r"ultralight",
+]
+_WIDTH_PATTERNS = [
+    r"expanded", r"condensed", r"compressed", r"extended", r"narrow", r"wide",
+    r"semi\s*expanded", r"semi\s*condensed", r"semi\s*compressed",
+    r"ultraexpanded", r"extraexpanded", r"ultracondensed", r"extracondensed",
+    r"\d+pt",
+]
+
+
+def _base_font_name(stem: str) -> str:
+    base = stem.replace("_", " ").replace(",", "-")
+    for pat in _WIDTH_PATTERNS:
+        base = re.sub(pat, "", base, flags=re.I)
+    for pat in _WEIGHT_PATTERNS:
+        base = re.sub(pat, "", base, flags=re.I)
+    base = re.sub(r"italic|oblique|variablefont.*", "", base, flags=re.I)
+    base = re.sub(r"-+", " ", base)
+    base = re.sub(r"\s+", " ", base).strip()
+    return base or stem
+
+
+def sanitize_font_name_from_path(p: Path) -> tuple[str, str]:
+    """Return (display_name, filename) normalized from path."""
+    return _base_font_name(p.stem), p.name
+
+
+def load_font_name_list() -> list[dict]:
+    fonts = list(FONTS_DIR.glob("*.ttf")) + list(FONTS_DIR.glob("*.otf"))
+    entries = []
+    seen = set()
+    for f in fonts:
+        name, filename = sanitize_font_name_from_path(f)
+        if name in seen:
+            continue
+        seen.add(name)
+        entries.append({"name": name, "file": filename})
+    return sorted(entries, key=lambda x: x["name"])
+
+
+FONT_ENTRIES: list[dict] = load_font_name_list()
+FONT_NAME_LIST: list[str] = [e["name"] for e in FONT_ENTRIES]
+
+
+def pick_font_for_preset(preset_id: str) -> str:
+    """Deterministically pick a font for a preset id so assignments are stable."""
+    if not FONT_NAME_LIST:
+        return "Sans"
+    digest = hashlib.sha256(preset_id.encode("utf-8")).digest()
+    idx = int.from_bytes(digest[:4], "big") % len(FONT_NAME_LIST)
+    return FONT_NAME_LIST[idx]
+
+
 PRESET_STYLE_MAP = {
     "fire-storm": {
-        "font": "Brown Beige",
-        "primary_color": "&H00006DFF",
+        "font": "OriginalSurfer-Regular",
+        "primary_color": "&H0000d5ff",
         "secondary_color": "&H00c431a4",
         "outline_color": "&H00000000",
         "shadow_color": "&H00000000",
@@ -51,7 +109,7 @@ PRESET_STYLE_MAP = {
         "italic": 0,
         "underline": 0,
         "strikeout": 0,
-        "border": 3,
+        "border": 0,
         "shadow": 3,
         "blur": 1,
         "opacity": 100,
@@ -96,18 +154,18 @@ PRESET_STYLE_MAP = {
         "id": "cyber-glitch"
     },
     "neon-pulse": {
-        "font": "Brown Beige",
+        "font": "Matemasie",
         "primary_color": "&H00F5F5F5",
         "secondary_color": "&H0000FFFF",
-        "outline_color": "&H00905190",
+        "outline_color": "&H00ff0aff",
         "shadow_color": "&H00000000",
-        "font_size": 35,
+        "font_size": 100,
         "letter_spacing": 0,
         "bold": 1,
         "italic": 0,
         "underline": 0,
         "strikeout": 0,
-        "border": 2,
+        "border": 4,
         "shadow": 0,
         "blur": 0,
         "opacity": 100,
@@ -117,7 +175,7 @@ PRESET_STYLE_MAP = {
         "shear": 0,
         "scale_x": 100,
         "scale_y": 100,
-        "alignment": 2,
+        "alignment": 5,
         "margin_v": 40,
         "margin_l": 10,
         "margin_r": 10,
@@ -273,8 +331,29 @@ PRESET_STYLE_MAP = {
     "luxury-gold": {
         "font": "Brown Beige",
         "primary_color": "&H0000D7FF",
+        "secondary_color": "&H0000FFFF",
         "outline_color": "&H00000000",
+        "shadow_color": "&H00000000",
         "font_size": 60,
+        "letter_spacing": 6,
+        "bold": 1,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "border": 8,
+        "shadow": 0,
+        "blur": 0,
+        "opacity": 100,
+        "rotation": 0,
+        "rotation_x": 0,
+        "rotation_y": 0,
+        "shear": 0,
+        "scale_x": 100,
+        "scale_y": 100,
+        "alignment": 2,
+        "margin_v": 40,
+        "margin_l": 10,
+        "margin_r": 10,
         "id": "luxury-gold"
     },
     "comic-book": {
@@ -560,6 +639,11 @@ PRESET_STYLE_MAP = {
         "id": "karaoke-sentence"
     }
 }
+
+
+# Normalize preset fonts to current pool
+for _pid, _pstyle in PRESET_STYLE_MAP.items():
+    _pstyle['font'] = pick_font_for_preset(_pid)
 
 
 def get_model(model_name: str) -> WhisperModel:
@@ -865,12 +949,29 @@ def load_project(project_id: str) -> dict:
 app = FastAPI(title="PyCaps API", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
     allow_methods=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_headers=["*"],
 )
-app.mount("/projects", StaticFiles(directory=PROJECTS_DIR), name="projects")
+projects_static = StaticFiles(directory=PROJECTS_DIR)
+projects_cors = CORSMiddleware(
+    app=projects_static,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=False,
+)
+app.mount("/projects", projects_cors, name="projects")
+
+@app.middleware("http")
+async def enforce_projects_cors(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/projects/"):
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers.setdefault("Access-Control-Allow-Headers", "*")
+        response.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
+    return response
 
 
 @app.post("/api/transcribe")
@@ -947,10 +1048,7 @@ async def list_fonts():
     Returns a list of all available font names from the fonts directory.
     """
     try:
-        font_files = list(FONTS_DIR.glob("*.ttf")) + list(FONTS_DIR.glob("*.otf"))
-        # Extract font names without extensions and remove duplicates
-        font_names = sorted(set(f.stem for f in font_files))
-        return JSONResponse({"fonts": font_names})
+        return JSONResponse({"fonts": FONT_ENTRIES})
     except Exception as e:
         return JSONResponse({"fonts": [], "error": str(e)}, status_code=500)
 
@@ -983,6 +1081,9 @@ async def export_subtitled_video(
     style_id = incoming_style.get("id")
     # Merge: preset -> incoming (UI overrides preset), then normalize colors.
     style = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
+    # Ensure font exists in current pool
+    if not style.get("font") or style.get("font") not in FONT_NAME_LIST:
+        style["font"] = pick_font_for_preset(style_id or "default")
     
     # Debug: Print style_id
     print(f"[DEBUG] Export style_id: {style_id}")
@@ -1064,6 +1165,8 @@ async def preview_ass(
         
         # Merge: preset -> incoming (UI overrides preset)
         style = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
+        if not style.get("font") or style.get("font") not in FONT_NAME_LIST:
+            style["font"] = pick_font_for_preset(style_id or "default")
 
         # ALWAYS use AdvancedRenderer
         from render_engine import AdvancedRenderer
@@ -1173,6 +1276,7 @@ async def get_presets():
         for preset_id, preset_data in PRESET_STYLE_MAP.items():
             # Merge defaults with preset data (preset data takes precedence)
             complete_preset = {**defaults, **preset_data}
+            complete_preset["font"] = pick_font_for_preset(preset_id)
             presets_list.append(complete_preset)
         return JSONResponse(content=presets_list)
     except Exception as e:

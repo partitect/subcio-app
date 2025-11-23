@@ -1,898 +1,623 @@
-/* Auto-generated font faces */
+/* Auto-generated from backend/fonts */
 @font-face {
-  font-family: '._Folkies Vantage Sans';
-  src: url('/fonts/._Folkies Vantage Sans.ttf') format('truetype');
+  font-family: "AdventPro-ExtraBold";
+  src: url("/fonts/AdventPro-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: '._Folkies Vantage Script';
-  src: url('/fonts/._Folkies Vantage Script.ttf') format('truetype');
+  font-family: "AkayaTelivigala-Regular";
+  src: url("/fonts/AkayaTelivigala-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: '._RoseMask';
-  src: url('/fonts/._RoseMask.ttf') format('truetype');
+  font-family: "Arbutus-Regular";
+  src: url("/fonts/Arbutus-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Agiven-Italic';
-  src: url('/fonts/Agiven-Italic.ttf') format('truetype');
+  font-family: "ArchitectsDaughter-Regular";
+  src: url("/fonts/ArchitectsDaughter-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Agiven-Regular';
-  src: url('/fonts/Agiven-Regular.ttf') format('truetype');
+  font-family: "Asimovian-Regular";
+  src: url("/fonts/Asimovian-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Back Wild - Swash';
-  src: url('/fonts/Back Wild - Swash.ttf') format('truetype');
+  font-family: "Atma-Bold";
+  src: url("/fonts/Atma-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Back Wild';
-  src: url('/fonts/Back Wild.ttf') format('truetype');
+  font-family: "AutourOne-Regular";
+  src: url("/fonts/AutourOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Basori';
-  src: url('/fonts/Basori.ttf') format('truetype');
+  font-family: "Bahiana-Regular";
+  src: url("/fonts/Bahiana-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Bigre';
-  src: url('/fonts/Bigre.ttf') format('truetype');
+  font-family: "Bahianita-Regular";
+  src: url("/fonts/Bahianita-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'black_default';
-  src: url('/fonts/black_default.ttf') format('truetype');
+  font-family: "Bangers-Regular";
+  src: url("/fonts/Bangers-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'black';
-  src: url('/fonts/black.ttf') format('truetype');
+  font-family: "BerkshireSwash-Regular";
+  src: url("/fonts/BerkshireSwash-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Bord Mage';
-  src: url('/fonts/Bord Mage.ttf') format('truetype');
+  font-family: "BigelowRules-Regular";
+  src: url("/fonts/BigelowRules-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Boyrun';
-  src: url('/fonts/Boyrun.ttf') format('truetype');
+  font-family: "BowlbyOneSC-Regular";
+  src: url("/fonts/BowlbyOneSC-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'BROOMSTICK';
-  src: url('/fonts/BROOMSTICK.ttf') format('truetype');
+  font-family: "BraahOne-Regular";
+  src: url("/fonts/BraahOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Brown Beige';
-  src: url('/fonts/Brown Beige.ttf') format('truetype');
+  font-family: "BricolageGrotesque-ExtraBold";
+  src: url("/fonts/BricolageGrotesque-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Brume-Italic';
-  src: url('/fonts/Brume-Italic.ttf') format('truetype');
+  font-family: "Bungee-Regular";
+  src: url("/fonts/Bungee-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Brume-Regular';
-  src: url('/fonts/Brume-Regular.ttf') format('truetype');
+  font-family: "BungeeInline-Regular";
+  src: url("/fonts/BungeeInline-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'BuhegaChocoo';
-  src: url('/fonts/BuhegaChocoo.ttf') format('truetype');
+  font-family: "CantoraOne-Regular";
+  src: url("/fonts/CantoraOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Cactus Ridge - Grunge Italic';
-  src: url('/fonts/Cactus Ridge - Grunge Italic.ttf') format('truetype');
+  font-family: "Capriola-Regular";
+  src: url("/fonts/Capriola-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Cactus Ridge - Grunge';
-  src: url('/fonts/Cactus Ridge - Grunge.ttf') format('truetype');
+  font-family: "Caudex-Bold";
+  src: url("/fonts/Caudex-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Cactus Ridge - Italic';
-  src: url('/fonts/Cactus Ridge - Italic.ttf') format('truetype');
+  font-family: "CaveatBrush-Regular";
+  src: url("/fonts/CaveatBrush-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Cactus Ridge';
-  src: url('/fonts/Cactus Ridge.ttf') format('truetype');
+  font-family: "CherryBombOne-Regular";
+  src: url("/fonts/CherryBombOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Camphound';
-  src: url('/fonts/Camphound.ttf') format('truetype');
+  font-family: "ClimateCrisis-Regular-VariableFont YEAR";
+  src: url("/fonts/ClimateCrisis-Regular-VariableFont_YEAR.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'CCSGlykeRegular';
-  src: url('/fonts/CCSGlykeRegular.ttf') format('truetype');
+  font-family: "Coiny-Regular";
+  src: url("/fonts/Coiny-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Chand';
-  src: url('/fonts/Chand.ttf') format('truetype');
+  font-family: "Combo-Regular";
+  src: url("/fonts/Combo-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Chunko Bold.250225-0833';
-  src: url('/fonts/Chunko Bold.250225-0833.ttf') format('truetype');
+  font-family: "CroissantOne-Regular";
+  src: url("/fonts/CroissantOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Chunko Bold';
-  src: url('/fonts/Chunko Bold.ttf') format('truetype');
+  font-family: "Crushed-Regular";
+  src: url("/fonts/Crushed-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Coffie';
-  src: url('/fonts/Coffie.ttf') format('truetype');
+  font-family: "DelaGothicOne-Regular";
+  src: url("/fonts/DelaGothicOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Corpoa';
-  src: url('/fonts/Corpoa.ttf') format('truetype');
+  font-family: "DenkOne-Regular";
+  src: url("/fonts/DenkOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Creepora';
-  src: url('/fonts/Creepora.ttf') format('truetype');
+  font-family: "DynaPuff-Bold";
+  src: url("/fonts/DynaPuff-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Cutlet Outline';
-  src: url('/fonts/Cutlet Outline.ttf') format('truetype');
+  font-family: "Eater-Regular";
+  src: url("/fonts/Eater-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Cutlet';
-  src: url('/fonts/Cutlet.ttf') format('truetype');
+  font-family: "Englebert-Regular";
+  src: url("/fonts/Englebert-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Dacht';
-  src: url('/fonts/Dacht.ttf') format('truetype');
+  font-family: "FreckleFace-Regular";
+  src: url("/fonts/FreckleFace-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Darkened Sinister';
-  src: url('/fonts/Darkened Sinister.ttf') format('truetype');
+  font-family: "Fruktur-Regular";
+  src: url("/fonts/Fruktur-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Djingo';
-  src: url('/fonts/Djingo.ttf') format('truetype');
+  font-family: "FuzzyBubbles-Bold";
+  src: url("/fonts/FuzzyBubbles-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'DREAMPLANNER-Script';
-  src: url('/fonts/DREAMPLANNER-Script.ttf') format('truetype');
+  font-family: "Galindo-Regular";
+  src: url("/fonts/Galindo-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'DREAMPLANNER';
-  src: url('/fonts/DREAMPLANNER.ttf') format('truetype');
+  font-family: "GloriaHallelujah-Regular";
+  src: url("/fonts/GloriaHallelujah-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Folkies Vantage Sans';
-  src: url('/fonts/Folkies Vantage Sans.ttf') format('truetype');
+  font-family: "Gluten-ExtraBold";
+  src: url("/fonts/Gluten-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Folkies Vantage Script';
-  src: url('/fonts/Folkies Vantage Script.ttf') format('truetype');
+  font-family: "Grandstander-ExtraBold";
+  src: url("/fonts/Grandstander-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Fraiche-VariableVF';
-  src: url('/fonts/Fraiche-VariableVF.ttf') format('truetype');
+  font-family: "HanaleiFill-Regular";
+  src: url("/fonts/HanaleiFill-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Frogy Toons';
-  src: url('/fonts/Frogy Toons.ttf') format('truetype');
+  font-family: "Itim-Regular";
+  src: url("/fonts/Itim-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'GC commune';
-  src: url('/fonts/GC commune.ttf') format('truetype');
+  font-family: "JotiOne-Regular";
+  src: url("/fonts/JotiOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'GOLEK DUIT';
-  src: url('/fonts/GOLEK DUIT.ttf') format('truetype');
+  font-family: "JustAnotherHand-Regular";
+  src: url("/fonts/JustAnotherHand-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Good Prize';
-  src: url('/fonts/Good Prize.ttf') format('truetype');
+  font-family: "Katibeh-Regular";
+  src: url("/fonts/Katibeh-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Greavard';
-  src: url('/fonts/Greavard.ttf') format('truetype');
+  font-family: "Lemon-Regular";
+  src: url("/fonts/Lemon-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HappySeason-Black';
-  src: url('/fonts/HappySeason-Black.ttf') format('truetype');
+  font-family: "Lemonada-Bold";
+  src: url("/fonts/Lemonada-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HappySeason-Bold';
-  src: url('/fonts/HappySeason-Bold.ttf') format('truetype');
+  font-family: "LovedbytheKing-Regular";
+  src: url("/fonts/LovedbytheKing-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HappySeason-ExtraBold';
-  src: url('/fonts/HappySeason-ExtraBold.ttf') format('truetype');
+  font-family: "LoveYaLikeASister-Regular";
+  src: url("/fonts/LoveYaLikeASister-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HappySeason-Light';
-  src: url('/fonts/HappySeason-Light.ttf') format('truetype');
+  font-family: "LuckiestGuy-Regular";
+  src: url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HappySeason-Medium';
-  src: url('/fonts/HappySeason-Medium.ttf') format('truetype');
+  font-family: "Mali-Bold";
+  src: url("/fonts/Mali-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HappySeason-Regular';
-  src: url('/fonts/HappySeason-Regular.ttf') format('truetype');
+  font-family: "Maname-Regular";
+  src: url("/fonts/Maname-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HappySeason-Semibold';
-  src: url('/fonts/HappySeason-Semibold.ttf') format('truetype');
+  font-family: "Mansalva-Regular";
+  src: url("/fonts/Mansalva-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Harena';
-  src: url('/fonts/Harena.ttf') format('truetype');
+  font-family: "Marhey-Bold";
+  src: url("/fonts/Marhey-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Hello Jerry';
-  src: url('/fonts/Hello Jerry.ttf') format('truetype');
+  font-family: "Matemasie-Regular";
+  src: url("/fonts/Matemasie-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HellsBellsRegular';
-  src: url('/fonts/HellsBellsRegular.ttf') format('truetype');
+  font-family: "McLaren-Regular";
+  src: url("/fonts/McLaren-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HellsBellsTextured';
-  src: url('/fonts/HellsBellsTextured.ttf') format('truetype');
+  font-family: "Milonga-Regular";
+  src: url("/fonts/Milonga-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Huddle';
-  src: url('/fonts/Huddle.ttf') format('truetype');
+  font-family: "MouseMemoirs-Regular";
+  src: url("/fonts/MouseMemoirs-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HungryPizza-BoldItalic';
-  src: url('/fonts/HungryPizza-BoldItalic.ttf') format('truetype');
+  font-family: "NationalPark-ExtraBold";
+  src: url("/fonts/NationalPark-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HungryPizza-BoldRound';
-  src: url('/fonts/HungryPizza-BoldRound.ttf') format('truetype');
+  font-family: "NovaMono-Regular";
+  src: url("/fonts/NovaMono-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'HungryPizzaBold';
-  src: url('/fonts/HungryPizzaBold.ttf') format('truetype');
+  font-family: "NovaOval-Regular";
+  src: url("/fonts/NovaOval-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'JogWoiner-Regular';
-  src: url('/fonts/JogWoiner-Regular.ttf') format('truetype');
+  font-family: "Nunito-ExtraBold";
+  src: url("/fonts/Nunito-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'komika';
-  src: url('/fonts/komika.ttf') format('truetype');
+  font-family: "Oldenburg-Regular";
+  src: url("/fonts/Oldenburg-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Black Italic';
-  src: url('/fonts/Marble Black Italic.ttf') format('truetype');
+  font-family: "OriginalSurfer-Regular";
+  src: url("/fonts/OriginalSurfer-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Black';
-  src: url('/fonts/Marble Black.ttf') format('truetype');
+  font-family: "Pangolin-Regular";
+  src: url("/fonts/Pangolin-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Bold Italic';
-  src: url('/fonts/Marble Bold Italic.ttf') format('truetype');
+  font-family: "PatrickHand-Regular";
+  src: url("/fonts/PatrickHand-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Bold';
-  src: url('/fonts/Marble Bold.ttf') format('truetype');
+  font-family: "Peralta-Regular";
+  src: url("/fonts/Peralta-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble ExtraBold Italic';
-  src: url('/fonts/Marble ExtraBold Italic.ttf') format('truetype');
+  font-family: "PottaOne-Regular";
+  src: url("/fonts/PottaOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble ExtraBold';
-  src: url('/fonts/Marble ExtraBold.ttf') format('truetype');
+  font-family: "PurplePurse-Regular";
+  src: url("/fonts/PurplePurse-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble ExtraLight Italic';
-  src: url('/fonts/Marble ExtraLight Italic.ttf') format('truetype');
+  font-family: "Quando-Regular";
+  src: url("/fonts/Quando-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble ExtraLight';
-  src: url('/fonts/Marble ExtraLight.ttf') format('truetype');
+  font-family: "RammettoOne-Regular";
+  src: url("/fonts/RammettoOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Italic';
-  src: url('/fonts/Marble Italic.ttf') format('truetype');
+  font-family: "Ranchers-Regular";
+  src: url("/fonts/Ranchers-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Light Italic';
-  src: url('/fonts/Marble Light Italic.ttf') format('truetype');
+  font-family: "Ribeye-Regular";
+  src: url("/fonts/Ribeye-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Light';
-  src: url('/fonts/Marble Light.ttf') format('truetype');
+  font-family: "Risque-Regular";
+  src: url("/fonts/Risque-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Medium Italic';
-  src: url('/fonts/Marble Medium Italic.ttf') format('truetype');
+  font-family: "RoadRage-Regular";
+  src: url("/fonts/RoadRage-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Medium';
-  src: url('/fonts/Marble Medium.ttf') format('truetype');
+  font-family: "RubikSprayPaint-Regular";
+  src: url("/fonts/RubikSprayPaint-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Regular';
-  src: url('/fonts/Marble Regular.ttf') format('truetype');
+  font-family: "RubikWetPaint-Regular";
+  src: url("/fonts/RubikWetPaint-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble SemiBold Italic';
-  src: url('/fonts/Marble SemiBold Italic.ttf') format('truetype');
+  font-family: "RumRaisin-Regular";
+  src: url("/fonts/RumRaisin-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble SemiBold';
-  src: url('/fonts/Marble SemiBold.ttf') format('truetype');
+  font-family: "RuslanDisplay-Regular";
+  src: url("/fonts/RuslanDisplay-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Thin Italic';
-  src: url('/fonts/Marble Thin Italic.ttf') format('truetype');
+  font-family: "SeymourOne-Regular";
+  src: url("/fonts/SeymourOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marble Thin';
-  src: url('/fonts/Marble Thin.ttf') format('truetype');
+  font-family: "ShantellSans-ExtraBold";
+  src: url("/fonts/ShantellSans-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Might Night 2';
-  src: url('/fonts/Might Night 2.ttf') format('truetype');
+  font-family: "Shojumaru-Regular";
+  src: url("/fonts/Shojumaru-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Might Night';
-  src: url('/fonts/Might Night.ttf') format('truetype');
+  font-family: "SpicyRice-Regular";
+  src: url("/fonts/SpicyRice-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Mochi Boom Extrude';
-  src: url('/fonts/Mochi Boom Extrude.ttf') format('truetype');
+  font-family: "Truculenta-ExtraBold";
+  src: url("/fonts/Truculenta-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Mochi Boom';
-  src: url('/fonts/Mochi Boom.ttf') format('truetype');
+  font-family: "UncialAntiqua-Regular";
+  src: url("/fonts/UncialAntiqua-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Monigue';
-  src: url('/fonts/Monigue.ttf') format('truetype');
+  font-family: "VendSans-Bold";
+  src: url("/fonts/VendSans-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'NEONLIGHT-Display';
-  src: url('/fonts/NEONLIGHT-Display.ttf') format('truetype');
+  font-family: "ViaodaLibre-Regular";
+  src: url("/fonts/ViaodaLibre-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Oslla';
-  src: url('/fonts/Oslla.ttf') format('truetype');
+  font-family: "Wellfleet-Regular";
+  src: url("/fonts/Wellfleet-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'OverHeat-Italic';
-  src: url('/fonts/OverHeat-Italic.ttf') format('truetype');
+  font-family: "WinkyRough-ExtraBold";
+  src: url("/fonts/WinkyRough-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'OverHeat-Regular';
-  src: url('/fonts/OverHeat-Regular.ttf') format('truetype');
+  font-family: "WinkySans-ExtraBold";
+  src: url("/fonts/WinkySans-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
-
-@font-face {
-  font-family: 'Popping-Cute';
-  src: url('/fonts/Popping-Cute.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'PressStart2P';
-  src: url('/fonts/PressStart2P.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Quizlo';
-  src: url('/fonts/Quizlo.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Rocket & Naeela';
-  src: url('/fonts/Rocket & Naeela.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Rogient Block';
-  src: url('/fonts/Rogient Block.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Roley Boink';
-  src: url('/fonts/Roley Boink.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'RoseMask';
-  src: url('/fonts/RoseMask.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Scary Serif';
-  src: url('/fonts/Scary Serif.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SHADOW MONSTER';
-  src: url('/fonts/SHADOW MONSTER.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Shiver Grim';
-  src: url('/fonts/Shiver Grim.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Sink';
-  src: url('/fonts/Sink.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Skiddy Tons - Inner';
-  src: url('/fonts/Skiddy Tons - Inner.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Skiddy Tons - Shadow';
-  src: url('/fonts/Skiddy Tons - Shadow.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Skiddy Tons';
-  src: url('/fonts/Skiddy Tons.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Smack Boom Extrude';
-  src: url('/fonts/Smack Boom Extrude.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Smack Boom';
-  src: url('/fonts/Smack Boom.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Spicy Pickle';
-  src: url('/fonts/Spicy Pickle.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'spooky slime';
-  src: url('/fonts/spooky slime.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-Bold';
-  src: url('/fonts/Tallica-Bold.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-BoldOblique';
-  src: url('/fonts/Tallica-BoldOblique.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-Italic';
-  src: url('/fonts/Tallica-Italic.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-Light';
-  src: url('/fonts/Tallica-Light.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-LightOblique';
-  src: url('/fonts/Tallica-LightOblique.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-Medium';
-  src: url('/fonts/Tallica-Medium.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-MediumOblique';
-  src: url('/fonts/Tallica-MediumOblique.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-Regular';
-  src: url('/fonts/Tallica-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-SemiBold';
-  src: url('/fonts/Tallica-SemiBold.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-SemiBoldOblique';
-  src: url('/fonts/Tallica-SemiBoldOblique.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-Thin';
-  src: url('/fonts/Tallica-Thin.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-ThinOblique';
-  src: url('/fonts/Tallica-ThinOblique.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Tallica-VF';
-  src: url('/fonts/Tallica-VF.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'TBSGartekCondensed';
-  src: url('/fonts/TBSGartekCondensed.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Thoge';
-  src: url('/fonts/Thoge.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Twinkle Bright';
-  src: url('/fonts/Twinkle Bright.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Wickeds';
-  src: url('/fonts/Wickeds.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'WildBounty-Italic';
-  src: url('/fonts/WildBounty-Italic.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'WildBounty-Regular';
-  src: url('/fonts/WildBounty-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'WildBountyShadow-Italic';
-  src: url('/fonts/WildBountyShadow-Italic.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'WildBountyShadow-Regular';
-  src: url('/fonts/WildBountyShadow-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-

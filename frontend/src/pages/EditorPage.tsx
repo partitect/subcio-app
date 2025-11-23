@@ -20,6 +20,16 @@ const assToHex = (ass?: string) => {
   const r = padded.slice(6, 8);
   return `#${r}${g}${b}`;
 };
+const hexToAss = (hex?: string) => {
+  if (!hex) return "&H00FFFFFF";
+  if (hex.startsWith("&H") || hex.startsWith("&h")) return hex;
+  const clean = hex.replace("#", "");
+  if (clean.length !== 6) return "&H00FFFFFF";
+  const r = clean.slice(0, 2);
+  const g = clean.slice(2, 4);
+  const b = clean.slice(4, 6);
+  return `&H00${b}${g}${r}`;
+};
 
 const defaultWords: WordCue[] = [
   { start: 0, end: 0.8, text: "Grouped" },
@@ -29,6 +39,25 @@ const defaultWords: WordCue[] = [
   { start: 3.2, end: 4.0, text: "export" },
 ];
 
+const normalizeFontName = (options: { name: string; file: string }[], value?: string) => {
+  if (!options.length) return value || "";
+  if (!value) return options[0].name;
+  const lc = value.toLowerCase();
+  const strip = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/[-_]/g, " ")
+      .replace(/\b(extra|ultra)?\s*(bold|light|thin|regular|medium|black|heavy|book|semibold)\b/g, "")
+      .trim();
+  const exact = options.find((o) => o.name === value);
+  if (exact) return exact.name;
+  const icase = options.find((o) => o.name.toLowerCase() === lc);
+  if (icase) return icase.name;
+  const stripped = options.find((o) => strip(o.name) === strip(value));
+  if (stripped) return stripped.name;
+  return options[0].name;
+};
+
 export default function EditorPage() {
   const { projectId } = useParams();
   const location = useLocation();
@@ -36,25 +65,44 @@ export default function EditorPage() {
 
   const playerRef = useRef<any>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const stylePreviewRef = useRef<HTMLDivElement>(null);
 
   const [project, setProject] = useState<ProjectMeta | null>((location.state as any)?.project || null);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [words, setWords] = useState<WordCue[]>((location.state as any)?.words || defaultWords);
   const [style, setStyle] = useState<StyleConfig>({
     id: "neon-glow",
-    font: "Inter",
+    font: "",
     primary_color: "#ffffff",
     secondary_color: "#00ffff",
     outline_color: "#000000",
     shadow_color: "#000000",
+    back_color: "#000000",
     shadow_blur: 6,
     font_size: 56,
     alignment: 2,
     border: 2,
+    letter_spacing: 0,
+    bold: 1,
+    italic: 0,
+    underline: 0,
+    strikeout: 0,
+    opacity: 100,
+    rotation: 0,
+    rotation_x: 0,
+    rotation_y: 0,
+    shear: 0,
+    scale_x: 100,
+    scale_y: 100,
+    margin_v: 40,
+    margin_l: 10,
+    margin_r: 10,
+    blur: 0,
+    shadow: 0,
   });
   const [assContent, setAssContent] = useState<string>("");
   const [presets, setPresets] = useState<Preset[]>([]);
-  const [fontOptions, setFontOptions] = useState<string[]>([]);
+  const [fontOptions, setFontOptions] = useState<{ name: string; file: string }[]>([]);
   const [activeTab, setActiveTab] = useState<"presets" | "style" | "transcript">("presets");
   const [resolution, setResolution] = useState("1080p");
   const [exporting, setExporting] = useState(false);
@@ -62,11 +110,57 @@ export default function EditorPage() {
   const [showRenderModal, setShowRenderModal] = useState(false);
   const [exportName, setExportName] = useState("pycaps_export");
   const [exportQuality, setExportQuality] = useState("1080p");
+  const [previewScale, setPreviewScale] = useState(0.7);
+  const [savingPreset, setSavingPreset] = useState(false);
 
   const activeIndex = useMemo(
     () => words.findIndex((w) => w && currentTime >= w.start && currentTime < w.end),
     [words, currentTime]
   );
+
+  const previewAlignment = "center";
+
+  const previewFontSize = useMemo(
+    () => Math.max(12, Math.round((style.font_size || 56) * previewScale)),
+    [style.font_size, previewScale]
+  );
+
+  const selectedPresetLabel = useMemo(() => {
+    const match = presets.find((p) => p.id === style.id);
+    if (match?.label) return match.label;
+    if (match?.id) return match.id.replace(/-/g, " ");
+    return style.id || "custom";
+  }, [presets, style.id]);
+
+  const previewText = useMemo(
+    () => selectedPresetLabel || (words.length ? words.slice(0, 3).map((w) => w.text).join(" ") : "Caption style preview"),
+    [selectedPresetLabel, words]
+  );
+
+  const previewTextShadow = useMemo(() => {
+    const outlineSize = Math.max(style.border || 0, 0);
+    const outlineColor = (style.outline_color as string) || "#000000";
+    const shadowBlur = Math.max((style.shadow_blur ?? style.blur) || 0, 0);
+    const shadowOffset = Math.max(style.shadow || 0, 0);
+    const shadowColor = (style.shadow_color as string) || "rgba(0,0,0,0.4)";
+
+    const outlineShadows =
+      outlineSize > 0
+        ? [
+            `-${outlineSize}px 0 ${outlineColor}`,
+            `${outlineSize}px 0 ${outlineColor}`,
+            `0 -${outlineSize}px ${outlineColor}`,
+            `0 ${outlineSize}px ${outlineColor}`,
+          ]
+        : [];
+
+    const shadow =
+      shadowBlur > 0 || shadowOffset > 0
+        ? [`0 ${shadowOffset || 6}px ${shadowBlur}px ${shadowColor}`]
+        : [];
+
+    return [...outlineShadows, ...shadow].join(", ");
+  }, [style.border, style.outline_color, style.shadow_blur, style.blur, style.shadow, style.shadow_color]);
 
   useEffect(() => {
     if (!projectId || projectId === "demo") {
@@ -85,13 +179,17 @@ export default function EditorPage() {
         setWords(data.words || []);
         setVideoUrl(data.video_url || "");
         const styleFromConfig = (data.config && (data.config as any).style) || {};
+        const normalizedFont = normalizeFontName(fontOptions, styleFromConfig.font || style.font);
         setStyle((prev) => ({
           ...prev,
           ...styleFromConfig,
           id: styleFromConfig.id || prev.id,
+          font: normalizedFont,
           primary_color: assToHex(styleFromConfig.primary_color),
           secondary_color: assToHex(styleFromConfig.secondary_color),
           outline_color: assToHex(styleFromConfig.outline_color),
+          shadow_color: assToHex(styleFromConfig.shadow_color as string),
+          back_color: assToHex((styleFromConfig as any).back_color as string),
         }));
       })
         .catch((err) => {
@@ -117,7 +215,15 @@ export default function EditorPage() {
     axios
       .get(`${API_BASE}/fonts`)
       .then(({ data }) => {
-        if (data?.fonts) setFontOptions(data.fonts);
+        if (Array.isArray(data?.fonts)) {
+          const parsed = data.fonts.map((f: any) =>
+            typeof f === "string" ? { name: f, file: `${f}.ttf` } : { name: f.name, file: f.file }
+          );
+          setFontOptions(parsed);
+          if (parsed.length) {
+            setStyle((prev) => ({ ...prev, font: normalizeFontName(parsed, prev.font) }));
+          }
+        }
       })
       .catch((err) => console.error("Failed to load fonts", err));
   }, []);
@@ -167,35 +273,98 @@ export default function EditorPage() {
   };
 
   const applyPreset = (preset: Preset) => {
+    const normalizedFont = normalizeFontName(fontOptions, preset.font as string);
     setStyle((prev) => ({
       ...prev,
       ...preset,
       id: preset.id,
+      font: normalizedFont,
       primary_color: assToHex(preset.primary_color as string),
       secondary_color: assToHex(preset.secondary_color as string),
       outline_color: assToHex(preset.outline_color as string),
+      shadow_color: assToHex(preset.shadow_color as string),
+      back_color: assToHex((preset as any).back_color as string),
     }));
   };
 
+  const savePreset = async () => {
+    if (!style.id) {
+      alert("No preset selected to save.");
+      return;
+    }
+
+    const basePreset = presets.find((p) => p.id === style.id) || {};
+    const payload: any = {
+      ...basePreset,
+      ...style,
+      id: style.id,
+    };
+
+    payload.primary_color = hexToAss(payload.primary_color as string);
+    payload.secondary_color = hexToAss(payload.secondary_color as string);
+    payload.outline_color = hexToAss(payload.outline_color as string);
+    payload.shadow_color = hexToAss(payload.shadow_color as string);
+    payload.back_color = hexToAss(payload.back_color as string);
+
+    if (payload.shadow == null && payload.shadow_blur != null) payload.shadow = payload.shadow_blur;
+    if (payload.blur == null && payload.shadow_blur != null) payload.blur = payload.shadow_blur;
+
+    setSavingPreset(true);
+    try {
+      await axios.post(`${API_BASE}/presets/update`, payload);
+      alert("Preset saved to backend.");
+    } catch (err: any) {
+      console.error("Preset save failed", err);
+      const msg = err?.response?.data?.detail || "Failed to save preset";
+      alert(msg);
+    } finally {
+      setSavingPreset(false);
+    }
+  };
+
   const takeScreenshot = async () => {
-    if (!overlayRef.current) return;
-    const node = overlayRef.current;
-    const prevBg = node.style.backgroundColor;
-    const prevFilter = node.style.filter;
-    // Hide video layer for clean caption-only shot
-    node.style.backgroundColor = "#ffffff";
-    node.style.filter = "none";
-    node.querySelectorAll("video").forEach((vid) => ((vid as HTMLVideoElement).style.display = "none"));
+    const node = stylePreviewRef.current;
+    if (!node) return;
 
-    const canvas = await html2canvas(node, {
-      backgroundColor: "#ffffff",
-      scale: 1.2,
-    });
+    const targetWidth = 300;
+    const targetHeight = 250;
+    const screenshotScale = 1; // keep final export at ~300x200
+    const clone = node.cloneNode(true) as HTMLElement;
+    clone.style.position = "fixed";
+    clone.style.left = "-9999px";
+    clone.style.top = "0";
+    clone.style.width = `${targetWidth}px`;
+    clone.style.height = `${targetHeight}px`;
+    clone.style.backgroundColor = "#ffffff";
+    clone.style.boxShadow = "none";
+    clone.style.border = "none";
+    clone.style.borderRadius = "0";
+    clone.style.overflow = "hidden";
+    document.body.appendChild(clone);
 
-    // restore
-    node.style.backgroundColor = prevBg;
-    node.style.filter = prevFilter;
-    node.querySelectorAll("video").forEach((vid) => ((vid as HTMLVideoElement).style.display = ""));
+    const textEl = clone.querySelector("p") as HTMLElement | null;
+    if (textEl) {
+      const available = targetWidth - 40; // account for padding
+      const sw = textEl.scrollWidth || available;
+      if (sw > available) {
+        const scale = Math.max(0.6, Math.min(1, available / sw));
+        textEl.style.transform = `scale(${scale})`;
+        textEl.style.transformOrigin = "center bottom";
+      }
+    }
+
+    let canvas: HTMLCanvasElement;
+    try {
+      canvas = await html2canvas(clone, {
+        backgroundColor: "#ffffff",
+        scale: screenshotScale,
+        width: targetWidth,
+        height: targetHeight,
+        useCORS: true,
+      });
+    } finally {
+      document.body.removeChild(clone);
+    }
 
     const image = canvas.toDataURL("image/png");
     try {
@@ -237,6 +406,26 @@ export default function EditorPage() {
       })),
     [words]
   );
+
+  const overlayFonts = useMemo(() => {
+    const encodeName = (name: string) => encodeURIComponent(name.trim());
+    const currentFile =
+      fontOptions.find((f) => f.name === style.font)?.file ||
+      fontOptions.find((f) => f.name?.toLowerCase() === (style.font || "").toLowerCase())?.file;
+    const fallbackFiles = fontOptions.slice(0, 10).map((f) => f.file);
+    const ordered = [...(currentFile ? [currentFile] : []), ...fallbackFiles];
+    const seen = new Set<string>();
+    const urls = ordered
+      .filter((f) => f)
+      .filter((f) => {
+        const key = f.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((fname) => `/fonts/${encodeName(fname)}`);
+    return urls;
+  }, [style.font, fontOptions]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
@@ -301,7 +490,7 @@ export default function EditorPage() {
                 Load a project to preview
               </div>
             )}
-            {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} />}
+            {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />}
           </div>
 
           <div className="ml-2 mr-2 bg-white/5 border-t border-white/10 px-4 py-3 rounded-xl">
@@ -376,7 +565,7 @@ export default function EditorPage() {
                       onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
                       className="object-cover w-full h-full"
                     />
-                    <span className="text-white/30 text-xs">Preview</span>
+                    
                   </div>
                 </button>
               ))}
@@ -394,8 +583,8 @@ export default function EditorPage() {
                     className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
                   >
                     {fontOptions.map((f) => (
-                      <option key={f} value={f}>
-                        {f}
+                      <option key={f.name} value={f.name}>
+                        {f.name}
                       </option>
                     ))}
                   </select>
@@ -438,6 +627,24 @@ export default function EditorPage() {
                     className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
                   />
                 </div>
+                <div>
+                  <label className="text-xs text-white/60">Shadow Color</label>
+                  <input
+                    type="color"
+                    value={(style.shadow_color as string) || "#000000"}
+                    onChange={(e) => setStyle({ ...style, shadow_color: e.target.value })}
+                    className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Background</label>
+                  <input
+                    type="color"
+                    value={(style.back_color as string) || "#000000"}
+                    onChange={(e) => setStyle({ ...style, back_color: e.target.value })}
+                    className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -463,6 +670,67 @@ export default function EditorPage() {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/60">Opacity</label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={style.opacity ?? 100}
+                    onChange={(e) => setStyle({ ...style, opacity: Number(e.target.value) })}
+                    className="w-full"
+                  />
+                  <p className="text-[11px] text-white/50 mt-1">{style.opacity ?? 100}%</p>
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Letter Spacing</label>
+                  <input
+                    type="number"
+                    value={style.letter_spacing ?? 0}
+                    onChange={(e) => setStyle({ ...style, letter_spacing: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                  <input
+                    id="bold-toggle"
+                    type="checkbox"
+                    checked={!!style.bold}
+                    onChange={(e) => setStyle({ ...style, bold: e.target.checked ? 1 : 0 })}
+                  />
+                  <label htmlFor="bold-toggle" className="text-sm text-white/70">Bold</label>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                  <input
+                    id="italic-toggle"
+                    type="checkbox"
+                    checked={!!style.italic}
+                    onChange={(e) => setStyle({ ...style, italic: e.target.checked ? 1 : 0 })}
+                  />
+                  <label htmlFor="italic-toggle" className="text-sm text-white/70">Italic</label>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                  <input
+                    id="underline-toggle"
+                    type="checkbox"
+                    checked={!!style.underline}
+                    onChange={(e) => setStyle({ ...style, underline: e.target.checked ? 1 : 0 })}
+                  />
+                  <label htmlFor="underline-toggle" className="text-sm text-white/70">Underline</label>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                  <input
+                    id="strike-toggle"
+                    type="checkbox"
+                    checked={!!style.strikeout}
+                    onChange={(e) => setStyle({ ...style, strikeout: e.target.checked ? 1 : 0 })}
+                  />
+                  <label htmlFor="strike-toggle" className="text-sm text-white/70">Strikeout</label>
+                </div>
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 {[2, 5, 8].map((align) => (
                   <button
@@ -474,6 +742,188 @@ export default function EditorPage() {
                   </button>
                 ))}
               </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-white/60">Margin L</label>
+                  <input
+                    type="number"
+                    value={style.margin_l ?? 10}
+                    onChange={(e) => setStyle({ ...style, margin_l: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Margin R</label>
+                  <input
+                    type="number"
+                    value={style.margin_r ?? 10}
+                    onChange={(e) => setStyle({ ...style, margin_r: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Margin V</label>
+                  <input
+                    type="number"
+                    value={style.margin_v ?? 40}
+                    onChange={(e) => setStyle({ ...style, margin_v: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-white/60">Rotation</label>
+                  <input
+                    type="number"
+                    value={style.rotation ?? 0}
+                    onChange={(e) => setStyle({ ...style, rotation: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Rot X</label>
+                  <input
+                    type="number"
+                    value={style.rotation_x ?? 0}
+                    onChange={(e) => setStyle({ ...style, rotation_x: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Rot Y</label>
+                  <input
+                    type="number"
+                    value={style.rotation_y ?? 0}
+                    onChange={(e) => setStyle({ ...style, rotation_y: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-white/60">Shear</label>
+                  <input
+                    type="number"
+                    value={style.shear ?? 0}
+                    onChange={(e) => setStyle({ ...style, shear: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Scale X</label>
+                  <input
+                    type="number"
+                    value={style.scale_x ?? 100}
+                    onChange={(e) => setStyle({ ...style, scale_x: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Scale Y</label>
+                  <input
+                    type="number"
+                    value={style.scale_y ?? 100}
+                    onChange={(e) => setStyle({ ...style, scale_y: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/60">Shadow (offset)</label>
+                  <input
+                    type="number"
+                    value={style.shadow ?? 0}
+                    onChange={(e) => setStyle({ ...style, shadow: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60">Blur</label>
+                  <input
+                    type="number"
+                    value={style.blur ?? 0}
+                    onChange={(e) => setStyle({ ...style, blur: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-white/10">
+                <p className="text-xs text-white/60">Style preview</p>
+                <div
+                  ref={stylePreviewRef}
+                  className="bg-white rounded-xl border border-slate-200 shadow-inner min-h-[180px] relative overflow-hidden"
+                >
+                  <div
+                    className="absolute inset-0 flex justify-center px-6"
+                    style={{
+                      alignItems: previewAlignment,
+                      flexDirection: "column",
+                      paddingBottom: `${Math.max(style.margin_v || 0, 0)}px`,
+                      paddingTop: `${Math.max(style.margin_v || 0, 0)}px`,
+                    }}
+                  >
+                    <div
+                      className="text-center pb-6 px-3 rounded-md"
+                      style={{
+                        backgroundColor: (style.back_color as string) || "transparent",
+                        display: "inline-block",
+                        opacity: (style.opacity ?? 100) / 100,
+                      }}
+                    >
+                      <p
+                        className="font-black"
+                        style={{
+                          fontFamily: style.font || "Inter",
+                          fontSize: `${previewFontSize}px`,
+                          lineHeight: 1.05,
+                          color: (style.primary_color as string) || "#ffffff",
+                          backgroundImage:
+                            style.secondary_color && style.secondary_color !== style.primary_color
+                              ? `linear-gradient(180deg, ${style.primary_color}, ${style.secondary_color})`
+                              : undefined,
+                          WebkitBackgroundClip: style.secondary_color && style.secondary_color !== style.primary_color ? "text" : undefined,
+                          WebkitTextFillColor:
+                            style.secondary_color && style.secondary_color !== style.primary_color ? "transparent" : (style.primary_color as string) || "#ffffff",
+                          WebkitTextStroke: `${Math.max(style.border || 0, 0)}px ${style.outline_color || "#000"}`,
+                          textShadow: previewTextShadow,
+                          fontWeight: style.bold ? 800 : 700,
+                          fontStyle: style.italic ? "italic" : "normal",
+                          letterSpacing: style.letter_spacing ? `${style.letter_spacing}px` : undefined,
+                          WebkitFontSmoothing: "antialiased",
+                          MozOsxFontSmoothing: "grayscale",
+                          textRendering: "optimizeLegibility",
+                          whiteSpace: "nowrap",
+                          overflow: "visible",
+                          textOverflow: "clip",
+                          textDecoration: `${style.underline ? "underline" : "none"} ${style.strikeout ? "line-through" : ""}`.trim(),
+                          transform: `rotate(${style.rotation || 0}deg) scale(${(style.scale_x || 100) / 100}, ${(style.scale_y || 100) / 100}) skew(${style.shear || 0}deg)`,
+                          display: "inline-block",
+                          filter: style.blur ? `blur(${style.blur}px)` : undefined,
+                        }}
+                      >
+                        {previewText}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-white/60">
+                  <span>Font scale</span>
+                  <input
+                    type="range"
+                    min={0.4}
+                    max={1.4}
+                    step={0.05}
+                    value={previewScale}
+                    onChange={(e) => setPreviewScale(Number(e.target.value))}
+                    className="flex-1"
+                  />
+                  <span className="text-white/70 w-10 text-right">{Math.round(previewScale * 100)}%</span>
+                </div>
+              </div>
+
               <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                 <button
                   onClick={takeScreenshot}
@@ -483,11 +933,11 @@ export default function EditorPage() {
                   Save preset screenshot
                 </button>
                 <button
-                  onClick={() => setActiveTab("transcript")}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20"
+                  onClick={savePreset}
+                  disabled={savingPreset}
+                  className="px-3 py-2 rounded-lg bg-emerald-500/80 text-black font-semibold border border-emerald-300 hover:bg-emerald-400 disabled:opacity-50"
                 >
-                  <ListChecks className="w-4 h-4" />
-                  Transcript tab
+                  {savingPreset ? "Saving..." : "Save preset"}
                 </button>
               </div>
             </div>
