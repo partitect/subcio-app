@@ -41,7 +41,7 @@ PRESET_STYLE_MAP = {
         "secondary_color": "&H00c431a4",
         "outline_color": "&H00000000",
         "shadow_color": "&H00000000",
-        "font_size": 35,
+        "font_size": 80,
         "letter_spacing": 10,
         "bold": 1,
         "italic": 0,
