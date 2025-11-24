@@ -964,10 +964,31 @@ PRESET_STYLE_MAP = {
         "id": "cosmic-stars"
     },
     "butterfly-dance": {
-        "font": "Folkies Vantage",
+        "font": "Nunito",
         "primary_color": "&H009A4C73",
+        "secondary_color": "&H0000FFFF",
         "outline_color": "&H00FFFFFF",
-        "font_size": 120,
+        "shadow_color": "&H00000000",
+        "font_size": 100,
+        "letter_spacing": 0,
+        "bold": 1,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "border": 1.5,
+        "shadow": 0,
+        "blur": 0,
+        "opacity": 100,
+        "rotation": 0,
+        "rotation_x": 0,
+        "rotation_y": 0,
+        "shear": 0,
+        "scale_x": 100,
+        "scale_y": 100,
+        "alignment": 5,
+        "margin_v": 40,
+        "margin_l": 13,
+        "margin_r": 13,
         "id": "butterfly-dance"
     },
     "welcome-my-life": {
@@ -1027,6 +1048,34 @@ PRESET_STYLE_MAP = {
         "font_size": 60,
         "alignment": 2,
         "id": "karaoke-sentence"
+    },
+    "mademyday": {
+        "font": "Nunito",
+        "primary_color": "&H00888888",   # passive grey
+        "secondary_color": "&H003DD8FF", # bright yellow highlight
+        "outline_color": "&H00000000",
+        "shadow_color": "&H00000000",
+        "font_size": 64,
+        "letter_spacing": 4,
+        "bold": 1,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "border": 2,
+        "shadow": 0,
+        "blur": 0,
+        "opacity": 100,
+        "rotation": 0,
+        "rotation_x": 0,
+        "rotation_y": 0,
+        "shear": 0,
+        "scale_x": 100,
+        "scale_y": 100,
+        "alignment": 2,
+        "margin_v": 40,
+        "margin_l": 10,
+        "margin_r": 10,
+        "id": "mademyday"
     }
 }
 

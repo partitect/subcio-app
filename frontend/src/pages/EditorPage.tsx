@@ -10,6 +10,9 @@ import { ProjectMeta, StyleConfig, WordCue } from "../types";
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
 type Preset = StyleConfig & { label?: string };
+const PRESET_LABELS: Record<string, string> = {
+  mademyday: "Made My Day (3'lü sabit grup)"
+};
 const assToHex = (ass?: string) => {
   if (!ass) return "#ffffff";
   if (ass.startsWith("#")) return ass;
@@ -247,7 +250,14 @@ export default function EditorPage() {
   useEffect(() => {
     axios
       .get(`${API_BASE}/presets`)
-      .then(({ data }) => setPresets(data))
+      .then(({ data }) =>
+        setPresets(
+          (data || []).map((p: Preset) => ({
+            ...p,
+            label: PRESET_LABELS[p.id] || p.label,
+          }))
+        )
+      )
       .catch((err) => console.error("Failed to load presets", err));
 
     axios
