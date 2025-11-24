@@ -1,0 +1,272 @@
+{
+  "bulge": {
+    "name": "Bulge Effect",
+    "description": "Creates a bulging/magnifier distortion on text",
+    "config": {
+      "intensity": {
+        "type": "number",
+        "min": 0,
+        "max": 2.0,
+        "default": 1.5,
+        "description": "How strong the bulge effect is"
+      },
+      "blur": {
+        "type": "number",
+        "min": 0,
+        "max": 2.0,
+        "default": 0.2,
+        "description": "Blur amount for smoothness"
+      }
+    }
+  },
+  "shake": {
+    "name": "Shake Effect",
+    "description": "Makes text shake/vibrate rapidly",
+    "config": {
+      "intensity": {
+        "type": "number",
+        "min": 0,
+        "max": 50.0,
+        "default": 10.0,
+        "description": "How far the text shakes (pixels)"
+      },
+      "frequency": {
+        "type": "number",
+        "min": 1,
+        "max": 50.0,
+        "default": 20.0,
+        "description": "How fast it shakes (Hz)"
+      }
+    }
+  },
+  "fire_storm": {
+    "name": "Fire Storm",
+    "description": "Glowing text with outward star particles",
+    "config": {
+      "particle_count": {
+        "type": "number",
+        "min": 1,
+        "max": 50,
+        "default": 12,
+        "description": "How many particles to emit per word"
+      },
+      "min_speed": {
+        "type": "number",
+        "min": 10,
+        "max": 200,
+        "default": 30,
+        "description": "Minimum particle speed"
+      },
+      "max_speed": {
+        "type": "number",
+        "min": 20,
+        "max": 300,
+        "default": 120,
+        "description": "Maximum particle speed"
+      },
+      "colors": {
+        "type": "array",
+        "default": [
+          "&H0000FF&",
+          "&H00FFFF&",
+          "&HFFFFFF&"
+        ],
+        "description": "Particle color palette (ASS BGR hex)"
+      }
+    }
+  },
+  "cyber_glitch": {
+    "name": "Cyber Glitch",
+    "description": "RGB channel offsets with jittery scale pulses",
+    "config": {
+      "offset_px": {
+        "type": "number",
+        "min": 0,
+        "max": 15,
+        "default": 3,
+        "description": "Pixel offset for RGB channel separation"
+      },
+      "jitter_min_ms": {
+        "type": "number",
+        "min": 10,
+        "max": 200,
+        "default": 40,
+        "description": "Minimum jitter step (ms)"
+      },
+      "jitter_max_ms": {
+        "type": "number",
+        "min": 10,
+        "max": 300,
+        "default": 90,
+        "description": "Maximum jitter step (ms)"
+      },
+      "scale_min": {
+        "type": "number",
+        "min": 50,
+        "max": 150,
+        "default": 90,
+        "description": "Minimum scale during jitter"
+      },
+      "scale_max": {
+        "type": "number",
+        "min": 50,
+        "max": 200,
+        "default": 110,
+        "description": "Maximum scale during jitter"
+      }
+    }
+  },
+  "bubble_floral": {
+    "name": "Bubble Floral",
+    "description": "Floating text with drifting bubbles",
+    "config": {
+      "bubble_count": {
+        "type": "number",
+        "min": 1,
+        "max": 30,
+        "default": 8,
+        "description": "Number of bubbles per word"
+      },
+      "drift_y_min": {
+        "type": "number",
+        "min": 20,
+        "max": 400,
+        "default": 100,
+        "description": "Min upward drift distance"
+      },
+      "drift_y_max": {
+        "type": "number",
+        "min": 20,
+        "max": 500,
+        "default": 200,
+        "description": "Max upward drift distance"
+      },
+      "bubble_size_min": {
+        "type": "number",
+        "min": 5,
+        "max": 80,
+        "default": 10,
+        "description": "Min bubble size"
+      },
+      "bubble_size_max": {
+        "type": "number",
+        "min": 5,
+        "max": 120,
+        "default": 30,
+        "description": "Max bubble size"
+      }
+    }
+  },
+  "thunder_strike": {
+    "name": "Thunder Strike",
+    "description": "Fast flashing outline over text",
+    "config": {}
+  },
+  "rainbow_wave": {
+    "name": "Rainbow Wave",
+    "description": "Cycles text color through a rainbow",
+    "config": {
+      "colors": {
+        "type": "array",
+        "default": [
+          "&H00FF00&",
+          "&H00FFFF&",
+          "&H0000FF&",
+          "&HFF00FF&",
+          "&HFF0000&",
+          "&HFFFF00&"
+        ],
+        "description": "Color sequence in ASS hex (BGR)"
+      }
+    }
+  },
+  "earthquake_shake": {
+    "name": "Earthquake Shake",
+    "description": "Rotation jitter simulating an earthquake",
+    "config": {
+      "angle_range": {
+        "type": "number",
+        "min": 0,
+        "max": 45,
+        "default": 5,
+        "description": "Max absolute rotation in degrees"
+      },
+      "step_ms": {
+        "type": "number",
+        "min": 10,
+        "max": 200,
+        "default": 40,
+        "description": "Duration of each jitter segment"
+      }
+    }
+  },
+  "wave": {
+    "name": "Wave Effect",
+    "description": "Creates a wave/ripple motion across text",
+    "config": {
+      "amplitude": {
+        "type": "number",
+        "min": 0,
+        "max": 100.0,
+        "default": 25.0,
+        "description": "Height of wave (pixels)"
+      },
+      "wavelength": {
+        "type": "number",
+        "min": 20,
+        "max": 300.0,
+        "default": 80.0,
+        "description": "Distance between wave peaks (pixels)"
+      }
+    }
+  },
+  "chromatic": {
+    "name": "Chromatic Aberration",
+    "description": "Splits color channels creating glitch/distortion effect",
+    "config": {
+      "shift_amount": {
+        "type": "number",
+        "min": 0,
+        "max": 20.0,
+        "default": 4.0,
+        "description": "How much channels are shifted (pixels)"
+      }
+    }
+  },
+  "horror_creepy": {
+    "name": "Horror Creepy",
+    "description": "Small jitter with blur pulses",
+    "config": {
+      "step_ms": {
+        "type": "number",
+        "min": 10,
+        "max": 300,
+        "default": 50,
+        "description": "Duration of each jitter segment"
+      }
+    }
+  },
+  "luxury_gold": {
+    "name": "Luxury Gold",
+    "description": "Shine color transform",
+    "config": {}
+  },
+  "comic_book": {
+    "name": "Comic Book",
+    "description": "Slight rotation with bounce scale",
+    "config": {}
+  },
+  "pulse": {
+    "name": "Pulse",
+    "description": "Pulsing text with expanding rings",
+    "config": {
+      "ring_count": {
+        "type": "number",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "description": "How many rings to emit"
+      }
+    }
+  }
+}
