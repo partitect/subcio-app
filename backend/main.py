@@ -1050,9 +1050,9 @@ PRESET_STYLE_MAP = {
         "id": "karaoke-sentence"
     },
     "mademyday": {
-        "font": "Nunito",
-        "primary_color": "&H00888888",   # passive grey
-        "secondary_color": "&H003DD8FF", # bright yellow highlight
+        "font": "Original Surfer",
+        "primary_color": "&H00888888",
+        "secondary_color": "&H003DD8FF",
         "outline_color": "&H00000000",
         "shadow_color": "&H00000000",
         "font_size": 64,
@@ -1071,7 +1071,7 @@ PRESET_STYLE_MAP = {
         "shear": 0,
         "scale_x": 100,
         "scale_y": 100,
-        "alignment": 2,
+        "alignment": 5,
         "margin_v": 40,
         "margin_l": 10,
         "margin_r": 10,
