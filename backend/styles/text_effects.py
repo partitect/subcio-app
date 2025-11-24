@@ -236,130 +236,155 @@ class MadeMyDayRenderer(StyleRenderer):
         lines = ["[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
         cx, cy = self.get_center_coordinates()
 
+        # Sabit değerler
         active_scale = 1.12
         transition = 220
         active_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
         passive_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
         font_size = int(self.style.get("font_size", 60))
         font_name = self.style.get("font", "Poppins")
-        raw_spacing = int(self.style.get("letter_spacing", 0))
         border = int(self.style.get("border", 2) or 0)
         shadow = int(self.style.get("shadow", 0) or 0)
 
+        # Font çözümleme
         fonts_dir = Path(__file__).resolve().parent.parent / "fonts"
         font_path, font_display_name = resolve_font(fonts_dir, font_name)
-        font_missing = font_path is None
-        font_obj = None
-        ascent = descent = 0
-        if font_path:
-            try:
-                font_obj = ImageFont.truetype(font_path, font_size)
-                ascent, descent = font_obj.getmetrics()
-            except Exception:
-                font_obj = None
-        if not font_obj:
-            ascent = int(font_size * 0.72)
-            descent = int(font_size * 0.28)
+        
+        # Dinamik hesaplamalar - Font boyutuna göre
+        # Kelime arası boşluk: maksimum 5px
+        word_spacing = min(5, max(1, int(font_size * 0.05)))
+        
+        # Satır arası boşluk: maksimum 5px
+        line_gap = min(5, max(1, int(font_size * 0.05)))
+        
+        # Satır yüksekliği = font_size + satır arası boşluk
+        line_height = font_size + line_gap
+        
+        # Video genişliği ve güvenli alan
+        video_width = 1920
+        safe_margin = 80  # Her yandan 80px güvenli alan
+        max_line_width = video_width - (safe_margin * 2)
+        
+        # Ölçekleme için reserve (aktif kelime büyüdüğünde taşmaması için)
+        scale_reserve = active_scale * 1.15
+        
+        # Kelime genişliği hesaplama fonksiyonları
+        def calculate_word_width_reserved(text: str) -> int:
+            """Taşma kontrolü için reserve genişlik"""
+            base_width = get_text_width(text, font_path, font_size)
+            stroke_padding = (border * 2) + (shadow * 2)
+            reserved_width = int((base_width + stroke_padding) * scale_reserve)
+            return reserved_width
+        
+        def calculate_word_width_actual(text: str) -> int:
+            """Gerçek görünen genişlik (ortalama için)"""
+            base_width = get_text_width(text, font_path, font_size)
+            stroke_padding = (border * 2) + (shadow * 2)
+            return int(base_width + stroke_padding)
+        
+        # Kelime bölme fonksiyonu (gerekirse)
+        def split_word_if_needed(word_text: str) -> list[str]:
+            word_width = calculate_word_width_reserved(word_text)
+            if word_width <= max_line_width:
+                return [word_text]
+            # Kelimeyi karakterlere böl
+            chars = list(word_text)
+            result = []
+            for i, ch in enumerate(chars):
+                if i < len(chars) - 1:
+                    result.append(ch + "-")
+                else:
+                    result.append(ch)
+            return result
 
-        stroke_pad = border * 6 + shadow * 2
-        em_width = get_text_width("MM", font_path, font_size) if font_path else font_size * 1.1
-        space_width = get_text_width(" ", font_path, font_size) if font_path else font_size * 0.5
-        base_pad = max(font_size * (1.4 if font_missing else 1.25), em_width * 0.4, space_width * 1.2)
-        safety_padding = int(base_pad + stroke_pad + space_width)
-        scale_reserve = 1.8 if font_missing else 1.65
-
-        spacing = min(5, max(1, raw_spacing))
-        max_line_width = 1920 - 160
-        line_gap_extra = min(5, max(0, int(font_size * 0.05)))
-        line_step = font_size + line_gap_extra
-        hyphen = "\u00ad"
-
-        def split_word(word_text: str) -> list[str]:
-            if not word_text:
-                return [""]
-            return list(word_text)
-
+        # Her 3 kelimelik grup için işlem
         for g_start in range(0, len(self.words), 3):
             group_words = self.words[g_start:g_start + 3]
             if not group_words:
                 continue
+            
             start_ms = int(group_words[0]['start'] * 1000)
             end_ms = int(group_words[-1]['end'] * 1000)
 
+            # Kelimeleri gerekirse böl ve genişlikleri hesapla
             expanded_words = []
-            expanded_widths = []
             for w in group_words:
-                base_width = get_text_width(w['text'], font_path, font_size)
-                padded = base_width + safety_padding
-                width_reserved = int(padded * scale_reserve)
-                if width_reserved > max_line_width:
-                    chars = split_word(w['text'])
-                    for idx, ch in enumerate(chars):
-                        ch_text = ch + (hyphen if idx < len(chars) - 1 else "")
-                        ch_width = get_text_width(ch_text, font_path, font_size)
-                        ch_padded = ch_width + safety_padding
-                        ch_reserved = int(ch_padded * scale_reserve)
-                        expanded_words.append({**w, "text": ch_text})
-                        expanded_widths.append(min(ch_reserved, max_line_width))
-                else:
-                    expanded_words.append(w)
-                    expanded_widths.append(width_reserved)
-
-            group_words = expanded_words
-            word_widths = expanded_widths
-
-            def line_width(idx_list):
-                if not idx_list:
-                    return 0
-                total = sum(word_widths[i] for i in idx_list)
-                if len(idx_list) > 1:
-                    total += (len(idx_list) - 1) * spacing
-                return total
-
-            lines_idx = []
+                splits = split_word_if_needed(w['text'])
+                for split_text in splits:
+                    expanded_words.append({**w, "text": split_text})
+            
+            # Gerçek genişlikler (görünüm için)
+            word_widths_actual = [calculate_word_width_actual(w['text']) for w in expanded_words]
+            # Reserve genişlikler (taşma kontrolü için)
+            word_widths_reserved = [calculate_word_width_reserved(w['text']) for w in expanded_words]
+            
+            # Satırlara ayırma algoritması (reserve genişlik kullan)
+            lines_data = []
             current_line = []
             current_width = 0
-            for i, w_width in enumerate(word_widths):
-                add_width = w_width if not current_line else spacing + w_width
-                if current_line and current_width + add_width > max_line_width:
-                    lines_idx.append(current_line)
-                    current_line = [i]
-                    current_width = w_width
+            
+            for i, width_reserved in enumerate(word_widths_reserved):
+                if not current_line:
+                    needed_width = width_reserved
                 else:
+                    needed_width = current_width + word_spacing + width_reserved
+                
+                if needed_width <= max_line_width:
                     current_line.append(i)
-                    current_width += add_width
+                    current_width = needed_width
+                else:
+                    if current_line:
+                        lines_data.append(current_line)
+                    current_line = [i]
+                    current_width = width_reserved
+            
             if current_line:
-                lines_idx.append(current_line)
-
-            total_lines = len(lines_idx)
-            start_y = cy - ((total_lines - 1) * line_step) / 2
-
-            for line_number, idx_list in enumerate(lines_idx):
-                line_w = line_width(idx_list)
-                current_x = cx - (line_w // 2)
-                line_y = int(start_y + line_number * line_step)
-
-                for word_idx in idx_list:
-                    w = group_words[word_idx]
-                    w_width = word_widths[word_idx]
-                    word_cx = current_x + (w_width // 2)
-
+                lines_data.append(current_line)
+            
+            # Y pozisyonlarını hesapla
+            num_lines = len(lines_data)
+            total_text_height = (num_lines * line_height) - line_gap
+            start_y = cy - (total_text_height / 2)
+            
+            # Her satırı render et
+            for line_idx, word_indices in enumerate(lines_data):
+                line_y = int(start_y + (line_idx * line_height))
+                
+                # Tüm satırı tek bir metin olarak birleştir
+                line_text_parts = []
+                
+                for idx, w_idx in enumerate(word_indices):
+                    w = expanded_words[w_idx]
+                    
+                    # Timing hesaplamaları
                     w_start = int(w['start'] * 1000)
                     w_end = int(w['end'] * 1000)
                     rel_start = max(0, w_start - start_ms)
                     rel_end = max(rel_start + 1, w_end - start_ms)
                     t_in_end = min(rel_start + transition, rel_end)
                     t_out_start = max(rel_start, rel_end - transition)
+                    
+                    # Animasyon etiketleri
                     active_tags = f"\\1c{active_color}\\fscx{int(active_scale*100)}\\fscy{int(active_scale*100)}\\blur1"
                     passive_tags = f"\\1c{passive_color}\\fscx100\\fscy100\\blur0"
-                    text = (
-                        f"{{\\an5\\fn{font_display_name}\\fs{font_size}\\pos({word_cx},{line_y})\\fad(120,120)"
-                        f"\\1c{passive_color}"
+                    
+                    # Kelime metni
+                    word_text = (
+                        f"{{\\1c{passive_color}"
                         f"\\t({rel_start},{t_in_end},{active_tags})"
                         f"\\t({t_out_start},{rel_end},{passive_tags})"
                         f"}}{w['text']}"
                     )
-                    lines.append(f"Dialogue: 1,{ms_to_ass(start_ms)},{ms_to_ass(end_ms)},Default,,0,0,0,,{text}")
-                    current_x += w_width + spacing
+                    
+                    line_text_parts.append(word_text)
+                    
+                    # Kelimeler arasına boşluk ekle (son kelime hariç)
+                    if idx < len(word_indices) - 1:
+                        line_text_parts.append(" ")
+                
+                # Tüm satırı tek bir Dialogue olarak ekle - \an5 ile ortala
+                full_line_text = "".join(line_text_parts)
+                dialogue_line = f"Dialogue: 1,{ms_to_ass(start_ms)},{ms_to_ass(end_ms)},Default,,0,0,0,,{{\\an5\\fn{font_display_name}\\fs{font_size}\\pos({cx},{line_y})\\fad(120,120)}}{full_line_text}"
+                lines.append(dialogue_line)
 
         return self.header + "\n".join(lines)
