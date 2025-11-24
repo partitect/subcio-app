@@ -117,7 +117,7 @@ class GroupedASSRenderer(StyleRenderer):
                 current_x += word_w + self.spacing
 
                 base_tags = (
-                    f"\\an5\\pos({word_x},{cy})"
+                    f"\\an{self.alignment}\\pos({word_x},{cy})"
                     f"\\1c{self.passive_color}\\3c{self.color_outline}"
                     f"\\fscx{self.passive_scale}\\fscy{self.passive_scale}"
                 )

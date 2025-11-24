@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control, jsx-a11y/no-static-element-interactions */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactPlayer from "react-player";
@@ -284,9 +285,19 @@ export default function EditorPage() {
   useEffect(() => {
     if (!words.length) return;
     const handle = setTimeout(async () => {
+      // Convert hex colors back to ASS format for backend
+      const styleForBackend = {
+        ...style,
+        primary_color: hexToAss(style.primary_color as string),
+        secondary_color: hexToAss(style.secondary_color as string),
+        outline_color: hexToAss(style.outline_color as string),
+        shadow_color: hexToAss(style.shadow_color as string),
+        back_color: hexToAss(style.back_color as string),
+      };
+      
       const form = new FormData();
       form.append("words_json", JSON.stringify(words));
-      form.append("style_json", JSON.stringify(style));
+      form.append("style_json", JSON.stringify(styleForBackend));
       if (projectId && projectId !== "demo") form.append("project_id", projectId);
       try {
         const res = await axios.post(`${API_BASE}/preview-ass`, form);
@@ -337,6 +348,8 @@ export default function EditorPage() {
       outline_color: assToHex(preset.outline_color as string),
       shadow_color: assToHex(preset.shadow_color as string),
       back_color: assToHex((preset as any).back_color as string),
+      effect_type: preset.effect_type,
+      effect_config: preset.effect_config,
     }));
   };
 
@@ -720,9 +733,11 @@ export default function EditorPage() {
                     value={style.font_size || 56}
                     onChange={(e) => setStyle({ ...style, font_size: Number(e.target.value) })}
                     className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
+                    title="Font size in pixels"
                   />
                 </div>
               </div>
+
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs text-white/60">Primary</label>
@@ -767,6 +782,7 @@ export default function EditorPage() {
                     value={(style.back_color as string) || "#000000"}
                     onChange={(e) => setStyle({ ...style, back_color: e.target.value })}
                     className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
+                    aria-label="Background color"
                   />
                 </div>
               </div>

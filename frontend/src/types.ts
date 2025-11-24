@@ -12,6 +12,15 @@ export type SubtitleGroup = {
   active_word_index?: number;
 };
 
+export type EffectConfig = {
+  intensity?: number;
+  blur?: number;
+  frequency?: number;
+  amplitude?: number;
+  wavelength?: number;
+  shift_amount?: number;
+};
+
 export type StyleConfig = {
   id: string;
   font?: string;
@@ -27,6 +36,22 @@ export type StyleConfig = {
   letter_spacing?: number;
   bold?: number;
   italic?: number;
+  effect_type?: string;
+  effect_config?: EffectConfig;
+  back_color?: string;
+  margin_l?: number;
+  margin_r?: number;
+  opacity?: number;
+  rotation?: number;
+  rotation_x?: number;
+  rotation_y?: number;
+  shear?: number;
+  scale_x?: number;
+  scale_y?: number;
+  shadow?: number;
+  blur?: number;
+  underline?: number;
+  strikeout?: number;
   [key: string]: unknown;
 };
 

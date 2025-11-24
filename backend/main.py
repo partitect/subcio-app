@@ -18,6 +18,9 @@ from fastapi.staticfiles import StaticFiles
 from faster_whisper import WhisperModel
 import uvicorn
 
+# PyonFX Effects Integration
+from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
+
 def ms_to_ass_timestamp(ms: int) -> str:
     """Converts milliseconds to ASS timestamp format H:MM:SS.cc"""
     s = ms / 1000.0
@@ -1076,6 +1079,108 @@ PRESET_STYLE_MAP = {
         "margin_l": 10,
         "margin_r": 10,
         "id": "mademyday"
+    },
+    # PyonFX Effects Presets
+    "pyonfx-bulge": {
+        "font": "Arial",
+        "primary_color": "&H00FFFFFF",
+        "outline_color": "&H00000000",
+        "secondary_color": "&H00000000",
+        "shadow_color": "&H80000000",
+        "font_size": 72,
+        "bold": 1,
+        "border": 2,
+        "shadow_blur": 0,
+        "alignment": 5,
+        "margin_l": 10,
+        "margin_r": 10,
+        "margin_v": 10,
+        "opacity": 100,
+        "letter_spacing": 0,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "effect_type": "bulge",
+        "effect_config": {
+            "intensity": 1.5,
+            "blur": 0.2
+        },
+        "id": "pyonfx-bulge"
+    },
+    "pyonfx-shake": {
+        "font": "Arial",
+        "primary_color": "&H00FF0000",
+        "outline_color": "&H00FFFFFF",
+        "secondary_color": "&H00000000",
+        "shadow_color": "&H80000000",
+        "font_size": 64,
+        "bold": 1,
+        "border": 3,
+        "shadow_blur": 0,
+        "alignment": 5,
+        "margin_l": 10,
+        "margin_r": 10,
+        "margin_v": 10,
+        "opacity": 100,
+        "letter_spacing": 0,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "effect_type": "shake",
+        "effect_config": {
+            "intensity": 10.0,
+            "frequency": 20.0
+        },
+        "id": "pyonfx-shake"
+    },
+    "pyonfx-wave": {
+        "font": "Arial",
+        "primary_color": "&H0000FF00",
+        "outline_color": "&H00000000",
+        "secondary_color": "&H00000000",
+        "shadow_color": "&H80000000",
+        "font_size": 60,
+        "bold": 0,
+        "border": 1,
+        "shadow_blur": 0,
+        "alignment": 5,
+        "margin_l": 10,
+        "margin_r": 10,
+        "margin_v": 10,
+        "opacity": 100,
+        "letter_spacing": 0,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "effect_type": "wave",
+        "effect_config": {
+            "amplitude": 25.0,
+            "wavelength": 80.0
+        },
+        "id": "pyonfx-wave"
+    },
+    "pyonfx-chromatic": {
+        "font": "Ribeye",
+        "primary_color": "&H00FFFFFF",
+        "secondary_color": "&H00000000",
+        "outline_color": "&H00FF00FF",
+        "shadow_color": "&H00000000",
+        "font_size": 150,
+        "bold": 1,
+        "border": 2,
+        "shadow_blur": 6,
+        "alignment": 5,
+        "margin_l": 10,
+        "margin_r": 10,
+        "margin_v": 10,
+        "opacity": 100,
+        "letter_spacing": 0,
+        "italic": 0,
+        "underline": 0,
+        "strikeout": 0,
+        "effect_type": "bulge",
+        "effect_config": {},
+        "id": "pyonfx-chromatic"
     }
 }
 
@@ -1546,12 +1651,17 @@ async def export_subtitled_video(
 
     ass_path = OUTPUT_DIR / f"subtitles_{uid}.ass"
     
-    # ALWAYS use AdvancedRenderer for these new presets
-    # If style_id is in our map (or basically any valid ID now), use AdvancedRenderer
-    # We can fallback to build_ass only if really needed, but AdvancedRenderer handles basic pop too.
-    from render_engine import AdvancedRenderer
-    renderer = AdvancedRenderer(words, style)
-    ass_content = renderer.render()
+    # Check if using PyonFX effects
+    effect_type = style.get("effect_type")
+    if effect_type and effect_type in ["bulge", "shake", "wave", "chromatic"]:
+        # Use PyonFX Renderer for effects-based presets
+        renderer = PyonFXRenderer(words, style)
+        ass_content = renderer.render()
+    else:
+        # Use AdvancedRenderer for standard presets
+        from render_engine import AdvancedRenderer
+        renderer = AdvancedRenderer(words, style)
+        ass_content = renderer.render()
         
     ass_path.write_text(ass_content, encoding="utf-8")
 
@@ -1610,10 +1720,17 @@ async def preview_ass(
             style["font"] = pick_font_for_preset(style_id or "default")
         style["font"] = resolve_font_name(style["font"])
 
-        # ALWAYS use AdvancedRenderer
-        from render_engine import AdvancedRenderer
-        renderer = AdvancedRenderer(words, style)
-        ass_content = renderer.render()
+        # Check if using PyonFX effects
+        effect_type = style.get("effect_type")
+        if effect_type and effect_type in ["bulge", "shake", "wave", "chromatic"]:
+            # Use PyonFX Renderer for effects-based presets
+            renderer = PyonFXRenderer(words, style)
+            ass_content = renderer.render()
+        else:
+            # Use AdvancedRenderer for standard presets
+            from render_engine import AdvancedRenderer
+            renderer = AdvancedRenderer(words, style)
+            ass_content = renderer.render()
             
         return Response(content=ass_content, media_type="text/plain")
     except Exception as e:
@@ -1792,11 +1909,41 @@ def update_main_py_preset(preset_id: str, preset_data: dict):
     main_py_path = Path(__file__).resolve()
     content = main_py_path.read_text(encoding='utf-8')
     
-    # Find the preset block
-    pattern = rf'"{preset_id}":\s*\{{[^}}]+\}}'
+    # For PyonFX presets, include effect_type and effect_config
+    is_pyonfx = preset_id.startswith("pyonfx-") or preset_data.get("effect_type")
     
     # Create new preset block with all parameters
-    new_preset = f'''"{preset_id}": {{
+    if is_pyonfx:
+        effect_config = preset_data.get('effect_config', {})
+        # Convert effect_config dict to proper JSON string
+        import json
+        effect_config_str = json.dumps(effect_config)
+        
+        new_preset = f'''"{preset_id}": {{
+        "font": "{preset_data.get('font', 'Arial')}",
+        "primary_color": "{preset_data.get('primary_color', '&H00FFFFFF')}",
+        "secondary_color": "{preset_data.get('secondary_color', '&H00000000')}",
+        "outline_color": "{preset_data.get('outline_color', '&H00000000')}",
+        "shadow_color": "{preset_data.get('shadow_color', '&H80000000')}",
+        "font_size": {preset_data.get('font_size', 64)},
+        "bold": {preset_data.get('bold', 1)},
+        "border": {preset_data.get('border', 2)},
+        "shadow_blur": {preset_data.get('shadow_blur', 0)},
+        "alignment": {preset_data.get('alignment', 5)},
+        "margin_l": {preset_data.get('margin_l', 10)},
+        "margin_r": {preset_data.get('margin_r', 10)},
+        "margin_v": {preset_data.get('margin_v', 10)},
+        "opacity": {preset_data.get('opacity', 100)},
+        "letter_spacing": {preset_data.get('letter_spacing', 0)},
+        "italic": {preset_data.get('italic', 0)},
+        "underline": {preset_data.get('underline', 0)},
+        "strikeout": {preset_data.get('strikeout', 0)},
+        "effect_type": "{preset_data.get('effect_type', 'bulge')}",
+        "effect_config": {effect_config_str},
+        "id": "{preset_id}"
+    }}'''
+    else:
+        new_preset = f'''"{preset_id}": {{
         "font": "{preset_data.get('font', 'Poppins')}",
         "primary_color": "{preset_data.get('primary_color', '&H00FFFFFF')}",
         "secondary_color": "{preset_data.get('secondary_color', '&H0000FFFF')}",
@@ -1825,7 +1972,9 @@ def update_main_py_preset(preset_id: str, preset_data: dict):
         "id": "{preset_id}"
     }}'''
     
-    # Replace
+    # Find and replace the preset - use a more robust pattern that handles multi-line
+    # Search for the preset definition with regex
+    pattern = rf'"{preset_id}":\s*\{{[^{{]*?(?:\{{[^{{]*?\}})*[^{{]*?\}}'
     updated_content = re.sub(pattern, new_preset, content, flags=re.DOTALL)
     
     # Write back
@@ -1837,11 +1986,41 @@ def add_preset_to_main_py(preset_id: str, preset_data: dict):
     main_py_path = Path(__file__).resolve()
     content = main_py_path.read_text(encoding='utf-8')
     
-    # Find the end of PRESET_STYLE_MAP
-    pattern = r'(PRESET_STYLE_MAP\s*=\s*\{.*?)(\n\})'
+    # For PyonFX presets, include effect_type and effect_config
+    is_pyonfx = preset_id.startswith("pyonfx-") or preset_data.get("effect_type")
     
     # Create new preset block with all parameters
-    new_preset = f''',
+    if is_pyonfx:
+        effect_config = preset_data.get('effect_config', {})
+        import json
+        effect_config_str = json.dumps(effect_config)
+        
+        new_preset = f''',
+    "{preset_id}": {{
+        "font": "{preset_data.get('font', 'Arial')}",
+        "primary_color": "{preset_data.get('primary_color', '&H00FFFFFF')}",
+        "secondary_color": "{preset_data.get('secondary_color', '&H00000000')}",
+        "outline_color": "{preset_data.get('outline_color', '&H00000000')}",
+        "shadow_color": "{preset_data.get('shadow_color', '&H80000000')}",
+        "font_size": {preset_data.get('font_size', 64)},
+        "bold": {preset_data.get('bold', 1)},
+        "border": {preset_data.get('border', 2)},
+        "shadow_blur": {preset_data.get('shadow_blur', 0)},
+        "alignment": {preset_data.get('alignment', 5)},
+        "margin_l": {preset_data.get('margin_l', 10)},
+        "margin_r": {preset_data.get('margin_r', 10)},
+        "margin_v": {preset_data.get('margin_v', 10)},
+        "opacity": {preset_data.get('opacity', 100)},
+        "letter_spacing": {preset_data.get('letter_spacing', 0)},
+        "italic": {preset_data.get('italic', 0)},
+        "underline": {preset_data.get('underline', 0)},
+        "strikeout": {preset_data.get('strikeout', 0)},
+        "effect_type": "{preset_data.get('effect_type', 'bulge')}",
+        "effect_config": {effect_config_str},
+        "id": "{preset_id}"
+    }}'''
+    else:
+        new_preset = f''',
     "{preset_id}": {{
         "font": "{preset_data.get('font', 'Poppins')}",
         "primary_color": "{preset_data.get('primary_color', '&H00FFFFFF')}",
@@ -1871,7 +2050,8 @@ def add_preset_to_main_py(preset_id: str, preset_data: dict):
         "id": "{preset_id}"
     }}'''
     
-    # Insert before closing brace
+    # Find the end of PRESET_STYLE_MAP and insert before closing brace
+    pattern = r'(PRESET_STYLE_MAP\s*=\s*\{.*?)(\n\})'
     updated_content = re.sub(pattern, rf'\1{new_preset}\2', content, flags=re.DOTALL)
     
     # Write back
@@ -1990,6 +2170,126 @@ async def extract_aas_style(request: Request):
         
     except Exception as e:
         print(f"Extract Style Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/pyonfx/effects")
+async def get_pyonfx_effects():
+    """
+    Returns available PyonFX effects and their configurations
+    """
+    try:
+        effects = {
+            "bulge": {
+                "name": "Bulge Effect",
+                "description": "Creates a bulging/magnifier distortion on text",
+                "config": {
+                    "intensity": {
+                        "type": "number",
+                        "min": 0,
+                        "max": 2.0,
+                        "default": 1.5,
+                        "description": "How strong the bulge effect is"
+                    },
+                    "blur": {
+                        "type": "number",
+                        "min": 0,
+                        "max": 2.0,
+                        "default": 0.2,
+                        "description": "Blur amount for smoothness"
+                    }
+                }
+            },
+            "shake": {
+                "name": "Shake Effect",
+                "description": "Makes text shake/vibrate rapidly",
+                "config": {
+                    "intensity": {
+                        "type": "number",
+                        "min": 0,
+                        "max": 50.0,
+                        "default": 10.0,
+                        "description": "How far the text shakes (pixels)"
+                    },
+                    "frequency": {
+                        "type": "number",
+                        "min": 1,
+                        "max": 50.0,
+                        "default": 20.0,
+                        "description": "How fast it shakes (Hz)"
+                    }
+                }
+            },
+            "wave": {
+                "name": "Wave Effect",
+                "description": "Creates a wave/ripple motion across text",
+                "config": {
+                    "amplitude": {
+                        "type": "number",
+                        "min": 0,
+                        "max": 100.0,
+                        "default": 25.0,
+                        "description": "Height of wave (pixels)"
+                    },
+                    "wavelength": {
+                        "type": "number",
+                        "min": 20,
+                        "max": 300.0,
+                        "default": 80.0,
+                        "description": "Distance between wave peaks (pixels)"
+                    }
+                }
+            },
+            "chromatic": {
+                "name": "Chromatic Aberration",
+                "description": "Splits color channels creating glitch/distortion effect",
+                "config": {
+                    "shift_amount": {
+                        "type": "number",
+                        "min": 0,
+                        "max": 20.0,
+                        "default": 4.0,
+                        "description": "How much channels are shifted (pixels)"
+                    }
+                }
+            }
+        }
+        return JSONResponse(content=effects)
+    except Exception as e:
+        print(f"Get PyonFX Effects Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/pyonfx/preview")
+async def preview_pyonfx_effect(
+    words_json: str = Form(...),
+    effect_type: str = Form("bulge"),
+    effect_config_json: str = Form("{}"),
+):
+    """
+    Preview a PyonFX effect without burning video
+    """
+    try:
+        words = json.loads(words_json)
+        effect_config = json.loads(effect_config_json)
+        
+        style = {
+            "effect_type": effect_type,
+            "font": "Arial",
+            "font_size": 64,
+            "primary_color": "&H00FFFFFF",
+            "outline_color": "&H00000000",
+            "bold": 1,
+            "border": 2,
+            "effect_config": effect_config,
+        }
+        
+        renderer = PyonFXRenderer(words, style)
+        ass_content = renderer.render()
+        
+        return Response(content=ass_content, media_type="text/plain")
+    except Exception as e:
+        print(f"PyonFX Preview Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
