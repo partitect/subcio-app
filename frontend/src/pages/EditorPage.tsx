@@ -80,6 +80,44 @@ const defaultWords: WordCue[] = [
   { start: 3.2, end: 4.0, text: "export" },
 ];
 
+const defaultFireStormStyle: StyleConfig = {
+  id: "fire-storm",
+  font: "Asimovian",
+  primary_color: assToHex("&H0000d5ff"),
+  secondary_color: assToHex("&H00c431a4"),
+  outline_color: assToHex("&H00000000"),
+  shadow_color: assToHex("&H00ffffff"),
+  back_color: assToHex("&H00000000"),
+  font_size: 150,
+  letter_spacing: 10,
+  bold: 1,
+  italic: 0,
+  underline: 0,
+  strikeout: 0,
+  border: 1,
+  shadow: 3,
+  blur: 1,
+  opacity: 100,
+  rotation: 0,
+  rotation_x: 0,
+  rotation_y: -1,
+  shear: 0,
+  scale_x: 100,
+  scale_y: 100,
+  alignment: 5,
+  margin_v: 40,
+  margin_l: 10,
+  margin_r: 10,
+  shadow_blur: 0,
+  effect_type: "fire_storm",
+  effect_config: {
+    particle_count: 12,
+    min_speed: 30,
+    max_speed: 120,
+    colors: ["&H0000FF&", "&H00FFFF&", "&HFFFFFF&"],
+  },
+};
+
 const normalizeFontName = (options: { name: string; file: string }[], value?: string) => {
   if (!options.length) return value || "";
   if (!value) return options[0].name;
@@ -122,40 +160,12 @@ export default function EditorPage() {
   const [project, setProject] = useState<ProjectMeta | null>((location.state as any)?.project || null);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [words, setWords] = useState<WordCue[]>((location.state as any)?.words || defaultWords);
-  const [style, setStyle] = useState<StyleConfig>({
-    id: "neon-glow",
-    font: "",
-    primary_color: "#ffffff",
-    secondary_color: "#00ffff",
-    outline_color: "#000000",
-    shadow_color: "#000000",
-    back_color: "#000000",
-    shadow_blur: 6,
-    font_size: 56,
-    alignment: 2,
-    border: 2,
-    letter_spacing: 0,
-    bold: 1,
-    italic: 0,
-    underline: 0,
-    strikeout: 0,
-    opacity: 100,
-    rotation: 0,
-    rotation_x: 0,
-    rotation_y: 0,
-    shear: 0,
-    scale_x: 100,
-    scale_y: 100,
-    margin_v: 40,
-    margin_l: 10,
-    margin_r: 10,
-    blur: 0,
-    shadow: 0,
-  });
+  const [style, setStyle] = useState<StyleConfig>(defaultFireStormStyle);
   const [assContent, setAssContent] = useState<string>("");
   const [presets, setPresets] = useState<Preset[]>([]);
   const [fontOptions, setFontOptions] = useState<{ name: string; file: string }[]>([]);
   const [activeTab, setActiveTab] = useState<"presets" | "style" | "transcript">("presets");
+  const [presetFilter, setPresetFilter] = useState<PresetCategory>("all");
   const [resolution, setResolution] = useState("1080p");
   const [exporting, setExporting] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -163,6 +173,7 @@ export default function EditorPage() {
   const [exportName, setExportName] = useState("pycaps_export");
   const [exportQuality, setExportQuality] = useState("1080p");
   const [savingPreset, setSavingPreset] = useState(false);
+  const [presetSynced, setPresetSynced] = useState(false);
 
   const activeIndex = useMemo(
     () => words.findIndex((w) => w && currentTime >= w.start && currentTime < w.end),
@@ -307,6 +318,16 @@ export default function EditorPage() {
     setStyle((prev) => ({ ...prev, font: normalizeFontName(fontOptions, prev.font) }));
   }, [fontOptions]);
 
+  // Once presets are available, re-apply fire-storm to ensure full backend values (colors/effect) are loaded
+  useEffect(() => {
+    if (presetSynced || !presets.length || style.id !== "fire-storm") return;
+    const fire = presets.find((p) => p.id === "fire-storm");
+    if (fire) {
+      applyPreset(fire);
+      setPresetSynced(true);
+    }
+  }, [presets, presetSynced, style.id]);
+
   useEffect(() => {
     if (!words.length) return;
     const handle = setTimeout(async () => {
@@ -323,7 +344,7 @@ export default function EditorPage() {
       } catch (err) {
         console.error("ASS preview failed", err);
       }
-    }, 250);
+    }, 700); // slower debounce to avoid UI lag while editing transcript
     return () => clearTimeout(handle);
   }, [words, style, projectId]);
 
@@ -624,6 +645,11 @@ export default function EditorPage() {
       .map((fname) => `/fonts/${encodeName(fname)}`);
     return urls;
   }, [style.font, fontOptions]);
+
+  const filteredPresets = useMemo(() => {
+    if (presetFilter === "all") return presets;
+    return presets.filter((p) => categorizePreset(p) === presetFilter);
+  }, [presetFilter, presets]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary", display: "flex", flexDirection: "column" }}>
@@ -1324,23 +1350,23 @@ export default function EditorPage() {
                         Dur. {(w.end - w.start).toFixed(2)}s
                       </Typography>
                     </Stack>
-                  <Stack direction="row" spacing={0.5}>
-                    <Tooltip title="Seek to start">
-                      <IconButton size="small" onClick={() => handleSeek(w.start)}>
-                        <Play size={16} />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Duplicate line">
-                      <IconButton size="small" onClick={() => duplicateWord(idx)}>
-                        <Copy size={16} />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete line">
-                      <IconButton size="small" color="error" onClick={() => deleteWord(idx)}>
-                        <Trash2 size={16} />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
+                    <Stack direction="row" spacing={0.5}>
+                      <Tooltip title="Seek to start">
+                        <IconButton size="small" onClick={() => handleSeek(w.start)}>
+                          <Play size={16} />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Duplicate line">
+                        <IconButton size="small" onClick={() => duplicateWord(idx)}>
+                          <Copy size={16} />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete line">
+                        <IconButton size="small" color="error" onClick={() => deleteWord(idx)}>
+                          <Trash2 size={16} />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
                   </Stack>
                   <TextField
                     fullWidth
