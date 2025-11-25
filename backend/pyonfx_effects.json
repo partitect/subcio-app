@@ -268,5 +268,251 @@
         "description": "How many rings to emit"
       }
     }
+  },
+  "colorful": {
+    "name": "Colorful",
+    "description": "Cycles through bright colors and emits small particles",
+    "config": {
+      "colors": {
+        "type": "array",
+        "default": [
+          "&H0000FF&",
+          "&H00FFFF&",
+          "&H00FF00&",
+          "&HFFFF00&",
+          "&HFF0000&",
+          "&HFF00FF&"
+        ],
+        "description": "Color sequence in ASS hex (BGR)"
+      }
+    }
+  },
+  "ghost_star": {
+    "name": "Ghost Star",
+    "description": "Blurred text with orbiting glowing stars",
+    "config": {}
+  },
+  "matrix_rain": {
+    "name": "Matrix Rain",
+    "description": "Falling green glyphs behind the text",
+    "config": {}
+  },
+  "electric_shock": {
+    "name": "Electric Shock",
+    "description": "Shaking text with lightning bolt overlays",
+    "config": {}
+  },
+  "smoke_trail": {
+    "name": "Smoke Trail",
+    "description": "Text that fades while smoke drifts upward",
+    "config": {}
+  },
+  "pixel_glitch": {
+    "name": "Pixel Glitch",
+    "description": "Layered channel offsets with positional glitches",
+    "config": {
+      "colors": {
+        "type": "array",
+        "default": [
+          "&HFF0000&",
+          "&H00FF00&",
+          "&H0000FF&",
+          "&HFFFFFF&"
+        ],
+        "description": "Channel colors for glitch layers"
+      }
+    }
+  },
+  "neon_sign": {
+    "name": "Neon Sign",
+    "description": "Flickering neon glow effect",
+    "config": {}
+  },
+  "fade_in_out": {
+    "name": "Fade In Out",
+    "description": "Sentence-level fade in/out timing",
+    "config": {
+      "sentence_length": {
+        "type": "number",
+        "min": 1,
+        "max": 20,
+        "default": 5,
+        "description": "How many words to group per sentence"
+      }
+    }
+  },
+  "slide_up": {
+    "name": "Slide Up",
+    "description": "Sentences slide up from below",
+    "config": {
+      "sentence_length": {
+        "type": "number",
+        "min": 1,
+        "max": 20,
+        "default": 4,
+        "description": "How many words to group per sentence"
+      }
+    }
+  },
+  "zoom_burst": {
+    "name": "Zoom Burst",
+    "description": "Sentences zoom in then settle",
+    "config": {
+      "sentence_length": {
+        "type": "number",
+        "min": 1,
+        "max": 20,
+        "default": 4,
+        "description": "How many words to group per sentence"
+      }
+    }
+  },
+  "bounce_in": {
+    "name": "Bounce In",
+    "description": "Bouncy sentence entrance",
+    "config": {
+      "sentence_length": {
+        "type": "number",
+        "min": 1,
+        "max": 20,
+        "default": 4,
+        "description": "How many words to group per sentence"
+      }
+    }
+  },
+  "tiktok_yellow_box": {
+    "name": "TikTok Yellow Box",
+    "description": "Rounded yellow box with scaling text",
+    "config": {}
+  },
+  "falling_heart": {
+    "name": "Falling Heart",
+    "description": "Text drop-in with raining hearts",
+    "config": {}
+  },
+  "thunder_storm": {
+    "name": "Thunder Storm",
+    "description": "Storm clouds, flashes, lightning, sparks, rain",
+    "config": {}
+  },
+  "ice_crystal": {
+    "name": "Ice Crystal",
+    "description": "Icy glow with exploding crystals and snowflakes",
+    "config": {}
+  },
+  "cosmic_stars": {
+    "name": "Cosmic Stars",
+    "description": "Galaxy glow with orbiting stars and stardust",
+    "config": {}
+  },
+  "ocean_wave": {
+    "name": "Ocean Wave",
+    "description": "Water glow, bubbles, foam, and wave particles",
+    "config": {}
+  },
+  "butterfly_dance": {
+    "name": "Butterfly Dance",
+    "description": "Butterflies, petals, and spring glow",
+    "config": {}
+  },
+  "neon_pulse": {
+    "name": "Neon Pulse",
+    "description": "Neon-like pulse with blur",
+    "config": {}
+  },
+  "kinetic_bounce": {
+    "name": "Kinetic Bounce",
+    "description": "Bounce-in with squash/stretch",
+    "config": {}
+  },
+  "cinematic_blur": {
+    "name": "Cinematic Blur",
+    "description": "Blur in/out around timing",
+    "config": {}
+  },
+  "typewriter_pro": {
+    "name": "Typewriter Pro",
+    "description": "Rotate-in typewriter emphasis",
+    "config": {}
+  },
+  "word_pop": {
+    "name": "Word Pop",
+    "description": "Pop scale on each word",
+    "config": {}
+  },
+  "retro_arcade": {
+    "name": "Retro Arcade",
+    "description": "Static retro style",
+    "config": {}
+  },
+  "news_ticker": {
+    "name": "News Ticker",
+    "description": "Slide-up ticker motion",
+    "config": {}
+  },
+  "tiktok_group": {
+    "name": "TikTok Group",
+    "description": "Prev/current/next grouped emphasis",
+    "config": {}
+  },
+  "spin_3d": {
+    "name": "3D Spin",
+    "description": "Spin with 3D-ish rotation",
+    "config": {}
+  },
+  "shear_force": {
+    "name": "Shear Force",
+    "description": "Sheared text with sway",
+    "config": {}
+  },
+  "double_shadow": {
+    "name": "Double Shadow",
+    "description": "Two-layer shadow text",
+    "config": {}
+  },
+  "karaoke_classic": {
+    "name": "Karaoke Classic",
+    "description": "Classic karaoke focus on current word",
+    "config": {}
+  },
+  "karaoke_pro": {
+    "name": "Karaoke Pro",
+    "description": "Past/current/future karaoke coloring",
+    "config": {}
+  },
+  "karaoke_sentence": {
+    "name": "Karaoke Sentence",
+    "description": "Sentence-group karaoke fade",
+    "config": {}
+  },
+  "dynamic_highlight": {
+    "name": "Dynamic Highlight",
+    "description": "Highlights current word using secondary color",
+    "config": {}
+  },
+  "tiktok_box_group": {
+    "name": "TikTok Box Group",
+    "description": "Rounded box around current word",
+    "config": {}
+  },
+  "sakura_dream": {
+    "name": "Sakura Dream",
+    "description": "Petal drift aesthetic",
+    "config": {}
+  },
+  "phoenix_flames": {
+    "name": "Phoenix Flames",
+    "description": "Rising flame particles",
+    "config": {}
+  },
+  "welcome_my_life": {
+    "name": "Welcome My Life",
+    "description": "Bold pop-in entrance",
+    "config": {}
+  },
+  "mademyday": {
+    "name": "Made My Day",
+    "description": "Active word emphasis",
+    "config": {}
   }
 }

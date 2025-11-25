@@ -493,6 +493,126 @@ class ButterflyDanceEffect:
         pass
 
 
+class NeonPulseEffect:
+    """Simple neon pulse scale/blur."""
+    def __init__(self):
+        pass
+
+
+class KineticBounceEffect:
+    """Bounce in with squash/stretch."""
+    def __init__(self):
+        pass
+
+
+class CinematicBlurEffect:
+    """Blur in/out around timing."""
+    def __init__(self):
+        pass
+
+
+class TypewriterProEffect:
+    """Rotate-in typewriter emphasis."""
+    def __init__(self):
+        pass
+
+
+class WordPopEffect:
+    """Scale pop on each word."""
+    def __init__(self):
+        pass
+
+
+class RetroArcadeEffect:
+    """Static retro placeholder."""
+    def __init__(self):
+        pass
+
+
+class NewsTickerEffect:
+    """Slide-up ticker feel."""
+    def __init__(self):
+        pass
+
+
+class TikTokGroupEffect:
+    """Group previous/current/next words."""
+    def __init__(self):
+        pass
+
+
+class Spin3DEffect:
+    """3D-ish spin via rotations."""
+    def __init__(self):
+        pass
+
+
+class ShearForceEffect:
+    """Shear/leaned text bounce."""
+    def __init__(self):
+        pass
+
+
+class DoubleShadowEffect:
+    """Two shadow layers."""
+    def __init__(self):
+        pass
+
+
+class KaraokeClassicEffect:
+    """Classic karaoke focus."""
+    def __init__(self):
+        pass
+
+
+class KaraokeProEffect:
+    """Pro karaoke with past/future colors."""
+    def __init__(self):
+        pass
+
+
+class KaraokeSentenceEffect:
+    """Sentence-group karaoke."""
+    def __init__(self):
+        pass
+
+
+class DynamicHighlightEffect:
+    """Highlights current word with secondary color."""
+    def __init__(self):
+        pass
+
+
+class TikTokBoxGroupEffect:
+    """Grouped box highlight."""
+    def __init__(self):
+        pass
+
+
+class SakuraDreamEffect:
+    """Petal drift aesthetic."""
+    def __init__(self):
+        pass
+
+
+class PhoenixFlamesEffect:
+    """Flame sparks rising."""
+    def __init__(self):
+        pass
+
+
+class WelcomeMyLifeEffect:
+    """Gentle pop-in."""
+    def __init__(self):
+        pass
+
+
+class MadeMyDayEffect:
+    """Active word emphasis."""
+    def __init__(self):
+        pass
+
+
 class PyonFXRenderer:
     """
     Renderer for PyonFX effects within ASS subtitle format
@@ -531,6 +651,26 @@ class PyonFXRenderer:
         "cosmic_stars": CosmicStarsEffect,
         "ocean_wave": OceanWaveEffect,
         "butterfly_dance": ButterflyDanceEffect,
+        "neon_pulse": NeonPulseEffect,
+        "kinetic_bounce": KineticBounceEffect,
+        "cinematic_blur": CinematicBlurEffect,
+        "typewriter_pro": TypewriterProEffect,
+        "word_pop": WordPopEffect,
+        "retro_arcade": RetroArcadeEffect,
+        "news_ticker": NewsTickerEffect,
+        "tiktok_group": TikTokGroupEffect,
+        "spin_3d": Spin3DEffect,
+        "shear_force": ShearForceEffect,
+        "double_shadow": DoubleShadowEffect,
+        "karaoke_classic": KaraokeClassicEffect,
+        "karaoke_pro": KaraokeProEffect,
+        "karaoke_sentence": KaraokeSentenceEffect,
+        "dynamic_highlight": DynamicHighlightEffect,
+        "tiktok_box_group": TikTokBoxGroupEffect,
+        "sakura_dream": SakuraDreamEffect,
+        "phoenix_flames": PhoenixFlamesEffect,
+        "welcome_my_life": WelcomeMyLifeEffect,
+        "mademyday": MadeMyDayEffect,
     }
     
     def __init__(self, words: List[Dict[str, Any]], style: Dict[str, Any]):
@@ -690,6 +830,46 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             return self._render_bounce_in()
         if self.effect_type == "tiktok_yellow_box":
             return self._render_tiktok_yellow_box()
+        if self.effect_type == "neon_pulse":
+            return self._render_neon_pulse()
+        if self.effect_type == "kinetic_bounce":
+            return self._render_kinetic_bounce()
+        if self.effect_type == "cinematic_blur":
+            return self._render_cinematic_blur()
+        if self.effect_type == "typewriter_pro":
+            return self._render_typewriter_pro()
+        if self.effect_type == "word_pop":
+            return self._render_word_pop()
+        if self.effect_type == "retro_arcade":
+            return self._render_retro_arcade()
+        if self.effect_type == "news_ticker":
+            return self._render_news_ticker()
+        if self.effect_type == "tiktok_group":
+            return self._render_tiktok_group()
+        if self.effect_type == "spin_3d":
+            return self._render_spin_3d()
+        if self.effect_type == "shear_force":
+            return self._render_shear_force()
+        if self.effect_type == "double_shadow":
+            return self._render_double_shadow()
+        if self.effect_type == "karaoke_classic":
+            return self._render_karaoke_classic()
+        if self.effect_type == "karaoke_pro":
+            return self._render_karaoke_pro()
+        if self.effect_type == "karaoke_sentence":
+            return self._render_karaoke_sentence()
+        if self.effect_type == "dynamic_highlight":
+            return self._render_dynamic_highlight()
+        if self.effect_type == "tiktok_box_group":
+            return self._render_tiktok_box_group()
+        if self.effect_type == "sakura_dream":
+            return self._render_sakura_dream()
+        if self.effect_type == "phoenix_flames":
+            return self._render_phoenix_flames()
+        if self.effect_type == "welcome_my_life":
+            return self._render_welcome_my_life()
+        if self.effect_type == "mademyday":
+            return self._render_mademyday()
         if self.effect_type == "falling_heart":
             return self._render_falling_heart()
         if self.effect_type == "thunder_storm":
@@ -1036,6 +1216,1202 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                     f"{{\\an5\\pos({cx},{cy})\\1a&HFF&\\3c&HFFFFFF&\\bord2\\fscx{scale_start}\\fscy{scale_start}"
                     f"\\t(\\fscx{scale_end}\\fscy{scale_end}\\alpha&HFF&)\\p1}}{ring_shape}{{\\p0}}"
                 )
+        return "\n".join(lines)
+
+    def _render_colorful(self) -> str:
+        """Port of ColorfulRenderer with color cycle + particles."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        colors = self.effect_config.get(
+            "colors",
+            ["&H0000FF&", "&H00FFFF&", "&H00FF00&", "&HFFFF00&", "&HFF0000&", "&HFF00FF&"],
+        )
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            step = max(1, dur // max(1, len(colors)))
+
+            color_transforms = ""
+            for i, color in enumerate(colors):
+                t_start = i * step
+                t_end = min(dur, (i + 1) * step)
+                color_transforms += f"\\t({t_start},{t_end},\\1c{hex_to_ass(color)})"
+
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fscx110\\fscy110\\blur3{color_transforms}\\fad(100,100)}}{safe_text}"
+            )
+
+            for _ in range(10):
+                px = cx + random.randint(-60, 60)
+                py = cy + random.randint(-40, 40)
+                ex = px + random.randint(-100, 100)
+                ey = py + random.randint(-100, 100)
+                p_start = start_ms + random.randint(0, dur // 2)
+                p_end = p_start + random.randint(400, 800)
+                p_color = hex_to_ass(random.choice(colors))
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(p_start)},{self._ms_to_timestamp(p_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({px},{py},{ex},{ey})\\1c{p_color}\\fscx15\\fscy15\\blur4\\fad(0,200)\\p1}}"
+                    f"m 0 0 l 10 0 10 10 0 10{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_ghost_star(self) -> str:
+        """Port of GhostStarRenderer with orbiting stars."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        star_shape = "m 30 23 b 24 23 24 33 30 33 b 36 33 37 23 30 23 m 35 27 l 61 28 l 35 29 m 26 27 l 0 28 l 26 29"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\blur8\\fscx105\\fscy105\\t(\\blur2\\fscx100\\fscy100)\\fad(150,150)}}{safe_text}"
+            )
+
+            for _ in range(12):
+                sx = cx + random.randint(-100, 100)
+                sy = cy + random.randint(-80, 80)
+                angle = random.uniform(0, 360)
+                distance = random.uniform(80, 150)
+                ex = sx + math.cos(math.radians(angle)) * distance
+                ey = sy + math.sin(math.radians(angle)) * distance
+                s_start = start_ms + random.randint(0, dur)
+                s_end = s_start + random.randint(800, 1200)
+                size = random.randint(15, 35)
+                star_color = hex_to_ass(random.choice(["&HFFFFFF&", "&HFFFF00&", "&H00FFFF&"]))
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(s_start)},{self._ms_to_timestamp(s_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({int(sx)},{int(sy)},{int(ex)},{int(ey)})\\fscx{size}\\fscy{size}\\1c{star_color}"
+                    f"\\blur6\\frz0\\t(\\frz360)\\fad(200,300)\\p1}}{star_shape}{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_matrix_rain(self) -> str:
+        """Port of MatrixRainRenderer: falling glyphs."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        base_color = hex_to_ass(self.style.get("primary_color", "&H00FF00"))
+        chars = "01??????????"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c{base_color}\\fad(100,100)}}{safe_text}"
+            )
+
+            for _ in range(15):
+                char = random.choice(chars)
+                x = cx + random.randint(-200, 200)
+                y_start = cy - random.randint(200, 400)
+                y_end = cy + random.randint(100, 300)
+                c_start = start_ms + random.randint(0, dur)
+                c_end = c_start + random.randint(500, 1000)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(c_start)},{self._ms_to_timestamp(c_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({x},{y_start},{x},{y_end})\\1c{base_color}\\alpha&H80&\\fscx50\\fscy50\\fad(0,200)}}{char}"
+                )
+        return "\n".join(lines)
+
+    def _render_electric_shock(self) -> str:
+        """Port of ElectricShockRenderer: shake + lightning bolts."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        lightning_shape = "m 0 0 l 5 20 l -3 20 l 8 40 l -10 25 l 0 25"
+        base_color = hex_to_ass(self.style.get("primary_color", "&H00FFFF00"))
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            shake = "".join(
+                [f"\\t({i*50},{(i+1)*50},\\frz{random.randint(-3,3)})" for i in range(min(dur // 50, 10))]
+            )
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c{base_color}{shake}}}{safe_text}"
+            )
+
+            for _ in range(6):
+                lx = cx + random.randint(-80, 80)
+                ly = cy + random.randint(-60, 60)
+                l_start = start_ms + random.randint(0, max(1, dur // 2))
+                l_end = l_start + random.randint(50, 150)
+                rotation = random.randint(0, 360)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(l_start)},{self._ms_to_timestamp(l_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({lx},{ly})\\frz{rotation}\\1c{base_color}\\fscx80\\fscy80\\fad(0,50)\\p1}}"
+                    f"{lightning_shape}{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_smoke_trail(self) -> str:
+        """Port of SmokeTrailRenderer: fade-out text with rising smoke."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        smoke_shape = "m 0 0 b 10 -5 20 -5 30 0 b 20 5 10 5 0 0"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(100,300)\\t({max(dur-200,0)},{dur},\\alpha&HFF&\\blur10)}}{safe_text}"
+            )
+
+            for _ in range(10):
+                sx = cx + random.randint(-40, 40)
+                sy = cy + random.randint(-20, 20)
+                ey = sy - random.randint(50, 100)
+                s_start = start_ms + random.randint(max(dur // 2, 0), dur)
+                s_end = s_start + random.randint(800, 1200)
+                size = random.randint(30, 60)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(s_start)},{self._ms_to_timestamp(s_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({sx},{sy},{sx + random.randint(-30,30)},{ey})\\fscx{size}\\fscy{size}\\1c&HCCCCCC&"
+                    f"\\alpha&H40&\\blur8\\t(\\alpha&HFF&\\fscx{size*2}\\fscy{size*2})\\p1}}{smoke_shape}{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_pixel_glitch(self) -> str:
+        """Port of PixelGlitchRenderer: layered channel glitches."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        colors = self.effect_config.get("colors", ["&HFF0000&", "&H00FF00&", "&H0000FF&", "&HFFFFFF&"])
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            for i, color in enumerate(colors):
+                offset_x = random.randint(-5, 5)
+                offset_y = random.randint(-3, 3)
+                glitch_count = min(dur // 100, 8)
+                glitch_times = "".join(
+                    [
+                        f"\\t({j*100},{(j+1)*100},\\pos({cx + random.randint(-10,10)},{cy + random.randint(-5,5)}))"
+                        for j in range(glitch_count)
+                    ]
+                )
+                lines.append(
+                    f"Dialogue: {i},{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + offset_x},{cy + offset_y})\\1c{hex_to_ass(color)}\\alpha&H60&{glitch_times}}}{safe_text}"
+                )
+        return "\n".join(lines)
+
+    def _render_neon_sign(self) -> str:
+        """Port of NeonSignRenderer: flickering glow."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        primary = hex_to_ass(self.style.get("primary_color", "&H00FF00FF"))
+        outline = hex_to_ass(self.style.get("outline_color", "&H00FF00FF"))
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            flicker = ""
+            t = 0
+            while t < min(dur, 1000):
+                if random.random() < 0.3:
+                    flicker += f"\\t({t},{t+50},\\alpha&HFF&)\\t({t+50},{t+100},\\alpha&H00&)"
+                    t += 100
+                else:
+                    t += 100
+
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c{primary}\\3c{outline}\\bord3\\blur5{flicker}}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_fade_in_out(self) -> str:
+        """Port of FadeInOutRenderer: sentence-level fade."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        sentence_length = int(self.effect_config.get("sentence_length", 5))
+
+        for sent_start in range(0, len(self.words), sentence_length):
+            sent_words = self.words[sent_start:sent_start + sentence_length]
+            if not sent_words:
+                continue
+            start_ms = int(sent_words[0].get("start", 0) * 1000)
+            end_ms = int(sent_words[-1].get("end", start_ms / 1000) * 1000)
+            full_text = " ".join([(w.get("text") or "").replace("{", r"\{").replace("}", r"\}") for w in sent_words])
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(400,400)}}{full_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_slide_up(self) -> str:
+        """Port of SlideUpRenderer: sentence slide from below."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        sentence_length = int(self.effect_config.get("sentence_length", 4))
+
+        for sent_start in range(0, len(self.words), sentence_length):
+            sent_words = self.words[sent_start:sent_start + sentence_length]
+            if not sent_words:
+                continue
+            start_ms = int(sent_words[0].get("start", 0) * 1000)
+            end_ms = int(sent_words[-1].get("end", start_ms / 1000) * 1000)
+            full_text = " ".join([(w.get("text") or "").replace("{", r"\{").replace("}", r"\}") for w in sent_words])
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\move({cx},{cy + 100},{cx},{cy},0,300)\\fad(100,200)}}{full_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_zoom_burst(self) -> str:
+        """Port of ZoomBurstRenderer: zoom-in burst per sentence."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        sentence_length = int(self.effect_config.get("sentence_length", 4))
+
+        for sent_start in range(0, len(self.words), sentence_length):
+            sent_words = self.words[sent_start:sent_start + sentence_length]
+            if not sent_words:
+                continue
+            start_ms = int(sent_words[0].get("start", 0) * 1000)
+            end_ms = int(sent_words[-1].get("end", start_ms / 1000) * 1000)
+            full_text = " ".join([(w.get("text") or "").replace("{", r"\{").replace("}", r"\}") for w in sent_words])
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fscx0\\fscy0\\t(0,300,\\fscx100\\fscy100)\\fad(0,200)}}{full_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_bounce_in(self) -> str:
+        """Port of BounceInRenderer: bounce-in sentence animation."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        sentence_length = int(self.effect_config.get("sentence_length", 4))
+        bounce = "\\t(0,150,\\fscx120\\fscy120)\\t(150,250,\\fscx95\\fscy95)\\t(250,350,\\fscx105\\fscy105)\\t(350,400,\\fscx100\\fscy100)"
+
+        for sent_start in range(0, len(self.words), sentence_length):
+            sent_words = self.words[sent_start:sent_start + sentence_length]
+            if not sent_words:
+                continue
+            start_ms = int(sent_words[0].get("start", 0) * 1000)
+            end_ms = int(sent_words[-1].get("end", start_ms / 1000) * 1000)
+            full_text = " ".join([(w.get("text") or "").replace("{", r"\{").replace("}", r"\}") for w in sent_words])
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\move({cx},{cy - 100},{cx},{cy},0,400){bounce}\\fad(0,200)}}{full_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_tiktok_yellow_box(self) -> str:
+        """Port of TikTokYellowBoxRenderer: rounded box + scaling text."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        char_width = 35
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            text_width = len(text) * char_width
+            box_w = text_width + 60
+            box_h = 90
+            radius = 15
+            box_shape = (
+                f"m {radius} 0 l {box_w-radius} 0 b {box_w} 0 {box_w} {radius} {box_w} {radius} "
+                f"l {box_w} {box_h-radius} b {box_w} {box_h} {box_w-radius} {box_h} {box_w-radius} {box_h} "
+                f"l {radius} {box_h} b 0 {box_h} 0 {box_h-radius} 0 {box_h-radius} l 0 {radius} b 0 0 {radius} 0 {radius} 0"
+            )
+
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\p1\\1c&H00FFFF&\\alpha&H20&\\blur2\\fscx100\\fscy100"
+                f"\\t(0,150,\\fscx105\\fscy105)\\t(150,{dur},\\fscx100\\fscy100)}}{box_shape}{{\\p0}}"
+            )
+
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c&H000000&\\b1\\fscx110\\fscy110"
+                f"\\t(0,150,\\fscx120\\fscy120)\\t(150,{dur},\\fscx110\\fscy110)}}{text}"
+            )
+        return "\n".join(lines)
+
+    def _render_falling_heart(self) -> str:
+        """Port of FallingHeartRenderer: text drop + raining hearts."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        heart_shape = "m 18 40 b 23 29 35 27 35 16 b 36 8 23 0 18 11 b 14 0 0 8 1 16 b 1 27 14 29 18 40"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\move({cx},{cy-50},{cx},{cy})\\frz{random.randint(-20, 20)}\\t(\\frz0)\\fad(300,100)}}{safe_text}"
+            )
+
+            for _ in range(15):
+                hx = cx + random.randint(-80, 80)
+                hy = cy - random.randint(50, 100)
+                ey = cy + random.randint(50, 150)
+                h_start = start_ms + random.randint(0, dur)
+                h_end = h_start + random.randint(1000, 1500)
+                size = random.randint(20, 40)
+                rotation = random.choice([-500, 500, -700, 700])
+                color = hex_to_ass(random.choice(["&HFF69B4&", "&HFF1493&", "&HFF00FF&"]))
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(h_start)},{self._ms_to_timestamp(h_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({hx},{hy},{hx + random.randint(-50, 50)},{ey})\\fscx{size}\\fscy{size}\\1c{color}"
+                    f"\\blur5\\frz0\\t(\\frz{rotation})\\fad(300,300)\\p1}}{heart_shape}{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_thunder_storm(self) -> str:
+        """Port of ThunderStormRenderer: multi-layer storm."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        lightning = "m 0 0 l 5 20 l -3 20 l 8 40 l -10 25 l 0 25"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            # Clouds
+            for _ in range(5):
+                cloud_x = cx + random.randint(-150, 150)
+                cloud_y = cy - random.randint(80, 120)
+                cloud_size = random.randint(60, 100)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cloud_x},{cloud_y})\\fscx{cloud_size}\\fscy{cloud_size}\\1c&H404040&\\alpha&H60&\\blur20}}?"
+                )
+
+            # Electric flashes + base text
+            for flash in range(3):
+                flash_start = start_ms + flash * (dur // 3)
+                flash_end = flash_start + 100
+                lines.append(
+                    f"Dialogue: 1,{self._ms_to_timestamp(flash_start)},{self._ms_to_timestamp(flash_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx},{cy})\\1c&HFFFFFF&\\bord3\\3c&HFFFF00&\\blur5}}{safe_text}"
+                )
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c&H00FFFF&\\bord2\\3c&H0000FF&\\blur2}}{safe_text}"
+            )
+
+            # Lightning bolts
+            for _ in range(15):
+                lx = cx + random.randint(-120, 120)
+                ly = cy - random.randint(100, 150)
+                l_start = start_ms + random.randint(0, dur)
+                l_end = l_start + random.randint(50, 150)
+                rotation = random.randint(-30, 30)
+                scale = random.randint(80, 150)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(l_start)},{self._ms_to_timestamp(l_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({lx},{ly})\\frz{rotation}\\fscx{scale}\\fscy{scale}\\1c&HFFFF00&\\blur3\\fad(0,50)\\p1}}"
+                    f"{lightning}{{\\p0}}"
+                )
+
+            # Sparks
+            for _ in range(30):
+                sx = cx + random.randint(-100, 100)
+                sy = cy + random.randint(-60, 60)
+                s_end_x = sx + random.randint(-40, 40)
+                s_end_y = sy + random.randint(-40, 40)
+                s_start = start_ms + random.randint(0, dur)
+                s_end = s_start + random.randint(100, 300)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(s_start)},{self._ms_to_timestamp(s_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({sx},{sy},{s_end_x},{s_end_y})\\1c&H00FFFF&\\blur2\\fscx5\\fscy5}}?"
+                )
+
+            # Rain
+            for _ in range(20):
+                rx = cx + random.randint(-200, 200)
+                ry_start = cy - random.randint(150, 200)
+                ry_end = cy + random.randint(100, 150)
+                r_start = start_ms + random.randint(0, dur)
+                r_end = r_start + random.randint(400, 600)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(r_start)},{self._ms_to_timestamp(r_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({rx},{ry_start},{rx},{ry_end})\\1c&H808080&\\alpha&H80&\\fscx2\\fscy30\\blur1}}|"
+                )
+
+            # Flashes
+            for i in range(4):
+                flash_start = start_ms + i * (dur // 4)
+                flash_end = flash_start + 80
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(flash_start)},{self._ms_to_timestamp(flash_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx},{cy})\\fscx400\\fscy400\\1c&HFFFFFF&\\alpha&H00&\\blur30\\t(\\alpha&HFF&)}}?"
+                )
+        return "\n".join(lines)
+
+    def _render_ice_crystal(self) -> str:
+        """Port of IceCrystalRenderer: icy glow + shards + snow."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        crystal_shape = "m 0 -20 l 5 -5 20 0 5 5 0 20 -5 5 -20 0 -5 -5"
+        snowflake = "m 0 -15 l 0 15 m -15 0 l 15 0 m -10 -10 l 10 10 m -10 10 l 10 -10"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            ice_colors = ["&HFFFF00&", "&HFFAA00&", "&HFF8800&"]
+            for i, color in enumerate(ice_colors):
+                offset = (i - 1) * 3
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + offset},{cy + offset})\\1c{hex_to_ass(color)}\\blur18\\alpha&H70&}}{safe_text}"
+                )
+
+            for i in range(3):
+                lines.append(
+                    f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + i},{cy + i})\\1c&HFFFFFF&\\bord2\\3c&HDDFFFF&\\blur1\\fscx110\\fscy110}}{safe_text}"
+                )
+
+            for i in range(30):
+                angle = (i * 360 / 30) + random.randint(-10, 10)
+                distance_start = 30
+                distance_end = random.randint(120, 200)
+                angle_rad = math.radians(angle)
+                cx_start = cx + int(math.cos(angle_rad) * distance_start)
+                cy_start = cy + int(math.sin(angle_rad) * distance_start)
+                cx_end = cx + int(math.cos(angle_rad) * distance_end)
+                cy_end = cy + int(math.sin(angle_rad) * distance_end)
+                c_start = start_ms + random.randint(0, dur // 3)
+                c_end = c_start + random.randint(600, 1000)
+                scale = random.randint(20, 50)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(c_start)},{self._ms_to_timestamp(c_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({cx_start},{cy_start},{cx_end},{cy_end})\\fscx{scale}\\fscy{scale}\\1c&HFFFFFF&\\blur4"
+                    f"\\frz{random.randint(0,360)}\\t(\\frz{random.randint(360,720)})\\t(\\alpha&HFF&)\\p1}}{crystal_shape}{{\\p0}}"
+                )
+
+            for _ in range(25):
+                px = cx + random.randint(-150, 150)
+                py = cy + random.randint(-100, 100)
+                p_start = start_ms + random.randint(0, dur)
+                p_end = p_start + random.randint(400, 800)
+                p_size = random.randint(5, 15)
+                fade_mid = (p_end - p_start) // 2
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(p_start)},{self._ms_to_timestamp(p_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({px},{py})\\fscx{p_size}\\fscy{p_size}\\1c&HDDFFFF&\\blur2"
+                    f"\\t(0,{fade_mid},\\alpha&H00&)\\t({fade_mid},{p_end - p_start},\\alpha&HFF&)}}?"
+                )
+
+            for _ in range(12):
+                sx = cx + random.randint(-100, 100)
+                sy = cy + random.randint(-80, 80)
+                s_start = start_ms + random.randint(0, dur // 2)
+                s_end = s_start + random.randint(1000, 1500)
+                s_size = random.randint(25, 45)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(s_start)},{self._ms_to_timestamp(s_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({sx},{sy})\\fscx{s_size}\\fscy{s_size}\\1c&HFFFFFF&\\blur3\\frz0\\t(\\frz360)\\p1}}"
+                    f"{snowflake}{{\\p0}}"
+                )
+
+            shard_shape = "m 0 0 l 3 -25 l 6 0"
+            for i in range(8):
+                angle = i * 45
+                shard_x = cx + int(math.cos(math.radians(angle)) * 60)
+                shard_y = cy + int(math.sin(math.radians(angle)) * 60)
+                sh_start = start_ms
+                sh_end = start_ms + 400
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(sh_start)},{self._ms_to_timestamp(sh_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({shard_x},{shard_y})\\frz{angle}\\fscx80\\fscy80\\1c&HFFFFFF&\\blur2"
+                    f"\\t(\\fscx0\\fscy0\\alpha&HFF&)\\p1}}{shard_shape}{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_cosmic_stars(self) -> str:
+        """Port of CosmicStarsRenderer: galaxy glow + orbiting stars."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        star_shape = "m 0 -20 l 5 -5 20 0 5 5 0 20 -5 5 -20 0 -5 -5"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            cosmic_colors = ["&HFF00FF&", "&HFF00AA&", "&HFF0066&"]
+            for i, color in enumerate(cosmic_colors):
+                offset = (i - 1) * 4
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + offset},{cy + offset})\\1c{hex_to_ass(color)}\\blur25\\alpha&H60&"
+                    f"\\t(0,{dur//2},\\blur30)\\t({dur//2},{dur},\\blur25)}}{safe_text}"
+                )
+
+            galaxy_layers = [("&HFF00FF&", 0, 0), ("&HFF00AA&", 2, 1), ("&HFF0066&", 4, 2)]
+            for color, ox, oy in galaxy_layers:
+                lines.append(
+                    f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + ox},{cy + oy})\\1c{hex_to_ass(color)}\\bord2\\3c&HFFFFFF&\\blur2\\fscx115\\fscy115}}"
+                    f"{safe_text}"
+                )
+
+            for i in range(25):
+                orbit_angle_start = (i * 360 / 25) + random.randint(-20, 20)
+                orbit_angle_end = orbit_angle_start + random.choice([360, -360, 720])
+                radius = random.randint(80, 150)
+                angle_start_rad = math.radians(orbit_angle_start)
+                angle_end_rad = math.radians(orbit_angle_end)
+                sx_start = cx + int(math.cos(angle_start_rad) * radius)
+                sy_start = cy + int(math.sin(angle_start_rad) * radius)
+                sx_end = cx + int(math.cos(angle_end_rad) * radius)
+                sy_end = cy + int(math.sin(angle_end_rad) * radius)
+                s_start = start_ms + random.randint(0, dur // 3)
+                s_end = s_start + random.randint(1000, 1500)
+                s_size = random.randint(25, 50)
+                star_color = hex_to_ass(random.choice(["&HFFFFFF&", "&HFFFF00&", "&HFF00FF&", "&H00FFFF&"]))
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(s_start)},{self._ms_to_timestamp(s_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({sx_start},{sy_start},{sx_end},{sy_end})\\fscx{s_size}\\fscy{s_size}\\1c{star_color}\\blur5"
+                    f"\\frz0\\t(\\frz360)\\t(\\alpha&HFF&)\\p1}}{star_shape}{{\\p0}}"
+                )
+
+            for _ in range(40):
+                dx = cx + random.randint(-150, 150)
+                dy = cy + random.randint(-100, 100)
+                d_start = start_ms + random.randint(0, dur)
+                d_end = d_start + random.randint(300, 600)
+                d_size = random.randint(3, 10)
+                dust_color = hex_to_ass(random.choice(["&HFFFFFF&", "&HFFCCFF&", "&HCCFFFF&"]))
+                fade_mid = (d_end - d_start) // 2
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(d_start)},{self._ms_to_timestamp(d_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({dx},{dy})\\fscx{d_size}\\fscy{d_size}\\1c{dust_color}\\blur2"
+                    f"\\t(0,{fade_mid},\\alpha&H00&)\\t({fade_mid},{d_end - d_start},\\alpha&HFF&)}}?"
+                )
+
+            for _ in range(8):
+                nx = cx + random.randint(-120, 120)
+                ny = cy + random.randint(-80, 80)
+                n_size = random.randint(80, 140)
+                nebula_color = hex_to_ass(random.choice(["&HFF00FF&", "&HFF0088&", "&H8800FF&"]))
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({nx},{ny})\\fscx{n_size}\\fscy{n_size}\\1c{nebula_color}\\alpha&HC0&\\blur30}}?"
+                )
+
+            for _ in range(6):
+                shoot_x_start = cx + random.randint(-200, 200)
+                shoot_y_start = cy - random.randint(100, 150)
+                shoot_x_end = shoot_x_start + random.randint(100, 200)
+                shoot_y_end = shoot_y_start + random.randint(100, 200)
+                sh_start = start_ms + random.randint(0, dur)
+                sh_end = sh_start + random.randint(400, 700)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(sh_start)},{self._ms_to_timestamp(sh_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({shoot_x_start},{shoot_y_start},{shoot_x_end},{shoot_y_end})\\1c&HFFFFFF&\\blur8"
+                    f"\\fscx80\\fscy3\\frz45\\t(\\alpha&HFF&)}}?"
+                )
+        return "\n".join(lines)
+
+    def _render_ocean_wave(self) -> str:
+        """Port of OceanWaveRenderer: water glow, bubbles, foam."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        bubble_shape = "m 0 16 b 0 16 0 16 0 16 b 0 16 0 16 0 16 b 0 16 0 16 0 16 b 0 16 0 16 0 16 b 0 0 20 0 20 16 b 20 16 20 16 20 16 b 20 33 0 33 0 16"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            water_colors = ["&HFF8800&", "&HFFAA00&", "&HFFCC00&"]
+            for i, color in enumerate(water_colors):
+                offset = (i - 1) * 3
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + offset},{cy + offset})\\1c{hex_to_ass(color)}\\blur20\\alpha&H70&}}{safe_text}"
+                )
+
+            wave_count = 5
+            for i in range(wave_count):
+                wave_offset = int(math.sin((i / wave_count) * math.pi * 2) * 10)
+                lines.append(
+                    f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx},{cy + wave_offset})\\1c&H00CCFF&\\bord2\\3c&H0088FF&\\blur1}}{safe_text}"
+                )
+
+            for i in range(40):
+                angle = (i * 360 / 40)
+                radius = random.randint(60, 120)
+                angle_rad = math.radians(angle)
+                wx = cx + int(math.cos(angle_rad) * radius)
+                wy = cy + int(math.sin(angle_rad) * radius) + int(math.sin(angle_rad * 3) * 20)
+                w_start = start_ms + random.randint(0, dur // 2)
+                w_end = w_start + random.randint(800, 1200)
+                w_size = random.randint(15, 35)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(w_start)},{self._ms_to_timestamp(w_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({wx},{wy})\\fscx{w_size}\\fscy{w_size}\\1c&H00AAFF&\\blur4\\t(\\alpha&HFF&)}}?"
+                )
+
+            for _ in range(20):
+                bx = cx + random.randint(-100, 100)
+                by_start = cy + random.randint(40, 80)
+                by_end = cy - random.randint(80, 120)
+                b_start = start_ms + random.randint(0, dur)
+                b_end = b_start + random.randint(1000, 1500)
+                b_size = random.randint(20, 40)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(b_start)},{self._ms_to_timestamp(b_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({bx},{by_start},{bx + random.randint(-20,20)},{by_end})\\fscx{b_size}\\fscy{b_size}"
+                    f"\\1c&H00DDFF&\\blur5\\t(\\alpha&HFF&)\\p1}}{bubble_shape}{{\\p0}}"
+                )
+
+            for _ in range(15):
+                fx = cx + random.randint(-120, 120)
+                fy = cy + random.randint(-40, 40)
+                f_start = start_ms + random.randint(0, dur)
+                f_end = f_start + random.randint(400, 700)
+                f_size = random.randint(10, 25)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(f_start)},{self._ms_to_timestamp(f_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({fx},{fy})\\fscx{f_size}\\fscy{f_size}\\1c&HFFFFFF&\\alpha&H40&\\blur8"
+                    f"\\t(\\fscx{f_size*2}\\alpha&HFF&)}}?"
+                )
+
+            for i in range(3):
+                wave_y = cy + (i - 1) * 40
+                w_start = start_ms + i * (dur // 3)
+                w_end = w_start + 500
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(w_start)},{self._ms_to_timestamp(w_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx},{wave_y})\\fscx300\\fscy15\\1c&H00AAFF&\\alpha&H80&\\blur10\\t(\\fscx400\\alpha&HFF&)}}~"
+                )
+        return "\n".join(lines)
+
+    def _render_butterfly_dance(self) -> str:
+        """Port of ButterflyDanceRenderer: butterflies, petals, glow."""
+        lines: List[str] = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        butterfly_shape = "m 10 15 b 5 10 0 5 0 0 b 0 5 5 10 10 15 m 10 15 b 15 10 20 5 20 0 b 20 5 15 10 10 15"
+
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+
+            flower_colors = ["&HFF69B4&", "&HFF1493&", "&HFF00FF&"]
+            for i, color in enumerate(flower_colors):
+                offset = (i - 1) * 3
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + offset},{cy + offset})\\1c{hex_to_ass(color)}\\blur18\\alpha&H70&}}{safe_text}"
+                )
+
+            spring_layers = [("&HFF1493&", 0, 0), ("&HFF69B4&", 2, 1), ("&HFFC0CB&", 4, 2)]
+            for color, ox, oy in spring_layers:
+                lines.append(
+                    f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx + ox},{cy + oy})\\1c{hex_to_ass(color)}\\bord2\\3c&H00FF00&\\blur1\\fscx110\\fscy110}}"
+                    f"{safe_text}"
+                )
+
+            for i in range(18):
+                t_start = i / 18
+                angle1 = t_start * 360 * 2
+                angle2 = (t_start + 0.5) * 360 * 2
+                radius = 100
+                bx_start = cx + int(math.cos(math.radians(angle1)) * radius)
+                by_start = cy + int(math.sin(math.radians(angle1) * 2) * 50)
+                bx_end = cx + int(math.cos(math.radians(angle2)) * radius)
+                by_end = cy + int(math.sin(math.radians(angle2) * 2) * 50)
+                b_start = start_ms + random.randint(0, dur // 2)
+                b_end = b_start + random.randint(1200, 1800)
+                b_size = random.randint(30, 50)
+                butterfly_color = hex_to_ass(random.choice(["&HFF69B4&", "&HFF00FF&", "&H00FFFF&", "&HFFFF00&"]))
+                wing_flap = "\\t(0,150,\\fscx110\\fscy90)\\t(150,300,\\fscx100\\fscy100)\\t(300,450,\\fscx110\\fscy90)\\t(450,600,\\fscx100\\fscy100)"
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(b_start)},{self._ms_to_timestamp(b_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({bx_start},{by_start},{bx_end},{by_end})\\fscx{b_size}\\fscy{b_size}\\1c{butterfly_color}"
+                    f"\\blur4{wing_flap}\\frz{random.randint(0,360)}\\p1}}{butterfly_shape}{{\\p0}}"
+                )
+
+            for _ in range(25):
+                px = cx + random.randint(-120, 120)
+                py_start = cy - random.randint(80, 120)
+                py_end = cy + random.randint(80, 120)
+                p_start = start_ms + random.randint(0, dur)
+                p_end = p_start + random.randint(1500, 2000)
+                p_size = random.randint(15, 30)
+                petal_color = hex_to_ass(random.choice(["&HFFC0CB&", "&HFF69B4&", "&HFFFFFF&"]))
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(p_start)},{self._ms_to_timestamp(p_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({px},{py_start},{px + random.randint(-40,40)},{py_end})\\fscx{p_size}\\fscy{p_size}\\1c{petal_color}"
+                    f"\\blur5\\frz0\\t(\\frz{random.randint(360,720)})\\t(\\alpha&HFF&)}}??"
+                )
+
+            for _ in range(30):
+                sx = cx + random.randint(-150, 150)
+                sy = cy + random.randint(-100, 100)
+                s_start = start_ms + random.randint(0, dur)
+                s_end = s_start + random.randint(300, 600)
+                s_size = random.randint(8, 18)
+                fade_mid = (s_end - s_start) // 2
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(s_start)},{self._ms_to_timestamp(s_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({sx},{sy})\\fscx{s_size}\\fscy{s_size}\\1c&HFFFF00&\\blur3"
+                    f"\\t(0,{fade_mid},\\alpha&H00&)\\t({fade_mid},{s_end - s_start},\\alpha&HFF&)\\frz0\\t(\\frz360)}}?"
+                )
+
+            for i in range(5):
+                breeze_y = cy + (i - 2) * 30
+                br_start = start_ms + i * (dur // 5)
+                br_end = br_start + 600
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(br_start)},{self._ms_to_timestamp(br_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\pos({cx},{breeze_y})\\fscx250\\fscy10\\1c&H00FF00&\\alpha&HD0&\\blur12\\t(\\fscx350\\alpha&HFF&)}}~"
+                )
+        return "\n".join(lines)
+
+    def _render_neon_pulse(self) -> str:
+        """Simple neon-style pulse."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            mid = dur // 2
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            anim = f"\\t(0,{mid},\\fscx115\\fscy115\\blur10)\\t({mid},{dur},\\fscx100\\fscy100\\blur2)"
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(50,50){anim}}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_kinetic_bounce(self) -> str:
+        """Bounce-in with squash/stretch."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\move({cx},{cy-100},{cx},{cy},0,150)\\t(150,250,\\fscx120\\fscy80)\\t(250,400,\\fscx100\\fscy100)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_cinematic_blur(self) -> str:
+        """Blur in/out around timing window."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\blur20\\t(0,150,\\blur0)\\t({max(dur-150,0)},{dur},\\blur20)\\fad(100,100)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_typewriter_pro(self) -> str:
+        """Rotate-in typewriter effect."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\frz90\\t(0,100,\\frz0)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_word_pop(self) -> str:
+        """Scale pop per word."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fscx80\\fscy80\\t(0,80,\\fscx110\\fscy110)\\t(80,150,\\fscx100\\fscy100)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_retro_arcade(self) -> str:
+        """Static retro placeholder."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_news_ticker(self) -> str:
+        """Slide-up ticker feel."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\move({cx},{cy+20},{cx},{cy},0,100)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_tiktok_group(self) -> str:
+        """Previous/current/next grouped emphasis."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        words = self.words
+        for i, word in enumerate(words):
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            parts = []
+            if i > 0:
+                prev = (words[i - 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                parts.append(f"{{\\alpha&H80&\\fscx90\\fscy90}}{prev}")
+            curr = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            parts.append(f"{{\\alpha&H00&\\fscx120\\fscy120\\1c&HFFFF00&\\blur3}}{curr}")
+            if i < len(words) - 1:
+                nxt = (words[i + 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                parts.append(f"{{\\alpha&H80&\\fscx90\\fscy90}}{nxt}")
+            full = " ".join(parts)
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(100,100)}}{full}"
+            )
+        return "\n".join(lines)
+
+    def _render_spin_3d(self) -> str:
+        """Simple 3D spin using rotations."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\frx10\\fry20\\frz0\\t(0,{dur//2},\\frz360)\\t({dur//2},{dur},\\frz720)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_shear_force(self) -> str:
+        """Sheared text with slight shake."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fax-0.3\\t(0,200,\\fax0.1)\\t(200,400,\\fax-0.1)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_double_shadow(self) -> str:
+        """Primary text plus two shadow copies."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            # Shadow layers
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx+3},{cy+3})\\1c&H000000&\\alpha&H80&\\blur3}}{safe_text}"
+            )
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx-3},{cy-3})\\1c&H808080&\\alpha&H80&\\blur3}}{safe_text}"
+            )
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_karaoke_classic(self) -> str:
+        """Current word bright, neighbors dimmed."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        words = self.words
+        for i, word in enumerate(words):
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            parts = []
+            if i > 0:
+                prev = (words[i - 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                parts.append(f"{{\\alpha&HA0&\\fscx85\\fscy85}}{prev}")
+            curr = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            parts.append(f"{{\\alpha&H00&\\fscx130\\fscy130\\1c&HFFFF00&\\blur4}}{curr}")
+            if i < len(words) - 1:
+                nxt = (words[i + 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                parts.append(f"{{\\alpha&HA0&\\fscx85\\fscy85}}{nxt}")
+            full = " ".join(parts)
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(80,80)}}{full}"
+            )
+        return "\n".join(lines)
+
+    def _render_karaoke_pro(self) -> str:
+        """Past/future colorization with scale bump on current."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        words = self.words
+        color_past = self.style.get("color_past", "&H00808080")
+        color_future = self.style.get("color_future", "&H00808080")
+        outline_past = self.style.get("outline_past", "&H00000000")
+        outline_future = self.style.get("outline_future", "&H00000000")
+
+        for i, word in enumerate(words):
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            line_parts = []
+            for w_idx, w in enumerate(words):
+                txt = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                if w_idx < i:
+                    style = f"\\1c{hex_to_ass(color_past)}\\3c{hex_to_ass(outline_past)}"
+                elif w_idx == i:
+                    style = f"\\1c{hex_to_ass(self.style.get('primary_color', '&H00FFFFFF'))}\\3c{hex_to_ass(self.style.get('outline_color', '&H00000000'))}\\t(0,100,\\fscx115\\fscy115)\\t(100,{dur},\\fscx100\\fscy100)"
+                else:
+                    style = f"\\1c{hex_to_ass(color_future)}\\3c{hex_to_ass(outline_future)}"
+                line_parts.append(f"{{{style}}}{txt}")
+            full = " ".join(line_parts)
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full}"
+            )
+        return "\n".join(lines)
+
+    def _render_karaoke_sentence(self) -> str:
+        """Group into short sentences (3 words) with fade."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        group_len = 3
+        for g in range(0, len(self.words), group_len):
+            group = self.words[g:g + group_len]
+            if not group:
+                continue
+            start_ms = int(group[0].get("start", 0) * 1000)
+            end_ms = int(group[-1].get("end", start_ms / 1000) * 1000)
+            text = " ".join([(w.get("text") or "").replace("{", r"\{").replace("}", r"\}") for w in group])
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(150,150)}}{text}"
+            )
+        return "\n".join(lines)
+
+    def _render_dynamic_highlight(self) -> str:
+        """Highlight current word using secondary color, neighbors normal."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        words = self.words
+        primary = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+        secondary = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+        for i, word in enumerate(words):
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            parts = []
+            if i > 0:
+                prev_txt = (words[i - 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                parts.append(f"{{\\1c{primary}}}{prev_txt}")
+            current = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            parts.append(
+                f"{{\\1c{primary}\\t(0,150,\\1c{secondary})\\t({max(end_ms-start_ms-150,0)},{end_ms-start_ms},\\1c{primary})}}{current}"
+            )
+            if i < len(words) - 1:
+                next_txt = (words[i + 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                parts.append(f"{{\\1c{primary}}}{next_txt}")
+            full = " ".join(parts)
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(100,100)}}{full}"
+            )
+        return "\n".join(lines)
+
+    def _render_tiktok_box_group(self) -> str:
+        """Grouped rounded box around current word."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        char_width = 32
+        for i, word in enumerate(self.words):
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            text_width = len(text) * char_width
+            box_w = text_width + 80
+            box_h = 100
+            radius = 18
+            box_shape = (
+                f"m {radius} 0 l {box_w-radius} 0 b {box_w} 0 {box_w} {radius} {box_w} {radius} "
+                f"l {box_w} {box_h-radius} b {box_w} {box_h} {box_w-radius} {box_h} {box_w-radius} {box_h} "
+                f"l {radius} {box_h} b 0 {box_h} 0 {box_h-radius} 0 {box_h-radius} l 0 {radius} b 0 0 {radius} 0 {radius} 0"
+            )
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\p1\\1c&H00FFFF&\\alpha&H30&\\blur2\\fscx100\\fscy100"
+                f"\\t(0,150,\\fscx105\\fscy105)\\t(150,{dur},\\fscx100\\fscy100)}}{box_shape}{{\\p0}}"
+            )
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c&H000000&\\b1\\fscx110\\fscy110"
+                f"\\t(0,150,\\fscx120\\fscy120)\\t(150,{dur},\\fscx110\\fscy110)}}{text}"
+            )
+        return "\n".join(lines)
+
+    def _render_sakura_dream(self) -> str:
+        """Petal drift with soft glow."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        petal_shape = "m 0 0 b 10 -5 20 -5 30 0 b 20 5 10 5 0 0"
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c&H00FF69B4&\\blur4\\fad(150,150)}}{safe_text}"
+            )
+            for _ in range(20):
+                px = cx + random.randint(-150, 150)
+                py = cy - random.randint(50, 150)
+                py_end = py + random.randint(120, 220)
+                p_start = start_ms + random.randint(0, dur)
+                p_end = p_start + random.randint(800, 1400)
+                size = random.randint(20, 40)
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(p_start)},{self._ms_to_timestamp(p_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({px},{py},{px + random.randint(-40,40)},{py_end})\\fscx{size}\\fscy{size}"
+                    f"\\1c&H00FFC0CB&\\blur6\\frz{random.randint(0,360)}\\t(\\frz{random.randint(360,720)})\\fad(0,200)\\p1}}"
+                    f"{petal_shape}{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_phoenix_flames(self) -> str:
+        """Rising flame particles."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        flame_shape = "m 0 0 b 5 -10 10 -10 15 0 b 10 15 5 15 0 0"
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\1c&H0000FF&\\bord2\\3c&H00FFFF00&\\blur1}}{safe_text}"
+            )
+            for _ in range(18):
+                sx = cx + random.randint(-80, 80)
+                sy = cy + random.randint(-20, 20)
+                ex = sx + random.randint(-30, 30)
+                ey = sy - random.randint(120, 200)
+                f_start = start_ms + random.randint(0, dur)
+                f_end = f_start + random.randint(700, 1200)
+                size = random.randint(20, 50)
+                color = hex_to_ass(random.choice(["&H00FF8800&", "&H00FFAA00&", "&H00FF4500&"]))
+                lines.append(
+                    f"Dialogue: 0,{self._ms_to_timestamp(f_start)},{self._ms_to_timestamp(f_end)},Default,,0,0,0,,"
+                    f"{{\\an5\\move({sx},{sy},{ex},{ey})\\fscx{size}\\fscy{size}\\1c{color}\\blur4\\fad(0,200)\\p1}}"
+                    f"{flame_shape}{{\\p0}}"
+                )
+        return "\n".join(lines)
+
+    def _render_welcome_my_life(self) -> str:
+        """Bold pop-in."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        for word in self.words:
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            safe_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fscx0\\fscy0\\t(0,200,\\fscx110\\fscy110)\\t(200,{dur},\\fscx100\\fscy100)\\fad(100,100)}}{safe_text}"
+            )
+        return "\n".join(lines)
+
+    def _render_mademyday(self) -> str:
+        """Highlight active word with slight scale bump."""
+        lines = [self.render_ass_header()]
+        cx, cy = self._get_center_coordinates()
+        words = self.words
+        active_scale = 1.12
+        for i, word in enumerate(words):
+            start_ms = int(word.get("start", 0) * 1000)
+            end_ms = int(word.get("end", start_ms / 1000) * 1000)
+            dur = max(1, end_ms - start_ms)
+            parts = []
+            for w_idx, w in enumerate(words[max(0, i-1):min(len(words), i+2)]):
+                real_idx = max(0, i-1) + w_idx
+                txt = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                if real_idx == i:
+                    parts.append(f"{{\\t(0,{dur//2},\\fscx{int(active_scale*100)}\\fscy{int(active_scale*100)})\\t({dur//2},{dur},\\fscx100\\fscy100)}}{txt}")
+                else:
+                    parts.append(f"{{\\alpha&H55&}}{txt}")
+            full = " ".join(parts)
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(80,80)}}{full}"
+            )
         return "\n".join(lines)
     
     def _build_effect_tags(self, duration_ms: int) -> str:

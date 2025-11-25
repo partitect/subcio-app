@@ -20,6 +20,7 @@ import uvicorn
 
 # PyonFX Effects Integration
 from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
+PYONFX_EFFECT_TYPES = set(PyonFXRenderer.EFFECTS.keys())
 
 def ms_to_ass_timestamp(ms: int) -> str:
     """Converts milliseconds to ASS timestamp format H:MM:SS.cc"""
@@ -617,7 +618,7 @@ async def export_subtitled_video(
     
     # Check if using PyonFX effects
     effect_type = style.get("effect_type")
-    if effect_type and effect_type in ["bulge", "shake", "wave", "chromatic", "fire_storm", "cyber_glitch", "bubble_floral", "thunder_strike", "rainbow_wave", "earthquake_shake", "horror_creepy", "luxury_gold", "comic_book", "pulse"]:
+    if effect_type and effect_type in PYONFX_EFFECT_TYPES:
         # Use PyonFX Renderer for effects-based presets
         renderer = PyonFXRenderer(words, style)
         ass_content = renderer.render()
@@ -686,7 +687,7 @@ async def preview_ass(
 
         # Check if using PyonFX effects
         effect_type = style.get("effect_type")
-        if effect_type and effect_type in ["bulge", "shake", "wave", "chromatic", "fire_storm", "cyber_glitch", "bubble_floral", "thunder_strike", "rainbow_wave", "earthquake_shake", "horror_creepy", "luxury_gold", "comic_book", "pulse"]:
+        if effect_type and effect_type in PYONFX_EFFECT_TYPES:
             # Use PyonFX Renderer for effects-based presets
             renderer = PyonFXRenderer(words, style)
             ass_content = renderer.render()

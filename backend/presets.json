@@ -100,7 +100,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "neon-pulse"
+    "id": "neon-pulse",
+    "effect_type": "neon_pulse",
+    "effect_config": {}
   },
   "kinetic-bounce": {
     "primary_color": "&H002828a4",
@@ -130,7 +132,9 @@
     "margin_l": 10,
     "margin_r": 10,
     "id": "kinetic-bounce",
-    "shadow_blur": 6
+    "shadow_blur": 6,
+    "effect_type": "kinetic_bounce",
+    "effect_config": {}
   },
   "cinematic-blur": {
     "font": "Braah One",
@@ -158,7 +162,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "cinematic-blur"
+    "id": "cinematic-blur",
+    "effect_type": "cinematic_blur",
+    "effect_config": {}
   },
   "thunder-strike": {
     "font": "Cherry Bomb One",
@@ -216,7 +222,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "typewriter-pro"
+    "id": "typewriter-pro",
+    "effect_type": "typewriter_pro",
+    "effect_config": {}
   },
   "rainbow-wave": {
     "font": "Nunito",
@@ -262,7 +270,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "word-pop"
+    "id": "word-pop",
+    "effect_type": "word_pop",
+    "effect_config": {}
   },
   "retro-arcade": {
     "font": "Viaoda Libre",
@@ -290,7 +300,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "retro-arcade"
+    "id": "retro-arcade",
+    "effect_type": "retro_arcade",
+    "effect_config": {}
   },
   "horror-creepy": {
     "font": "Loved by the King",
@@ -408,7 +420,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "news-ticker"
+    "id": "news-ticker",
+    "effect_type": "news_ticker",
+    "effect_config": {}
   },
   "pulse": {
     "font": "Original Surfer",
@@ -504,7 +518,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "falling-heart"
+    "id": "falling-heart",
+    "effect_type": "falling_heart",
+    "effect_config": {}
   },
   "colorful": {
     "font": "Winky Rough",
@@ -532,7 +548,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "colorful"
+    "id": "colorful",
+    "effect_type": "colorful",
+    "effect_config": {}
   },
   "ghost-star": {
     "font": "Bricolage Grotesque",
@@ -560,14 +578,18 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "ghost-star"
+    "id": "ghost-star",
+    "effect_type": "ghost_star",
+    "effect_config": {}
   },
   "tiktok-group": {
     "font": "Risque",
     "primary_color": "&H00FFFFFF",
     "outline_color": "&H00000000",
     "font_size": 54,
-    "id": "tiktok-group"
+    "id": "tiktok-group",
+    "effect_type": "tiktok_group",
+    "effect_config": {}
   },
   "3d-spin": {
     "font": "Denk One",
@@ -595,7 +617,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "3d-spin"
+    "id": "3d-spin",
+    "effect_type": "spin_3d",
+    "effect_config": {}
   },
   "shear-force": {
     "font": "Nunito",
@@ -623,7 +647,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "shear-force"
+    "id": "shear-force",
+    "effect_type": "shear_force",
+    "effect_config": {}
   },
   "double-shadow": {
     "font": "Advent Pro",
@@ -651,7 +677,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "double-shadow"
+    "id": "double-shadow",
+    "effect_type": "double_shadow",
+    "effect_config": {}
   },
   "matrix-rain": {
     "font": "Rubik Wet Paint",
@@ -679,7 +707,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "matrix-rain"
+    "id": "matrix-rain",
+    "effect_type": "matrix_rain",
+    "effect_config": {}
   },
   "electric-shock": {
     "font": "NovaMono",
@@ -707,7 +737,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "electric-shock"
+    "id": "electric-shock",
+    "effect_type": "electric_shock",
+    "effect_config": {}
   },
   "smoke-trail": {
     "font": "Coiny",
@@ -735,7 +767,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "smoke-trail"
+    "id": "smoke-trail",
+    "effect_type": "smoke_trail",
+    "effect_config": {}
   },
   "pixel-glitch": {
     "font": "Bahiana",
@@ -763,7 +797,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "pixel-glitch"
+    "id": "pixel-glitch",
+    "effect_type": "pixel_glitch",
+    "effect_config": {}
   },
   "neon-sign": {
     "font": "Patrick Hand",
@@ -791,98 +827,134 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "neon-sign"
+    "id": "neon-sign",
+    "effect_type": "neon_sign",
+    "effect_config": {}
   },
   "karaoke-classic": {
     "font": "Nova Oval",
     "primary_color": "&H00FFFFFF",
     "outline_color": "&H00000000",
     "font_size": 62,
-    "id": "karaoke-classic"
+    "id": "karaoke-classic",
+    "effect_type": "karaoke_classic",
+    "effect_config": {}
   },
   "fade-in-out": {
     "font": "Bahiana",
     "primary_color": "&H00FFFFFF",
     "outline_color": "&H00333333",
     "font_size": 56,
-    "id": "fade-in-out"
+    "id": "fade-in-out",
+    "effect_type": "fade_in_out",
+    "effect_config": {
+      "sentence_length": 5
+    }
   },
   "slide-up": {
     "font": "Eater",
     "primary_color": "&H00FFAA00",
     "outline_color": "&H00000000",
     "font_size": 60,
-    "id": "slide-up"
+    "id": "slide-up",
+    "effect_type": "slide_up",
+    "effect_config": {
+      "sentence_length": 4
+    }
   },
   "zoom-burst": {
     "font": "Luckiest Guy",
     "primary_color": "&H00FF69B4",
     "outline_color": "&H00000000",
     "font_size": 64,
-    "id": "zoom-burst"
+    "id": "zoom-burst",
+    "effect_type": "zoom_burst",
+    "effect_config": {
+      "sentence_length": 4
+    }
   },
   "bounce-in": {
     "font": "Grandstander",
     "primary_color": "&H00FFFFFF",
     "outline_color": "&H00FF0000",
     "font_size": 68,
-    "id": "bounce-in"
+    "id": "bounce-in",
+    "effect_type": "bounce_in",
+    "effect_config": {
+      "sentence_length": 4
+    }
   },
   "tiktok-yellow-box": {
     "font": "Cherry Bomb One",
     "primary_color": "&H00000000",
     "outline_color": "&H00000000",
     "font_size": 62,
-    "id": "tiktok-yellow-box"
+    "id": "tiktok-yellow-box",
+    "effect_type": "tiktok_yellow_box",
+    "effect_config": {}
   },
   "tiktok-box-group": {
     "font": "Fruktur",
     "primary_color": "&H00FFFFFF",
     "outline_color": "&H00000000",
     "font_size": 58,
-    "id": "tiktok-box-group"
+    "id": "tiktok-box-group",
+    "effect_type": "tiktok_box_group",
+    "effect_config": {}
   },
   "sakura-dream": {
     "font": "Bangers",
     "primary_color": "&H00FF69B4",
     "outline_color": "&H00FFFFFF",
     "font_size": 68,
-    "id": "sakura-dream"
+    "id": "sakura-dream",
+    "effect_type": "sakura_dream",
+    "effect_config": {}
   },
   "phoenix-flames": {
     "font": "Mali",
     "primary_color": "&H0000FF",
     "outline_color": "&H00FFFF00",
     "font_size": 70,
-    "id": "phoenix-flames"
+    "id": "phoenix-flames",
+    "effect_type": "phoenix_flames",
+    "effect_config": {}
   },
   "ice-crystal": {
     "font": "Winky Sans",
     "primary_color": "&H00FFFFFF",
     "outline_color": "&H00DDFFFF",
     "font_size": 66,
-    "id": "ice-crystal"
+    "id": "ice-crystal",
+    "effect_type": "ice_crystal",
+    "effect_config": {}
   },
   "thunder-storm": {
     "font": "Asimovian",
     "primary_color": "&H0000FFFF",
     "outline_color": "&H000000FF",
     "font_size": 72,
-    "id": "thunder-storm"
+    "id": "thunder-storm",
+    "effect_type": "thunder_storm",
+    "effect_config": {}
   },
   "ocean-wave": {
     "font": "Bricolage Grotesque",
     "primary_color": "&H00FF8800",
     "outline_color": "&H000088FF",
     "font_size": 64,
-    "id": "ocean-wave"
+    "id": "ocean-wave",
+    "effect_type": "ocean_wave",
+    "effect_config": {}
   },
   "cosmic-stars": {
     "font": "Pangolin",
     "primary_color": "&H00FF00FF",
     "outline_color": "&H00FFFFFF",
     "font_size": 68,
-    "id": "cosmic-stars"
+    "id": "cosmic-stars",
+    "effect_type": "cosmic_stars",
+    "effect_config": {}
   },
   "butterfly-dance": {
     "font": "Nunito",
@@ -910,7 +982,9 @@
     "margin_v": 40,
     "margin_l": 13,
     "margin_r": 13,
-    "id": "butterfly-dance"
+    "id": "butterfly-dance",
+    "effect_type": "butterfly_dance",
+    "effect_config": {}
   },
   "welcome-my-life": {
     "font": "Bangers",
@@ -938,7 +1012,9 @@
     "margin_v": 47,
     "margin_l": 13,
     "margin_r": 13,
-    "id": "welcome-my-life"
+    "id": "welcome-my-life",
+    "effect_type": "welcome_my_life",
+    "effect_config": {}
   },
   "dynamic-highlight": {
     "font": "Shojumaru",
@@ -947,7 +1023,9 @@
     "outline_color": "&H00000000",
     "font_size": 60,
     "alignment": 2,
-    "id": "dynamic-highlight"
+    "id": "dynamic-highlight",
+    "effect_type": "dynamic_highlight",
+    "effect_config": {}
   },
   "karaoke-pro": {
     "font": "Gluten",
@@ -959,7 +1037,9 @@
     "outline_past": "&H00000000",
     "font_size": 60,
     "alignment": 2,
-    "id": "karaoke-pro"
+    "id": "karaoke-pro",
+    "effect_type": "karaoke_pro",
+    "effect_config": {}
   },
   "karaoke-sentence": {
     "font": "Loved by the King",
@@ -968,7 +1048,9 @@
     "outline_color": "&H00000000",
     "font_size": 60,
     "alignment": 2,
-    "id": "karaoke-sentence"
+    "id": "karaoke-sentence",
+    "effect_type": "karaoke_sentence",
+    "effect_config": {}
   },
   "mademyday": {
     "font": "Original Surfer",
@@ -996,7 +1078,9 @@
     "margin_v": 40,
     "margin_l": 10,
     "margin_r": 10,
-    "id": "mademyday"
+    "id": "mademyday",
+    "effect_type": "mademyday",
+    "effect_config": {}
   },
   "pyonfx-bulge": {
     "font": "Uncial Antiqua",
