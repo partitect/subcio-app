@@ -3,9 +3,32 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactPlayer from "react-player";
 import axios from "axios";
-import html2canvas from "html2canvas";
-import { Play, SlidersHorizontal, ListChecks, Image as ImageIcon, Download } from "lucide-react";
+import { Play, Image as ImageIcon, Download, Plus, Copy, Trash2, ListOrdered } from "lucide-react";
+import {
+  Box,
+  Button,
+  Paper,
+  Grid,
+  Tabs,
+  Tab,
+  Typography,
+  Stack,
+  TextField,
+  Slider,
+  Checkbox,
+  FormControlLabel,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Chip,
+  Divider,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import JSOOverlay from "../components/JSOOverlay";
+import LoadingOverlay from "../components/LoadingOverlay";
 import { ProjectMeta, StyleConfig, WordCue } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
@@ -79,6 +102,15 @@ const normalizeFontName = (options: { name: string; file: string }[], value?: st
   return options[0].name;
 };
 
+const styleToAss = (incoming: StyleConfig) => ({
+  ...incoming,
+  primary_color: hexToAss(incoming.primary_color as string),
+  secondary_color: hexToAss(incoming.secondary_color as string),
+  outline_color: hexToAss(incoming.outline_color as string),
+  shadow_color: hexToAss(incoming.shadow_color as string),
+  back_color: hexToAss((incoming as any).back_color as string),
+});
+
 export default function EditorPage() {
   const { projectId } = useParams();
   const location = useLocation();
@@ -130,7 +162,6 @@ export default function EditorPage() {
   const [showRenderModal, setShowRenderModal] = useState(false);
   const [exportName, setExportName] = useState("pycaps_export");
   const [exportQuality, setExportQuality] = useState("1080p");
-  const [previewScale, setPreviewScale] = useState(0.7);
   const [savingPreset, setSavingPreset] = useState(false);
 
   const activeIndex = useMemo(
@@ -154,10 +185,7 @@ export default function EditorPage() {
     return map[align] || map[2];
   }, [style.alignment]);
 
-  const previewFontSize = useMemo(
-    () => Math.max(12, Math.round((style.font_size || 56) * previewScale)),
-    [style.font_size, previewScale]
-  );
+  const previewFontSize = useMemo(() => Math.max(12, Math.round(style.font_size || 56)), [style.font_size]);
 
   const previewFontFamily = useMemo(() => {
     const match = fontOptions.find((f) => f.name === style.font);
@@ -182,9 +210,9 @@ export default function EditorPage() {
   const previewTextShadow = useMemo(() => {
     const outlineSize = Math.max(style.border || 0, 0);
     const outlineColor = assToCssColor(style.outline_color as string, "#000000");
-    const shadowBlur = Math.max(style.shadow_blur || 0, style.blur || 0, 0);
-    const shadowOffset = Math.max(style.shadow || 0, 0);
     const shadowColor = assToCssColor(style.shadow_color as string, "rgba(0,0,0,0.4)");
+    const shadowBlur = Math.max(style.shadow_blur || style.blur || 0, 0);
+    const shadowOffset = Math.max(style.shadow || 0, 0);
 
     const outlineShadows =
       outlineSize > 0
@@ -196,13 +224,10 @@ export default function EditorPage() {
         ]
         : [];
 
-    const shadow =
-      shadowBlur > 0 || shadowOffset > 0
-        ? [`0 ${shadowOffset || 6}px ${shadowBlur}px ${shadowColor}`]
-        : [];
+    const softShadow = shadowBlur > 0 || shadowOffset > 0 ? [`0 ${shadowOffset || 6}px ${shadowBlur}px ${shadowColor}`] : [];
 
-    return [...outlineShadows, ...shadow].join(", ");
-  }, [style.border, style.outline_color, style.shadow_blur, style.blur, style.shadow, style.shadow_color]);
+    return [...outlineShadows, ...softShadow].join(", ");
+  }, [style.border, style.outline_color, style.shadow_color, style.shadow_blur, style.blur, style.shadow]);
 
   useEffect(() => {
     if (!projectId || projectId === "demo") {
@@ -286,14 +311,7 @@ export default function EditorPage() {
     if (!words.length) return;
     const handle = setTimeout(async () => {
       // Convert hex colors back to ASS format for backend
-      const styleForBackend = {
-        ...style,
-        primary_color: hexToAss(style.primary_color as string),
-        secondary_color: hexToAss(style.secondary_color as string),
-        outline_color: hexToAss(style.outline_color as string),
-        shadow_color: hexToAss(style.shadow_color as string),
-        back_color: hexToAss(style.back_color as string),
-      };
+      const styleForBackend = styleToAss(style);
       
       const form = new FormData();
       form.append("words_json", JSON.stringify(words));
@@ -317,6 +335,51 @@ export default function EditorPage() {
     });
   };
 
+  const handleWordTimeChange = (idx: number, field: "start" | "end", value: number) => {
+    if (Number.isNaN(value)) return;
+    setWords((prev) => {
+      const clone = [...prev];
+      if (!clone[idx]) return prev;
+      const next = { ...clone[idx], [field]: value };
+      if (next.end <= next.start) {
+        if (field === "start") next.end = next.start + 0.05;
+        else next.start = Math.max(0, next.end - 0.05);
+      }
+      clone[idx] = next;
+      return clone;
+    });
+  };
+
+  const addWord = () => {
+    setWords((prev) => {
+      const lastEnd = prev.length ? prev[prev.length - 1].end : 0;
+      return [...prev, { start: lastEnd + 0.2, end: lastEnd + 1.2, text: "New subtitle" }];
+    });
+  };
+
+  const deleteWord = (idx: number) => {
+    setWords((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const sortWords = () => {
+    setWords((prev) => [...prev].sort((a, b) => a.start - b.start));
+  };
+
+  const duplicateWord = (idx: number) => {
+    setWords((prev) => {
+      const clone = [...prev];
+      const item = clone[idx];
+      if (!item) return prev;
+      const offset = 0.2;
+      clone.splice(idx + 1, 0, {
+        ...item,
+        start: item.end + offset,
+        end: item.end + offset + (item.end - item.start),
+      });
+      return clone;
+    });
+  };
+
   const resolvedVideoUrl = useMemo(() => {
     if (!videoUrl) return "";
     if (videoUrl.startsWith("http")) return videoUrl;
@@ -329,6 +392,7 @@ export default function EditorPage() {
   }, [videoUrl]);
 
   const handleSeek = (time: number) => {
+    setCurrentTime(time);
     try {
       playerRef.current?.seekTo(time, "seconds");
     } catch {
@@ -365,12 +429,7 @@ export default function EditorPage() {
       ...style,
       id: style.id,
     };
-
-    payload.primary_color = hexToAss(payload.primary_color as string);
-    payload.secondary_color = hexToAss(payload.secondary_color as string);
-    payload.outline_color = hexToAss(payload.outline_color as string);
-    payload.shadow_color = hexToAss(payload.shadow_color as string);
-    payload.back_color = hexToAss(payload.back_color as string);
+    Object.assign(payload, styleToAss(payload));
 
     if (payload.shadow == null && payload.shadow_blur != null) payload.shadow = payload.shadow_blur;
     if (payload.blur == null && payload.shadow_blur != null) payload.blur = payload.shadow_blur;
@@ -518,7 +577,7 @@ export default function EditorPage() {
     setExporting(true);
     const form = new FormData();
     form.append("words_json", JSON.stringify(words));
-    form.append("style_json", JSON.stringify(style));
+    form.append("style_json", JSON.stringify(styleToAss(style)));
     if (projectId && projectId !== "demo") form.append("project_id", projectId);
     form.append("resolution", exportQuality || resolution);
 
@@ -534,14 +593,16 @@ export default function EditorPage() {
     }
   };
 
+  const totalDuration = useMemo(() => Math.max(words[words.length - 1]?.end || 0, 1), [words]);
+
   const timelineCues = useMemo(
     () =>
       words.map((w, idx) => ({
         key: `${idx}-${w.start}`,
-        left: `${(w.start / Math.max(words[words.length - 1]?.end || 1, 1)) * 100}%`,
+        left: `${(w.start / totalDuration) * 100}%`,
         text: w.text,
       })),
-    [words]
+    [words, totalDuration]
   );
 
   const overlayFonts = useMemo(() => {
@@ -565,534 +626,771 @@ export default function EditorPage() {
   }, [style.font, fontOptions]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
-      <header className="px-6 py-4 border-b border-white/10 flex items-center justify-between backdrop-blur bg-black/30">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-emerald-300/80">Editor</p>
-          <div className="flex items-center gap-3">
-            <input
-              value={project?.name || "Untitled Project"}
-              onChange={(e) => setProject((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
-              className="bg-transparent border-b border-white/10 focus:border-emerald-400 outline-none text-2xl font-black"
-            />
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/60">
-              {projectId || "demo"}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/")}
-            className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20"
-          >
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary", display: "flex", flexDirection: "column" }}>
+      <LoadingOverlay isLoading={exporting} />
+      <Paper
+        variant="outlined"
+        square
+        sx={{
+          px: 3,
+          py: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderColor: "divider",
+          backdropFilter: "blur(6px)",
+        }}
+      >
+        <Stack spacing={0.75}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="overline" color="text.secondary" letterSpacing="0.2em">
+              Editor
+            </Typography>
+            <Chip label={projectId || "demo"} size="small" variant="outlined" />
+          </Stack>
+          <TextField
+            variant="outlined"
+            label="Project Name"
+            value={project?.name || "Untitled Project"}
+            onChange={(e) => setProject((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
+            size="small"
+            sx={{ maxWidth: 320 }}
+          />
+        </Stack>
+        <Stack direction="row" spacing={1}>
+          <Button variant="outlined" size="small" color="inherit" onClick={() => navigate("/")}>
             Back Home
-          </button>
-          <button
-            onClick={() => setShowRenderModal(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10"
-          >
-            <Download className="w-4 h-4" />
-            Render & Export
-          </button>
-        </div>
-      </header>
+          </Button>
+          <Button variant="contained" size="small" startIcon={<Download size={16} />} onClick={() => setShowRenderModal(true)}>
+            {exporting ? "Rendering..." : "Render & Export"}
+          </Button>
+        </Stack>
+      </Paper>
 
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 px-6 py-4">
-        <section className="lg:col-span-8 bg-black/50 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
-          <div ref={overlayRef} className="relative w-full bg-black aspect-video">
-            {resolvedVideoUrl ? (
-              <>
-                <ReactPlayer
-                  ref={playerRef}
-                  url={resolvedVideoUrl}
-                  width="100%"
-                  height="100%"
-                  controls
-                  onError={(e) => console.error("Video load error", e)}
-                  config={{
-                    file: {
-                      attributes: { crossOrigin: "anonymous" },
-                    },
+      <Grid container spacing={2} sx={{ flex: 1, px: 3, py: 3 }}>
+        <Grid item xs={12} lg={8}>
+          <Paper sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
+            <Box
+              ref={overlayRef}
+              sx={{
+                position: "relative",
+                width: "100%",
+                bgcolor: "black",
+                borderRadius: 2,
+                overflow: "hidden",
+                aspectRatio: "16 / 9",
+              }}
+            >
+              {resolvedVideoUrl ? (
+                <>
+                  <ReactPlayer
+                    ref={playerRef}
+                    url={resolvedVideoUrl}
+                    width="100%"
+                    height="100%"
+                    controls
+                    onError={(e) => console.error("Video load error", e)}
+                    config={{
+                      file: {
+                        attributes: { crossOrigin: "anonymous" },
+                      },
+                    }}
+                    onProgress={({ playedSeconds }) => setCurrentTime(playedSeconds)}
+                  />
+                  <video
+                    src={resolvedVideoUrl}
+                    style={{ display: "none" }}
+                    onError={(e) => console.error("Fallback video tag error", e)}
+                  />
+                </>
+              ) : (
+                <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0, color: "text.secondary" }}>
+                  <Typography variant="body2">Load a project to preview</Typography>
+                </Stack>
+              )}
+              {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />}
+            </Box>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                px: 2,
+                py: 1.5,
+                borderRadius: 2,
+                borderColor: "divider",
+                bgcolor: "background.paper",
+              }}
+            >
+              <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Play size={16} color="#66e3c4" />
+                  <Typography variant="body2" color="text.secondary">
+                    Timeline
+                  </Typography>
+                </Stack>
+                <Typography variant="caption" color="text.secondary">
+                  {currentTime.toFixed(2)}s / {(words[words.length - 1]?.end ?? 0).toFixed(2)}s
+                </Typography>
+              </Stack>
+              <Box
+                sx={{
+                  position: "relative",
+                  height: 36,
+                  borderRadius: 1.5,
+                  bgcolor: "grey.900",
+                  overflow: "hidden",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    width: `${(currentTime / totalDuration) * 100}%`,
+                    bgcolor: "primary.main",
+                    opacity: 0.14,
+                    transition: "width 120ms ease-out",
                   }}
-                  onProgress={({ playedSeconds }) => setCurrentTime(playedSeconds)}
                 />
-                <video
-                  src={resolvedVideoUrl}
-                  style={{ display: "none" }}
-                  onError={(e) => console.error("Fallback video tag error", e)}
+                {timelineCues.map((cue) => (
+                  <Box
+                    key={cue.key}
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      bottom: 0,
+                      width: 2,
+                      bgcolor: "primary.light",
+                      left: cue.left,
+                    }}
+                    title={cue.text}
+                  />
+                ))}
+                <input
+                  type="range"
+                  min={0}
+                  max={totalDuration}
+                  step={0.01}
+                  value={currentTime}
+                  onChange={(e) => handleSeek(Number(e.target.value))}
+                  style={{ position: "absolute", inset: 0, width: "100%", opacity: 0, cursor: "pointer" }}
                 />
-              </>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-white/50">
-                Load a project to preview
-              </div>
-            )}
-            {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />}
-          </div>
+              </Box>
+            </Paper>
+          </Paper>
+        </Grid>
 
-          <div className="ml-2 mr-2 bg-white/5 border-t border-white/10 px-4 py-3 rounded-xl">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Play className="w-4 h-4 text-emerald-300" />
-                <p className="text-sm text-white/70">Timeline</p>
-              </div>
-              <div className="text-xs text-white/50">
-                {currentTime.toFixed(2)}s / {words[words.length - 1]?.end?.toFixed(2) || "0"}s
-              </div>
-            </div>
-            <div className="relative h-10 bg-slate-900 rounded-lg border border-white/10 overflow-hidden">
-              <div className="absolute inset-y-0 left-0 bg-emerald-400/10" style={{ width: `${(currentTime / (words[words.length - 1]?.end || 1)) * 100}%` }} />
-              {timelineCues.map((cue) => (
-                <div
-                  key={cue.key}
-                  className="absolute top-0 h-full w-[2px] bg-emerald-400/60"
-                  style={{ left: cue.left }}
-                  title={cue.text}
-                />
-              ))}
-              <input
-                type="range"
-                min={0}
-                max={words[words.length - 1]?.end || 1}
-                step={0.01}
-                value={currentTime}
-                onChange={(e) => handleSeek(Number(e.target.value))}
-                className="absolute inset-0 w-full opacity-0 cursor-pointer"
-              />
-            </div>
-          </div>
-        </section>
-
-        <aside className="lg:col-span-4 bg-slate-900/70 border border-white/10 rounded-2xl p-4 flex flex-col gap-3">
-          <div className="flex items-center gap-2 mb-2">
-            <button
-              onClick={() => setActiveTab("presets")}
-              className={`px-3 py-2 rounded-lg text-sm font-semibold ${activeTab === "presets" ? "bg-white/10 border border-white/20" : "bg-white/5 border border-transparent"}`}
-            >
-              Presets
-            </button>
-            <button
-              onClick={() => setActiveTab("style")}
-              className={`px-3 py-2 rounded-lg text-sm font-semibold ${activeTab === "style" ? "bg-white/10 border border-white/20" : "bg-white/5 border border-transparent"}`}
-            >
-              Style Settings
-            </button>
-            <button
-              onClick={() => setActiveTab("transcript")}
-              className={`px-3 py-2 rounded-lg text-sm font-semibold ${activeTab === "transcript" ? "bg-white/10 border border-white/20" : "bg-white/5 border border-transparent"}`}
-            >
-              Transcript
-            </button>
-          </div>
+        <Grid item xs={12} lg={4}>
+          <Paper sx={{ p: 2.5, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
+          <Tabs
+            value={activeTab}
+            onChange={(_, v) => setActiveTab(v)}
+            textColor="primary"
+            indicatorColor="primary"
+            sx={{ mb: 1 }}
+          >
+            <Tab value="presets" label="Presets" />
+            <Tab value="style" label="Style" />
+            <Tab value="transcript" label="Transcript" />
+          </Tabs>
 
           {activeTab === "presets" && (
-            <div className="grid grid-cols-2 gap-3 overflow-y-auto pr-1 max-h-[80vh]">
-              {presets.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset)}
-                  className={`p-3 rounded-xl border ${style.id === preset.id ? "border-emerald-400 bg-emerald-500/10" : "border-white/10 bg-white/5"} text-left`}
-                >
-                  <p className="font-semibold text-sm">{preset.id.replace(/-/g, " ")}</p>
-                  <p className="text-xs text-white/50 mb-2">Font {preset.font || "Default"}</p>
-                  <div className="h-16 bg-slate-950 rounded-lg overflow-hidden border border-white/5 flex items-center justify-center">
-                    <img
-                      src={`/sspresets/${preset.id}.png`}
-                      alt={preset.id}
-                      onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
-                      className="object-cover w-full h-full"
-                    />
-
-                  </div>
-                </button>
-              ))}
-            </div>
+            <Grid container spacing={1.5} sx={{ maxHeight: "80vh", overflowY: "auto", pr: 1 }}>
+              {presets.map((preset) => {
+                const selected = style.id === preset.id;
+                return (
+                  <Grid item xs={6} key={preset.id}>
+                    <Paper
+                      variant="outlined"
+                      onClick={() => applyPreset(preset)}
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        cursor: "pointer",
+                        borderColor: selected ? "primary.main" : "divider",
+                        bgcolor: selected ? "action.selected" : "background.paper",
+                        transition: "border-color 120ms ease, transform 120ms ease",
+                        "&:hover": { borderColor: "primary.main", transform: "translateY(-2px)" },
+                      }}
+                    >
+                      <Typography variant="subtitle2" noWrap>
+                        {preset.id
+                          .replace(/-/g, " ")
+                          .split(" ")
+                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                          .join(" ")}
+                      </Typography>
+                      <Box
+                        sx={{
+                          mt: 1,
+                          height: 64,
+                          borderRadius: 1.5,
+                          border: "1px solid",
+                          borderColor: "divider",
+                          bgcolor: "grey.900",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <img
+                          src={`/sspresets/${preset.id}.png`}
+                          alt={preset.id}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
+                        />
+                      </Box>
+                    </Paper>
+                  </Grid>
+                );
+              })}
+            </Grid>
           )}
 
           {activeTab === "style" && (
-            <div className="space-y-3 overflow-y-auto pr-1">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Font</label>
-                  <select
+            <Stack
+              spacing={2}
+              sx={{
+                overflowY: "auto",
+                overflowX: "hidden",
+                maxHeight: "80vh",
+                pl: { xs: 1, md: 0 },
+                pr: { xs: 3, md: 6 },
+              }}
+            >
+              <Stack direction="row" spacing={1} justifyContent="flex-end">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<ImageIcon className="w-4 h-4" />}
+                  onClick={takeScreenshot}
+                >
+                  Save preset screenshot
+                </Button>
+                <Button variant="contained" size="small" onClick={savePreset} disabled={savingPreset}>
+                  {savingPreset ? "Saving..." : "Save preset"}
+                </Button>
+              </Stack>
+
+              <Divider textAlign="left">Typography</Divider>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    select
+                    label="Font"
+                    fullWidth
+                    size="small"
                     value={style.font || ""}
                     onChange={(e) => setStyle({ ...style, font: e.target.value })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
                   >
                     {fontOptions.map((f) => (
-                      <option key={f.name} value={f.name}>
+                      <MenuItem key={f.name} value={f.name}>
                         {f.name}
-                      </option>
+                      </MenuItem>
                     ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Font Size</label>
-                  <input
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Font Size
+                    </Typography>
+                    <Slider
+                      min={12}
+                      max={120}
+                      value={style.font_size || 56}
+                      onChange={(_, val) => setStyle({ ...style, font_size: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={42} textAlign="right">
+                      {style.font_size || 56}px
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Font Weight"
+                    fullWidth
+                    size="small"
+                    value={style.bold ? 1 : 0}
+                    onChange={(e) => setStyle({ ...style, bold: Number(e.target.value) })}
+                  >
+                    <MenuItem value={0}>Regular</MenuItem>
+                    <MenuItem value={1}>Bold</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
                     type="number"
-                    value={style.font_size || 56}
-                    onChange={(e) => setStyle({ ...style, font_size: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                    title="Font size in pixels"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Primary</label>
-                  <input
-                    type="color"
-                    value={(style.primary_color as string) || "#ffffff"}
-                    onChange={(e) => setStyle({ ...style, primary_color: e.target.value })}
-                    className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Secondary</label>
-                  <input
-                    type="color"
-                    value={(style.secondary_color as string) || "#00ffff"}
-                    onChange={(e) => setStyle({ ...style, secondary_color: e.target.value })}
-                    className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Outline</label>
-                  <input
-                    type="color"
-                    value={(style.outline_color as string) || "#000000"}
-                    onChange={(e) => setStyle({ ...style, outline_color: e.target.value })}
-                    className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Shadow Color</label>
-                  <input
-                    type="color"
-                    value={(style.shadow_color as string) || "#000000"}
-                    onChange={(e) => setStyle({ ...style, shadow_color: e.target.value })}
-                    className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Background</label>
-                  <input
-                    type="color"
-                    value={(style.back_color as string) || "#000000"}
-                    onChange={(e) => setStyle({ ...style, back_color: e.target.value })}
-                    className="w-full h-10 rounded-lg bg-slate-900 border border-white/10"
-                    aria-label="Background color"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Border</label>
-                  <input
-                    type="range"
-                    min={0}
-                    max={8}
-                    value={style.border || 0}
-                    onChange={(e) => setStyle({ ...style, border: Number(e.target.value) })}
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Shadow Blur</label>
-                  <input
-                    type="range"
-                    min={0}
-                    max={20}
-                    value={style.shadow_blur || 0}
-                    onChange={(e) => setStyle({ ...style, shadow_blur: Number(e.target.value) })}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Opacity</label>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={style.opacity ?? 100}
-                    onChange={(e) => setStyle({ ...style, opacity: Number(e.target.value) })}
-                    className="w-full"
-                  />
-                  <p className="text-[11px] text-white/50 mt-1">{style.opacity ?? 100}%</p>
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Letter Spacing</label>
-                  <input
-                    type="number"
+                    label="Letter Spacing"
+                    fullWidth
+                    size="small"
                     value={style.letter_spacing ?? 0}
                     onChange={(e) => setStyle({ ...style, letter_spacing: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
                   />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                  <input
-                    id="bold-toggle"
-                    type="checkbox"
-                    checked={!!style.bold}
-                    onChange={(e) => setStyle({ ...style, bold: e.target.checked ? 1 : 0 })}
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Opacity
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={100}
+                      value={style.opacity ?? 100}
+                      onChange={(_, val) => setStyle({ ...style, opacity: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.opacity ?? 100}%
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={4}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={!!style.italic}
+                        onChange={(e) => setStyle({ ...style, italic: e.target.checked ? 1 : 0 })}
+                      />
+                    }
+                    label="Italic"
                   />
-                  <label htmlFor="bold-toggle" className="text-sm text-white/70">Bold</label>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                  <input
-                    id="italic-toggle"
-                    type="checkbox"
-                    checked={!!style.italic}
-                    onChange={(e) => setStyle({ ...style, italic: e.target.checked ? 1 : 0 })}
+                </Grid>
+                <Grid item xs={4}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={!!style.underline}
+                        onChange={(e) => setStyle({ ...style, underline: e.target.checked ? 1 : 0 })}
+                      />
+                    }
+                    label="Underline"
                   />
-                  <label htmlFor="italic-toggle" className="text-sm text-white/70">Italic</label>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                  <input
-                    id="underline-toggle"
-                    type="checkbox"
-                    checked={!!style.underline}
-                    onChange={(e) => setStyle({ ...style, underline: e.target.checked ? 1 : 0 })}
+                </Grid>
+                <Grid item xs={4}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={!!style.strikeout}
+                        onChange={(e) => setStyle({ ...style, strikeout: e.target.checked ? 1 : 0 })}
+                      />
+                    }
+                    label="Strikeout"
                   />
-                  <label htmlFor="underline-toggle" className="text-sm text-white/70">Underline</label>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                  <input
-                    id="strike-toggle"
-                    type="checkbox"
-                    checked={!!style.strikeout}
-                    onChange={(e) => setStyle({ ...style, strikeout: e.target.checked ? 1 : 0 })}
-                  />
-                  <label htmlFor="strike-toggle" className="text-sm text-white/70">Strikeout</label>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {[2, 5, 8].map((align) => (
-                  <button
-                    key={align}
-                    onClick={() => setStyle({ ...style, alignment: align })}
-                    className={`py-2 rounded-lg border ${style.alignment === align ? "border-emerald-400 bg-emerald-500/10" : "border-white/10 bg-white/5"}`}
-                  >
-                    Align {align === 2 ? "Bottom" : align === 5 ? "Center" : "Top"}
-                  </button>
+                </Grid>
+              </Grid>
+
+              <Divider textAlign="left">Colors</Divider>
+              <Grid container spacing={2}>
+                {[
+                  { key: "primary_color", label: "Primary", fallback: "#ffffff" },
+                  { key: "secondary_color", label: "Secondary", fallback: "#00ffff" },
+                  { key: "outline_color", label: "Outline", fallback: "#000000" },
+                  { key: "shadow_color", label: "Shadow", fallback: "#000000" },
+                  { key: "back_color", label: "Background", fallback: "#000000" },
+                ].map((c) => (
+                  <Grid item xs={6} sm={4} md={3} key={c.key}>
+                    <TextField
+                      label={c.label}
+                      type="color"
+                      fullWidth
+                      size="small"
+                      value={(style as any)[c.key] || c.fallback}
+                      onChange={(e) => setStyle({ ...style, [c.key]: e.target.value })}
+                      InputProps={{ sx: { height: 48, p: 0.5 } }}
+                    />
+                  </Grid>
                 ))}
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Margin L</label>
-                  <input
-                    type="number"
-                    value={style.margin_l ?? 10}
-                    onChange={(e) => setStyle({ ...style, margin_l: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Margin R</label>
-                  <input
-                    type="number"
-                    value={style.margin_r ?? 10}
-                    onChange={(e) => setStyle({ ...style, margin_r: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Margin V</label>
-                  <input
-                    type="number"
-                    value={style.margin_v ?? 40}
-                    onChange={(e) => setStyle({ ...style, margin_v: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Rotation</label>
-                  <input
-                    type="number"
-                    value={style.rotation ?? 0}
-                    onChange={(e) => setStyle({ ...style, rotation: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Rot X</label>
-                  <input
-                    type="number"
-                    value={style.rotation_x ?? 0}
-                    onChange={(e) => setStyle({ ...style, rotation_x: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Rot Y</label>
-                  <input
-                    type="number"
-                    value={style.rotation_y ?? 0}
-                    onChange={(e) => setStyle({ ...style, rotation_y: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Shear</label>
-                  <input
-                    type="number"
-                    value={style.shear ?? 0}
-                    onChange={(e) => setStyle({ ...style, shear: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Scale X</label>
-                  <input
-                    type="number"
-                    value={style.scale_x ?? 100}
-                    onChange={(e) => setStyle({ ...style, scale_x: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Scale Y</label>
-                  <input
-                    type="number"
-                    value={style.scale_y ?? 100}
-                    onChange={(e) => setStyle({ ...style, scale_y: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-white/60">Shadow (offset)</label>
-                  <input
-                    type="number"
-                    value={style.shadow ?? 0}
-                    onChange={(e) => setStyle({ ...style, shadow: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/60">Blur</label>
-                  <input
-                    type="number"
-                    value={style.blur ?? 0}
-                    onChange={(e) => setStyle({ ...style, blur: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                  />
-                </div>
-              </div>
+              </Grid>
 
-              <div className="space-y-2 pt-2 border-t border-white/10">
-                <div className="flex items-center gap-3 text-xs text-white/60">
-                  <span>Font scale</span>
-                  <input
-                    type="range"
-                    min={0.4}
-                    max={1.4}
-                    step={0.05}
-                    value={previewScale}
-                    onChange={(e) => setPreviewScale(Number(e.target.value))}
-                    className="flex-1"
-                  />
-                  <span className="text-white/70 w-10 text-right">{Math.round(previewScale * 100)}%</span>
-                </div>
-              </div>
+              <Divider textAlign="left">Stroke & Shadow</Divider>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Border
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={8}
+                      value={style.border || 0}
+                      onChange={(_, val) => setStyle({ ...style, border: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={30} textAlign="right">
+                      {style.border || 0}
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Shadow Blur
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={20}
+                      value={style.shadow_blur || 0}
+                      onChange={(_, val) => setStyle({ ...style, shadow_blur: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={30} textAlign="right">
+                      {style.shadow_blur || 0}
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Shadow Offset
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={40}
+                      value={style.shadow ?? 0}
+                      onChange={(_, val) => setStyle({ ...style, shadow: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.shadow ?? 0}
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Blur
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={40}
+                      value={style.blur ?? 0}
+                      onChange={(_, val) => setStyle({ ...style, blur: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.blur ?? 0}
+                    </Typography>
+                  </Stack>
+                </Grid>
+              </Grid>
 
-              <div className="flex items-center gap-2 pt-2 border-t border-white/10">
-                <button
-                  onClick={takeScreenshot}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-emerald-400/50"
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  Save preset screenshot
-                </button>
-                <button
-                  onClick={savePreset}
-                  disabled={savingPreset}
-                  className="px-3 py-2 rounded-lg bg-emerald-500/80 text-black font-semibold border border-emerald-300 hover:bg-emerald-400 disabled:opacity-50"
-                >
-                  {savingPreset ? "Saving..." : "Save preset"}
-                </button>
-              </div>
-            </div>
+              <Divider textAlign="left">Position & Spacing</Divider>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Margin L
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={100}
+                      value={style.margin_l ?? 10}
+                      onChange={(_, val) => setStyle({ ...style, margin_l: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.margin_l ?? 10}
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Margin R
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={100}
+                      value={style.margin_r ?? 10}
+                      onChange={(_, val) => setStyle({ ...style, margin_r: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.margin_r ?? 10}
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Margin V
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={150}
+                      value={style.margin_v ?? 40}
+                      onChange={(_, val) => setStyle({ ...style, margin_v: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.margin_v ?? 40}
+                    </Typography>
+                  </Stack>
+                </Grid>
+              </Grid>
+
+              <Divider textAlign="left">Transform</Divider>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Rotation
+                    </Typography>
+                    <Slider
+                      min={-45}
+                      max={45}
+                      value={style.rotation ?? 0}
+                      onChange={(_, val) => setStyle({ ...style, rotation: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.rotation ?? 0}°
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Rot X
+                    </Typography>
+                    <Slider
+                      min={-45}
+                      max={45}
+                      value={style.rotation_x ?? 0}
+                      onChange={(_, val) => setStyle({ ...style, rotation_x: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.rotation_x ?? 0}°
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Rot Y
+                    </Typography>
+                    <Slider
+                      min={-45}
+                      max={45}
+                      value={style.rotation_y ?? 0}
+                      onChange={(_, val) => setStyle({ ...style, rotation_y: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.rotation_y ?? 0}°
+                    </Typography>
+                  </Stack>
+                </Grid>
+              </Grid>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Shear
+                    </Typography>
+                    <Slider
+                      min={-45}
+                      max={45}
+                      value={style.shear ?? 0}
+                      onChange={(_, val) => setStyle({ ...style, shear: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.shear ?? 0}°
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Scale X
+                    </Typography>
+                    <Slider
+                      min={50}
+                      max={200}
+                      value={style.scale_x ?? 100}
+                      onChange={(_, val) => setStyle({ ...style, scale_x: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.scale_x ?? 100}%
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
+                      Scale Y
+                    </Typography>
+                    <Slider
+                      min={50}
+                      max={200}
+                      value={style.scale_y ?? 100}
+                      onChange={(_, val) => setStyle({ ...style, scale_y: val as number })}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography variant="body2" width={40} textAlign="right">
+                      {style.scale_y ?? 100}%
+                    </Typography>
+                  </Stack>
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={1}>
+                {[2, 5, 8].map((align) => (
+                  <Grid item xs={4} key={align}>
+                    <Button
+                      fullWidth
+                      variant={style.alignment === align ? "contained" : "outlined"}
+                      size="small"
+                      onClick={() => setStyle({ ...style, alignment: align })}
+                    >
+                      {align === 2 ? "Bottom" : align === 5 ? "Center" : "Top"}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+
+            </Stack>
           )}
 
           {activeTab === "transcript" && (
-            <div className="space-y-2 overflow-y-auto pr-1 max-h-[70vh]">
+            <Stack spacing={1.5} sx={{ overflowY: "auto", maxHeight: "75vh", pr: 1.5 }}>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} justifyContent="space-between" alignItems={{ sm: "center" }}>
+                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                  <Typography variant="h6" fontWeight={700}>
+                    Transcript Editor
+                  </Typography>
+                  <Chip label={`${words.length} lines`} size="small" />
+                  <Chip label={`Ends at ${(totalDuration || 0).toFixed(2)}s`} size="small" />
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                  <Tooltip title="Sort by start time">
+                    <IconButton color="default" onClick={sortWords}>
+                      <ListOrdered size={18} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Add new line">
+                    <IconButton color="primary" onClick={addWord}>
+                      <Plus size={18} />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </Stack>
+              <Divider />
               {words.map((w, idx) => (
-                <div key={`word-${idx}`} className={`p-2 rounded-lg border ${idx === activeIndex ? "border-emerald-400/60 bg-emerald-500/5" : "border-white/10 bg-white/5"}`}>
-                  <div className="flex items-center justify-between text-xs text-white/60 mb-1">
-                    <span>
-                      {w.start.toFixed(2)}s - {w.end.toFixed(2)}s
-                    </span>
-                    <button onClick={() => handleSeek(w.start)} className="text-emerald-300 text-[11px]">Jump</button>
-                  </div>
-                  <input
+                <Paper
+                  key={`word-${idx}`}
+                  variant="outlined"
+                  sx={{
+                    p: 1.5,
+                    borderColor: idx === activeIndex ? "primary.main" : "divider",
+                    bgcolor: idx === activeIndex ? "action.selected" : "background.paper",
+                  }}
+                >
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1}
+                    alignItems={{ sm: "center" }}
+                    justifyContent="space-between"
+                    mb={1}
+                  >
+                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                      <TextField
+                        label="Start"
+                        type="number"
+                        size="small"
+                        value={w.start.toFixed(2)}
+                        onChange={(e) => handleWordTimeChange(idx, "start", Number(e.target.value))}
+                        inputProps={{ step: "0.01", min: 0 }}
+                        sx={{ width: 120 }}
+                      />
+                      <TextField
+                        label="End"
+                        type="number"
+                        size="small"
+                        value={w.end.toFixed(2)}
+                        onChange={(e) => handleWordTimeChange(idx, "end", Number(e.target.value))}
+                        inputProps={{ step: "0.01", min: 0 }}
+                        sx={{ width: 120 }}
+                      />
+                      <Typography variant="caption" color="text.secondary">
+                        Dur. {(w.end - w.start).toFixed(2)}s
+                      </Typography>
+                    </Stack>
+                  <Stack direction="row" spacing={0.5}>
+                    <Tooltip title="Seek to start">
+                      <IconButton size="small" onClick={() => handleSeek(w.start)}>
+                        <Play size={16} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Duplicate line">
+                      <IconButton size="small" onClick={() => duplicateWord(idx)}>
+                        <Copy size={16} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete line">
+                      <IconButton size="small" color="error" onClick={() => deleteWord(idx)}>
+                        <Trash2 size={16} />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                  </Stack>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    multiline
+                    minRows={2}
                     value={w.text}
                     onChange={(e) => handleWordChange(idx, e.target.value)}
-                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm"
+                    InputProps={{ sx: { px: 1, py: 1 } }}
                   />
-                </div>
+                </Paper>
               ))}
-            </div>
+            </Stack>
           )}
-        </aside>
-      </main>
+        </Paper>
+        </Grid>
+      </Grid>
 
 
 
-      {showRenderModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
-            <h3 className="text-xl font-bold mb-4">Render Settings</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs text-white/60">Output Name</label>
-                <input
-                  value={exportName}
-                  onChange={(e) => setExportName(e.target.value)}
-                  className="w-full bg-slate-800 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-white/60">Quality</label>
-                <select
-                  value={exportQuality}
-                  onChange={(e) => setExportQuality(e.target.value)}
-                  className="w-full bg-slate-800 border border-white/10 rounded-lg px-3 py-2 mt-1"
-                >
-                  <option value="1080p">1080p</option>
-                  <option value="4k">4K</option>
-                  <option value="original">Original</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setShowRenderModal(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 border border-white/10"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleExport}
-                disabled={exporting}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold shadow-lg shadow-emerald-500/30 disabled:opacity-50"
-              >
-                {exporting ? "Rendering..." : "Render"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      <Dialog open={showRenderModal} onClose={() => setShowRenderModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Render Settings</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2}>
+            <TextField
+              label="Output Name"
+              fullWidth
+              value={exportName}
+              onChange={(e) => setExportName(e.target.value)}
+            />
+            <TextField
+              select
+              label="Quality"
+              fullWidth
+              value={exportQuality}
+              onChange={(e) => setExportQuality(e.target.value)}
+            >
+              <MenuItem value="1080p">1080p</MenuItem>
+              <MenuItem value="4k">4K</MenuItem>
+              <MenuItem value="original">Original</MenuItem>
+            </TextField>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowRenderModal(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleExport} disabled={exporting}>
+            {exporting ? "Rendering..." : "Render"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

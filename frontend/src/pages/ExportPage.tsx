@@ -1,6 +1,7 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMemo } from "react";
 import { Download, ArrowLeft, Plus } from "lucide-react";
+import { Box, Button, Container, Paper, Stack, Typography } from "@mui/material";
 
 export default function ExportPage() {
   const { projectId } = useParams();
@@ -9,44 +10,68 @@ export default function ExportPage() {
   const videoUrl = useMemo(() => (location.state as any)?.videoUrl as string | undefined, [location.state]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center px-6 py-10">
-      <div className="w-full max-w-4xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl">
-        <p className="text-xs uppercase tracking-[0.3em] text-emerald-300/80 mb-1">Export Ready</p>
-        <h1 className="text-3xl font-black mb-4">Your video is ready</h1>
-        {videoUrl ? (
-          <video src={videoUrl} controls className="w-full rounded-xl border border-white/10 mb-4" />
-        ) : (
-          <div className="h-64 rounded-xl border border-dashed border-white/20 flex items-center justify-center text-white/40 mb-4">
-            Provide a video to preview here.
-          </div>
-        )}
-        <div className="flex flex-wrap gap-3">
-          {videoUrl && (
-            <a
-              href={videoUrl}
-              download={`pycaps-${projectId || "export"}.mp4`}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold shadow-lg shadow-emerald-500/30"
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary", display: "flex", alignItems: "center", py: 8 }}>
+      <Container maxWidth="md">
+        <Paper variant="outlined" sx={{ p: 4, borderRadius: 3, boxShadow: "0 12px 36px rgba(0,0,0,0.25)" }}>
+          <Typography variant="overline" color="text.secondary" letterSpacing="0.2em">
+            Export Ready
+          </Typography>
+          <Typography variant="h4" fontWeight={800} gutterBottom>
+            Your video is ready
+          </Typography>
+
+          {videoUrl ? (
+            <Box
+              component="video"
+              src={videoUrl}
+              controls
+              sx={{
+                width: "100%",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "divider",
+                mb: 3,
+                overflow: "hidden",
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                height: 220,
+                borderRadius: 2,
+                border: "1px dashed",
+                borderColor: "divider",
+                display: "grid",
+                placeItems: "center",
+                color: "text.secondary",
+                mb: 3,
+              }}
             >
-              <Download className="w-4 h-4" />
-              Download
-            </a>
+              Provide a video to preview here.
+            </Box>
           )}
-          <button
-            onClick={() => navigate(`/editor/${projectId || "latest"}`)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Editor
-          </button>
-          <button
-            onClick={() => navigate("/upload")}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10"
-          >
-            <Plus className="w-4 h-4" />
-            New Project
-          </button>
-        </div>
-      </div>
-    </div>
+
+          <Stack direction="row" spacing={1.5} flexWrap="wrap">
+            {videoUrl && (
+              <Button
+                component="a"
+                href={videoUrl}
+                download={`pycaps-${projectId || "export"}.mp4`}
+                variant="contained"
+                startIcon={<Download size={16} />}
+              >
+                Download
+              </Button>
+            )}
+            <Button variant="outlined" startIcon={<ArrowLeft size={16} />} onClick={() => navigate(`/editor/${projectId || "latest"}`)}>
+              Back to Editor
+            </Button>
+            <Button variant="outlined" startIcon={<Plus size={16} />} onClick={() => navigate("/upload")}>
+              New Project
+            </Button>
+          </Stack>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

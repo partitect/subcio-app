@@ -2,9 +2,21 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UploadCloud, PlayCircle, Languages } from "lucide-react";
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Paper,
+  Typography,
+  Stack,
+  TextField,
+  MenuItem,
+  LinearProgress,
+} from "@mui/material";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
-
 const models = ["tiny", "base", "small", "medium", "large-v2", "large-v3", "distil-large-v3", "turbo"];
 
 export default function UploadPage() {
@@ -50,97 +62,144 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-6 py-10">
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl">
-          <p className="text-sm uppercase tracking-[0.3em] text-emerald-300/80 mb-2">Upload</p>
-          <h1 className="text-3xl font-black mb-6">Upload & Transcribe</h1>
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary", py: 8 }}>
+      <LoadingOverlay isLoading={loading} />
+      <Container maxWidth="lg">
+        <Grid container spacing={3} alignItems="stretch">
+          <Grid item xs={12} md={8}>
+            <Paper variant="outlined" sx={{ p: 3, height: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+              <Stack spacing={1}>
+                <Typography variant="overline" color="text.secondary" letterSpacing="0.2em">
+                  Upload
+                </Typography>
+                <Typography variant="h4" fontWeight={700}>
+                  Upload & Transcribe
+                </Typography>
+              </Stack>
 
-          <label
-            onDrop={(e) => {
-              e.preventDefault();
-              handleFile(e.dataTransfer.files?.[0]);
-            }}
-            onDragOver={(e) => e.preventDefault()}
-            className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-xl py-12 cursor-pointer bg-white/5 hover:border-emerald-400/50 transition"
-          >
-            <UploadCloud className="w-10 h-10 text-emerald-300 mb-3" />
-            <p className="font-semibold">{dropLabel}</p>
-            <p className="text-white/50 text-sm mt-1">MP4, MOV, WAV, MP3</p>
-            <input
-              type="file"
-              accept="video/*,audio/*"
-              className="hidden"
-              onChange={(e) => handleFile(e.target.files?.[0] || undefined)}
-            />
-          </label>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <div className="flex items-center gap-2 text-sm font-semibold mb-2">
-                <PlayCircle className="w-4 h-4 text-emerald-300" />
-                Whisper Model
-              </div>
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="w-full bg-slate-900 rounded-lg px-3 py-2 border border-white/10 focus:border-emerald-400/60 outline-none"
+              <Paper
+                variant="outlined"
+                sx={{
+                  mt: 1,
+                  p: 4,
+                  textAlign: "center",
+                  borderStyle: "dashed",
+                  borderColor: "divider",
+                  bgcolor: "background.paper",
+                  cursor: "pointer",
+                  "&:hover": { borderColor: "primary.main" },
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  handleFile(e.dataTransfer.files?.[0]);
+                }}
+                onDragOver={(e) => e.preventDefault()}
               >
-                {models.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <div className="flex items-center gap-2 text-sm font-semibold mb-2">
-                <Languages className="w-4 h-4 text-cyan-300" />
-                Language
-              </div>
-              <input
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                placeholder="auto-detect or en, tr..."
-                className="w-full bg-slate-900 rounded-lg px-3 py-2 border border-white/10 focus:border-cyan-400/60 outline-none"
-              />
-            </div>
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <div className="flex items-center gap-2 text-sm font-semibold mb-2">
-                <span className="w-4 h-4 bg-emerald-400 rounded-full inline-block" />
-                Status
-              </div>
-              <p className="text-white/70 text-sm">{loading ? "Processing..." : "Ready"}</p>
-            </div>
-          </div>
+                <Stack spacing={1.5} alignItems="center">
+                  <UploadCloud size={32} />
+                  <Typography fontWeight={600}>{dropLabel}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    MP4, MOV, WAV, MP3
+                  </Typography>
+                  <input
+                    type="file"
+                    accept="video/*,audio/*"
+                    style={{ display: "none" }}
+                    id="file-input"
+                    onChange={(e) => handleFile(e.target.files?.[0] || undefined)}
+                  />
+                  <label htmlFor="file-input">
+                    <Button component="span" variant="outlined" size="small">
+                      Choose file
+                    </Button>
+                  </label>
+                </Stack>
+              </Paper>
 
-          {loading && (
-            <div className="mt-4 h-2 bg-slate-800 rounded-full overflow-hidden border border-white/10">
-              <div className="h-full w-2/3 bg-gradient-to-r from-emerald-500 to-cyan-500 animate-pulse" />
-            </div>
-          )}
+              <Grid container spacing={2} mt={1}>
+                <Grid item xs={12} md={4}>
+                  <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                      <PlayCircle size={16} />
+                      <Typography fontWeight={600} variant="body2">
+                        Whisper Model
+                      </Typography>
+                    </Stack>
+                    <TextField select fullWidth size="small" value={model} onChange={(e) => setModel(e.target.value)}>
+                      {models.map((m) => (
+                        <MenuItem key={m} value={m}>
+                          {m}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                      <Languages size={16} />
+                      <Typography fontWeight={600} variant="body2">
+                        Language
+                      </Typography>
+                    </Stack>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      placeholder="auto-detect or en, tr..."
+                    />
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                      <Box sx={{ width: 10, height: 10, bgcolor: "success.main", borderRadius: "50%" }} />
+                      <Typography fontWeight={600} variant="body2">
+                        Status
+                      </Typography>
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">
+                      {loading ? "Processing..." : "Ready"}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
 
-          <div className="mt-6 flex justify-end">
-            <button
-              disabled={!file || loading}
-              onClick={startTranscription}
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold shadow-lg shadow-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {loading ? "Working..." : "Start Transcription"}
-            </button>
-          </div>
-        </div>
+              {loading && (
+                <Box mt={2}>
+                  <LinearProgress color="primary" />
+                </Box>
+              )}
 
-        <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 shadow-xl">
-          <h2 className="text-lg font-semibold mb-3">Progress</h2>
-          <div className="space-y-2 text-sm text-white/70 max-h-[320px] overflow-y-auto pr-1">
-            {logs.length === 0 ? <p className="text-white/40">Waiting for upload...</p> : null}
-            {logs.map((line, idx) => (
-              <p key={idx}>• {line}</p>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+              <Box mt="auto" display="flex" justifyContent="flex-end">
+                <Button variant="contained" size="large" disabled={!file || loading} onClick={startTranscription}>
+                  {loading ? "Working..." : "Start Transcription"}
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Paper variant="outlined" sx={{ p: 3, height: "100%", display: "flex", flexDirection: "column" }}>
+              <Typography variant="h6" fontWeight={700} mb={1}>
+                Progress
+              </Typography>
+              <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
+                <Stack spacing={1} fontSize={14} color="text.secondary">
+                  {logs.length === 0 ? <Typography color="text.disabled">Waiting for upload...</Typography> : null}
+                  {logs.map((line, idx) => (
+                    <Typography key={idx} variant="body2">
+                      • {line}
+                    </Typography>
+                  ))}
+                </Stack>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 }
+

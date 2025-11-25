@@ -1,8 +1,37 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Box, Button, Container, Grid, Paper, Chip, Typography, Stack, Card, CardContent, CardMedia } from "@mui/material";
+import { Play, Upload, Sparkles, Rocket, SlidersHorizontal, ListChecks, Download } from "lucide-react";
 import { ProjectMeta } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
+
+const Feature = ({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) => (
+  <Paper variant="outlined" sx={{ p: 2.5, display: "flex", gap: 1.5, alignItems: "flex-start", bgcolor: "background.paper" }}>
+    <Box
+      sx={{
+        width: 42,
+        height: 42,
+        borderRadius: 2,
+        bgcolor: "primary.main",
+        color: "common.white",
+        display: "grid",
+        placeItems: "center",
+        boxShadow: "0 8px 20px rgba(123,142,244,0.35)",
+      }}
+    >
+      {icon}
+    </Box>
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600}>
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {desc}
+      </Typography>
+    </Box>
+  </Paper>
+);
 
 export default function LandingPage() {
   const [projects, setProjects] = useState<ProjectMeta[]>([]);
@@ -14,94 +43,165 @@ export default function LandingPage() {
       .catch((err) => console.error("Failed to load projects", err));
   }, []);
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-cyan-500/10 to-purple-600/10 blur-3xl" />
-        <div className="relative max-w-6xl mx-auto px-6 py-14 flex flex-col gap-10">
-          <header className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300/80">Subtitle Studio</p>
-              <h1 className="text-4xl md:text-5xl font-black mt-2 leading-tight">
-                Style-rich captions with <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-300 to-purple-400">real-time</span> feedback
-              </h1>
-              <p className="text-white/60 mt-3 max-w-2xl">
-                Upload, transcribe, style, and export without leaving the browser. Saved projects keep your media, transcripts, and presets together.
-              </p>
-              <div className="flex gap-3 mt-6">
-                <Link
-                  to="/upload"
-                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition"
-                >
-                  Get Started
-                </Link>
-                <Link
-                  to="/editor/demo"
-                  className="px-5 py-3 rounded-xl border border-white/10 hover:border-white/30 bg-white/5 transition"
-                >
-                  Open Demo Editor
-                </Link>
-              </div>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-xl backdrop-blur">
-              <p className="text-sm text-white/70 mb-2">Recent activity</p>
-              <ul className="space-y-2 text-white/80">
-                <li>Grouped subtitles now stay locked in place.</li>
-                <li>Preset screenshots saved to public previews.</li>
-                <li>Project history lives in the backend.</li>
-              </ul>
-            </div>
-          </header>
+  const resolveAssetUrl = (url?: string) => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    const apiHost = API_BASE.replace(/\/api$/, "");
+    return `${apiHost}${url.startsWith("/") ? url : `/${url}`}`;
+  };
 
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Recent Projects</h2>
-              <Link to="/upload" className="text-emerald-300 hover:text-emerald-200 text-sm">New Project →</Link>
-            </div>
-            {projects.length === 0 ? (
-              <div className="text-white/50 border border-dashed border-white/10 rounded-xl p-8 text-center">
-                No projects yet. Start by uploading a video.
-              </div>
-            ) : (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {projects.slice(0, 6).map((project) => (
-                  <Link
-                    key={project.id}
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at 20% 20%, rgba(123,142,244,0.14), transparent 30%), radial-gradient(circle at 80% 10%, rgba(246,166,178,0.12), transparent 28%), radial-gradient(circle at 70% 80%, rgba(114,197,158,0.1), transparent 25%)",
+          filter: "blur(0px)",
+          pointerEvents: "none",
+        }}
+      />
+      <Container maxWidth="lg" sx={{ position: "relative", py: 6 }}>
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack spacing={2}>
+              <Chip label="PyonFX Subtitle Studio" color="primary" variant="outlined" sx={{ alignSelf: "flex-start", fontWeight: 600 }} />
+              <Typography variant="h2" fontWeight={700} sx={{ lineHeight: 1.1 }}>
+                Style-rich captions with{" "}
+                <Box component="span" sx={{ color: "primary.main" }}>
+                  real-time
+                </Box>{" "}
+                feedback
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 620 }}>
+                Upload, transcribe, style, and export without leaving the browser. Saved projects keep your media, transcripts, and presets together.
+              </Typography>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Button variant="contained" size="large" startIcon={<Upload size={18} />} component={Link} to="/upload">
+                  Get Started
+                </Button>
+                <Button variant="outlined" size="large" startIcon={<Play size={18} />} component={Link} to="/editor/demo">
+                  Open Demo
+                </Button>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ color: "text.secondary" }}>
+                  <Sparkles size={16} />
+                  <Typography variant="body2">All PyonFX presets included</Typography>
+                </Stack>
+              </Stack>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                backdropFilter: "blur(8px)",
+                boxShadow: "0 12px 36px rgba(0,0,0,0.3)",
+              }}
+            >
+              <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                Highlights
+              </Typography>
+              <Stack spacing={1} color="text.secondary" fontSize={14}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Rocket size={16} />
+                  <span>Fast preview/export pipeline (PyonFX)</span>
+                </Stack>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Sparkles size={16} />
+                  <span>Preset screenshots stored with projects</span>
+                </Stack>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Sparkles size={16} />
+                  <span>All effects migrated to new renderer</span>
+                </Stack>
+              </Stack>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 6 }}>
+          <Typography variant="h5" fontWeight={700} gutterBottom>
+            Why you’ll like it
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <Feature icon={<SlidersHorizontal size={18} />} title="Style-first" desc="PyonFX-based effects, live preview, and preset screenshots." />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Feature icon={<ListChecks size={18} />} title="Organized projects" desc="Media, transcripts, and style configs persist together." />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Feature icon={<Download size={18} />} title="Fast exports" desc="ASS render + ffmpeg burn pipeline kept lean and cached." />
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Box sx={{ mt: 6 }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight={700}>
+              Recent Projects
+            </Typography>
+            <Button component={Link} to="/upload" size="small" color="primary">
+              New Project →
+            </Button>
+          </Stack>
+          {projects.length === 0 ? (
+            <Paper variant="outlined" sx={{ p: 4, textAlign: "center", color: "text.secondary", borderStyle: "dashed" }}>
+              No projects yet. Start by uploading a video.
+            </Paper>
+          ) : (
+            <Grid container spacing={1}>
+              {projects.slice(0, 6).map((project) => (
+                <Grid item xs={12} sm={4} md={2} key={project.id}>
+                  <Card
+                    component={Link}
                     to={`/editor/${project.id}`}
-                    className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-emerald-400/40 transition shadow-lg hover:shadow-emerald-500/20"
+                    sx={{
+                      textDecoration: "none",
+                      bgcolor: "background.paper",
+                      border: "none",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
+                      "&:hover": { boxShadow: "0 12px 28px rgba(123,142,244,0.2)" },
+                    }}
                   >
-                    <div className="relative h-40 bg-slate-900">
-                      {project.thumb_url ? (
-                        <img
-                          src={project.thumb_url}
-                          alt={project.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-white/40">
-                          No thumbnail
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-semibold">{project.name}</p>
-                        <span className="text-[11px] px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                          {project.id.slice(0, 6)}
-                        </span>
-                      </div>
-                      <p className="text-white/50 text-sm">
+                    {project.thumb_url ? (
+                      <CardMedia
+                        component="img"
+                        height="120"
+                        image={resolveAssetUrl(project.thumb_url)}
+                        alt={project.name}
+                        sx={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <Box sx={{ height: 120, display: "grid", placeItems: "center", color: "text.secondary" }}>No thumbnail</Box>
+                    )}
+                    <CardContent sx={{ py: 1.5, px: 1.5 }}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.5}>
+                        <Typography fontWeight={600}>{project.name}</Typography>
+                        <Chip label={project.id.slice(0, 6)} size="small" color="primary" variant="outlined" />
+                      </Stack>
+                      <Typography variant="caption" color="text.secondary">
                         {project.created_at ? new Date(project.created_at).toLocaleString() : "Unknown date"}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-      </div>
-    </div>
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Box>
+      </Container>
+    </Box>
   );
 }
