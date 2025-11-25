@@ -70,12 +70,16 @@ export default function LandingPage() {
           pointerEvents: "none",
         }}
       />
-      <Container maxWidth="lg" sx={{ position: "relative", py: 6 }}>
+      <Container maxWidth="lg" sx={{ position: "relative", py: { xs: 4, md: 6 } }}>
         <Grid container spacing={4} alignItems="center">
           <Grid item xs={12} md={7}>
             <Stack spacing={2}>
               <Chip label="PyonFX Subtitle Studio" color="primary" variant="outlined" sx={{ alignSelf: "flex-start", fontWeight: 600 }} />
-              <Typography variant="h2" fontWeight={700} sx={{ lineHeight: 1.1 }}>
+              <Typography
+                variant="h2"
+                fontWeight={700}
+                sx={{ lineHeight: 1.1, fontSize: { xs: "2.1rem", sm: "2.6rem", md: "3rem" } }}
+              >
                 Style-rich captions with{" "}
                 <Box component="span" sx={{ color: "primary.main" }}>
                   real-time
@@ -85,11 +89,30 @@ export default function LandingPage() {
               <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 620 }}>
                 Upload, transcribe, style, and export without leaving the browser. Saved projects keep your media, transcripts, and presets together.
               </Typography>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Button variant="contained" size="large" startIcon={<Upload size={18} />} component={Link} to="/upload">
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems={{ xs: "stretch", sm: "center" }}
+                sx={{ width: "100%" }}
+              >
+                <Button
+                  variant="contained"
+                  size="large"
+                  startIcon={<Upload size={18} />}
+                  component={Link}
+                  to="/upload"
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                >
                   Get Started
                 </Button>
-                <Button variant="outlined" size="large" startIcon={<Play size={18} />} component={Link} to="/editor/demo">
+                <Button
+                  variant="outlined"
+                  size="large"
+                  startIcon={<Play size={18} />}
+                  component={Link}
+                  to="/editor/demo"
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                >
                   Open Demo
                 </Button>
                 <Stack direction="row" spacing={1} alignItems="center" sx={{ color: "text.secondary" }}>
@@ -148,11 +171,23 @@ export default function LandingPage() {
         </Box>
 
         <Box sx={{ mt: 6 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            justifyContent="space-between"
+            alignItems={{ xs: "flex-start", sm: "center" }}
+            spacing={{ xs: 1, sm: 0 }}
+            mb={2}
+          >
             <Typography variant="h6" fontWeight={700}>
               Recent Projects
             </Typography>
-            <Button component={Link} to="/upload" size="small" color="primary">
+            <Button
+              component={Link}
+              to="/upload"
+              size="small"
+              color="primary"
+              sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}
+            >
               New Project →
             </Button>
           </Stack>

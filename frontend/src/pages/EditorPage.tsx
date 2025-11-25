@@ -673,17 +673,19 @@ export default function EditorPage() {
         variant="outlined"
         square
         sx={{
-          px: 3,
-          py: 2,
+          px: { xs: 2, md: 3 },
+          py: { xs: 1.5, md: 2 },
           display: "flex",
-          alignItems: "center",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "center" },
           justifyContent: "space-between",
+          gap: { xs: 1.5, md: 2 },
           borderColor: "divider",
           backdropFilter: "blur(6px)",
         }}
       >
-        <Stack spacing={0.75}>
-          <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack spacing={0.75} sx={{ width: "100%" }}>
+          <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
             <Typography variant="overline" color="text.secondary" letterSpacing="0.2em">
               Editor
             </Typography>
@@ -695,22 +697,42 @@ export default function EditorPage() {
             value={project?.name || "Untitled Project"}
             onChange={(e) => setProject((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
             size="small"
-            sx={{ maxWidth: 320 }}
+            sx={{ maxWidth: { xs: "100%", sm: 320 }, width: "100%" }}
           />
         </Stack>
-        <Stack direction="row" spacing={1}>
-          <Button variant="outlined" size="small" color="inherit" onClick={() => navigate("/")}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1}
+          sx={{
+            width: { xs: "100%", md: "auto" },
+            alignItems: { xs: "stretch", sm: "center" },
+            justifyContent: { xs: "flex-start", sm: "flex-end" },
+          }}
+        >
+          <Button
+            variant="outlined"
+            size="small"
+            color="inherit"
+            onClick={() => navigate("/")}
+            sx={{ width: { xs: "100%", sm: "auto" } }}
+          >
             Back Home
           </Button>
-          <Button variant="contained" size="small" startIcon={<Download size={16} />} onClick={() => setShowRenderModal(true)}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<Download size={16} />}
+            onClick={() => setShowRenderModal(true)}
+            sx={{ width: { xs: "100%", sm: "auto" } }}
+          >
             {exporting ? "Rendering..." : "Render & Export"}
           </Button>
         </Stack>
       </Paper>
 
-      <Grid container spacing={2} sx={{ flex: 1, px: 3, py: 3 }}>
+      <Grid container spacing={2} sx={{ flex: 1, px: { xs: 1.5, md: 3 }, py: { xs: 2, md: 3 } }}>
         <Grid item xs={12} lg={8}>
-          <Paper sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
+          <Paper sx={{ p: { xs: 1.5, md: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
             <Box
               ref={overlayRef}
               sx={{
@@ -762,7 +784,13 @@ export default function EditorPage() {
                 bgcolor: "background.paper",
               }}
             >
-              <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                alignItems={{ xs: "flex-start", sm: "center" }}
+                justifyContent="space-between"
+                spacing={{ xs: 0.5, sm: 1 }}
+                mb={1}
+              >
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Play size={16} color="#66e3c4" />
                   <Typography variant="body2" color="text.secondary">
@@ -823,7 +851,16 @@ export default function EditorPage() {
         </Grid>
 
         <Grid item xs={12} lg={4}>
-          <Paper sx={{ p: 2.5, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
+          <Paper
+            sx={{
+              p: { xs: 1.5, md: 2.5 },
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              borderRadius: 2,
+            }}
+          >
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
@@ -837,7 +874,7 @@ export default function EditorPage() {
           </Tabs>
 
           {activeTab === "presets" && (
-            <Grid container spacing={1.5} sx={{ maxHeight: "80vh", overflowY: "auto", pr: 1 }}>
+            <Grid container spacing={1.5} sx={{ maxHeight: { xs: "unset", md: "80vh" }, overflowY: { md: "auto" }, pr: 1 }}>
               {presets.map((preset) => {
                 const selected = style.id === preset.id;
                 return (
@@ -894,11 +931,11 @@ export default function EditorPage() {
             <Stack
               spacing={2}
               sx={{
-                overflowY: "auto",
+                overflowY: { md: "auto" },
                 overflowX: "hidden",
-                maxHeight: "80vh",
+                maxHeight: { xs: "none", md: "80vh" },
                 pl: { xs: 1, md: 0 },
-                pr: { xs: 3, md: 6 },
+                pr: { xs: 2.5, md: 6 },
               }}
             >
               <Stack direction="row" spacing={1} justifyContent="flex-end">
@@ -1086,7 +1123,7 @@ export default function EditorPage() {
           )}
 
           {activeTab === "transcript" && (
-            <Stack spacing={1.5} sx={{ overflowY: "auto", maxHeight: "75vh", pr: 1.5 }}>
+            <Stack spacing={1.5} sx={{ overflowY: { md: "auto" }, maxHeight: { xs: "none", md: "75vh" }, pr: 1.5 }}>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={1} justifyContent="space-between" alignItems={{ sm: "center" }}>
                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                   <Typography variant="h6" fontWeight={700}>

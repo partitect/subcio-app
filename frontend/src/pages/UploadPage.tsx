@@ -62,12 +62,15 @@ export default function UploadPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary", py: 8 }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary", py: { xs: 5, md: 8 } }}>
       <LoadingOverlay isLoading={loading} />
       <Container maxWidth="lg">
-        <Grid container spacing={3} alignItems="stretch">
+        <Grid container spacing={{ xs: 2, md: 3 }} alignItems="stretch">
           <Grid item xs={12} md={8}>
-            <Paper variant="outlined" sx={{ p: 3, height: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+            <Paper
+              variant="outlined"
+              sx={{ p: { xs: 2.5, md: 3 }, height: "100%", display: "flex", flexDirection: "column", gap: 2 }}
+            >
               <Stack spacing={1}>
                 <Typography variant="overline" color="text.secondary" letterSpacing="0.2em">
                   Upload
@@ -81,7 +84,7 @@ export default function UploadPage() {
                 variant="outlined"
                 sx={{
                   mt: 1,
-                  p: 4,
+                  p: { xs: 3, md: 4 },
                   textAlign: "center",
                   borderStyle: "dashed",
                   borderColor: "divider",
@@ -172,8 +175,19 @@ export default function UploadPage() {
                 </Box>
               )}
 
-              <Box mt="auto" display="flex" justifyContent="flex-end">
-                <Button variant="contained" size="large" disabled={!file || loading} onClick={startTranscription}>
+              <Box
+                mt="auto"
+                display="flex"
+                justifyContent={{ xs: "flex-start", sm: "flex-end" }}
+                width="100%"
+              >
+                <Button
+                  variant="contained"
+                  size="large"
+                  disabled={!file || loading}
+                  onClick={startTranscription}
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                >
                   {loading ? "Working..." : "Start Transcription"}
                 </Button>
               </Box>
@@ -181,7 +195,10 @@ export default function UploadPage() {
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <Paper variant="outlined" sx={{ p: 3, height: "100%", display: "flex", flexDirection: "column" }}>
+            <Paper
+              variant="outlined"
+              sx={{ p: { xs: 2.5, md: 3 }, height: "100%", display: "flex", flexDirection: "column", gap: 1 }}
+            >
               <Typography variant="h6" fontWeight={700} mb={1}>
                 Progress
               </Typography>
