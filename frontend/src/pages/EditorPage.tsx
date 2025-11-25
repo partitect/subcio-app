@@ -465,7 +465,12 @@ export default function EditorPage() {
     setSavingPreset(true);
     try {
       await axios.post(`${API_BASE}/presets/update`, payload);
-      setToast({ open: true, message: "Preset kaydedildi.", severity: "success" });
+      const ssOk = await takeScreenshot({ silent: true });
+      setToast({
+        open: true,
+        message: ssOk ? "Preset kaydedildi ve screenshot alındı." : "Preset kaydedildi, screenshot alınamadı.",
+        severity: ssOk ? "success" : "warning",
+      });
     } catch (err: any) {
       console.error("Preset save failed", err);
       const msg = err?.response?.data?.detail || "Failed to save preset";
@@ -475,10 +480,10 @@ export default function EditorPage() {
     }
   };
 
-  const takeScreenshot = async () => {
+  const takeScreenshot = async (opts?: { silent?: boolean }) => {
     // Capture from the live preview overlay
     const overlayNode = overlayRef.current;
-    if (!overlayNode) return;
+    if (!overlayNode) return false;
 
     // The JSOOverlay creates a canvas inside the overlay container
     const canvas = overlayNode.querySelector("canvas");
@@ -570,16 +575,13 @@ export default function EditorPage() {
     const contentW = maxX - minX;
     const contentH = maxY - minY;
 
-    // Create target canvas
+    // Create target canvas (transparent background)
     const targetCanvas = document.createElement("canvas");
     targetCanvas.width = targetWidth;
     targetCanvas.height = targetHeight;
     const ctx = targetCanvas.getContext("2d");
-    if (!ctx) return;
-
-    // Fill background
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    if (!ctx) return false;
+    ctx.clearRect(0, 0, targetWidth, targetHeight);
 
     // Draw cropped content centered and scaled
     const scale = Math.min((targetWidth - 20) / contentW, (targetHeight - 20) / contentH);
@@ -593,10 +595,16 @@ export default function EditorPage() {
     const image = targetCanvas.toDataURL("image/png");
     try {
       await axios.post(`${API_BASE}/presets/screenshot`, { id: style.id || "custom", image });
-      setToast({ open: true, message: "Preset screenshot kaydedildi (/sspresets)", severity: "success" });
+      if (!opts?.silent) {
+        setToast({ open: true, message: "Preset screenshot kaydedildi (/sspresets)", severity: "success" });
+      }
+      return true;
     } catch (err) {
       console.error(err);
-      setToast({ open: true, message: "Screenshot kaydedilemedi", severity: "error" });
+      if (!opts?.silent) {
+        setToast({ open: true, message: "Screenshot kaydedilemedi", severity: "error" });
+      }
+      return false;
     }
   };
 
@@ -857,7 +865,7 @@ export default function EditorPage() {
                       <Box
                         sx={{
                           mt: 1,
-                          height: 64,
+                          height: 100,
                           borderRadius: 1.5,
                           border: "1px solid",
                           borderColor: "divider",
@@ -894,14 +902,6 @@ export default function EditorPage() {
               }}
             >
               <Stack direction="row" spacing={1} justifyContent="flex-end">
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<ImageIcon className="w-4 h-4" />}
-                  onClick={takeScreenshot}
-                >
-                  Save preset screenshot
-                </Button>
                 <Button variant="contained" size="small" onClick={savePreset} disabled={savingPreset}>
                   {savingPreset ? "Saving..." : "Save preset"}
                 </Button>
