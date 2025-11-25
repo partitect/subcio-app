@@ -30,6 +30,7 @@ import {
   Alert,
 } from "@mui/material";
 import JSOOverlay from "../components/JSOOverlay";
+import AudioSubtitleOverlay from "../components/AudioSubtitleOverlay";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { ProjectMeta, StyleConfig, WordCue } from "../types";
 
@@ -151,16 +152,28 @@ const styleToAss = (incoming: StyleConfig) => ({
   back_color: hexToAss((incoming as any).back_color as string),
 });
 
+// Preset category type and helper
+type PresetCategory = "all" | "text" | "animation" | "karaoke";
+const categorizePreset = (preset: Preset): PresetCategory => {
+  if (preset.effect_type?.includes("karaoke")) return "karaoke";
+  if (preset.effect_type) return "animation";
+  return "text";
+};
+
 export default function EditorPage() {
   const { projectId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
   const playerRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const [project, setProject] = useState<ProjectMeta | null>((location.state as any)?.project || null);
   const [videoUrl, setVideoUrl] = useState<string>("");
+  const [audioUrl, setAudioUrl] = useState<string>("");
+  const [mediaType, setMediaType] = useState<"video" | "audio">("video");
+  const [backgroundImage, setBackgroundImage] = useState<string>("");
   const [words, setWords] = useState<WordCue[]>((location.state as any)?.words || defaultWords);
   const [style, setStyle] = useState<StyleConfig>(defaultFireStormStyle);
   const [assContent, setAssContent] = useState<string>("");
@@ -176,7 +189,9 @@ export default function EditorPage() {
   const [exportQuality, setExportQuality] = useState("1080p");
   const [savingPreset, setSavingPreset] = useState(false);
   const [presetSynced, setPresetSynced] = useState(false);
-  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showBgSelector, setShowBgSelector] = useState(false);
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" | "warning" }>({
     open: false,
     message: "",
     severity: "success",
@@ -252,6 +267,7 @@ export default function EditorPage() {
       // Demo fallback: use bundled sample
       setProject((prev) => prev || { id: "demo", name: "Demo Project" });
       setVideoUrl("/test-video/export_7ea10b8f2a224be0953d0792b13f7605.mp4");
+      setMediaType("video");
       setWords((prev) => (prev && prev.length ? prev : defaultWords));
       return;
     }
@@ -262,7 +278,19 @@ export default function EditorPage() {
         .then(({ data }) => {
           setProject(data);
           setWords(data.words || []);
-          setVideoUrl(data.video_url || "");
+          
+          // Handle media type (video or audio)
+          const type = data.media_type || (data.audio_url ? "audio" : "video");
+          setMediaType(type);
+          
+          if (type === "audio") {
+            setAudioUrl(data.audio_url || "");
+            setVideoUrl("");
+          } else {
+            setVideoUrl(data.video_url || "");
+            setAudioUrl("");
+          }
+          
           const styleFromConfig = (data.config && (data.config as any).style) || {};
           const normalizedFont = normalizeFontName(fontOptions, styleFromConfig.font || style.font);
           setStyle((prev) => ({
@@ -288,6 +316,10 @@ export default function EditorPage() {
   useEffect(() => {
     if (project?.video_url) {
       setVideoUrl(project.video_url);
+      setMediaType("video");
+    } else if (project?.audio_url) {
+      setAudioUrl(project.audio_url);
+      setMediaType("audio");
     }
   }, [project]);
 
@@ -419,13 +451,43 @@ export default function EditorPage() {
     return new URL(videoUrl, apiBase).toString();
   }, [videoUrl]);
 
+  const resolvedAudioUrl = useMemo(() => {
+    if (!audioUrl) return "";
+    if (audioUrl.startsWith("http")) return audioUrl;
+    const apiBase = (import.meta.env.VITE_API_BASE || "http://localhost:8000/api").replace(/\/api$/, "");
+    if (audioUrl.startsWith("/projects")) {
+      return `${apiBase}${audioUrl}`;
+    }
+    return new URL(audioUrl, apiBase).toString();
+  }, [audioUrl]);
+
   const handleSeek = (time: number) => {
     setCurrentTime(time);
     try {
-      playerRef.current?.seekTo(time, "seconds");
+      if (mediaType === "audio" && audioRef.current) {
+        audioRef.current.currentTime = time;
+      } else {
+        playerRef.current?.seekTo(time, "seconds");
+      }
     } catch {
       /* noop */
     }
+  };
+
+  const togglePlayPause = () => {
+    if (mediaType === "audio" && audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleBackgroundSelect = (url: string) => {
+    setBackgroundImage(url);
+    setShowBgSelector(false);
   };
 
   const applyPreset = (preset: Preset) => {
@@ -1102,6 +1164,27 @@ export default function EditorPage() {
         </Grid>
         <Grid item xs={12} lg={7}>
           <Paper sx={{ p: { xs: 1.5, md: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
+            {/* Audio Mode: Background selector button */}
+            {mediaType === "audio" && (
+              <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+                <Chip 
+                  icon={<ImageIcon size={14} />} 
+                  label="Audio Mode" 
+                  size="small" 
+                  color="info" 
+                  variant="outlined" 
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<ImageIcon size={14} />}
+                  onClick={() => setShowBgSelector(true)}
+                >
+                  {backgroundImage ? "Change Background" : "Select Background"}
+                </Button>
+              </Stack>
+            )}
+
             <Box
               ref={overlayRef}
               sx={{
@@ -1111,9 +1194,13 @@ export default function EditorPage() {
                 borderRadius: 2,
                 overflow: "hidden",
                 aspectRatio: "16 / 9",
+                backgroundImage: mediaType === "audio" && backgroundImage ? `url(${backgroundImage})` : "none",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }}
             >
-              {resolvedVideoUrl ? (
+              {/* Video Mode */}
+              {mediaType === "video" && resolvedVideoUrl ? (
                 <>
                   <ReactPlayer
                     ref={playerRef}
@@ -1135,12 +1222,80 @@ export default function EditorPage() {
                     onError={(e) => console.error("Fallback video tag error", e)}
                   />
                 </>
+              ) : mediaType === "audio" && resolvedAudioUrl ? (
+                /* Audio Mode - Hidden audio element with visual controls */
+                <>
+                  <audio
+                    ref={audioRef}
+                    src={resolvedAudioUrl}
+                    onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    onEnded={() => setIsPlaying(false)}
+                    style={{ display: "none" }}
+                  />
+                  {/* Audio visualization overlay */}
+                  <Stack
+                    alignItems="center"
+                    justifyContent="center"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      color: "white",
+                      zIndex: 1,
+                      background: !backgroundImage ? "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" : "transparent",
+                    }}
+                  >
+                    {!backgroundImage && (
+                      <Stack spacing={2} alignItems="center">
+                        <Box
+                          sx={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: "50%",
+                            bgcolor: "rgba(255,255,255,0.1)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            border: "2px solid rgba(255,255,255,0.2)",
+                          }}
+                        >
+                          <Play size={32} />
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Select a background image for better preview
+                        </Typography>
+                      </Stack>
+                    )}
+                  </Stack>
+                  {/* Play/Pause button for audio */}
+                  <IconButton
+                    onClick={togglePlayPause}
+                    sx={{
+                      position: "absolute",
+                      bottom: 16,
+                      left: 16,
+                      bgcolor: "rgba(0,0,0,0.6)",
+                      color: "white",
+                      zIndex: 10,
+                      "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
+                    }}
+                  >
+                    {isPlaying ? <Box sx={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>⏸</Box> : <Play size={24} />}
+                  </IconButton>
+                </>
               ) : (
                 <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0, color: "text.secondary" }}>
                   <Typography variant="body2">Load a project to preview</Typography>
                 </Stack>
               )}
-              {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />}
+              {/* Subtitle overlay - use different component based on media type */}
+              {mediaType === "video" && assContent && (
+                <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />
+              )}
+              {mediaType === "audio" && (
+                <AudioSubtitleOverlay words={words} currentTime={currentTime} style={style} />
+              )}
             </Box>
 
             <Paper
@@ -1254,6 +1409,98 @@ export default function EditorPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Background Selector Dialog for Audio Mode */}
+      <Dialog open={showBgSelector} onClose={() => setShowBgSelector(false)} maxWidth="md" fullWidth>
+        <DialogTitle>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <ImageIcon size={20} />
+            <Typography variant="h6">Select Background Image</Typography>
+          </Stack>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            Choose a background image for your audio subtitle preview. You can also use a custom image URL.
+          </Typography>
+          
+          {/* Preset backgrounds */}
+          <Typography variant="subtitle2" mb={1}>Preset Backgrounds</Typography>
+          <Grid container spacing={1.5} mb={3}>
+            {[
+              { name: "Gradient Dark", url: "", gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" },
+              { name: "Gradient Purple", url: "", gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
+              { name: "Gradient Ocean", url: "", gradient: "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)" },
+              { name: "Gradient Sunset", url: "", gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" },
+              { name: "Solid Black", url: "", gradient: "#000000" },
+              { name: "Solid Dark Gray", url: "", gradient: "#1a1a1a" },
+            ].map((bg, idx) => (
+              <Grid item xs={4} sm={3} md={2} key={idx}>
+                <Paper
+                  variant="outlined"
+                  onClick={() => {
+                    setBackgroundImage("");
+                    setShowBgSelector(false);
+                  }}
+                  sx={{
+                    height: 80,
+                    cursor: "pointer",
+                    background: bg.gradient,
+                    borderRadius: 1.5,
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "center",
+                    p: 0.5,
+                    "&:hover": { borderColor: "primary.main", transform: "scale(1.02)" },
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  <Typography variant="caption" sx={{ color: "white", textShadow: "0 1px 2px rgba(0,0,0,0.8)", fontSize: 10 }}>
+                    {bg.name}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Custom URL input */}
+          <Typography variant="subtitle2" mb={1}>Custom Image URL</Typography>
+          <Stack direction="row" spacing={1}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="https://example.com/image.jpg"
+              value={backgroundImage}
+              onChange={(e) => setBackgroundImage(e.target.value)}
+            />
+            <Button 
+              variant="contained" 
+              onClick={() => setShowBgSelector(false)}
+              disabled={!backgroundImage}
+            >
+              Apply
+            </Button>
+          </Stack>
+
+          {/* Upload option hint */}
+          <Typography variant="caption" color="text.secondary" mt={2} display="block">
+            Tip: Use services like Unsplash, Pexels, or upload your image to a hosting service to get a URL.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowBgSelector(false)}>Cancel</Button>
+          <Button 
+            variant="outlined" 
+            color="error"
+            onClick={() => {
+              setBackgroundImage("");
+              setShowBgSelector(false);
+            }}
+          >
+            Remove Background
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={toast.open}
         autoHideDuration={3000}
@@ -1262,7 +1509,7 @@ export default function EditorPage() {
         TransitionProps={{ onExited: () => setToast((prev) => ({ ...prev, message: "" })) }}
       >
         <Alert
-          severity={toast.severity}
+          severity={toast.severity as "success" | "error" | "warning" | "info"}
           onClose={() => setToast((prev) => ({ ...prev, open: false }))}
           variant="filled"
           sx={{ boxShadow: 3, borderRadius: 1 }}

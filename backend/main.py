@@ -334,8 +334,20 @@ def generate_thumbnail(video_path: Path, thumb_path: Path):
         print(f"[WARN] Thumbnail generation failed: {result.stderr}")
 
 
+# Audio file extensions
+AUDIO_EXTENSIONS = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".wma"}
+VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".wmv", ".flv"}
+
+def is_audio_file(file_path: Path) -> bool:
+    """Check if file is an audio-only file."""
+    return file_path.suffix.lower() in AUDIO_EXTENSIONS
+
+def is_video_file(file_path: Path) -> bool:
+    """Check if file is a video file."""
+    return file_path.suffix.lower() in VIDEO_EXTENSIONS
+
 def persist_project(
-    video_path: Path,
+    media_path: Path,
     words: List[dict],
     language: str,
     model: str,
@@ -348,9 +360,18 @@ def persist_project(
     project_dir = PROJECTS_DIR / pid
     project_dir.mkdir(parents=True, exist_ok=True)
 
-    stored_video = project_dir / "video.mp4"
-    if video_path.resolve() != stored_video.resolve():
-        shutil.copy(video_path, stored_video)
+    # Determine media type
+    is_audio = is_audio_file(media_path)
+    media_type = "audio" if is_audio else "video"
+    
+    # Store media with appropriate extension
+    if is_audio:
+        stored_media = project_dir / f"audio{media_path.suffix.lower()}"
+    else:
+        stored_media = project_dir / "video.mp4"
+    
+    if media_path.resolve() != stored_media.resolve():
+        shutil.copy(media_path, stored_media)
 
     transcript_payload = {"language": language, "model": model, "words": words}
     (project_dir / "transcript.json").write_text(
@@ -363,26 +384,32 @@ def persist_project(
     created_at = datetime.utcnow().isoformat()
     config = {
         "id": pid,
-        "name": name or video_path.stem,
+        "name": name or media_path.stem,
         "created_at": created_at,
         "style": style or {},
         "language": language,
         "model": model,
+        "media_type": media_type,
     }
     (project_dir / "config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
 
     thumb_path = project_dir / "thumb.jpg"
-    try:
-        generate_thumbnail(stored_video, thumb_path)
-    except Exception as thumb_err:
-        print(f"[WARN] Failed to create thumbnail for {pid}: {thumb_err}")
+    if not is_audio:
+        try:
+            generate_thumbnail(stored_media, thumb_path)
+        except Exception as thumb_err:
+            print(f"[WARN] Failed to create thumbnail for {pid}: {thumb_err}")
 
+    # Build response based on media type
+    media_url = f"/projects/{pid}/{stored_media.name}"
     return {
         "id": pid,
         "name": config["name"],
         "created_at": created_at,
-        "video_url": f"/projects/{pid}/{stored_video.name}",
-        "thumb_url": f"/projects/{pid}/thumb.jpg",
+        "media_type": media_type,
+        "video_url": media_url if not is_audio else None,
+        "audio_url": media_url if is_audio else None,
+        "thumb_url": f"/projects/{pid}/thumb.jpg" if not is_audio else None,
         "config": config,
     }
 
@@ -401,13 +428,26 @@ def list_projects() -> List[dict]:
                 config = {}
         thumb = path / "thumb.jpg"
         video = path / "video.mp4"
+        
+        # Detect audio files
+        audio_file = None
+        for ext in AUDIO_EXTENSIONS:
+            candidate = path / f"audio{ext}"
+            if candidate.exists():
+                audio_file = candidate
+                break
+        
+        media_type = config.get("media_type", "video" if video.exists() else ("audio" if audio_file else "video"))
+        
         projects.append(
             {
                 "id": path.name,
                 "name": config.get("name", path.name),
                 "created_at": config.get("created_at"),
+                "media_type": media_type,
                 "thumb_url": f"/projects/{path.name}/thumb.jpg" if thumb.exists() else None,
                 "video_url": f"/projects/{path.name}/video.mp4" if video.exists() else None,
+                "audio_url": f"/projects/{path.name}/{audio_file.name}" if audio_file else None,
             }
         )
     return sorted(projects, key=lambda x: x.get("created_at") or "", reverse=True)
@@ -446,6 +486,16 @@ def load_project(project_id: str) -> dict:
         except Exception:
             config = {}
 
+    # Detect audio files
+    audio_file = None
+    for ext in AUDIO_EXTENSIONS:
+        candidate = project_dir / f"audio{ext}"
+        if candidate.exists():
+            audio_file = candidate
+            break
+    
+    media_type = config.get("media_type", "video" if video_path.exists() else ("audio" if audio_file else "video"))
+
     return {
         "id": project_id,
         "name": config.get("name", project_id),
@@ -453,7 +503,9 @@ def load_project(project_id: str) -> dict:
         "words": subtitles,
         "transcript": transcript,
         "config": config,
+        "media_type": media_type,
         "video_url": f"/projects/{project_id}/video.mp4" if video_path.exists() else None,
+        "audio_url": f"/projects/{project_id}/{audio_file.name}" if audio_file else None,
         "thumb_url": f"/projects/{project_id}/thumb.jpg" if thumb_path.exists() else None,
     }
 

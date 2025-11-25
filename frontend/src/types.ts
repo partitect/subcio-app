@@ -60,6 +60,8 @@ export type ProjectMeta = {
   name: string;
   created_at?: string;
   video_url?: string;
+  audio_url?: string;
   thumb_url?: string;
+  media_type?: "video" | "audio";
   config?: Record<string, unknown>;
 };
