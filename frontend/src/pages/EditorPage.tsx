@@ -731,126 +731,7 @@ export default function EditorPage() {
       </Paper>
 
       <Grid container spacing={2} sx={{ flex: 1, px: { xs: 1.5, md: 3 }, py: { xs: 2, md: 3 } }}>
-        <Grid item xs={12} lg={8}>
-          <Paper sx={{ p: { xs: 1.5, md: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
-            <Box
-              ref={overlayRef}
-              sx={{
-                position: "relative",
-                width: "100%",
-                bgcolor: "black",
-                borderRadius: 2,
-                overflow: "hidden",
-                aspectRatio: "16 / 9",
-              }}
-            >
-              {resolvedVideoUrl ? (
-                <>
-                  <ReactPlayer
-                    ref={playerRef}
-                    url={resolvedVideoUrl}
-                    width="100%"
-                    height="100%"
-                    controls
-                    onError={(e) => console.error("Video load error", e)}
-                    config={{
-                      file: {
-                        attributes: { crossOrigin: "anonymous" },
-                      },
-                    }}
-                    onProgress={({ playedSeconds }) => setCurrentTime(playedSeconds)}
-                  />
-                  <video
-                    src={resolvedVideoUrl}
-                    style={{ display: "none" }}
-                    onError={(e) => console.error("Fallback video tag error", e)}
-                  />
-                </>
-              ) : (
-                <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0, color: "text.secondary" }}>
-                  <Typography variant="body2">Load a project to preview</Typography>
-                </Stack>
-              )}
-              {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />}
-            </Box>
-
-            <Paper
-              variant="outlined"
-              sx={{
-                px: 2,
-                py: 1.5,
-                borderRadius: 2,
-                borderColor: "divider",
-                bgcolor: "background.paper",
-              }}
-            >
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                alignItems={{ xs: "flex-start", sm: "center" }}
-                justifyContent="space-between"
-                spacing={{ xs: 0.5, sm: 1 }}
-                mb={1}
-              >
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Play size={16} color="#66e3c4" />
-                  <Typography variant="body2" color="text.secondary">
-                    Timeline
-                  </Typography>
-                </Stack>
-                <Typography variant="caption" color="text.secondary">
-                  {currentTime.toFixed(2)}s / {(words[words.length - 1]?.end ?? 0).toFixed(2)}s
-                </Typography>
-              </Stack>
-              <Box
-                sx={{
-                  position: "relative",
-                  height: 36,
-                  borderRadius: 1.5,
-                  bgcolor: "grey.900",
-                  overflow: "hidden",
-                  border: "1px solid",
-                  borderColor: "divider",
-                }}
-              >
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    width: `${(currentTime / totalDuration) * 100}%`,
-                    bgcolor: "primary.main",
-                    opacity: 0.14,
-                    transition: "width 120ms ease-out",
-                  }}
-                />
-                {timelineCues.map((cue) => (
-                  <Box
-                    key={cue.key}
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      bottom: 0,
-                      width: 2,
-                      bgcolor: "primary.light",
-                      left: cue.left,
-                    }}
-                    title={cue.text}
-                  />
-                ))}
-                <input
-                  type="range"
-                  min={0}
-                  max={totalDuration}
-                  step={0.01}
-                  value={currentTime}
-                  onChange={(e) => handleSeek(Number(e.target.value))}
-                  style={{ position: "absolute", inset: 0, width: "100%", opacity: 0, cursor: "pointer" }}
-                />
-              </Box>
-            </Paper>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={5}>
           <Paper
             sx={{
               p: { xs: 1.5, md: 2.5 },
@@ -1219,6 +1100,126 @@ export default function EditorPage() {
           )}
         </Paper>
         </Grid>
+        <Grid item xs={12} lg={7}>
+          <Paper sx={{ p: { xs: 1.5, md: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
+            <Box
+              ref={overlayRef}
+              sx={{
+                position: "relative",
+                width: "100%",
+                bgcolor: "black",
+                borderRadius: 2,
+                overflow: "hidden",
+                aspectRatio: "16 / 9",
+              }}
+            >
+              {resolvedVideoUrl ? (
+                <>
+                  <ReactPlayer
+                    ref={playerRef}
+                    url={resolvedVideoUrl}
+                    width="100%"
+                    height="100%"
+                    controls
+                    onError={(e) => console.error("Video load error", e)}
+                    config={{
+                      file: {
+                        attributes: { crossOrigin: "anonymous" },
+                      },
+                    }}
+                    onProgress={({ playedSeconds }) => setCurrentTime(playedSeconds)}
+                  />
+                  <video
+                    src={resolvedVideoUrl}
+                    style={{ display: "none" }}
+                    onError={(e) => console.error("Fallback video tag error", e)}
+                  />
+                </>
+              ) : (
+                <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0, color: "text.secondary" }}>
+                  <Typography variant="body2">Load a project to preview</Typography>
+                </Stack>
+              )}
+              {assContent && <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />}
+            </Box>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                px: 2,
+                py: 1.5,
+                borderRadius: 2,
+                borderColor: "divider",
+                bgcolor: "background.paper",
+              }}
+            >
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                alignItems={{ xs: "flex-start", sm: "center" }}
+                justifyContent="space-between"
+                spacing={{ xs: 0.5, sm: 1 }}
+                mb={1}
+              >
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Play size={16} color="#66e3c4" />
+                  <Typography variant="body2" color="text.secondary">
+                    Timeline
+                  </Typography>
+                </Stack>
+                <Typography variant="caption" color="text.secondary">
+                  {currentTime.toFixed(2)}s / {(words[words.length - 1]?.end ?? 0).toFixed(2)}s
+                </Typography>
+              </Stack>
+              <Box
+                sx={{
+                  position: "relative",
+                  height: 36,
+                  borderRadius: 1.5,
+                  bgcolor: "grey.900",
+                  overflow: "hidden",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    width: `${(currentTime / totalDuration) * 100}%`,
+                    bgcolor: "primary.main",
+                    opacity: 0.14,
+                    transition: "width 120ms ease-out",
+                  }}
+                />
+                {timelineCues.map((cue) => (
+                  <Box
+                    key={cue.key}
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      bottom: 0,
+                      width: 2,
+                      bgcolor: "primary.light",
+                      left: cue.left,
+                    }}
+                    title={cue.text}
+                  />
+                ))}
+                <input
+                  type="range"
+                  min={0}
+                  max={totalDuration}
+                  step={0.01}
+                  value={currentTime}
+                  onChange={(e) => handleSeek(Number(e.target.value))}
+                  style={{ position: "absolute", inset: 0, width: "100%", opacity: 0, cursor: "pointer" }}
+                />
+              </Box>
+            </Paper>
+          </Paper>
+        </Grid>
+
+
       </Grid>
 
 
