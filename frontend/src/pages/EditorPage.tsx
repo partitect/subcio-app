@@ -26,6 +26,8 @@ import {
   Divider,
   IconButton,
   Tooltip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import JSOOverlay from "../components/JSOOverlay";
 import LoadingOverlay from "../components/LoadingOverlay";
@@ -174,6 +176,11 @@ export default function EditorPage() {
   const [exportQuality, setExportQuality] = useState("1080p");
   const [savingPreset, setSavingPreset] = useState(false);
   const [presetSynced, setPresetSynced] = useState(false);
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const activeIndex = useMemo(
     () => words.findIndex((w) => w && currentTime >= w.start && currentTime < w.end),
@@ -440,7 +447,7 @@ export default function EditorPage() {
 
   const savePreset = async () => {
     if (!style.id) {
-      alert("No preset selected to save.");
+      setToast({ open: true, message: "Kaydedilecek preset yok.", severity: "error" });
       return;
     }
 
@@ -458,11 +465,11 @@ export default function EditorPage() {
     setSavingPreset(true);
     try {
       await axios.post(`${API_BASE}/presets/update`, payload);
-      alert("Preset saved to backend.");
+      setToast({ open: true, message: "Preset kaydedildi.", severity: "success" });
     } catch (err: any) {
       console.error("Preset save failed", err);
       const msg = err?.response?.data?.detail || "Failed to save preset";
-      alert(msg);
+      setToast({ open: true, message: msg, severity: "error" });
     } finally {
       setSavingPreset(false);
     }
@@ -586,10 +593,10 @@ export default function EditorPage() {
     const image = targetCanvas.toDataURL("image/png");
     try {
       await axios.post(`${API_BASE}/presets/screenshot`, { id: style.id || "custom", image });
-      alert("Preset screenshot saved to /sspresets");
+      setToast({ open: true, message: "Preset screenshot kaydedildi (/sspresets)", severity: "success" });
     } catch (err) {
       console.error(err);
-      alert("Failed to save screenshot");
+      setToast({ open: true, message: "Screenshot kaydedilemedi", severity: "error" });
     }
   };
 
@@ -900,7 +907,7 @@ export default function EditorPage() {
                 </Button>
               </Stack>
 
-              <Divider textAlign="left">Typography</Divider>
+             
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
@@ -925,7 +932,7 @@ export default function EditorPage() {
                     </Typography>
                     <Slider
                       min={12}
-                      max={120}
+                      max={300}
                       value={style.font_size || 56}
                       onChange={(_, val) => setStyle({ ...style, font_size: val as number })}
                       sx={{ flex: 1 }}
@@ -958,59 +965,12 @@ export default function EditorPage() {
                     onChange={(e) => setStyle({ ...style, letter_spacing: Number(e.target.value) })}
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Opacity
-                    </Typography>
-                    <Slider
-                      min={0}
-                      max={100}
-                      value={style.opacity ?? 100}
-                      onChange={(_, val) => setStyle({ ...style, opacity: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.opacity ?? 100}%
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Grid item xs={4}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!style.italic}
-                        onChange={(e) => setStyle({ ...style, italic: e.target.checked ? 1 : 0 })}
-                      />
-                    }
-                    label="Italic"
-                  />
-                </Grid>
-                <Grid item xs={4}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!style.underline}
-                        onChange={(e) => setStyle({ ...style, underline: e.target.checked ? 1 : 0 })}
-                      />
-                    }
-                    label="Underline"
-                  />
-                </Grid>
-                <Grid item xs={4}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!style.strikeout}
-                        onChange={(e) => setStyle({ ...style, strikeout: e.target.checked ? 1 : 0 })}
-                      />
-                    }
-                    label="Strikeout"
-                  />
-                </Grid>
               </Grid>
 
-              <Divider textAlign="left">Colors</Divider>
+            
+
+
+             
               <Grid container spacing={2}>
                 {[
                   { key: "primary_color", label: "Primary", fallback: "#ffffff" },
@@ -1033,7 +993,7 @@ export default function EditorPage() {
                 ))}
               </Grid>
 
-              <Divider textAlign="left">Stroke & Shadow</Divider>
+              
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Stack direction="row" spacing={2} alignItems="center">
@@ -1105,168 +1065,7 @@ export default function EditorPage() {
                 </Grid>
               </Grid>
 
-              <Divider textAlign="left">Position & Spacing</Divider>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Margin L
-                    </Typography>
-                    <Slider
-                      min={0}
-                      max={100}
-                      value={style.margin_l ?? 10}
-                      onChange={(_, val) => setStyle({ ...style, margin_l: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.margin_l ?? 10}
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Margin R
-                    </Typography>
-                    <Slider
-                      min={0}
-                      max={100}
-                      value={style.margin_r ?? 10}
-                      onChange={(_, val) => setStyle({ ...style, margin_r: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.margin_r ?? 10}
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Margin V
-                    </Typography>
-                    <Slider
-                      min={0}
-                      max={150}
-                      value={style.margin_v ?? 40}
-                      onChange={(_, val) => setStyle({ ...style, margin_v: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.margin_v ?? 40}
-                    </Typography>
-                  </Stack>
-                </Grid>
-              </Grid>
-
-              <Divider textAlign="left">Transform</Divider>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Rotation
-                    </Typography>
-                    <Slider
-                      min={-45}
-                      max={45}
-                      value={style.rotation ?? 0}
-                      onChange={(_, val) => setStyle({ ...style, rotation: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.rotation ?? 0}°
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Rot X
-                    </Typography>
-                    <Slider
-                      min={-45}
-                      max={45}
-                      value={style.rotation_x ?? 0}
-                      onChange={(_, val) => setStyle({ ...style, rotation_x: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.rotation_x ?? 0}°
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Rot Y
-                    </Typography>
-                    <Slider
-                      min={-45}
-                      max={45}
-                      value={style.rotation_y ?? 0}
-                      onChange={(_, val) => setStyle({ ...style, rotation_y: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.rotation_y ?? 0}°
-                    </Typography>
-                  </Stack>
-                </Grid>
-              </Grid>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Shear
-                    </Typography>
-                    <Slider
-                      min={-45}
-                      max={45}
-                      value={style.shear ?? 0}
-                      onChange={(_, val) => setStyle({ ...style, shear: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.shear ?? 0}°
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Scale X
-                    </Typography>
-                    <Slider
-                      min={50}
-                      max={200}
-                      value={style.scale_x ?? 100}
-                      onChange={(_, val) => setStyle({ ...style, scale_x: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.scale_x ?? 100}%
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-                      Scale Y
-                    </Typography>
-                    <Slider
-                      min={50}
-                      max={200}
-                      value={style.scale_y ?? 100}
-                      onChange={(_, val) => setStyle({ ...style, scale_y: val as number })}
-                      sx={{ flex: 1 }}
-                    />
-                    <Typography variant="body2" width={40} textAlign="right">
-                      {style.scale_y ?? 100}%
-                    </Typography>
-                  </Stack>
-                </Grid>
-              </Grid>
+             
 
               <Grid container spacing={1}>
                 {[2, 5, 8].map((align) => (
@@ -1417,6 +1216,22 @@ export default function EditorPage() {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={3000}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        TransitionProps={{ onExited: () => setToast((prev) => ({ ...prev, message: "" })) }}
+      >
+        <Alert
+          severity={toast.severity}
+          onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+          variant="filled"
+          sx={{ boxShadow: 3, borderRadius: 1 }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
