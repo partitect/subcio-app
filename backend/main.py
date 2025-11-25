@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import uuid
 import hashlib
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
@@ -18,8 +19,16 @@ from fastapi.staticfiles import StaticFiles
 from faster_whisper import WhisperModel
 import uvicorn
 
+# Ensure package imports work when run as script (uvicorn main:app)
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parent))
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 # PyonFX Effects Integration
-from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
+try:
+    from .styles.effects import PyonFXRenderer, PyonFXStyleBuilder
+except ImportError:
+    from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
 PYONFX_EFFECT_TYPES = set(PyonFXRenderer.EFFECTS.keys())
 
 def ms_to_ass_timestamp(ms: int) -> str:
@@ -147,6 +156,21 @@ def save_presets(data: dict) -> None:
 
 
 PRESET_STYLE_MAP = load_presets()
+
+def build_style(incoming_style: dict) -> dict:
+    """Merge preset defaults with incoming style and normalize font."""
+    style_id = incoming_style.get("id")
+    merged = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
+    if not merged.get("font") or not font_in_pool(merged["font"]):
+        merged["font"] = pick_font_for_preset(style_id or "default")
+    merged["font"] = resolve_font_name(merged["font"])
+    return merged
+
+
+def render_ass_content(words: list, style: dict) -> str:
+    """Render ASS using PyonFX renderer."""
+    renderer = PyonFXRenderer(words, style)
+    return renderer.render()
 
 
 
@@ -588,17 +612,7 @@ async def export_subtitled_video(
     incoming_style = json.loads(style_json) if style_json else {}
     if project_id and not incoming_style:
         incoming_style = load_project(project_id).get("config", {}).get("style", {})
-    style_id = incoming_style.get("id")
-    # Merge: preset -> incoming (UI overrides preset), then normalize colors.
-    style = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
-    # Ensure font exists in current pool
-    if not style.get("font") or not font_in_pool(style["font"]):
-        style["font"] = pick_font_for_preset(style_id or "default")
-    style["font"] = resolve_font_name(style["font"])
-    
-    # Debug: Print style_id
-    print(f"[DEBUG] Export style_id: {style_id}")
-    print(f"[DEBUG] Full style: {style}")
+    style = build_style(incoming_style)
 
     # Persist artifacts inside backend/exports to avoid Temp cleanup races.
     uid = uuid.uuid4().hex
@@ -616,17 +630,7 @@ async def export_subtitled_video(
 
     ass_path = OUTPUT_DIR / f"subtitles_{uid}.ass"
     
-    # Check if using PyonFX effects
-    effect_type = style.get("effect_type")
-    if effect_type and effect_type in PYONFX_EFFECT_TYPES:
-        # Use PyonFX Renderer for effects-based presets
-        renderer = PyonFXRenderer(words, style)
-        ass_content = renderer.render()
-    else:
-        # Use AdvancedRenderer for standard presets
-        from render_engine import AdvancedRenderer
-        renderer = AdvancedRenderer(words, style)
-        ass_content = renderer.render()
+    ass_content = render_ass_content(words, style)
         
     ass_path.write_text(ass_content, encoding="utf-8")
 
@@ -677,25 +681,8 @@ async def preview_ass(
             words = load_project(project_id).get("words", [])
             if not incoming_style:
                 incoming_style = load_project(project_id).get("config", {}).get("style", {})
-        style_id = incoming_style.get("id")
-        
-        # Merge: preset -> incoming (UI overrides preset)
-        style = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
-        if not style.get("font") or not font_in_pool(style["font"]):
-            style["font"] = pick_font_for_preset(style_id or "default")
-        style["font"] = resolve_font_name(style["font"])
-
-        # Check if using PyonFX effects
-        effect_type = style.get("effect_type")
-        if effect_type and effect_type in PYONFX_EFFECT_TYPES:
-            # Use PyonFX Renderer for effects-based presets
-            renderer = PyonFXRenderer(words, style)
-            ass_content = renderer.render()
-        else:
-            # Use AdvancedRenderer for standard presets
-            from render_engine import AdvancedRenderer
-            renderer = AdvancedRenderer(words, style)
-            ass_content = renderer.render()
+        style = build_style(incoming_style)
+        ass_content = render_ass_content(words, style)
             
         return Response(content=ass_content, media_type="text/plain")
     except Exception as e:
@@ -1017,8 +1004,7 @@ async def preview_pyonfx_effect(
             "effect_config": effect_config,
         }
         
-        renderer = PyonFXRenderer(words, style)
-        ass_content = renderer.render()
+        ass_content = render_ass_content(words, style)
         
         return Response(content=ass_content, media_type="text/plain")
     except Exception as e:
