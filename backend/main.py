@@ -27,8 +27,10 @@ if __package__ in (None, ""):
 # PyonFX Effects Integration
 try:
     from .styles.effects import PyonFXRenderer, PyonFXStyleBuilder
+    from .data_store import load_presets, save_presets, load_effects
 except ImportError:
     from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
+    from data_store import load_presets, save_presets, load_effects
 PYONFX_EFFECT_TYPES = set(PyonFXRenderer.EFFECTS.keys())
 
 def ms_to_ass_timestamp(ms: int) -> str:
@@ -132,27 +134,6 @@ def pick_font_for_preset(preset_id: str) -> str:
     digest = hashlib.sha256(preset_id.encode("utf-8")).digest()
     idx = int.from_bytes(digest[:4], "big") % len(FONT_NAME_LIST)
     return FONT_NAME_LIST[idx]
-
-
-PRESET_FILE = Path(__file__).resolve().parent / "presets.json"
-
-
-def load_presets() -> dict:
-    try:
-        return json.loads(PRESET_FILE.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        print("presets.json not found, using empty map")
-        return {}
-    except Exception as exc:
-        print(f"Load presets error: {exc}")
-        return {}
-
-
-def save_presets(data: dict) -> None:
-    try:
-        PRESET_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    except Exception as exc:
-        print(f"Save presets error: {exc}")
 
 
 PRESET_STYLE_MAP = load_presets()
@@ -971,8 +952,7 @@ async def get_pyonfx_effects():
     Returns available PyonFX effects and their configurations
     """
     try:
-        effects_path = Path(__file__).resolve().parent / "pyonfx_effects.json"
-        effects = json.loads(effects_path.read_text(encoding="utf-8"))
+        effects = load_effects()
         return JSONResponse(content=effects)
 
     except Exception as e:

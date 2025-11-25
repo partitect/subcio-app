@@ -1,3 +1,0 @@
-- box a sahip stil presetlerin preset editörde görünmesini ve ayarlanmasını sağla. şu an bi kaç tane var ama box rengi yani arka plan rengi görünmüyor.
-- preset editörde import yaparken aaspresets teki prsetlerin kategori olarak görünmesi gerek. bunun için AASPRESETS_CATALOG.txt ve aaspresets_catalog.csv bu dosyaları inceleyebilirsin.
-- aas stillerinde başka hangi style lar var onları bi listele
