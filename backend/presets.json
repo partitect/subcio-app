@@ -1117,11 +1117,11 @@
     "shadow_blur": 0
   },
   "tiktok-yellow-box": {
-    "primary_color": "&H000000ff",
+    "primary_color": "&H0000ffee",
     "secondary_color": "&H0000FFFF",
     "outline_color": "&H000000ff",
     "shadow_color": "&H000a0aff",
-    "back_color": "&H000000ff",
+    "back_color": "&H002b2b2b",
     "alignment": 5,
     "margin_v": 40,
     "bold": 1,
@@ -1149,7 +1149,7 @@
     "shadow_blur": 0
   },
   "tiktok-box-group": {
-    "primary_color": "&H00FFFFFF",
+    "primary_color": "&H002e2e2e",
     "secondary_color": "&H0000FFFF",
     "outline_color": "&H00000000",
     "shadow_color": "&H00000000",

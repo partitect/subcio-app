@@ -607,38 +607,62 @@ def _render_bounce_in(self) -> str:
     return "\n".join(lines)
 
 def _render_tiktok_yellow_box(self) -> str:
-    """Port of TikTokYellowBoxRenderer: rounded box + scaling text."""
-    lines: List[str] = [self.render_ass_header()]
+    """TikTok Yellow Box: Opaque box behind each word using BorderStyle=3."""
     cx, cy = self._get_center_coordinates()
-    char_width = 35
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    
+    # Box color from back_color (yellow default) - used as BackColour in BorderStyle=3
+    box_color = self.style.get("back_color", "&H00FFFF")
+    if not box_color or box_color in ("&H00000000", "#000000", ""):
+        box_color = "&H00FFFF"
+    box_color = box_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    box_color = f"&H{box_color.upper()}&"
+    
+    # Text color
+    text_color = self.style.get("primary_color", "&H00000000")
+    if not text_color:
+        text_color = "&H00000000"
+    text_color = text_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    text_color = f"&H{text_color.upper()}&"
+    
+    # Box padding via Outline value (BorderStyle=3 uses Outline for padding)
+    box_padding = int(font_size * 0.15)
+    
+    # Header with BorderStyle=3 (opaque box) - BackColour becomes the box color
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
 
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{text_color},{text_color},{box_color},{box_color},{bold},0,0,0,100,100,{letter_spacing},0,3,{box_padding},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
     for word in self.words:
         start_ms = int(word.get("start", 0) * 1000)
         end_ms = int(word.get("end", start_ms / 1000) * 1000)
         dur = max(1, end_ms - start_ms)
         text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
-
-        text_width = len(text) * char_width
-        box_w = text_width + 60
-        box_h = 90
-        radius = 15
-        box_shape = (
-            f"m {radius} 0 l {box_w-radius} 0 b {box_w} 0 {box_w} {radius} {box_w} {radius} "
-            f"l {box_w} {box_h-radius} b {box_w} {box_h} {box_w-radius} {box_h} {box_w-radius} {box_h} "
-            f"l {radius} {box_h} b 0 {box_h} 0 {box_h-radius} 0 {box_h-radius} l 0 {radius} b 0 0 {radius} 0 {radius} 0"
-        )
-
+        
+        # Single dialogue line - BorderStyle=3 handles the box automatically
         lines.append(
             f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\p1\\1c&H00FFFF&\\alpha&H20&\\blur2\\fscx100\\fscy100"
-            f"\\t(0,150,\\fscx105\\fscy105)\\t(150,{dur},\\fscx100\\fscy100)}}{box_shape}{{\\p0}}"
+            f"{{\\an5\\pos({cx},{cy})"
+            f"\\fscx100\\fscy100\\t(0,80,\\fscx105\\fscy105)\\t(80,{dur},\\fscx100\\fscy100)}}"
+            f"{text}"
         )
-
-        lines.append(
-            f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\1c&H000000&\\b1\\fscx110\\fscy110"
-            f"\\t(0,150,\\fscx120\\fscy120)\\t(150,{dur},\\fscx110\\fscy110)}}{text}"
-        )
+    
     return "\n".join(lines)
 
 def _render_falling_heart(self) -> str:
@@ -1324,21 +1348,136 @@ def _render_karaoke_pro(self) -> str:
     return "\n".join(lines)
 
 def _render_karaoke_sentence(self) -> str:
-    """Group into short sentences (3 words) with fade."""
-    lines = [self.render_ass_header()]
+    """Dynamic word grouping (2-3 words) with active word highlight and scale animation."""
     cx, cy = self._get_center_coordinates()
-    group_len = 3
-    for g in range(0, len(self.words), group_len):
-        group = self.words[g:g + group_len]
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 1.5))
+    
+    # Colors - primary for inactive, secondary for active word
+    primary_color = self.style.get("primary_color", "&H00FFFFFF")
+    if not primary_color:
+        primary_color = "&H00FFFFFF"
+    primary_color = primary_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    primary_color = f"&H{primary_color.upper()}&"
+    
+    secondary_color = self.style.get("secondary_color", "&H0000FFFF")
+    if not secondary_color:
+        secondary_color = "&H0000FFFF"
+    secondary_color = secondary_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    secondary_color = f"&H{secondary_color.upper()}&"
+    
+    outline_color = self.style.get("outline_color", "&H00000000")
+    if not outline_color:
+        outline_color = "&H00000000"
+    outline_color = outline_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    outline_color = f"&H{outline_color.upper()}&"
+    
+    # Screen width for dynamic grouping (1920 default)
+    screen_width = 1920
+    max_text_width = screen_width * 0.85  # Use 85% of screen width
+    
+    # Estimate character width for grouping calculation
+    char_width = font_size * 0.55 + letter_spacing
+    
+    # Header
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    # Dynamic grouping: min 2, max 3 words per group, respecting screen width
+    def create_groups(words_list):
+        groups = []
+        i = 0
+        while i < len(words_list):
+            group = []
+            group_text_len = 0
+            
+            # Try to add 2-3 words to group
+            while i < len(words_list) and len(group) < 3:
+                word_text = words_list[i].get("text", "") or ""
+                word_len = len(word_text) * char_width
+                
+                # Check if adding this word exceeds max width
+                space_width = char_width if group else 0
+                if group_text_len + space_width + word_len > max_text_width and len(group) >= 2:
+                    break
+                
+                group.append(words_list[i])
+                group_text_len += space_width + word_len
+                i += 1
+                
+                # If we have 2 words and next would exceed, stop
+                if len(group) >= 2:
+                    if i < len(words_list):
+                        next_word_text = words_list[i].get("text", "") or ""
+                        next_word_len = len(next_word_text) * char_width
+                        if group_text_len + char_width + next_word_len > max_text_width:
+                            break
+            
+            # Ensure minimum 2 words if possible
+            if len(group) == 1 and i < len(words_list):
+                group.append(words_list[i])
+                i += 1
+            
+            if group:
+                groups.append(group)
+        
+        return groups
+    
+    groups = create_groups(self.words)
+    
+    # Generate dialogue lines for each group
+    for group in groups:
         if not group:
             continue
-        start_ms = int(group[0].get("start", 0) * 1000)
-        end_ms = int(group[-1].get("end", start_ms / 1000) * 1000)
-        text = " ".join([(w.get("text") or "").replace("{", r"\{").replace("}", r"\}") for w in group])
-        lines.append(
-            f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\fad(150,150)}}{text}"
-        )
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # For each word in the group, create a dialogue line showing the entire group
+        # but highlighting only the active word
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            # Build the text with inline style overrides
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: secondary color + slight scale up
+                    # Use \t for smooth transition
+                    text_parts.append(
+                        f"{{\\1c{secondary_color}\\fscx108\\fscy108}}{word_text}{{\\fscx100\\fscy100\\1c{primary_color}}}"
+                    )
+                else:
+                    # Inactive word: primary color, normal scale
+                    text_parts.append(f"{word_text}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(word_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
     return "\n".join(lines)
 
 def _render_dynamic_highlight(self) -> str:
@@ -1370,34 +1509,62 @@ def _render_dynamic_highlight(self) -> str:
     return "\n".join(lines)
 
 def _render_tiktok_box_group(self) -> str:
-    """Grouped rounded box around current word."""
-    lines = [self.render_ass_header()]
+    """Grouped opaque box around current word using BorderStyle=3."""
     cx, cy = self._get_center_coordinates()
-    char_width = 32
-    for i, word in enumerate(self.words):
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    
+    # Box color from back_color (yellow default)
+    box_color = self.style.get("back_color", "&H00FFFF")
+    if not box_color or box_color in ("&H00000000", "#000000", ""):
+        box_color = "&H00FFFF"
+    box_color = box_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    box_color = f"&H{box_color.upper()}&"
+    
+    # Text color
+    text_color = self.style.get("primary_color", "&H00000000")
+    if not text_color:
+        text_color = "&H00000000"
+    text_color = text_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    text_color = f"&H{text_color.upper()}&"
+    
+    # Box padding via Outline value
+    box_padding = int(font_size * 0.15)
+    
+    # Header with BorderStyle=3 (opaque box)
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{text_color},{text_color},{box_color},{box_color},{bold},0,0,0,100,100,{letter_spacing},0,3,{box_padding},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for word in self.words:
         start_ms = int(word.get("start", 0) * 1000)
         end_ms = int(word.get("end", start_ms / 1000) * 1000)
         dur = max(1, end_ms - start_ms)
         text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
-        text_width = len(text) * char_width
-        box_w = text_width + 80
-        box_h = 100
-        radius = 18
-        box_shape = (
-            f"m {radius} 0 l {box_w-radius} 0 b {box_w} 0 {box_w} {radius} {box_w} {radius} "
-            f"l {box_w} {box_h-radius} b {box_w} {box_h} {box_w-radius} {box_h} {box_w-radius} {box_h} "
-            f"l {radius} {box_h} b 0 {box_h} 0 {box_h-radius} 0 {box_h-radius} l 0 {radius} b 0 0 {radius} 0 {radius} 0"
-        )
+        
+        # Single dialogue line - BorderStyle=3 handles the box automatically
         lines.append(
             f"Dialogue: 0,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\p1\\1c&H00FFFF&\\alpha&H30&\\blur2\\fscx100\\fscy100"
-            f"\\t(0,150,\\fscx105\\fscy105)\\t(150,{dur},\\fscx100\\fscy100)}}{box_shape}{{\\p0}}"
+            f"{{\\an5\\pos({cx},{cy})"
+            f"\\fscx100\\fscy100\\t(0,100,\\fscx108\\fscy108)\\t(100,{dur},\\fscx100\\fscy100)}}"
+            f"{text}"
         )
-        lines.append(
-            f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\1c&H000000&\\b1\\fscx110\\fscy110"
-            f"\\t(0,150,\\fscx120\\fscy120)\\t(150,{dur},\\fscx110\\fscy110)}}{text}"
-        )
+    
     return "\n".join(lines)
 
 def _render_sakura_dream(self) -> str:
