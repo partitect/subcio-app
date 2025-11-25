@@ -576,6 +576,12 @@ class KaraokeSentenceEffect:
         pass
 
 
+class KaraokeSentenceBoxEffect:
+    """Sentence-group karaoke with box highlight on active word."""
+    def __init__(self):
+        pass
+
+
 class DynamicHighlightEffect:
     """Highlights current word with secondary color."""
     def __init__(self):
@@ -664,6 +670,7 @@ class PyonFXRenderer(PyonFXRenderMixin):
         "karaoke_classic": KaraokeClassicEffect,
         "karaoke_pro": KaraokeProEffect,
         "karaoke_sentence": KaraokeSentenceEffect,
+        "karaoke_sentence_box": KaraokeSentenceBoxEffect,
         "dynamic_highlight": DynamicHighlightEffect,
         "tiktok_box_group": TikTokBoxGroupEffect,
         "sakura_dream": SakuraDreamEffect,

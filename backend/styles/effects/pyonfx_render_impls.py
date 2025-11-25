@@ -1480,6 +1480,166 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     
     return "\n".join(lines)
 
+def _render_karaoke_sentence_box(self) -> str:
+    """Dynamic word grouping (2-3 words) with animated box sliding between fixed-position words."""
+    cx, cy = self._get_center_coordinates()
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 1.5))
+    
+    # Colors - primary for inactive, secondary for active word text
+    primary_color = self.style.get("primary_color", "&H00FFFFFF")
+    if not primary_color:
+        primary_color = "&H00FFFFFF"
+    primary_color = primary_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    primary_color = f"&H{primary_color.upper()}&"
+    
+    secondary_color = self.style.get("secondary_color", "&H00000000")
+    if not secondary_color:
+        secondary_color = "&H00000000"
+    secondary_color = secondary_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    secondary_color = f"&H{secondary_color.upper()}&"
+    
+    outline_color = self.style.get("outline_color", "&H00000000")
+    if not outline_color:
+        outline_color = "&H00000000"
+    outline_color = outline_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    outline_color = f"&H{outline_color.upper()}&"
+    
+    # Box color from back_color (yellow default for TikTok style)
+    box_color = self.style.get("back_color", "&H0000FFFF")
+    if not box_color or box_color in ("&H00000000", "#000000", ""):
+        box_color = "&H0000FFFF"
+    box_color = box_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
+    box_color = f"&H{box_color.upper()}&"
+    
+    # Box padding via Outline value for active word
+    box_padding = int(font_size * 0.15)
+    
+    # Transition duration in ms
+    transition_ms = 150
+    
+    # Screen width for dynamic grouping (1920 default)
+    screen_width = 1920
+    max_text_width = screen_width * 0.85
+    
+    # Estimate character width for grouping calculation only
+    char_width = font_size * 0.55 + letter_spacing
+    
+    # Header with styles
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{primary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    # Dynamic grouping: min 2, max 3 words per group
+    def create_groups(words_list):
+        groups = []
+        i = 0
+        while i < len(words_list):
+            group = []
+            group_text_len = 0
+            
+            while i < len(words_list) and len(group) < 3:
+                word_text = words_list[i].get("text", "") or ""
+                word_len = len(word_text) * char_width
+                
+                space_width = char_width if group else 0
+                if group_text_len + space_width + word_len > max_text_width and len(group) >= 2:
+                    break
+                
+                group.append(words_list[i])
+                group_text_len += space_width + word_len
+                i += 1
+                
+                if len(group) >= 2:
+                    if i < len(words_list):
+                        next_word_text = words_list[i].get("text", "") or ""
+                        next_word_len = len(next_word_text) * char_width
+                        if group_text_len + char_width + next_word_len > max_text_width:
+                            break
+            
+            if len(group) == 1 and i < len(words_list):
+                group.append(words_list[i])
+                i += 1
+            
+            if group:
+                groups.append(group)
+        
+        return groups
+    
+    groups = create_groups(self.words)
+    
+    # Generate dialogue lines for each group
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # For each word timing, show the entire group with appropriate styling
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            
+            # Build text with inline styles - all words in one line
+            # Inactive words: normal style
+            # Active word: BorderStyle=3 with box color using inline override
+            text_parts = []
+            
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word with box (BorderStyle=3 via inline \bord and \3c)
+                    # Use \bord for outline size, \3c for outline/box color
+                    if word_idx == 0:
+                        # First word - pop in animation
+                        text_parts.append(
+                            f"{{\\bord{box_padding}\\3c{box_color}\\1c{secondary_color}"
+                            f"\\fscx100\\fscy100\\t(0,{transition_ms},\\fscx108\\fscy108)"
+                            f"\\t({transition_ms},{word_dur},\\fscx105\\fscy105)}}"
+                            f"{word_text}"
+                            f"{{\\bord{border}\\3c{outline_color}\\1c{primary_color}\\fscx100\\fscy100}}"
+                        )
+                    else:
+                        # Subsequent words - scale animation
+                        text_parts.append(
+                            f"{{\\bord{box_padding}\\3c{box_color}\\1c{secondary_color}"
+                            f"\\fscx95\\fscy95\\t(0,{transition_ms},\\fscx108\\fscy108)"
+                            f"\\t({transition_ms},{word_dur},\\fscx105\\fscy105)}}"
+                            f"{word_text}"
+                            f"{{\\bord{border}\\3c{outline_color}\\1c{primary_color}\\fscx100\\fscy100}}"
+                        )
+                else:
+                    # Inactive word - normal style
+                    text_parts.append(word_text)
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(word_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
 def _render_dynamic_highlight(self) -> str:
     """Highlight current word using secondary color, neighbors normal."""
     lines = [self.render_ass_header()]
@@ -1710,6 +1870,7 @@ RENDER_DISPATCH = {
     "karaoke_classic": _render_karaoke_classic,
     "karaoke_pro": _render_karaoke_pro,
     "karaoke_sentence": _render_karaoke_sentence,
+    "karaoke_sentence_box": _render_karaoke_sentence_box,
     "dynamic_highlight": _render_dynamic_highlight,
     "tiktok_box_group": _render_tiktok_box_group,
     "sakura_dream": _render_sakura_dream,

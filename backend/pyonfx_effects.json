@@ -485,6 +485,11 @@
     "description": "Sentence-group karaoke fade",
     "config": {}
   },
+  "karaoke_sentence_box": {
+    "name": "Karaoke Sentence Box",
+    "description": "Sentence-group karaoke with TikTok-style box highlight on active word",
+    "config": {}
+  },
   "dynamic_highlight": {
     "name": "Dynamic Highlight",
     "description": "Highlights current word using secondary color",
