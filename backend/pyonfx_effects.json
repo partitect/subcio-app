@@ -519,5 +519,239 @@
     "name": "Made My Day",
     "description": "Active word emphasis",
     "config": {}
+  },
+  
+  "movie_credits": {
+    "name": "Movie Credits",
+    "description": "Cinematic movie credits with slow fade and letterbox",
+    "config": {}
+  },
+  "horror_flicker": {
+    "name": "Horror Flicker",
+    "description": "Creepy text with random flicker and red flashes",
+    "config": {}
+  },
+  "old_film": {
+    "name": "Old Film",
+    "description": "Vintage sepia film with grain and scratches",
+    "config": {}
+  },
+  "action_impact": {
+    "name": "Action Impact",
+    "description": "Action movie impact with zoom and shake",
+    "config": {}
+  },
+  "dramatic_reveal": {
+    "name": "Dramatic Reveal",
+    "description": "Slow dramatic text reveal with spotlight",
+    "config": {}
+  },
+  
+  "hypnotic_spiral": {
+    "name": "Hypnotic Spiral",
+    "description": "Rotating spiral pattern around text",
+    "config": {}
+  },
+  "mirror_reflect": {
+    "name": "Mirror Reflect",
+    "description": "Text with fading mirror reflection below",
+    "config": {}
+  },
+  "shadow_clone": {
+    "name": "Shadow Clone",
+    "description": "Multiple trailing shadow copies",
+    "config": {}
+  },
+  "echo_trail": {
+    "name": "Echo Trail",
+    "description": "Fading echo copies behind text",
+    "config": {}
+  },
+  "double_vision": {
+    "name": "Double Vision",
+    "description": "Blurry double/drunk vision effect",
+    "config": {}
+  },
+  
+  "slam_ground": {
+    "name": "Slam Ground",
+    "description": "Text slams down with ground impact",
+    "config": {}
+  },
+  "speed_lines": {
+    "name": "Speed Lines",
+    "description": "Anime-style speed lines behind text",
+    "config": {}
+  },
+  "power_up": {
+    "name": "Power Up",
+    "description": "Dragon Ball style power up with aura",
+    "config": {}
+  },
+  "punch_hit": {
+    "name": "Punch Hit",
+    "description": "Comic book punch impact with POW effect",
+    "config": {}
+  },
+  "explosion_entry": {
+    "name": "Explosion Entry",
+    "description": "Smoke explosion clears to reveal text",
+    "config": {}
+  },
+  
+  "paint_brush": {
+    "name": "Paint Brush",
+    "description": "Text painted with colorful brush strokes",
+    "config": {}
+  },
+  "graffiti_spray": {
+    "name": "Graffiti Spray",
+    "description": "Spray paint graffiti with drips",
+    "config": {}
+  },
+  "neon_flicker": {
+    "name": "Neon Flicker",
+    "description": "Realistic neon sign with broken letter flicker",
+    "config": {}
+  },
+  "watercolor_bleed": {
+    "name": "Watercolor Bleed",
+    "description": "Watercolor paint bleeding effect",
+    "config": {}
+  },
+  "chalk_write": {
+    "name": "Chalk Write",
+    "description": "Chalkboard writing with dust particles",
+    "config": {}
+  },
+  
+  "pixelate_form": {
+    "name": "Pixelate Form",
+    "description": "Pixel blocks form into text",
+    "config": {}
+  },
+  "game_damage": {
+    "name": "Game Damage",
+    "description": "Video game damage taken with red flash and shake",
+    "config": {}
+  },
+  "level_up": {
+    "name": "Level Up",
+    "description": "RPG level up with sparkles and golden glow",
+    "config": {}
+  },
+  "coin_collect": {
+    "name": "Coin Collect",
+    "description": "Game coin collection with bounce",
+    "config": {}
+  },
+  "glitch_teleport": {
+    "name": "Glitch Teleport",
+    "description": "Glitch teleport/respawn effect",
+    "config": {}
+  },
+  
+  "tornado_spin": {
+    "name": "Tornado Spin",
+    "description": "Text caught in tornado with debris",
+    "config": {}
+  },
+  "underwater": {
+    "name": "Underwater",
+    "description": "Underwater effect with bubbles and wavy motion",
+    "config": {}
+  },
+  "sand_storm": {
+    "name": "Sand Storm",
+    "description": "Sand particles reveal text",
+    "config": {}
+  },
+  "lava_melt": {
+    "name": "Lava Melt",
+    "description": "Text melts like lava with drips",
+    "config": {}
+  },
+  "freeze_crack": {
+    "name": "Freeze Crack",
+    "description": "Ice freeze with cracking effect",
+    "config": {}
+  },
+  
+  "magic_spell": {
+    "name": "Magic Spell",
+    "description": "Magic circle with runes and energy convergence",
+    "config": {}
+  },
+  "portal_warp": {
+    "name": "Portal Warp",
+    "description": "Portal rings with text emerging",
+    "config": {}
+  },
+  "invisibility_cloak": {
+    "name": "Invisibility Cloak",
+    "description": "Shimmer reveal from invisibility",
+    "config": {}
+  },
+  "summon_appear": {
+    "name": "Summon Appear",
+    "description": "Summoning circle with rotating symbols",
+    "config": {}
+  },
+  "fairy_dust": {
+    "name": "Fairy Dust",
+    "description": "Fairy dust sparkles trailing effect",
+    "config": {}
+  },
+  
+  "like_burst": {
+    "name": "Like Burst",
+    "description": "Social media heart burst effect",
+    "config": {}
+  },
+  "story_swipe": {
+    "name": "Story Swipe",
+    "description": "Instagram story swipe transition",
+    "config": {}
+  },
+  "notification_pop": {
+    "name": "Notification Pop",
+    "description": "Phone notification popup",
+    "config": {}
+  },
+  "trending_fire": {
+    "name": "Trending Fire",
+    "description": "Trending/viral fire effect",
+    "config": {}
+  },
+  "viral_shake": {
+    "name": "Viral Shake",
+    "description": "Viral content shake with notifications",
+    "config": {}
+  },
+  
+  "disco_ball": {
+    "name": "Disco Ball",
+    "description": "Disco ball with rotating colored lights",
+    "config": {}
+  },
+  "fireworks": {
+    "name": "Fireworks",
+    "description": "Firework explosions with colorful particles",
+    "config": {}
+  },
+  "balloon_pop": {
+    "name": "Balloon Pop",
+    "description": "Balloon pop with confetti burst",
+    "config": {}
+  },
+  "jackpot_spin": {
+    "name": "Jackpot Spin",
+    "description": "Slot machine spin with jackpot reveal",
+    "config": {}
+  },
+  "party_mode": {
+    "name": "Party Mode",
+    "description": "Ultimate party with confetti, emojis, and rainbow colors",
+    "config": {}
   }
 }

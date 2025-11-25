@@ -618,6 +618,243 @@ class MadeMyDayEffect:
         pass
 
 
+# ============== NEW CREATIVE EFFECTS ==============
+
+# Cinematic / Film Effects
+class MovieCreditsEffect:
+    """Film credits style - slow upward scroll with perspective."""
+    def __init__(self):
+        pass
+
+class HorrorFlickerEffect:
+    """Horror movie - random flicker with blood red flash."""
+    def __init__(self):
+        pass
+
+class OldFilmEffect:
+    """Old film - shake, scratches, sepia tone."""
+    def __init__(self):
+        pass
+
+class ActionImpactEffect:
+    """Action movie - zoom + shake + flash combo."""
+    def __init__(self):
+        pass
+
+class DramaticRevealEffect:
+    """Dramatic reveal from black with blur."""
+    def __init__(self):
+        pass
+
+# Optical Illusion / Trippy Effects
+class HypnoticSpiralEffect:
+    """Hypnotic spiral background + rotating text."""
+    def __init__(self):
+        pass
+
+class MirrorReflectEffect:
+    """Mirror reflection - inverted faded copy below."""
+    def __init__(self):
+        pass
+
+class ShadowCloneEffect:
+    """Ninja shadow clones - delayed copies."""
+    def __init__(self):
+        pass
+
+class EchoTrailEffect:
+    """Motion trail with fading echoes."""
+    def __init__(self):
+        pass
+
+class DoubleVisionEffect:
+    """Drunk effect - two blurry copies."""
+    def __init__(self):
+        pass
+
+# Action / Energy Effects
+class SlamGroundEffect:
+    """Drop from above with ground impact shockwave."""
+    def __init__(self):
+        pass
+
+class SpeedLinesEffect:
+    """Anime speed lines in background."""
+    def __init__(self):
+        pass
+
+class PowerUpEffect:
+    """Dragon Ball style power-up aura."""
+    def __init__(self):
+        pass
+
+class PunchHitEffect:
+    """Punch impact - zoom + shake + stars."""
+    def __init__(self):
+        pass
+
+class ExplosionEntryEffect:
+    """Explosion entry - smoke clears to reveal text."""
+    def __init__(self):
+        pass
+
+# Artistic Effects
+class PaintBrushEffect:
+    """Text painted with brush strokes."""
+    def __init__(self):
+        pass
+
+class GraffitiSprayEffect:
+    """Spray paint graffiti effect."""
+    def __init__(self):
+        pass
+
+class NeonFlickerEffect:
+    """Realistic neon - some letters flicker broken."""
+    def __init__(self):
+        pass
+
+class WatercolorBleedEffect:
+    """Watercolor paint bleeding effect."""
+    def __init__(self):
+        pass
+
+class ChalkWriteEffect:
+    """Chalkboard writing effect."""
+    def __init__(self):
+        pass
+
+# Retro / Gaming Effects
+class PixelateFormEffect:
+    """8-bit pixel by pixel formation."""
+    def __init__(self):
+        pass
+
+class GameDamageEffect:
+    """Game damage - red flash + shake."""
+    def __init__(self):
+        pass
+
+class LevelUpEffect:
+    """Level up - glow + rise."""
+    def __init__(self):
+        pass
+
+class CoinCollectEffect:
+    """Mario coin effect - bouncing text."""
+    def __init__(self):
+        pass
+
+class GlitchTeleportEffect:
+    """Glitch teleport between positions."""
+    def __init__(self):
+        pass
+
+# Nature / Elements Effects
+class TornadoSpinEffect:
+    """Tornado spinning text."""
+    def __init__(self):
+        pass
+
+class UnderwaterEffect:
+    """Underwater - wave distortion + bubbles."""
+    def __init__(self):
+        pass
+
+class SandStormEffect:
+    """Sand storm - particles + blur."""
+    def __init__(self):
+        pass
+
+class LavaMeltEffect:
+    """Lava melting text."""
+    def __init__(self):
+        pass
+
+class FreezeCrackEffect:
+    """Freeze and crack ice effect."""
+    def __init__(self):
+        pass
+
+# Magic / Fantasy Effects
+class MagicSpellEffect:
+    """Magic spell casting - runes + glow."""
+    def __init__(self):
+        pass
+
+class PortalWarpEffect:
+    """Portal opens and text emerges."""
+    def __init__(self):
+        pass
+
+class InvisibilityCloakEffect:
+    """Invisibility cloak - semi-transparent wave."""
+    def __init__(self):
+        pass
+
+class SummonAppearEffect:
+    """Summon effect - magic circle + rise."""
+    def __init__(self):
+        pass
+
+class FairyDustEffect:
+    """Fairy dust - sparkly spiral."""
+    def __init__(self):
+        pass
+
+# Modern / Social Media Effects
+class LikeBurstEffect:
+    """Like burst - hearts explode."""
+    def __init__(self):
+        pass
+
+class StorySwipeEffect:
+    """Instagram story swipe transition."""
+    def __init__(self):
+        pass
+
+class NotificationPopEffect:
+    """Notification popup animation."""
+    def __init__(self):
+        pass
+
+class TrendingFireEffect:
+    """Trending fire - 🔥 emojis effect."""
+    def __init__(self):
+        pass
+
+class ViralShakeEffect:
+    """Viral video shake effect."""
+    def __init__(self):
+        pass
+
+# Party / Fun Effects
+class DiscoBallEffect:
+    """Disco ball light reflections."""
+    def __init__(self):
+        pass
+
+class FireworksEffect:
+    """Fireworks explosion."""
+    def __init__(self):
+        pass
+
+class BalloonPopEffect:
+    """Balloon pop reveals text."""
+    def __init__(self):
+        pass
+
+class JackpotSpinEffect:
+    """Slot machine spinning letters."""
+    def __init__(self):
+        pass
+
+class PartyModeEffect:
+    """Party mode - random colors + confetti + dance."""
+    def __init__(self):
+        pass
+
+
 class PyonFXRenderer(PyonFXRenderMixin):
     """
     Renderer for PyonFX effects within ASS subtitle format
@@ -677,6 +914,52 @@ class PyonFXRenderer(PyonFXRenderMixin):
         "phoenix_flames": PhoenixFlamesEffect,
         "welcome_my_life": WelcomeMyLifeEffect,
         "mademyday": MadeMyDayEffect,
+        # New Creative Effects
+        "movie_credits": MovieCreditsEffect,
+        "horror_flicker": HorrorFlickerEffect,
+        "old_film": OldFilmEffect,
+        "action_impact": ActionImpactEffect,
+        "dramatic_reveal": DramaticRevealEffect,
+        "hypnotic_spiral": HypnoticSpiralEffect,
+        "mirror_reflect": MirrorReflectEffect,
+        "shadow_clone": ShadowCloneEffect,
+        "echo_trail": EchoTrailEffect,
+        "double_vision": DoubleVisionEffect,
+        "slam_ground": SlamGroundEffect,
+        "speed_lines": SpeedLinesEffect,
+        "power_up": PowerUpEffect,
+        "punch_hit": PunchHitEffect,
+        "explosion_entry": ExplosionEntryEffect,
+        "paint_brush": PaintBrushEffect,
+        "graffiti_spray": GraffitiSprayEffect,
+        "neon_flicker": NeonFlickerEffect,
+        "watercolor_bleed": WatercolorBleedEffect,
+        "chalk_write": ChalkWriteEffect,
+        "pixelate_form": PixelateFormEffect,
+        "game_damage": GameDamageEffect,
+        "level_up": LevelUpEffect,
+        "coin_collect": CoinCollectEffect,
+        "glitch_teleport": GlitchTeleportEffect,
+        "tornado_spin": TornadoSpinEffect,
+        "underwater": UnderwaterEffect,
+        "sand_storm": SandStormEffect,
+        "lava_melt": LavaMeltEffect,
+        "freeze_crack": FreezeCrackEffect,
+        "magic_spell": MagicSpellEffect,
+        "portal_warp": PortalWarpEffect,
+        "invisibility_cloak": InvisibilityCloakEffect,
+        "summon_appear": SummonAppearEffect,
+        "fairy_dust": FairyDustEffect,
+        "like_burst": LikeBurstEffect,
+        "story_swipe": StorySwipeEffect,
+        "notification_pop": NotificationPopEffect,
+        "trending_fire": TrendingFireEffect,
+        "viral_shake": ViralShakeEffect,
+        "disco_ball": DiscoBallEffect,
+        "fireworks": FireworksEffect,
+        "balloon_pop": BalloonPopEffect,
+        "jackpot_spin": JackpotSpinEffect,
+        "party_mode": PartyModeEffect,
     }
     
     def __init__(self, words: List[Dict[str, Any]], style: Dict[str, Any]):
