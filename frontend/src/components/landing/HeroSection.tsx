@@ -5,6 +5,7 @@
  */
 
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -22,6 +23,7 @@ import { STATS } from "../../config/pricing";
 export function HeroSection() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -75,14 +77,14 @@ export function HeroSection() {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Chip
                   icon={<Sparkles size={14} />}
-                  label="AI-Powered Subtitles"
+                  label={t('landing.hero.badge')}
                   color="primary"
                   variant="outlined"
                   sx={{ fontWeight: 600, borderRadius: 2 }}
                 />
                 <Chip
                   icon={<Star size={12} />}
-                  label="4.9/5 Rating"
+                  label={t('landing.hero.stats.rating')}
                   size="small"
                   sx={{
                     bgcolor: alpha(theme.palette.warning.main, 0.1),
@@ -102,7 +104,7 @@ export function HeroSection() {
                   letterSpacing: "-0.02em",
                 }}
               >
-                Create{" "}
+                {t('landing.hero.title')}{" "}
                 <Box
                   component="span"
                   sx={{
@@ -111,9 +113,9 @@ export function HeroSection() {
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  stunning
+                  {t('landing.hero.titleHighlight')}
                 </Box>{" "}
-                subtitles in seconds
+                {t('landing.hero.titleEnd')}
               </Typography>
 
               {/* Subheadline */}
@@ -127,8 +129,7 @@ export function HeroSection() {
                   fontSize: { xs: "1rem", md: "1.15rem" },
                 }}
               >
-                Transform your videos with AI transcription and 50+ beautiful
-                animation presets. Perfect for YouTube, TikTok, and social media.
+                {t('landing.hero.subtitle')}
               </Typography>
 
               {/* CTA Buttons */}
@@ -159,7 +160,7 @@ export function HeroSection() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  Start Free Trial
+                  {t('landing.hero.cta')}
                 </Button>
                 <Button
                   component={Link}
@@ -181,7 +182,7 @@ export function HeroSection() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  Watch Demo
+                  {t('landing.hero.ctaSecondary')}
                 </Button>
               </Stack>
 

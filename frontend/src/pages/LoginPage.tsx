@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Container,
@@ -35,6 +36,7 @@ export default function LoginPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
     email: "",
@@ -57,11 +59,11 @@ export default function LoginPage() {
     e.preventDefault();
     
     if (!formData.email.trim()) {
-      setError("Lütfen e-posta adresinizi girin");
+      setError(t('auth.login.errors.emailRequired'));
       return;
     }
     if (!formData.password) {
-      setError("Lütfen şifrenizi girin");
+      setError(t('auth.login.errors.passwordRequired'));
       return;
     }
 
@@ -75,7 +77,7 @@ export default function LoginPage() {
       });
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.");
+      setError(err.message || t('auth.login.errors.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -126,10 +128,10 @@ export default function LoginPage() {
           }}
         >
           <Typography variant="h5" fontWeight={700} gutterBottom>
-            Tekrar Hoşgeldiniz
+            {t('auth.login.title')}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Hesabınıza giriş yapın ve kaldığınız yerden devam edin
+            {t('auth.login.subtitle')}
           </Typography>
 
           {error && (
@@ -176,7 +178,7 @@ export default function LoginPage() {
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" color="text.secondary">
-              veya e-posta ile
+              {t('auth.login.orWith')}
             </Typography>
           </Divider>
 
@@ -184,7 +186,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="E-posta"
+              label={t('auth.login.email')}
               type="email"
               value={formData.email}
               onChange={handleChange("email")}
@@ -193,7 +195,7 @@ export default function LoginPage() {
             />
             <TextField
               fullWidth
-              label="Şifre"
+              label={t('auth.login.password')}
               type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange("password")}
@@ -231,7 +233,7 @@ export default function LoginPage() {
                   />
                 }
                 label={
-                  <Typography variant="body2">Beni hatırla</Typography>
+                  <Typography variant="body2">{t('auth.login.rememberMe')}</Typography>
                 }
               />
               <Link
@@ -240,7 +242,7 @@ export default function LoginPage() {
                 variant="body2"
                 color="primary"
               >
-                Şifremi unuttum
+                {t('auth.login.forgotPassword')}
               </Link>
             </Box>
 
@@ -256,7 +258,7 @@ export default function LoginPage() {
                 background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
               }}
             >
-              {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+              {loading ? t('auth.login.submitting') : t('auth.login.submit')}
             </Button>
           </form>
 
@@ -266,14 +268,14 @@ export default function LoginPage() {
             align="center"
             sx={{ mt: 3 }}
           >
-            Henüz hesabınız yok mu?{" "}
+            {t('auth.login.noAccount')}{" "}
             <Link
               component={RouterLink}
               to="/register"
               color="primary"
               fontWeight={600}
             >
-              Ücretsiz Kayıt Olun
+              {t('auth.login.signUp')}
             </Link>
           </Typography>
         </Paper>

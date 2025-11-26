@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Container,
@@ -39,6 +40,7 @@ export default function RegisterPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const selectedPlanId = searchParams.get("plan") || "free";
   
@@ -69,27 +71,27 @@ export default function RegisterPage() {
     e.preventDefault();
     
     if (!formData.fullName.trim()) {
-      setError("Lütfen adınızı girin");
+      setError(t('auth.register.errors.nameRequired'));
       return;
     }
     if (!formData.email.trim()) {
-      setError("Lütfen e-posta adresinizi girin");
+      setError(t('auth.register.errors.emailRequired'));
       return;
     }
     if (!formData.password) {
-      setError("Lütfen bir şifre belirleyin");
+      setError(t('auth.register.errors.passwordRequired'));
       return;
     }
     if (formData.password.length < 8) {
-      setError("Şifre en az 8 karakter olmalıdır");
+      setError(t('auth.register.errors.passwordLength'));
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Şifreler eşleşmiyor");
+      setError(t('auth.register.errors.passwordMismatch'));
       return;
     }
     if (!formData.agreeTerms) {
-      setError("Devam etmek için kullanım koşullarını kabul etmelisiniz");
+      setError(t('auth.register.errors.termsRequired'));
       return;
     }
 
@@ -110,7 +112,7 @@ export default function RegisterPage() {
         navigate("/dashboard");
       }
     } catch (err: any) {
-      setError(err.message || "Kayıt başarısız. Lütfen tekrar deneyin.");
+      setError(err.message || t('auth.register.errors.emailExists'));
     } finally {
       setLoading(false);
     }
@@ -178,7 +180,7 @@ export default function RegisterPage() {
                 <AutoAwesome sx={{ color: "primary.main" }} />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Seçilen Plan
+                    {t('auth.register.selectedPlan')}
                   </Typography>
                   <Typography variant="subtitle1" fontWeight={600}>
                     {selectedPlan.name} - ${selectedPlan.price.monthly}/mo
@@ -186,7 +188,7 @@ export default function RegisterPage() {
                 </Box>
               </Box>
               <Chip
-                label="Değiştir"
+                label={t('auth.register.changePlan')}
                 size="small"
                 component={RouterLink}
                 to="/pricing"
@@ -196,10 +198,10 @@ export default function RegisterPage() {
           )}
 
           <Typography variant="h5" fontWeight={700} gutterBottom>
-            Hesap Oluştur
+            {t('auth.register.title')}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            SubGen AI ile profesyonel altyazılar oluşturmaya başlayın
+            {t('auth.register.subtitle')}
           </Typography>
 
           {error && (
@@ -254,14 +256,14 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Ad Soyad"
+              label={t('auth.register.name')}
               value={formData.fullName}
               onChange={handleChange("fullName")}
               sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
-              label="E-posta"
+              label={t('auth.register.email')}
               type="email"
               value={formData.email}
               onChange={handleChange("email")}
@@ -269,7 +271,7 @@ export default function RegisterPage() {
             />
             <TextField
               fullWidth
-              label="Şifre"
+              label={t('auth.register.password')}
               type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange("password")}
@@ -290,7 +292,7 @@ export default function RegisterPage() {
             />
             <TextField
               fullWidth
-              label="Şifre Tekrar"
+              label={t('auth.register.confirmPassword')}
               type={showConfirmPassword ? "text" : "password"}
               value={formData.confirmPassword}
               onChange={handleChange("confirmPassword")}
@@ -320,13 +322,13 @@ export default function RegisterPage() {
               label={
                 <Typography variant="body2">
                   <Link component={RouterLink} to="/terms" color="primary">
-                    Kullanım Koşulları
+                    {t('auth.register.terms')}
                   </Link>
-                  'nı ve{" "}
+                  {' '}{t('auth.register.and')}{' '}
                   <Link component={RouterLink} to="/privacy" color="primary">
-                    Gizlilik Politikası
+                    {t('auth.register.privacy')}
                   </Link>
-                  'nı kabul ediyorum
+                  {' '}{t('auth.register.agreeTerms')}
                 </Typography>
               }
               sx={{ mb: 1 }}
@@ -342,7 +344,7 @@ export default function RegisterPage() {
               }
               label={
                 <Typography variant="body2" color="text.secondary">
-                  Ürün güncellemeleri ve ipuçları hakkında e-posta almak istiyorum
+                  {t('auth.register.newsletter')}
                 </Typography>
               }
               sx={{ mb: 3 }}
@@ -360,7 +362,7 @@ export default function RegisterPage() {
                 background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
               }}
             >
-              {loading ? "Hesap oluşturuluyor..." : "Hesap Oluştur"}
+              {loading ? t('auth.register.submitting') : t('auth.register.submit')}
             </Button>
           </form>
 
@@ -370,14 +372,14 @@ export default function RegisterPage() {
             align="center"
             sx={{ mt: 3 }}
           >
-            Zaten hesabınız var mı?{" "}
+            {t('auth.register.hasAccount')}{" "}
             <Link
               component={RouterLink}
               to="/login"
               color="primary"
               fontWeight={600}
             >
-              Giriş Yapın
+              {t('auth.register.logIn')}
             </Link>
           </Typography>
         </Paper>
@@ -390,7 +392,7 @@ export default function RegisterPage() {
             align="center"
             sx={{ mb: 2 }}
           >
-            Ücretsiz planla bile şunları alırsınız:
+            {t('auth.register.freeFeatures')}
           </Typography>
           <Box
             sx={{

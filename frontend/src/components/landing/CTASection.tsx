@@ -5,6 +5,7 @@
  */
 
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -19,6 +20,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 export function CTASection() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation();
 
   return (
     <Box sx={{ py: 12 }}>
@@ -75,7 +77,7 @@ export function CTASection() {
                 fontSize: { xs: "1.75rem", md: "2.5rem" },
               }}
             >
-              Ready to create amazing subtitles?
+              {t('landing.cta.title')}
             </Typography>
 
             <Typography
@@ -87,7 +89,7 @@ export function CTASection() {
                 fontWeight: 500,
               }}
             >
-              Start your free trial today. No credit card required. Cancel anytime.
+              {t('landing.cta.subtitle')}
             </Typography>
 
             <Stack
@@ -119,7 +121,7 @@ export function CTASection() {
                   transition: "all 0.3s ease",
                 }}
               >
-                Start Free Trial
+                {t('landing.cta.button')}
               </Button>
               <Button
                 component={Link}
@@ -142,7 +144,7 @@ export function CTASection() {
                   },
                 }}
               >
-                View Pricing
+                {t('nav.pricing')}
               </Button>
             </Stack>
           </Stack>

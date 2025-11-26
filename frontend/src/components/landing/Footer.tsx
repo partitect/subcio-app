@@ -5,6 +5,7 @@
  */
 
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Container,
@@ -56,6 +57,7 @@ export function Footer() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -224,7 +226,7 @@ export function Footer() {
           sx={{ py: 3 }}
         >
           <Typography variant="caption" color="text.secondary">
-            © {currentYear} PyCaps. All rights reserved.
+            {t('footer.copyright', { year: currentYear })}
           </Typography>
           <Stack direction="row" spacing={3}>
             <Stack direction="row" spacing={1} alignItems="center">

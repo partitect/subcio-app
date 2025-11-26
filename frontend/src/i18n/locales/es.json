@@ -96,6 +96,9 @@
     "yearlyDiscount": "Ahorra 20%",
     "perMonth": "/mes",
     "perYear": "/año",
+    "free": "Gratis",
+    "saveWithYearly": "Ahorra {{percent}}% con facturación anual",
+    "billedAnnually": "${{price}} facturado anualmente",
     "popular": "Más Popular",
     "recommended": "Recomendado",
     "bestValue": "Mejor Valor",
@@ -222,36 +225,53 @@
     }
   },
   "upload": {
-    "title": "Crear Nuevo Proyecto",
-    "subtitle": "Sube un archivo de video o audio para empezar",
+    "title": "Subir y Transcribir",
+    "subtitle": "Sube tu archivo de video o audio para generar subtítulos con IA",
+    "backToDashboard": "Panel",
     "dropzone": {
-      "title": "Arrastra y suelta tu archivo aquí",
-      "or": "o",
-      "browse": "Explorar Archivos",
-      "formats": "Formatos soportados: MP4, MOV, AVI, MKV, MP3, WAV",
-      "maxSize": "Tamaño máximo: {{size}}"
+      "title": "Suelta tu archivo de video o audio aquí",
+      "titleWithFile": "{{fileName}}",
+      "hint": "o haz clic para navegar desde tu computadora"
+    },
+    "supportedFormats": "FORMATOS SOPORTADOS",
+    "settings": {
+      "title": "Configuración de Transcripción",
+      "aiModel": "Modelo IA",
+      "language": "Idioma",
+      "languagePlaceholder": "Auto-detectar (o: en, tr, es...)",
+      "recommended": "Recomendado"
     },
     "processing": {
-      "uploading": "Subiendo archivo...",
-      "transcribing": "Transcribiendo audio...",
-      "analyzing": "Analizando contenido...",
-      "generating": "Generando subtítulos...",
-      "complete": "¡Completado!"
+      "upload": "Subir",
+      "transcribe": "Transcribir",
+      "analyze": "Analizar",
+      "generate": "Generar",
+      "complete": "Completado"
+    },
+    "buttons": {
+      "processing": "Procesando...",
+      "startTranscription": "Iniciar Transcripción"
     },
     "usage": {
       "title": "Uso Este Mes",
-      "minutes": "{{used}}/{{limit}} minutos",
-      "minutesRemaining": "{{count}} minutos restantes"
+      "minutes": "{{used}} / {{limit}} minutos",
+      "lowWarning": "Quedándote sin minutos. ¡Considera actualizar!",
+      "upgrade": "Mejorar Plan"
     },
     "recentUploads": {
       "title": "Subidas Recientes",
+      "viewAll": "Ver Todos",
+      "done": "Listo",
       "empty": "Aún no hay subidas"
     },
     "tips": {
       "title": "Consejos Pro",
-      "tip1": "Usa audio de alta calidad para mejor precisión de transcripción",
-      "tip2": "Los videos cortos se procesan más rápido",
-      "tip3": "Verifica tu límite de uso antes de subir archivos grandes"
+      "tip1": "Usa el modelo \"Medium\" para mejor equilibrio entre velocidad y precisión",
+      "tip2": "Audio claro sin música de fondo funciona mejor",
+      "tip3": "Configura el idioma manualmente para un procesamiento más rápido"
+    },
+    "errors": {
+      "transcriptionFailed": "La transcripción falló. Por favor, inténtalo de nuevo."
     }
   },
   "editor": {

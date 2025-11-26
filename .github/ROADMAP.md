@@ -1,21 +1,22 @@
 # 🚀 PyCaps Development Roadmap
 
 > **Sub Gen AI** - PyonFX Subtitle Studio  
-> Son Güncelleme: 26 Kasım 2025
+> Son Güncelleme: 27 Kasım 2025
 
 ---
 
 ## 📋 İçindekiler
 
 1. [UI/UX Geliştirmeleri](#-uiux-geliştirmeleri)
-2. [SaaS & Subscription](#-saas--subscription)
-3. [Üretim Geliştirmeleri](#-üretim-geliştirmeleri)
-4. [Performans & Hızlandırma](#-performans--hızlandırma)
-5. [Refaktör Önerileri](#-refaktör-önerileri)
-6. [Kod Kalitesi](#-kod-kalitesi)
-7. [Yeni Özellikler](#-yeni-özellikler)
-8. [Altyapı & DevOps](#%EF%B8%8F-altyapı--devops)
-9. [Dokümantasyon](#-dokümantasyon)
+2. [Internationalization (i18n)](#-internationalization-i18n)
+3. [SaaS & Subscription](#-saas--subscription)
+4. [Üretim Geliştirmeleri](#-üretim-geliştirmeleri)
+5. [Performans & Hızlandırma](#-performans--hızlandırma)
+6. [Refaktör Önerileri](#-refaktör-önerileri)
+7. [Kod Kalitesi](#-kod-kalitesi)
+8. [Yeni Özellikler](#-yeni-özellikler)
+9. [Altyapı & DevOps](#%EF%B8%8F-altyapı--devops)
+10. [Dokümantasyon](#-dokümantasyon)
 
 ---
 
@@ -84,6 +85,90 @@
   - Keyboard navigation desteği
   - Screen reader uyumluluğu
   - Renk kontrastı kontrolü
+
+---
+
+## 🌍 Internationalization (i18n)
+
+### Öncelik: Yüksek 🔴 ✅ *Tamamlandı - Kasım 2025*
+
+- [x] **i18n Altyapısı** ✅
+  - ~~i18next, react-i18next, i18next-browser-languagedetector kurulumu~~
+  - ~~`src/i18n/index.ts` konfigürasyonu~~
+  - ~~Dil tercihini localStorage'da saklama~~
+  - ~~Browser dil algılama~~
+
+- [x] **Çeviri Dosyaları** ✅
+  - ~~4 dil desteği: İngilizce (varsayılan), Türkçe, İspanyolca, Almanca~~
+  - ~~`src/i18n/locales/en.json` - English~~
+  - ~~`src/i18n/locales/tr.json` - Türkçe~~
+  - ~~`src/i18n/locales/es.json` - Español~~
+  - ~~`src/i18n/locales/de.json` - Deutsch~~
+  - Her dosyada 400+ çeviri key'i
+
+- [x] **LanguageSelector Bileşeni** ✅
+  - ~~SVG bayrak ikonları (Windows uyumluluğu için emoji yerine)~~
+  - ~~Dropdown menü ile dil seçimi~~
+  - ~~Seçili dil göstergesi (CheckIcon)~~
+  - ~~Fixed width ile layout shift önleme~~
+
+- [x] **Landing Page i18n** ✅
+  - ~~Navbar (menü linkleri, auth butonları)~~
+  - ~~HeroSection (başlık, alt başlık, CTA butonları)~~
+  - ~~FeaturesSection (özellik kartları)~~
+  - ~~PricingSection (fiyat, plan özellikleri)~~
+  - ~~CTASection (call-to-action)~~
+  - ~~Footer (linkler, copyright)~~
+
+- [x] **Auth Pages i18n** ✅
+  - ~~LoginPage (form labels, hatalar, butonlar)~~
+  - ~~RegisterPage (form labels, hatalar, butonlar)~~
+
+- [x] **Dashboard i18n** ✅
+  - ~~Hoşgeldin mesajı~~
+  - ~~İstatistikler~~
+  - ~~Proje listesi~~
+  - ~~Menü seçenekleri~~
+
+- [x] **Upload Page i18n** ✅
+  - ~~Sayfa başlığı ve açıklama~~
+  - ~~Dropzone metinleri~~
+  - ~~Desteklenen formatlar~~
+  - ~~Ayarlar bölümü (AI model, dil seçimi)~~
+  - ~~İşlem adımları~~
+  - ~~Kullanım bilgisi~~
+  - ~~Son yüklemeler~~
+  - ~~Pro ipuçları~~
+
+### Öncelik: Orta 🟡 (Devam Edecek)
+
+- [ ] **Editor Page i18n**
+  - StylePanel etiketleri
+  - TranscriptPanel metinleri
+  - PresetGallery kategorileri
+  - Timeline kontrolleri
+  - Klavye kısayolları referansı
+
+- [ ] **Export/Settings i18n**
+  - Export dialog metinleri
+  - Settings sayfası (profil, şifre, bildirimler)
+
+- [ ] **Yeni Dil Ekleme**
+  - Fransızca (fr)
+  - Japonca (ja)
+  - Portekizce (pt)
+
+### Öncelik: Düşük 🟢
+
+- [ ] **RTL Dil Desteği**
+  - Arapça (ar)
+  - İbranice (he)
+  - RTL layout ayarlamaları
+
+- [ ] **Çeviri Yönetimi**
+  - Crowdin veya Lokalise entegrasyonu
+  - Topluluk çevirileri
+  - Otomatik eksik çeviri algılama
 
 ---
 
@@ -543,8 +628,10 @@ backend/
 | **Auth Pages (UI)** | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
 | **Dashboard Page** | Orta | Orta | 🔴 P1 | ✅ Tamamlandı |
 | **Pricing Config** | Orta | Düşük | 🔴 P1 | ✅ Tamamlandı |
-| Backend Auth | Yüksek | Yüksek | 🔴 P1 | ⏳ Devam |
+| **i18n (4 Dil)** | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
+| Backend Auth | Yüksek | Yüksek | 🔴 P1 | ⏳ Bekliyor |
 | Payment Integration | Yüksek | Yüksek | 🔴 P1 | ⏳ Bekliyor |
+| Editor Page i18n | Orta | Orta | 🟡 P2 | ⏳ Bekliyor |
 | Unit test coverage | Orta | Yüksek | 🟡 P2 | ⏳ Bekliyor |
 | Mobile responsive | Orta | Orta | 🟡 P2 | ⏳ Bekliyor |
 | Plugin sistemi | Yüksek | Çok Yüksek | 🟢 P3 | ⏳ Bekliyor |
@@ -572,7 +659,9 @@ backend/
 - [x] Upload Page Redesign (Lottie animasyonları)
 - [x] Auth Pages UI (Login, Register, Forgot Password)
 - [x] Dashboard Page
+- [x] i18n - Çoklu dil desteği (EN, TR, ES, DE)
 - [ ] Backend Authentication (JWT, OAuth)
+- [ ] Payment Integration (Stripe/Paddle)
 - [ ] Payment Integration (Stripe/Paddle)
 
 ### v1.3 - SaaS Complete (Aralık 2025)
@@ -618,6 +707,7 @@ backend/
 | 🔐 Auth | Auth Pages UI | Login, Register, Forgot Password |
 | 📊 Dashboard | Dashboard Page | Projects, usage stats |
 | 💰 Pricing | Pricing Config | 4 plan, feature comparison |
+| 🌍 i18n | Çoklu Dil Desteği | 4 dil (EN, TR, ES, DE), 400+ çeviri |
 
 ### Oluşturulan Yeni Dosyalar
 
@@ -642,16 +732,24 @@ frontend/src/
 │   │   ├── CTASection.tsx
 │   │   ├── Footer.tsx
 │   │   └── index.ts
+│   ├── LanguageSelector.tsx      # YENİ - Dil seçici
 │   └── BatchExportDialog.tsx
 ├── config/
 │   └── pricing.ts               # YENİ - Plan tanımları
+├── i18n/                        # YENİ - Çoklu dil desteği
+│   ├── index.ts                 # i18n konfigürasyonu
+│   └── locales/
+│       ├── en.json              # İngilizce
+│       ├── tr.json              # Türkçe
+│       ├── es.json              # İspanyolca
+│       └── de.json              # Almanca
 ├── pages/
 │   ├── LandingPage.tsx          # Yeniden tasarlandı
-│   ├── UploadPage.tsx           # Yeniden tasarlandı
-│   ├── DashboardPage.tsx        # YENİ
+│   ├── UploadPage.tsx           # Yeniden tasarlandı + i18n
+│   ├── DashboardPage.tsx        # YENİ + i18n
 │   ├── PricingPage.tsx          # YENİ
-│   ├── LoginPage.tsx            # YENİ
-│   ├── RegisterPage.tsx         # YENİ
+│   ├── LoginPage.tsx            # YENİ + i18n
+│   ├── RegisterPage.tsx         # YENİ + i18n
 │   └── ForgotPasswordPage.tsx   # YENİ
 ├── hooks/
 │   ├── useKeyboardShortcuts.ts
@@ -659,7 +757,7 @@ frontend/src/
 ├── utils/
 │   └── assCache.ts
 ├── ThemeContext.tsx
-└── App.tsx                      # Yeni route'lar eklendi
+└── App.tsx                      # Yeni route'lar + i18n init
     
 frontend/public/lottie/          # YENİ - Lottie animasyonları
 ├── upload-animation.json

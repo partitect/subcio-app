@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -66,6 +67,7 @@ export default function DashboardPage() {
   const theme = useTheme();
   const { isDark, toggleTheme } = useAppTheme();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -243,16 +245,16 @@ export default function DashboardPage() {
         <Divider />
         <MenuItem component={Link} to="/settings" onClick={() => setUserMenuAnchor(null)}>
           <Settings size={16} style={{ marginRight: 8 }} />
-          Ayarlar
+          {t('nav.settings')}
         </MenuItem>
         <MenuItem component={Link} to="/pricing" onClick={() => setUserMenuAnchor(null)}>
           <CreditCard size={16} style={{ marginRight: 8 }} />
-          Plan Yükselt
+          {t('nav.upgradePlan')}
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
           <LogOut size={16} style={{ marginRight: 8 }} />
-          Çıkış Yap
+          {t('nav.logout')}
         </MenuItem>
       </Menu>
 
@@ -267,10 +269,10 @@ export default function DashboardPage() {
         >
           <Box>
             <Typography variant="h4" fontWeight={800}>
-              Hoşgeldin, {userName.split(" ")[0]}!
+              {t('dashboard.welcome', { name: userName.split(" ")[0] })}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Altyazı projelerini yönet ve dışa aktar
+              {t('dashboard.subtitle')}
             </Typography>
           </Box>
           <Stack direction="row" spacing={1}>
@@ -280,7 +282,7 @@ export default function DashboardPage() {
                 startIcon={<Layers size={16} />}
                 onClick={() => setShowBatchExport(true)}
               >
-                Batch Export
+                {t('dashboard.batchExport')}
               </Button>
             )}
             <Button
@@ -289,7 +291,7 @@ export default function DashboardPage() {
               variant="contained"
               startIcon={<Plus size={16} />}
             >
-              New Project
+              {t('dashboard.newProject')}
             </Button>
           </Stack>
         </Stack>
@@ -302,7 +304,7 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" color="text.secondary">
-                      Bu Ay Kullanılan
+                      {t('dashboard.stats.minutesUsed')}
                     </Typography>
                     <Typography variant="h4" fontWeight={700}>
                       {usageStats?.usage.minutes_used.toFixed(0) || 0}
@@ -340,7 +342,7 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" color="text.secondary">
-                      Depolama
+                      {t('dashboard.stats.storage')}
                     </Typography>
                     <Typography variant="h4" fontWeight={700}>
                       {((usageStats?.usage.storage_used_mb || 0) / 1024).toFixed(1)}
@@ -379,7 +381,7 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" color="text.secondary">
-                      Toplam Proje
+                      {t('dashboard.stats.totalProjects')}
                     </Typography>
                     <Typography variant="h4" fontWeight={700}>
                       {projects.length}
@@ -421,13 +423,13 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      Mevcut Plan
+                      {t('dashboard.stats.currentPlan')}
                     </Typography>
                     <Typography variant="h5" fontWeight={700}>
                       {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}
                     </Typography>
                     <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                      Yükselt →
+                      {t('dashboard.stats.upgrade')}
                     </Typography>
                   </Box>
                   <CreditCard size={24} />
@@ -445,7 +447,7 @@ export default function DashboardPage() {
           sx={{ mb: 2 }}
         >
           <Typography variant="h6" fontWeight={700}>
-            Projelerin
+            {t('dashboard.projects.title')}
           </Typography>
           <Button
             component={Link}
@@ -453,22 +455,22 @@ export default function DashboardPage() {
             size="small"
             sx={{ color: "text.secondary" }}
           >
-            Tümünü Gör →
+            {t('dashboard.projects.viewAll')}
           </Button>
         </Stack>
 
         {loading ? (
           <Card sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
-            <Typography color="text.secondary">Projeler yükleniyor...</Typography>
+            <Typography color="text.secondary">{t('dashboard.projects.loading')}</Typography>
           </Card>
         ) : projects.length === 0 ? (
           <Card sx={{ p: 6, textAlign: "center", borderRadius: 2 }}>
             <FolderOpen size={48} color={theme.palette.text.secondary} style={{ marginBottom: 16 }} />
             <Typography variant="h6" fontWeight={600} gutterBottom>
-              Henüz proje yok
+              {t('dashboard.projects.empty.title')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Başlamak için ilk projenizi oluşturun
+              {t('dashboard.projects.empty.subtitle')}
             </Typography>
             <Button
               component={Link}
@@ -476,7 +478,7 @@ export default function DashboardPage() {
               variant="contained"
               startIcon={<Upload size={18} />}
             >
-              Video Yükle
+              {t('dashboard.projects.empty.cta')}
             </Button>
           </Card>
         ) : (
@@ -566,15 +568,15 @@ export default function DashboardPage() {
             onClick={handleMenuClose}
           >
             <Edit size={16} style={{ marginRight: 8 }} />
-            Düzenle
+            {t('dashboard.projects.actions.edit')}
           </MenuItem>
           <MenuItem onClick={handleMenuClose}>
             <Download size={16} style={{ marginRight: 8 }} />
-            Dışa Aktar
+            {t('dashboard.projects.actions.export')}
           </MenuItem>
           <MenuItem onClick={handleDeleteProject} sx={{ color: "error.main" }}>
             <Trash2 size={16} style={{ marginRight: 8 }} />
-            Sil
+            {t('dashboard.projects.actions.delete')}
           </MenuItem>
         </Menu>
       </Container>

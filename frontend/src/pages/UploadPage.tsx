@@ -12,6 +12,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import Lottie from "lottie-react";
 import {
@@ -71,13 +72,13 @@ const SUPPORTED_FORMATS = [
   { ext: "M4A", icon: Mic, color: "#f97316" },
 ];
 
-// Processing steps
+// Processing steps - will be translated in component
 const PROCESSING_STEPS = [
-  { id: "upload", label: "Uploading", icon: UploadCloud },
-  { id: "extract", label: "Extracting Audio", icon: Music },
-  { id: "transcribe", label: "Transcribing", icon: Mic },
-  { id: "process", label: "Processing", icon: Sparkles },
-  { id: "complete", label: "Complete", icon: CheckCircle },
+  { id: "upload", labelKey: "upload", icon: UploadCloud },
+  { id: "extract", labelKey: "transcribe", icon: Music },
+  { id: "transcribe", labelKey: "analyze", icon: Mic },
+  { id: "process", labelKey: "generate", icon: Sparkles },
+  { id: "complete", labelKey: "complete", icon: CheckCircle },
 ];
 
 // Mock recent uploads (would come from API)
@@ -98,6 +99,7 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation();
   
   const [file, setFile] = useState<File | null>(null);
   const [language, setLanguage] = useState<string>("");
@@ -130,8 +132,8 @@ export default function UploadPage() {
   }, []);
 
   const dropLabel = useMemo(() => (
-    file ? file.name : "Drop your video or audio file here"
-  ), [file]);
+    file ? file.name : t('upload.dropzone.title')
+  ), [file, t]);
 
   const fileSize = useMemo(() => {
     if (!file) return null;
@@ -184,7 +186,7 @@ export default function UploadPage() {
       }, 1500);
     } catch (err) {
       console.error(err);
-      alert("Transcription failed. Please try again.");
+      alert(t('upload.errors.transcriptionFailed'));
       setLoading(false);
       setCurrentStep(0);
     }
@@ -225,14 +227,14 @@ export default function UploadPage() {
               startIcon={<ArrowLeft size={18} />}
               sx={{ color: "text.secondary" }}
             >
-              Dashboard
+              {t('upload.backToDashboard')}
             </Button>
           </Stack>
           <Typography variant="h4" fontWeight={800}>
-            Upload & Transcribe
+            {t('upload.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary" fontWeight={500}>
-            Upload your video or audio file to generate AI-powered subtitles
+            {t('upload.subtitle')}
           </Typography>
         </Stack>
 
@@ -328,7 +330,7 @@ export default function UploadPage() {
                           />
                         )}
                         <Typography variant="body2" color="text.secondary">
-                          or click to browse from your computer
+                          {t('upload.dropzone.hint')}
                         </Typography>
                       </Box>
 
@@ -345,7 +347,7 @@ export default function UploadPage() {
                   {/* Supported Formats */}
                   <Box sx={{ px: 3, pb: 3 }}>
                     <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: "block" }}>
-                      SUPPORTED FORMATS
+                      {t('upload.supportedFormats')}
                     </Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                       {SUPPORTED_FORMATS.map((format) => (
@@ -379,7 +381,7 @@ export default function UploadPage() {
               >
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 3 }}>
-                    Transcription Settings
+                    {t('upload.settings.title')}
                   </Typography>
 
                   <Grid container spacing={3}>
@@ -389,7 +391,7 @@ export default function UploadPage() {
                         <Stack direction="row" spacing={1} alignItems="center">
                           <Zap size={16} color={theme.palette.primary.main} />
                           <Typography variant="body2" fontWeight={600}>
-                            AI Model
+                            {t('upload.settings.aiModel')}
                           </Typography>
                         </Stack>
                         <TextField
@@ -405,7 +407,7 @@ export default function UploadPage() {
                                 <Typography>{m.name}</Typography>
                                 <Stack direction="row" spacing={1}>
                                   {m.recommended && (
-                                    <Chip label="Recommended" size="small" color="primary" sx={{ height: 20, fontSize: "0.65rem" }} />
+                                    <Chip label={t('upload.settings.recommended')} size="small" color="primary" sx={{ height: 20, fontSize: "0.65rem" }} />
                                   )}
                                   <Typography variant="caption" color="text.secondary">
                                     {m.accuracy}
@@ -424,7 +426,7 @@ export default function UploadPage() {
                         <Stack direction="row" spacing={1} alignItems="center">
                           <Languages size={16} color={theme.palette.secondary.main} />
                           <Typography variant="body2" fontWeight={600}>
-                            Language
+                            {t('upload.settings.language')}
                           </Typography>
                         </Stack>
                         <TextField
@@ -432,7 +434,7 @@ export default function UploadPage() {
                           size="small"
                           value={language}
                           onChange={(e) => setLanguage(e.target.value)}
-                          placeholder="Auto-detect (or: en, tr, es...)"
+                          placeholder={t('upload.settings.languagePlaceholder')}
                         />
                       </Stack>
                     </Grid>
@@ -471,7 +473,7 @@ export default function UploadPage() {
                               color={index <= currentStep ? "text.primary" : "text.disabled"}
                               sx={{ display: { xs: "none", sm: "block" } }}
                             >
-                              {step.label}
+                              {t(`upload.processing.${step.labelKey}`)}
                             </Typography>
                           </Stack>
                         ))}
@@ -510,7 +512,7 @@ export default function UploadPage() {
                         },
                       }}
                     >
-                      {loading ? "Processing..." : "Start Transcription"}
+                      {loading ? t('upload.buttons.processing') : t('upload.buttons.startTranscription')}
                     </Button>
                   </Box>
                 </CardContent>
@@ -533,7 +535,7 @@ export default function UploadPage() {
                 <CardContent sx={{ p: 3 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                     <Typography variant="subtitle1" fontWeight={700}>
-                      Usage This Month
+                      {t('upload.usage.title')}
                     </Typography>
                     <Chip
                       label={MOCK_USAGE.plan}
@@ -546,7 +548,7 @@ export default function UploadPage() {
                   <Box sx={{ mb: 2 }}>
                     <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
                       <Typography variant="body2" color="text.secondary">
-                        {MOCK_USAGE.used} / {MOCK_USAGE.limit} minutes
+                        {t('upload.usage.minutes', { used: MOCK_USAGE.used, limit: MOCK_USAGE.limit })}
                       </Typography>
                       <Typography variant="body2" fontWeight={600}>
                         {Math.round(usagePercentage)}%
@@ -575,7 +577,7 @@ export default function UploadPage() {
                       <Stack direction="row" spacing={1} alignItems="center">
                         <AlertCircle size={16} color={theme.palette.warning.main} />
                         <Typography variant="caption" color="warning.main" fontWeight={600}>
-                          Running low on minutes. Consider upgrading!
+                          {t('upload.usage.lowWarning')}
                         </Typography>
                       </Stack>
                     </Box>
@@ -588,7 +590,7 @@ export default function UploadPage() {
                     fullWidth
                     sx={{ mt: 2 }}
                   >
-                    Upgrade Plan
+                    {t('upload.usage.upgrade')}
                   </Button>
                 </CardContent>
               </Card>
@@ -605,7 +607,7 @@ export default function UploadPage() {
                 <CardContent sx={{ p: 3 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                     <Typography variant="subtitle1" fontWeight={700}>
-                      Recent Uploads
+                      {t('upload.recentUploads.title')}
                     </Typography>
                     <Button
                       component={RouterLink}
@@ -613,7 +615,7 @@ export default function UploadPage() {
                       size="small"
                       endIcon={<ArrowRight size={14} />}
                     >
-                      View All
+                      {t('upload.recentUploads.viewAll')}
                     </Button>
                   </Stack>
 
@@ -655,7 +657,7 @@ export default function UploadPage() {
                           </Box>
                           <Chip
                             icon={<CheckCircle size={12} />}
-                            label="Done"
+                            label={t('upload.recentUploads.done')}
                             size="small"
                             color="success"
                             sx={{ height: 24, fontSize: "0.65rem" }}
@@ -682,18 +684,18 @@ export default function UploadPage() {
                   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
                     <Sparkles size={18} color={theme.palette.primary.main} />
                     <Typography variant="subtitle1" fontWeight={700}>
-                      Pro Tips
+                      {t('upload.tips.title')}
                     </Typography>
                   </Stack>
                   <Stack spacing={1.5}>
                     <Typography variant="body2" color="text.secondary">
-                      • Use "Medium" model for best balance of speed & accuracy
+                      • {t('upload.tips.tip1')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      • Clear audio without background music works best
+                      • {t('upload.tips.tip2')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      • Set language manually for faster processing
+                      • {t('upload.tips.tip3')}
                     </Typography>
                   </Stack>
                 </CardContent>

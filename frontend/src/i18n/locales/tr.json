@@ -96,6 +96,9 @@
     "yearlyDiscount": "%20 Tasarruf",
     "perMonth": "/ay",
     "perYear": "/yıl",
+    "free": "Ücretsiz",
+    "saveWithYearly": "Yıllık faturalamada %{{percent}} tasarruf edin",
+    "billedAnnually": "${{price}} yıllık olarak faturalanır",
     "popular": "En Popüler",
     "recommended": "Önerilen",
     "bestValue": "En İyi Değer",
@@ -222,36 +225,53 @@
     }
   },
   "upload": {
-    "title": "Yeni Proje Oluştur",
-    "subtitle": "Başlamak için bir video veya ses dosyası yükleyin",
+    "title": "Yükle & Transkript Et",
+    "subtitle": "AI destekli altyazılar oluşturmak için video veya ses dosyanızı yükleyin",
+    "backToDashboard": "Panel",
     "dropzone": {
-      "title": "Dosyanızı buraya sürükleyip bırakın",
-      "or": "veya",
-      "browse": "Dosya Seç",
-      "formats": "Desteklenen formatlar: MP4, MOV, AVI, MKV, MP3, WAV",
-      "maxSize": "Maksimum dosya boyutu: {{size}}"
+      "title": "Video veya ses dosyanızı buraya bırakın",
+      "titleWithFile": "{{fileName}}",
+      "hint": "veya bilgisayarınızdan seçmek için tıklayın"
+    },
+    "supportedFormats": "DESTEKLENEN FORMATLAR",
+    "settings": {
+      "title": "Transkripsiyon Ayarları",
+      "aiModel": "AI Model",
+      "language": "Dil",
+      "languagePlaceholder": "Otomatik algıla (veya: en, tr, es...)",
+      "recommended": "Önerilen"
     },
     "processing": {
-      "uploading": "Dosya yükleniyor...",
-      "transcribing": "Ses yazıya dökülüyor...",
-      "analyzing": "İçerik analiz ediliyor...",
-      "generating": "Altyazılar oluşturuluyor...",
-      "complete": "Tamamlandı!"
+      "upload": "Yükle",
+      "transcribe": "Transkript",
+      "analyze": "Analiz",
+      "generate": "Oluştur",
+      "complete": "Tamamlandı"
+    },
+    "buttons": {
+      "processing": "İşleniyor...",
+      "startTranscription": "Transkripte Başla"
     },
     "usage": {
       "title": "Bu Ayki Kullanım",
-      "minutes": "{{used}}/{{limit}} dakika",
-      "minutesRemaining": "{{count}} dakika kaldı"
+      "minutes": "{{used}} / {{limit}} dakika",
+      "lowWarning": "Dakikalarınız azalıyor. Yükseltmeyi düşünün!",
+      "upgrade": "Planı Yükselt"
     },
     "recentUploads": {
       "title": "Son Yüklemeler",
+      "viewAll": "Tümünü Gör",
+      "done": "Tamamlandı",
       "empty": "Henüz yükleme yok"
     },
     "tips": {
       "title": "Pro İpuçları",
-      "tip1": "Daha iyi transkripsiyon doğruluğu için yüksek kaliteli ses kullanın",
-      "tip2": "Kısa videolar daha hızlı işlenir",
-      "tip3": "Büyük dosyaları yüklemeden önce kullanım limitinizi kontrol edin"
+      "tip1": "Hız ve doğruluk dengesi için \"Medium\" modeli kullanın",
+      "tip2": "Arka plan müziği olmayan temiz ses en iyi sonucu verir",
+      "tip3": "Daha hızlı işlem için dili manuel olarak ayarlayın"
+    },
+    "errors": {
+      "transcriptionFailed": "Transkripsiyon başarısız oldu. Lütfen tekrar deneyin."
     }
   },
   "editor": {

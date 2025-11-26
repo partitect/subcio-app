@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -30,10 +31,11 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
   const [isYearly, setIsYearly] = useState(true);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation();
 
   const formatPrice = (plan: PricingPlan) => {
     const price = isYearly ? plan.price.yearly / 12 : plan.price.monthly;
-    if (price === 0) return "Free";
+    if (price === 0) return t('pricing.free');
     return `$${Math.round(price)}`;
   };
 
@@ -51,7 +53,7 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
       <Stack spacing={2} alignItems="center" sx={{ mb: 6, textAlign: "center" }}>
         <Chip
           icon={<Sparkles size={14} />}
-          label="Pricing"
+          label={t('nav.pricing')}
           color="primary"
           variant="outlined"
           sx={{ fontWeight: 600 }}
@@ -61,14 +63,14 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
           fontWeight={800}
           sx={{ fontSize: { xs: "1.75rem", md: "2.5rem" } }}
         >
-          Simple, transparent pricing
+          {t('pricing.title')} <Box component="span" sx={{ color: 'primary.main' }}>{t('pricing.titleHighlight')}</Box>
         </Typography>
         <Typography
           variant="body1"
           color="text.secondary"
           sx={{ maxWidth: 500, fontWeight: 500 }}
         >
-          Start free and upgrade as you grow. All plans include a 7-day free trial.
+          {t('pricing.subtitle')}
         </Typography>
 
         {/* Billing Toggle */}
@@ -78,7 +80,7 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
             fontWeight={600}
             color={!isYearly ? "primary.main" : "text.secondary"}
           >
-            Monthly
+            {t('pricing.monthly')}
           </Typography>
           <Switch
             checked={isYearly}
@@ -91,10 +93,10 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
               fontWeight={600}
               color={isYearly ? "primary.main" : "text.secondary"}
             >
-              Yearly
+              {t('pricing.yearly')}
             </Typography>
             <Chip
-              label="Save 20%"
+              label={t('pricing.yearlyDiscount')}
               size="small"
               color="success"
               sx={{ height: 20, fontSize: "0.65rem", fontWeight: 700 }}
@@ -190,18 +192,18 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
                       </Typography>
                       {plan.price.monthly > 0 && (
                         <Typography variant="body2" color="text.secondary">
-                          /month
+                          {t('pricing.perMonth')}
                         </Typography>
                       )}
                     </Stack>
                     {isYearly && savings && (
                       <Typography variant="caption" color="success.main" fontWeight={600}>
-                        Save {savings}% with yearly billing
+                        {t('pricing.saveWithYearly', { percent: savings })}
                       </Typography>
                     )}
                     {isYearly && plan.price.yearly > 0 && (
                       <Typography variant="caption" color="text.secondary" display="block">
-                        ${plan.price.yearly} billed annually
+                        {t('pricing.billedAnnually', { price: plan.price.yearly })}
                       </Typography>
                     )}
                   </Box>

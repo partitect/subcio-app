@@ -4,6 +4,7 @@
  * Showcases main features with icons and descriptions
  */
 
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -90,6 +91,7 @@ const FEATURES = [
 export function FeaturesSection() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation();
 
   return (
     <Box sx={{ py: 10, bgcolor: isDark ? "grey.900" : "grey.50" }}>
@@ -98,7 +100,7 @@ export function FeaturesSection() {
         <Stack spacing={2} alignItems="center" sx={{ mb: 8, textAlign: "center" }}>
           <Chip
             icon={<Sparkles size={14} />}
-            label="Features"
+            label={t('nav.features')}
             color="primary"
             variant="outlined"
             sx={{ fontWeight: 600 }}
@@ -108,15 +110,14 @@ export function FeaturesSection() {
             fontWeight={800}
             sx={{ fontSize: { xs: "1.75rem", md: "2.5rem" } }}
           >
-            Everything you need to create amazing subtitles
+            {t('landing.features.title')} <Box component="span" sx={{ color: 'primary.main' }}>{t('landing.features.titleHighlight')}</Box>
           </Typography>
           <Typography
             variant="body1"
             color="text.secondary"
             sx={{ maxWidth: 600, fontWeight: 500 }}
           >
-            PyCaps combines powerful AI with beautiful design presets to help you
-            create professional subtitles in minutes, not hours.
+            {t('landing.features.subtitle')}
           </Typography>
         </Stack>
 

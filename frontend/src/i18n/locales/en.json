@@ -96,6 +96,9 @@
     "yearlyDiscount": "Save 20%",
     "perMonth": "/month",
     "perYear": "/year",
+    "free": "Free",
+    "saveWithYearly": "Save {{percent}}% with yearly billing",
+    "billedAnnually": "${{price}} billed annually",
     "popular": "Most Popular",
     "recommended": "Recommended",
     "bestValue": "Best Value",
@@ -222,36 +225,53 @@
     }
   },
   "upload": {
-    "title": "Create New Project",
-    "subtitle": "Upload a video or audio file to get started",
+    "title": "Upload & Transcribe",
+    "subtitle": "Upload your video or audio file to generate AI-powered subtitles",
+    "backToDashboard": "Dashboard",
     "dropzone": {
-      "title": "Drag & drop your file here",
-      "or": "or",
-      "browse": "Browse Files",
-      "formats": "Supported formats: MP4, MOV, AVI, MKV, MP3, WAV",
-      "maxSize": "Max file size: {{size}}"
+      "title": "Drop your video or audio file here",
+      "titleWithFile": "{{fileName}}",
+      "hint": "or click to browse from your computer"
+    },
+    "supportedFormats": "SUPPORTED FORMATS",
+    "settings": {
+      "title": "Transcription Settings",
+      "aiModel": "AI Model",
+      "language": "Language",
+      "languagePlaceholder": "Auto-detect (or: en, tr, es...)",
+      "recommended": "Recommended"
     },
     "processing": {
-      "uploading": "Uploading file...",
-      "transcribing": "Transcribing audio...",
-      "analyzing": "Analyzing content...",
-      "generating": "Generating subtitles...",
-      "complete": "Complete!"
+      "upload": "Upload",
+      "transcribe": "Transcribe", 
+      "analyze": "Analyze",
+      "generate": "Generate",
+      "complete": "Complete"
+    },
+    "buttons": {
+      "processing": "Processing...",
+      "startTranscription": "Start Transcription"
     },
     "usage": {
       "title": "Usage This Month",
-      "minutes": "{{used}}/{{limit}} minutes",
-      "minutesRemaining": "{{count}} minutes remaining"
+      "minutes": "{{used}} / {{limit}} minutes",
+      "lowWarning": "Running low on minutes. Consider upgrading!",
+      "upgrade": "Upgrade Plan"
     },
     "recentUploads": {
       "title": "Recent Uploads",
+      "viewAll": "View All",
+      "done": "Done",
       "empty": "No recent uploads"
     },
     "tips": {
       "title": "Pro Tips",
-      "tip1": "Use high-quality audio for better transcription accuracy",
-      "tip2": "Shorter clips process faster",
-      "tip3": "Check your usage limits before uploading large files"
+      "tip1": "Use \"Medium\" model for best balance of speed & accuracy",
+      "tip2": "Clear audio without background music works best",
+      "tip3": "Set language manually for faster processing"
+    },
+    "errors": {
+      "transcriptionFailed": "Transcription failed. Please try again."
     }
   },
   "editor": {
