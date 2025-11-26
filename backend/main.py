@@ -7,10 +7,14 @@ import tempfile
 import uuid
 import hashlib
 import sys
+import asyncio
+import threading
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from PIL import ImageFont
+from enum import Enum
+from dataclasses import dataclass, field, asdict
 
 from fastapi import FastAPI, File, Form, UploadFile, BackgroundTasks, HTTPException, Response, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
@@ -55,6 +59,62 @@ FONTS_DIR = Path(__file__).resolve().parent / "fonts"
 FONTS_DIR.mkdir(parents=True, exist_ok=True)
 PROJECTS_DIR = Path(__file__).resolve().parent / "projects"
 PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
+
+# -----------------------------------------------------------------------------
+# Batch Export System
+# -----------------------------------------------------------------------------
+class ExportStatus(str, Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+@dataclass
+class ExportJob:
+    id: str
+    project_id: str
+    project_name: str
+    status: ExportStatus = ExportStatus.PENDING
+    progress: float = 0.0
+    output_path: Optional[str] = None
+    error: Optional[str] = None
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    started_at: Optional[str] = None
+    completed_at: Optional[str] = None
+    resolution: str = "1080p"
+
+@dataclass
+class BatchExportQueue:
+    id: str
+    jobs: List[ExportJob] = field(default_factory=list)
+    status: ExportStatus = ExportStatus.PENDING
+    current_job_index: int = 0
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    
+    @property
+    def completed_count(self) -> int:
+        return sum(1 for j in self.jobs if j.status == ExportStatus.COMPLETED)
+    
+    @property
+    def failed_count(self) -> int:
+        return sum(1 for j in self.jobs if j.status == ExportStatus.FAILED)
+    
+    @property
+    def total_progress(self) -> float:
+        if not self.jobs:
+            return 0.0
+        completed = sum(1 for j in self.jobs if j.status in [ExportStatus.COMPLETED, ExportStatus.FAILED])
+        current_progress = 0.0
+        for j in self.jobs:
+            if j.status == ExportStatus.PROCESSING:
+                current_progress = j.progress
+                break
+        return ((completed + current_progress / 100) / len(self.jobs)) * 100
+
+# Global batch export storage
+BATCH_EXPORTS: Dict[str, BatchExportQueue] = {}
+BATCH_EXPORT_LOCK = threading.Lock()
 
 
 _WEIGHT_PATTERNS = [
@@ -1214,6 +1274,277 @@ async def save_preset_screenshot(request: Request):
     except Exception as e:
         print(f"Screenshot Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# -----------------------------------------------------------------------------
+# Batch Export Endpoints
+# -----------------------------------------------------------------------------
+
+def process_batch_export(batch_id: str):
+    """Background worker to process batch export jobs sequentially."""
+    with BATCH_EXPORT_LOCK:
+        batch = BATCH_EXPORTS.get(batch_id)
+        if not batch:
+            return
+        batch.status = ExportStatus.PROCESSING
+    
+    for idx, job in enumerate(batch.jobs):
+        # Check if batch was cancelled
+        with BATCH_EXPORT_LOCK:
+            if batch.status == ExportStatus.CANCELLED:
+                break
+            batch.current_job_index = idx
+            job.status = ExportStatus.PROCESSING
+            job.started_at = datetime.now().isoformat()
+        
+        try:
+            # Load project data
+            project_data = load_project(job.project_id)
+            if not project_data:
+                raise Exception(f"Project {job.project_id} not found")
+            
+            words = project_data.get("words", [])
+            style_data = project_data.get("config", {}).get("style", {})
+            style = build_style(style_data)
+            
+            # Find video path
+            project_dir = PROJECTS_DIR / job.project_id
+            video_path = project_dir / "video.mp4"
+            
+            # Also check for audio files if video doesn't exist
+            if not video_path.exists():
+                for ext in [".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac"]:
+                    audio_path = project_dir / f"audio{ext}"
+                    if audio_path.exists():
+                        # For audio, we'll skip video export or create a video with background
+                        raise Exception(f"Audio-only projects not yet supported for batch export")
+                raise Exception(f"Media file not found for project {job.project_id}")
+            
+            # Update progress
+            with BATCH_EXPORT_LOCK:
+                job.progress = 10.0
+            
+            # Generate ASS content
+            uid = uuid.uuid4().hex
+            ass_path = OUTPUT_DIR / f"batch_{batch_id}_{uid}.ass"
+            ass_content = render_ass_content(words, style)
+            ass_path.write_text(ass_content, encoding="utf-8")
+            
+            with BATCH_EXPORT_LOCK:
+                job.progress = 30.0
+            
+            # Run FFmpeg
+            out_path = OUTPUT_DIR / f"batch_{batch_id}_{job.project_id}.mp4"
+            run_ffmpeg_burn(video_path, ass_path, out_path, job.resolution)
+            
+            with BATCH_EXPORT_LOCK:
+                job.progress = 90.0
+            
+            if not out_path.exists():
+                raise Exception("Export failed: output file not created")
+            
+            # Cleanup temp ASS file
+            ass_path.unlink(missing_ok=True)
+            
+            with BATCH_EXPORT_LOCK:
+                job.status = ExportStatus.COMPLETED
+                job.progress = 100.0
+                job.output_path = str(out_path)
+                job.completed_at = datetime.now().isoformat()
+                
+        except Exception as e:
+            with BATCH_EXPORT_LOCK:
+                job.status = ExportStatus.FAILED
+                job.error = str(e)
+                job.completed_at = datetime.now().isoformat()
+            print(f"Batch export job {job.id} failed: {e}")
+    
+    # Mark batch as complete
+    with BATCH_EXPORT_LOCK:
+        if batch.status != ExportStatus.CANCELLED:
+            if batch.failed_count == len(batch.jobs):
+                batch.status = ExportStatus.FAILED
+            elif batch.completed_count > 0:
+                batch.status = ExportStatus.COMPLETED
+            else:
+                batch.status = ExportStatus.FAILED
+
+
+@app.post("/api/batch-export")
+async def create_batch_export(request: Request, background_tasks: BackgroundTasks):
+    """
+    Create a batch export job for multiple projects.
+    
+    Request body:
+    {
+        "project_ids": ["id1", "id2", ...],
+        "resolution": "1080p"  // optional
+    }
+    """
+    try:
+        data = await request.json()
+        project_ids = data.get("project_ids", [])
+        resolution = data.get("resolution", "1080p")
+        
+        if not project_ids:
+            raise HTTPException(status_code=400, detail="project_ids is required")
+        
+        if len(project_ids) > 20:
+            raise HTTPException(status_code=400, detail="Maximum 20 projects per batch")
+        
+        # Create batch
+        batch_id = uuid.uuid4().hex[:12]
+        jobs = []
+        
+        for pid in project_ids:
+            project_data = load_project(pid)
+            if not project_data:
+                continue
+            
+            job = ExportJob(
+                id=uuid.uuid4().hex[:8],
+                project_id=pid,
+                project_name=project_data.get("name", pid),
+                resolution=resolution,
+            )
+            jobs.append(job)
+        
+        if not jobs:
+            raise HTTPException(status_code=400, detail="No valid projects found")
+        
+        batch = BatchExportQueue(id=batch_id, jobs=jobs)
+        
+        with BATCH_EXPORT_LOCK:
+            BATCH_EXPORTS[batch_id] = batch
+        
+        # Start background processing
+        background_tasks.add_task(process_batch_export, batch_id)
+        
+        return JSONResponse({
+            "batch_id": batch_id,
+            "job_count": len(jobs),
+            "status": batch.status.value,
+        })
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Batch Export Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/batch-export/{batch_id}")
+async def get_batch_export_status(batch_id: str):
+    """Get the status of a batch export job."""
+    with BATCH_EXPORT_LOCK:
+        batch = BATCH_EXPORTS.get(batch_id)
+        if not batch:
+            raise HTTPException(status_code=404, detail="Batch export not found")
+        
+        return JSONResponse({
+            "id": batch.id,
+            "status": batch.status.value,
+            "total_progress": round(batch.total_progress, 1),
+            "completed_count": batch.completed_count,
+            "failed_count": batch.failed_count,
+            "total_count": len(batch.jobs),
+            "current_job_index": batch.current_job_index,
+            "created_at": batch.created_at,
+            "jobs": [
+                {
+                    "id": j.id,
+                    "project_id": j.project_id,
+                    "project_name": j.project_name,
+                    "status": j.status.value,
+                    "progress": round(j.progress, 1),
+                    "error": j.error,
+                    "output_path": j.output_path,
+                }
+                for j in batch.jobs
+            ],
+        })
+
+
+@app.post("/api/batch-export/{batch_id}/cancel")
+async def cancel_batch_export(batch_id: str):
+    """Cancel a batch export job."""
+    with BATCH_EXPORT_LOCK:
+        batch = BATCH_EXPORTS.get(batch_id)
+        if not batch:
+            raise HTTPException(status_code=404, detail="Batch export not found")
+        
+        if batch.status in [ExportStatus.COMPLETED, ExportStatus.FAILED]:
+            raise HTTPException(status_code=400, detail="Batch export already finished")
+        
+        batch.status = ExportStatus.CANCELLED
+        for job in batch.jobs:
+            if job.status == ExportStatus.PENDING:
+                job.status = ExportStatus.CANCELLED
+        
+        return JSONResponse({"message": "Batch export cancelled"})
+
+
+@app.get("/api/batch-export/{batch_id}/download/{project_id}")
+async def download_batch_export_file(batch_id: str, project_id: str):
+    """Download a single exported file from a batch."""
+    with BATCH_EXPORT_LOCK:
+        batch = BATCH_EXPORTS.get(batch_id)
+        if not batch:
+            raise HTTPException(status_code=404, detail="Batch export not found")
+        
+        job = next((j for j in batch.jobs if j.project_id == project_id), None)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found in batch")
+        
+        if job.status != ExportStatus.COMPLETED or not job.output_path:
+            raise HTTPException(status_code=400, detail="Export not completed")
+        
+        output_path = Path(job.output_path)
+        if not output_path.exists():
+            raise HTTPException(status_code=404, detail="Export file not found")
+        
+        return FileResponse(
+            path=output_path,
+            media_type="video/mp4",
+            filename=f"{job.project_name}.mp4",
+        )
+
+
+@app.delete("/api/batch-export/{batch_id}")
+async def delete_batch_export(batch_id: str):
+    """Delete a batch export and its files."""
+    with BATCH_EXPORT_LOCK:
+        batch = BATCH_EXPORTS.get(batch_id)
+        if not batch:
+            raise HTTPException(status_code=404, detail="Batch export not found")
+        
+        # Delete output files
+        for job in batch.jobs:
+            if job.output_path:
+                Path(job.output_path).unlink(missing_ok=True)
+        
+        del BATCH_EXPORTS[batch_id]
+        
+        return JSONResponse({"message": "Batch export deleted"})
+
+
+@app.get("/api/batch-exports")
+async def list_batch_exports():
+    """List all batch exports."""
+    with BATCH_EXPORT_LOCK:
+        return JSONResponse([
+            {
+                "id": b.id,
+                "status": b.status.value,
+                "total_progress": round(b.total_progress, 1),
+                "job_count": len(b.jobs),
+                "completed_count": b.completed_count,
+                "failed_count": b.failed_count,
+                "created_at": b.created_at,
+            }
+            for b in BATCH_EXPORTS.values()
+        ])
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)

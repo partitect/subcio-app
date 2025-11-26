@@ -90,10 +90,12 @@
 
 ### Öncelik: Yüksek 🔴
 
-- [ ] **Batch Export**
-  - Çoklu proje export'u
-  - Export kuyruğu sistemi
-  - İlerleme takibi
+- [x] **Batch Export** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Çoklu proje export'u~~ → `BatchExportDialog.tsx` ile proje seçimi
+  - ~~Export kuyruğu sistemi~~ → Backend `BatchExportQueue` class
+  - ~~İlerleme takibi~~ → Real-time polling, job-level progress
+  - API: `/api/batch-export`, `/api/batch-export/{id}`, `/api/batch-export/{id}/cancel`
+  - Maksimum 20 proje per batch
 
 - [ ] **Video Kalite Seçenekleri**
   - 720p, 1080p, 4K seçenekleri (mevcut)
@@ -453,7 +455,7 @@ backend/
 | Preset arama/filtreleme | Orta | Düşük | 🟡 P2 | ✅ Tamamlandı |
 | UI Component Library | Orta | Orta | 🟡 P2 | ✅ Tamamlandı |
 | ASS preview caching | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
-| Batch export | Yüksek | Orta | 🔴 P1 | ⏳ Bekliyor |
+| Batch export | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
 | Unit test coverage | Orta | Yüksek | 🟡 P2 | ⏳ Bekliyor |
 | Mobile responsive | Orta | Orta | 🟡 P2 | ⏳ Bekliyor |
 | Plugin sistemi | Yüksek | Çok Yüksek | 🟢 P3 | ⏳ Bekliyor |
@@ -534,7 +536,7 @@ frontend/src/
 ### Sonraki Adımlar
 
 1. ✅ ASS preview caching optimizasyonu (Tamamlandı)
-2. ⏳ Batch export özelliği
+2. ✅ Batch export özelliği (Tamamlandı)
 3. ⏳ Backend test coverage artırma
 4. ⏳ Mobile responsive tasarım
 

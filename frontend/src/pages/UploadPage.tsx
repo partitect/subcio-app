@@ -1,7 +1,19 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+/**
+ * Upload Page - Professional Redesign
+ * 
+ * Features:
+ * - Navbar integration
+ * - Professional drop zone with Lottie animations
+ * - Supported formats display
+ * - Usage limit indicator
+ * - Recent uploads list
+ * - Step-by-step progress
+ */
+
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axios from "axios";
-import { UploadCloud, PlayCircle, Languages, CheckCircle, Loader2, FileVideo, ArrowRight, Sun, Moon } from "lucide-react";
+import Lottie from "lottie-react";
 import {
   Box,
   Button,
@@ -13,40 +25,149 @@ import {
   MenuItem,
   LinearProgress,
   alpha,
-  IconButton,
-  Tooltip,
-  useTheme as useMuiTheme,
+  Chip,
+  Card,
+  CardContent,
+  Avatar,
+  Divider,
+  useTheme,
 } from "@mui/material";
-import LoadingOverlay from "../components/LoadingOverlay";
-import { GlassCard, GradientButton, AnimatedContainer, SectionHeader } from "../components/ui";
-import { useTheme } from "../ThemeContext";
+import {
+  UploadCloud,
+  Languages,
+  CheckCircle,
+  FileVideo,
+  ArrowRight,
+  ArrowLeft,
+  Music,
+  Film,
+  Mic,
+  Clock,
+  Sparkles,
+  Zap,
+  AlertCircle,
+} from "lucide-react";
+import { Navbar } from "../components/landing";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
-const models = ["tiny", "base", "small", "medium", "large-v2", "large-v3", "distil-large-v3", "turbo"];
+
+const WHISPER_MODELS = [
+  { id: "tiny", name: "Tiny", speed: "Fastest", accuracy: "Basic", recommended: false },
+  { id: "base", name: "Base", speed: "Fast", accuracy: "Good", recommended: false },
+  { id: "small", name: "Small", speed: "Medium", accuracy: "Better", recommended: false },
+  { id: "medium", name: "Medium", speed: "Balanced", accuracy: "Great", recommended: true },
+  { id: "large-v2", name: "Large V2", speed: "Slow", accuracy: "Excellent", recommended: false },
+  { id: "large-v3", name: "Large V3", speed: "Slow", accuracy: "Best", recommended: false },
+  { id: "turbo", name: "Turbo", speed: "Fast", accuracy: "Great", recommended: false },
+];
+
+const SUPPORTED_FORMATS = [
+  { ext: "MP4", icon: Film, color: "#6366f1" },
+  { ext: "MOV", icon: Film, color: "#8b5cf6" },
+  { ext: "AVI", icon: Film, color: "#a855f7" },
+  { ext: "MKV", icon: Film, color: "#d946ef" },
+  { ext: "MP3", icon: Music, color: "#ec4899" },
+  { ext: "WAV", icon: Music, color: "#f43f5e" },
+  { ext: "M4A", icon: Mic, color: "#f97316" },
+];
+
+// Processing steps
+const PROCESSING_STEPS = [
+  { id: "upload", label: "Uploading", icon: UploadCloud },
+  { id: "extract", label: "Extracting Audio", icon: Music },
+  { id: "transcribe", label: "Transcribing", icon: Mic },
+  { id: "process", label: "Processing", icon: Sparkles },
+  { id: "complete", label: "Complete", icon: CheckCircle },
+];
+
+// Mock recent uploads (would come from API)
+const MOCK_RECENT_UPLOADS = [
+  { id: "1", name: "interview_final.mp4", date: "2 hours ago", duration: "12:34", status: "completed" },
+  { id: "2", name: "podcast_ep45.mp3", date: "Yesterday", duration: "45:20", status: "completed" },
+  { id: "3", name: "tutorial_v2.mov", date: "3 days ago", duration: "8:15", status: "completed" },
+];
+
+// Mock usage data (would come from API based on user plan)
+const MOCK_USAGE = {
+  used: 45,
+  limit: 100,
+  plan: "Pro",
+};
 
 export default function UploadPage() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  
   const [file, setFile] = useState<File | null>(null);
   const [language, setLanguage] = useState<string>("");
   const [model, setModel] = useState<string>("medium");
   const [loading, setLoading] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
-  const { mode, toggleTheme, isDark } = useTheme();
-  const muiTheme = useMuiTheme();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
+  
+  // Lottie animations
+  const [uploadAnimation, setUploadAnimation] = useState<any>(null);
+  const [processingAnimation, setProcessingAnimation] = useState<any>(null);
+  const [successAnimation, setSuccessAnimation] = useState<any>(null);
 
-  const dropLabel = useMemo(() => (file ? file.name : "Drop a video or audio file here"), [file]);
+  // Load Lottie animations
+  useEffect(() => {
+    fetch("/lottie/upload-animation.json")
+      .then(res => res.json())
+      .then(setUploadAnimation)
+      .catch(console.error);
+    
+    fetch("/lottie/processing-dots.json")
+      .then(res => res.json())
+      .then(setProcessingAnimation)
+      .catch(console.error);
+    
+    fetch("/lottie/success-check.json")
+      .then(res => res.json())
+      .then(setSuccessAnimation)
+      .catch(console.error);
+  }, []);
+
+  const dropLabel = useMemo(() => (
+    file ? file.name : "Drop your video or audio file here"
+  ), [file]);
+
+  const fileSize = useMemo(() => {
+    if (!file) return null;
+    const mb = file.size / (1024 * 1024);
+    return mb >= 1 ? `${mb.toFixed(1)} MB` : `${(file.size / 1024).toFixed(0)} KB`;
+  }, [file]);
 
   const handleFile = (incoming?: File) => {
     if (incoming) {
       setFile(incoming);
-      setLogs((prev) => [...prev, `Selected file: ${incoming.name}`]);
     }
+  };
+
+  const simulateProgress = () => {
+    const steps = [0, 1, 2, 3, 4];
+    const delays = [500, 2000, 8000, 2000, 500];
+    
+    let currentIndex = 0;
+    const advanceStep = () => {
+      if (currentIndex < steps.length) {
+        setCurrentStep(steps[currentIndex]);
+        currentIndex++;
+        if (currentIndex < steps.length) {
+          setTimeout(advanceStep, delays[currentIndex - 1]);
+        }
+      }
+    };
+    advanceStep();
   };
 
   const startTranscription = async () => {
     if (!file) return;
     setLoading(true);
-    setLogs((prev) => [...prev, "Uploading and transcribing..."]);
+    setCurrentStep(0);
+    simulateProgress();
+    
     const form = new FormData();
     form.append("file", file);
     form.append("model_name", model);
@@ -56,387 +177,528 @@ export default function UploadPage() {
       const { data } = await axios.post(`${API_BASE}/transcribe`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setLogs((prev) => [...prev, "Transcription finished, creating project..."]);
-      const projectId = data.projectId || data.project?.id;
-      navigate(`/editor/${projectId}`, { state: { project: data.project, words: data.words } });
+      setCurrentStep(4);
+      setTimeout(() => {
+        const projectId = data.projectId || data.project?.id;
+        navigate(`/editor/${projectId}`, { state: { project: data.project, words: data.words } });
+      }, 1500);
     } catch (err) {
       console.error(err);
-      setLogs((prev) => [...prev, "Transcription failed. Check backend logs."]);
-      alert("Transcription failed");
-    } finally {
+      alert("Transcription failed. Please try again.");
       setLoading(false);
+      setCurrentStep(0);
     }
   };
 
+  const usagePercentage = (MOCK_USAGE.used / MOCK_USAGE.limit) * 100;
+
   return (
-    <Box 
-      sx={{ 
-        minHeight: "100vh", 
-        bgcolor: "background.default", 
-        color: "text.primary", 
-        py: { xs: 4, md: 6 },
-        position: "relative",
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
       }}
     >
-      {/* Theme Toggle Button */}
-      <Tooltip title={isDark ? "Açık Tema" : "Koyu Tema"} arrow placement="left">
-        <IconButton
-          onClick={toggleTheme}
-          sx={{
-            position: "fixed",
-            top: 16,
-            right: 16,
-            zIndex: 1000,
-            bgcolor: alpha(muiTheme.palette.background.paper, 0.8),
-            backdropFilter: "blur(8px)",
-            border: `1px solid ${alpha(muiTheme.palette.divider, 0.3)}`,
-            color: "text.secondary",
-            transition: "all 0.3s ease",
-            "&:hover": {
-              bgcolor: alpha(muiTheme.palette.background.paper, 0.95),
-              color: isDark ? "warning.main" : "primary.main",
-              transform: "rotate(15deg)",
-            },
-          }}
-        >
-          {isDark ? <Sun size={20} /> : <Moon size={20} />}
-        </IconButton>
-      </Tooltip>
+      <Navbar />
 
-      {/* Background Gradient */}
+      {/* Background Effects */}
       <Box
         sx={{
-          position: "absolute",
+          position: "fixed",
           inset: 0,
-          background: isDark 
-            ? "radial-gradient(circle at 30% 30%, rgba(99,102,241,0.08), transparent 50%)"
-            : "radial-gradient(circle at 30% 30%, rgba(99,102,241,0.04), transparent 50%)",
+          background: isDark
+            ? "radial-gradient(circle at 20% 20%, rgba(99,102,241,0.08), transparent 40%), radial-gradient(circle at 80% 80%, rgba(168,85,247,0.06), transparent 40%)"
+            : "radial-gradient(circle at 20% 20%, rgba(99,102,241,0.04), transparent 40%), radial-gradient(circle at 80% 80%, rgba(168,85,247,0.03), transparent 40%)",
           pointerEvents: "none",
+          zIndex: 0,
         }}
       />
-      
-      <LoadingOverlay isLoading={loading} />
-      
-      <Container maxWidth="lg" sx={{ position: "relative" }}>
-        <AnimatedContainer delay={0}>
-          <SectionHeader
-            title="Upload & Transcribe"
-            subtitle="Drop your video or audio file to get started"
-            icon={<UploadCloud size={20} />}
-          />
-        </AnimatedContainer>
-        
-        <Grid container spacing={3} alignItems="stretch">
-          <Grid item xs={12} md={8}>
-            <AnimatedContainer delay={0.1}>
-              <GlassCard sx={{ p: { xs: 2.5, md: 3 }, height: "100%", display: "flex", flexDirection: "column", gap: 2.5 }}>
-                {/* Drop Zone */}
-                <Box
-                  sx={{
-                    p: { xs: 4, md: 5 },
-                    textAlign: "center",
-                    borderRadius: 3,
-                    border: `2px dashed ${file ? muiTheme.palette.success.main : muiTheme.palette.divider}`,
-                    bgcolor: file 
-                      ? alpha(muiTheme.palette.success.main, 0.05) 
-                      : alpha(muiTheme.palette.primary.main, 0.03),
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    "&:hover": { 
-                      borderColor: muiTheme.palette.primary.main,
-                      bgcolor: alpha(muiTheme.palette.primary.main, 0.06),
-                    },
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    handleFile(e.dataTransfer.files?.[0]);
-                  }}
-                  onDragOver={(e) => e.preventDefault()}
-                >
-                  <Stack spacing={2} alignItems="center">
-                    <Box
-                      sx={{
-                        width: 64,
-                        height: 64,
-                        borderRadius: "50%",
-                        bgcolor: file 
-                          ? alpha(muiTheme.palette.success.main, 0.15) 
-                          : alpha(muiTheme.palette.primary.main, 0.1),
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: file ? "success.main" : "primary.main",
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      {file ? <FileVideo size={28} /> : <UploadCloud size={28} />}
-                    </Box>
-                    
-                    <Box>
-                      <Typography variant="h6" fontWeight={600} gutterBottom color="text.primary">
-                        {dropLabel}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                        Supports MP4, MOV, WAV, MP3
-                      </Typography>
-                    </Box>
-                    
-                    <input
-                      type="file"
-                      accept="video/*,audio/*"
-                      style={{ display: "none" }}
-                      id="file-input"
-                      onChange={(e) => handleFile(e.target.files?.[0] || undefined)}
-                    />
-                    <label htmlFor="file-input">
-                      <Button 
-                        component="span" 
-                        variant="outlined" 
-                        size="small"
-                        sx={{ 
-                          borderRadius: 5,
-                          px: 3,
-                          fontWeight: 600,
-                        }}
-                      >
-                        Choose file
-                      </Button>
-                    </label>
-                  </Stack>
-                </Box>
 
-                {/* Settings Grid */}
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
-                    <Box
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: isDark ? "grey.900" : "grey.50",
-                        border: `1px solid ${muiTheme.palette.divider}`,
-                      }}
-                    >
-                      <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
-                        <Box
-                          sx={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: 1,
-                            bgcolor: alpha(muiTheme.palette.primary.main, 0.15),
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "primary.main",
-                          }}
-                        >
-                          <PlayCircle size={14} />
-                        </Box>
-                        <Typography fontWeight={600} variant="body2" color="text.primary">
-                          Whisper Model
-                        </Typography>
-                      </Stack>
-                      <TextField 
-                        select 
-                        fullWidth 
-                        size="small" 
-                        value={model} 
-                        onChange={(e) => setModel(e.target.value)}
-                      >
-                        {models.map((m) => (
-                          <MenuItem key={m} value={m}>
-                            {m}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Box>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={4}>
-                    <Box
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: isDark ? "grey.900" : "grey.50",
-                        border: `1px solid ${muiTheme.palette.divider}`,
-                      }}
-                    >
-                      <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
-                        <Box
-                          sx={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: 1,
-                            bgcolor: alpha(muiTheme.palette.secondary.main, 0.15),
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "secondary.main",
-                          }}
-                        >
-                          <Languages size={14} />
-                        </Box>
-                        <Typography fontWeight={600} variant="body2" color="text.primary">
-                          Language
-                        </Typography>
-                      </Stack>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        placeholder="auto-detect or en, tr..."
-                      />
-                    </Box>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={4}>
-                    <Box
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: isDark ? "grey.900" : "grey.50",
-                        border: `1px solid ${muiTheme.palette.divider}`,
-                      }}
-                    >
-                      <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
-                        <Box
-                          sx={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: 1,
-                            bgcolor: loading 
-                              ? alpha(muiTheme.palette.warning.main, 0.15) 
-                              : alpha(muiTheme.palette.success.main, 0.15),
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: loading ? "warning.main" : "success.main",
-                          }}
-                        >
-                          {loading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
-                        </Box>
-                        <Typography fontWeight={600} variant="body2" color="text.primary">
-                          Status
-                        </Typography>
-                      </Stack>
-                      <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                        {loading ? "Processing..." : "Ready to transcribe"}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
+      <Container maxWidth="lg" sx={{ pt: 12, pb: 6, position: "relative", zIndex: 1 }}>
+        {/* Header */}
+        <Stack spacing={1} sx={{ mb: 4 }}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Button
+              component={RouterLink}
+              to="/dashboard"
+              startIcon={<ArrowLeft size={18} />}
+              sx={{ color: "text.secondary" }}
+            >
+              Dashboard
+            </Button>
+          </Stack>
+          <Typography variant="h4" fontWeight={800}>
+            Upload & Transcribe
+          </Typography>
+          <Typography variant="body1" color="text.secondary" fontWeight={500}>
+            Upload your video or audio file to generate AI-powered subtitles
+          </Typography>
+        </Stack>
 
-                {loading && (
-                  <Box>
-                    <LinearProgress 
-                      color="primary" 
-                      sx={{ 
-                        borderRadius: 5,
-                        height: 6,
-                      }} 
-                    />
-                  </Box>
-                )}
-
-                <Box
-                  mt="auto"
-                  display="flex"
-                  justifyContent={{ xs: "flex-start", sm: "flex-end" }}
-                  width="100%"
-                >
-                  <GradientButton
-                    size="large"
-                    disabled={!file || loading}
-                    onClick={startTranscription}
-                    endIcon={!loading && <ArrowRight size={18} />}
-                    sx={{ 
-                      width: { xs: "100%", sm: "auto" },
-                      minWidth: 200,
-                    }}
-                  >
-                    {loading ? "Working..." : "Start Transcription"}
-                  </GradientButton>
-                </Box>
-              </GlassCard>
-            </AnimatedContainer>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <AnimatedContainer delay={0.2}>
-              <GlassCard 
-                sx={{ 
-                  p: { xs: 2.5, md: 3 }, 
-                  height: "100%", 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  gap: 1.5,
+        <Grid container spacing={3}>
+          {/* Main Upload Area */}
+          <Grid item xs={12} lg={8}>
+            <Stack spacing={3}>
+              {/* Drop Zone Card */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  bgcolor: alpha(theme.palette.background.paper, 0.6),
+                  backdropFilter: "blur(20px)",
+                  overflow: "visible",
                 }}
               >
-                <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                <CardContent sx={{ p: 0 }}>
+                  {/* Drop Zone */}
                   <Box
                     sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      bgcolor: logs.length > 0 ? "success.main" : "text.disabled",
-                      boxShadow: logs.length > 0 ? `0 0 8px ${muiTheme.palette.success.main}` : "none",
+                      p: { xs: 4, md: 6 },
+                      textAlign: "center",
+                      borderRadius: 3,
+                      border: `2px dashed ${
+                        dragOver
+                          ? theme.palette.primary.main
+                          : file
+                          ? theme.palette.success.main
+                          : alpha(theme.palette.divider, 0.3)
+                      }`,
+                      bgcolor: dragOver
+                        ? alpha(theme.palette.primary.main, 0.05)
+                        : file
+                        ? alpha(theme.palette.success.main, 0.03)
+                        : "transparent",
+                      m: 2,
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        borderColor: theme.palette.primary.main,
+                        bgcolor: alpha(theme.palette.primary.main, 0.03),
+                      },
                     }}
-                  />
-                  <Typography variant="h6" fontWeight={700} color="text.primary">
-                    Progress Log
-                  </Typography>
-                </Stack>
-                
-                <Box 
-                  sx={{ 
-                    flex: 1, 
-                    overflowY: "auto", 
-                    pr: 1,
-                    maxHeight: 320,
-                    borderRadius: 2,
-                    bgcolor: isDark ? "grey.900" : "grey.50",
-                    p: 2,
-                  }}
-                >
-                  <Stack spacing={1.5}>
-                    {logs.length === 0 ? (
-                      <Typography color="text.disabled" variant="body2" fontStyle="italic" fontWeight={500}>
-                        Waiting for upload...
-                      </Typography>
-                    ) : null}
-                    {logs.map((line, idx) => (
-                      <Stack 
-                        key={idx} 
-                        direction="row" 
-                        spacing={1} 
-                        alignItems="flex-start"
-                        sx={{
-                          animation: "fadeIn 0.3s ease",
-                          "@keyframes fadeIn": {
-                            from: { opacity: 0, transform: "translateX(-8px)" },
-                            to: { opacity: 1, transform: "translateX(0)" },
-                          },
-                        }}
-                      >
-                        <Box
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      handleFile(e.dataTransfer.files?.[0]);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onClick={() => document.getElementById("file-input")?.click()}
+                  >
+                    <Stack spacing={3} alignItems="center">
+                      {/* Lottie Animation */}
+                      <Box sx={{ width: 120, height: 120 }}>
+                        {loading && processingAnimation ? (
+                          <Lottie animationData={processingAnimation} loop />
+                        ) : file && successAnimation ? (
+                          <Lottie animationData={successAnimation} loop={false} />
+                        ) : uploadAnimation ? (
+                          <Lottie animationData={uploadAnimation} loop />
+                        ) : (
+                          <Box
+                            sx={{
+                              width: "100%",
+                              height: "100%",
+                              borderRadius: "50%",
+                              bgcolor: alpha(theme.palette.primary.main, 0.1),
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <UploadCloud size={48} color={theme.palette.primary.main} />
+                          </Box>
+                        )}
+                      </Box>
+
+                      <Box>
+                        <Typography variant="h6" fontWeight={700} gutterBottom>
+                          {dropLabel}
+                        </Typography>
+                        {file && fileSize && (
+                          <Chip
+                            label={fileSize}
+                            size="small"
+                            color="success"
+                            sx={{ mb: 1 }}
+                          />
+                        )}
+                        <Typography variant="body2" color="text.secondary">
+                          or click to browse from your computer
+                        </Typography>
+                      </Box>
+
+                      <input
+                        type="file"
+                        accept="video/*,audio/*"
+                        style={{ display: "none" }}
+                        id="file-input"
+                        onChange={(e) => handleFile(e.target.files?.[0] || undefined)}
+                      />
+                    </Stack>
+                  </Box>
+
+                  {/* Supported Formats */}
+                  <Box sx={{ px: 3, pb: 3 }}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: "block" }}>
+                      SUPPORTED FORMATS
+                    </Typography>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      {SUPPORTED_FORMATS.map((format) => (
+                        <Chip
+                          key={format.ext}
+                          icon={<format.icon size={14} />}
+                          label={format.ext}
+                          size="small"
                           sx={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: "50%",
-                            bgcolor: "primary.main",
-                            mt: 0.8,
-                            flexShrink: 0,
+                            bgcolor: alpha(format.color, 0.1),
+                            color: format.color,
+                            fontWeight: 600,
+                            fontSize: "0.7rem",
+                            "& .MuiChip-icon": { color: format.color },
                           }}
                         />
-                        <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                          {line}
+                      ))}
+                    </Stack>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              {/* Settings Card */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  bgcolor: alpha(theme.palette.background.paper, 0.6),
+                  backdropFilter: "blur(20px)",
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 3 }}>
+                    Transcription Settings
+                  </Typography>
+
+                  <Grid container spacing={3}>
+                    {/* Model Selection */}
+                    <Grid item xs={12} md={6}>
+                      <Stack spacing={1.5}>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Zap size={16} color={theme.palette.primary.main} />
+                          <Typography variant="body2" fontWeight={600}>
+                            AI Model
+                          </Typography>
+                        </Stack>
+                        <TextField
+                          select
+                          fullWidth
+                          size="small"
+                          value={model}
+                          onChange={(e) => setModel(e.target.value)}
+                        >
+                          {WHISPER_MODELS.map((m) => (
+                            <MenuItem key={m.id} value={m.id}>
+                              <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                                <Typography>{m.name}</Typography>
+                                <Stack direction="row" spacing={1}>
+                                  {m.recommended && (
+                                    <Chip label="Recommended" size="small" color="primary" sx={{ height: 20, fontSize: "0.65rem" }} />
+                                  )}
+                                  <Typography variant="caption" color="text.secondary">
+                                    {m.accuracy}
+                                  </Typography>
+                                </Stack>
+                              </Stack>
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Stack>
+                    </Grid>
+
+                    {/* Language Selection */}
+                    <Grid item xs={12} md={6}>
+                      <Stack spacing={1.5}>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Languages size={16} color={theme.palette.secondary.main} />
+                          <Typography variant="body2" fontWeight={600}>
+                            Language
+                          </Typography>
+                        </Stack>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                          placeholder="Auto-detect (or: en, tr, es...)"
+                        />
+                      </Stack>
+                    </Grid>
+                  </Grid>
+
+                  {/* Progress Steps */}
+                  {loading && (
+                    <Box sx={{ mt: 4 }}>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+                        {PROCESSING_STEPS.map((step, index) => (
+                          <Stack key={step.id} alignItems="center" spacing={1} sx={{ flex: 1 }}>
+                            <Box
+                              sx={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: "50%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                bgcolor:
+                                  index < currentStep
+                                    ? "success.main"
+                                    : index === currentStep
+                                    ? "primary.main"
+                                    : alpha(theme.palette.divider, 0.2),
+                                color:
+                                  index <= currentStep ? "white" : "text.disabled",
+                                transition: "all 0.3s ease",
+                              }}
+                            >
+                              <step.icon size={18} />
+                            </Box>
+                            <Typography
+                              variant="caption"
+                              fontWeight={index === currentStep ? 700 : 500}
+                              color={index <= currentStep ? "text.primary" : "text.disabled"}
+                              sx={{ display: { xs: "none", sm: "block" } }}
+                            >
+                              {step.label}
+                            </Typography>
+                          </Stack>
+                        ))}
+                      </Stack>
+                      <LinearProgress
+                        variant="determinate"
+                        value={(currentStep / (PROCESSING_STEPS.length - 1)) * 100}
+                        sx={{
+                          height: 6,
+                          borderRadius: 3,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        }}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Action Button */}
+                  <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      disabled={!file || loading}
+                      onClick={startTranscription}
+                      endIcon={!loading && <ArrowRight size={18} />}
+                      sx={{
+                        py: 1.5,
+                        px: 4,
+                        borderRadius: 2,
+                        fontWeight: 700,
+                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                        "&:hover": {
+                          background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.secondary.dark} 100%)`,
+                        },
+                        "&:disabled": {
+                          background: alpha(theme.palette.divider, 0.3),
+                        },
+                      }}
+                    >
+                      {loading ? "Processing..." : "Start Transcription"}
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Stack>
+          </Grid>
+
+          {/* Sidebar */}
+          <Grid item xs={12} lg={4}>
+            <Stack spacing={3}>
+              {/* Usage Card */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  bgcolor: alpha(theme.palette.background.paper, 0.6),
+                  backdropFilter: "blur(20px)",
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1" fontWeight={700}>
+                      Usage This Month
+                    </Typography>
+                    <Chip
+                      label={MOCK_USAGE.plan}
+                      size="small"
+                      color="primary"
+                      sx={{ fontWeight: 700 }}
+                    />
+                  </Stack>
+
+                  <Box sx={{ mb: 2 }}>
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {MOCK_USAGE.used} / {MOCK_USAGE.limit} minutes
+                      </Typography>
+                      <Typography variant="body2" fontWeight={600}>
+                        {Math.round(usagePercentage)}%
+                      </Typography>
+                    </Stack>
+                    <LinearProgress
+                      variant="determinate"
+                      value={usagePercentage}
+                      sx={{
+                        height: 8,
+                        borderRadius: 4,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      }}
+                    />
+                  </Box>
+
+                  {usagePercentage >= 80 && (
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: alpha(theme.palette.warning.main, 0.1),
+                        border: `1px solid ${alpha(theme.palette.warning.main, 0.3)}`,
+                      }}
+                    >
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <AlertCircle size={16} color={theme.palette.warning.main} />
+                        <Typography variant="caption" color="warning.main" fontWeight={600}>
+                          Running low on minutes. Consider upgrading!
                         </Typography>
                       </Stack>
+                    </Box>
+                  )}
+
+                  <Button
+                    component={RouterLink}
+                    to="/pricing"
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                  >
+                    Upgrade Plan
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Recent Uploads Card */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  bgcolor: alpha(theme.palette.background.paper, 0.6),
+                  backdropFilter: "blur(20px)",
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1" fontWeight={700}>
+                      Recent Uploads
+                    </Typography>
+                    <Button
+                      component={RouterLink}
+                      to="/dashboard"
+                      size="small"
+                      endIcon={<ArrowRight size={14} />}
+                    >
+                      View All
+                    </Button>
+                  </Stack>
+
+                  <Stack spacing={2}>
+                    {MOCK_RECENT_UPLOADS.map((upload, index) => (
+                      <Box key={upload.id}>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                          <Avatar
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              bgcolor: alpha(theme.palette.primary.main, 0.1),
+                              color: "primary.main",
+                            }}
+                          >
+                            <FileVideo size={18} />
+                          </Avatar>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              noWrap
+                              sx={{ maxWidth: 180 }}
+                            >
+                              {upload.name}
+                            </Typography>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <Clock size={12} />
+                              <Typography variant="caption" color="text.secondary">
+                                {upload.duration}
+                              </Typography>
+                              <Typography variant="caption" color="text.disabled">
+                                •
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {upload.date}
+                              </Typography>
+                            </Stack>
+                          </Box>
+                          <Chip
+                            icon={<CheckCircle size={12} />}
+                            label="Done"
+                            size="small"
+                            color="success"
+                            sx={{ height: 24, fontSize: "0.65rem" }}
+                          />
+                        </Stack>
+                        {index < MOCK_RECENT_UPLOADS.length - 1 && (
+                          <Divider sx={{ mt: 2 }} />
+                        )}
+                      </Box>
                     ))}
                   </Stack>
-                </Box>
-              </GlassCard>
-            </AnimatedContainer>
+                </CardContent>
+              </Card>
+
+              {/* Tips Card */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+                    <Sparkles size={18} color={theme.palette.primary.main} />
+                    <Typography variant="subtitle1" fontWeight={700}>
+                      Pro Tips
+                    </Typography>
+                  </Stack>
+                  <Stack spacing={1.5}>
+                    <Typography variant="body2" color="text.secondary">
+                      • Use "Medium" model for best balance of speed & accuracy
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      • Clear audio without background music works best
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      • Set language manually for faster processing
+                    </Typography>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Stack>
           </Grid>
         </Grid>
       </Container>
