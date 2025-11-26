@@ -1,37 +1,47 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Box, Button, Container, Grid, Paper, Chip, Typography, Stack, Card, CardContent, CardMedia } from "@mui/material";
-import { Play, Upload, Sparkles, Rocket, SlidersHorizontal, ListChecks, Download } from "lucide-react";
+import { 
+  Box, 
+  Button, 
+  Container,
+  Grid, 
+  Typography, 
+  Stack, 
+  Card, 
+  CardContent, 
+  CardMedia,
+  Chip,
+  alpha,
+} from "@mui/material";
+import { 
+  Play, 
+  Upload, 
+  Sparkles, 
+  Rocket, 
+  SlidersHorizontal, 
+  ListChecks, 
+  Download,
+  Zap,
+  Palette,
+  Film,
+  FolderOpen,
+  ArrowRight,
+} from "lucide-react";
 import { ProjectMeta } from "../types";
+import { 
+  GlassCard, 
+  GradientButton, 
+  SectionHeader, 
+  FeatureCard,
+  AnimatedContainer,
+  EmptyState,
+  GradientText,
+} from "../components/ui";
+import { designTokens } from "../theme";
+
+const { colors, radii } = designTokens;
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
-
-const Feature = ({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) => (
-  <Paper variant="outlined" sx={{ p: 2.5, display: "flex", gap: 1.5, alignItems: "flex-start", bgcolor: "background.paper" }}>
-    <Box
-      sx={{
-        width: 42,
-        height: 42,
-        borderRadius: 2,
-        bgcolor: "primary.main",
-        color: "common.white",
-        display: "grid",
-        placeItems: "center",
-        boxShadow: "0 8px 20px rgba(123,142,244,0.35)",
-      }}
-    >
-      {icon}
-    </Box>
-    <Box>
-      <Typography variant="subtitle1" fontWeight={600}>
-        {title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {desc}
-      </Typography>
-    </Box>
-  </Paper>
-);
 
 export default function LandingPage() {
   const [projects, setProjects] = useState<ProjectMeta[]>([]);
@@ -123,49 +133,82 @@ export default function LandingPage() {
             </Stack>
           </Grid>
           <Grid item xs={12} md={5}>
-            <Paper
-              variant="outlined"
+            <GlassCard
+              glowEffect
               sx={{
                 p: 3,
-                borderRadius: 3,
-                backdropFilter: "blur(8px)",
-                boxShadow: "0 12px 36px rgba(0,0,0,0.3)",
+                borderRadius: radii.lg,
               }}
             >
               <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                 Highlights
               </Typography>
-              <Stack spacing={1} color="text.secondary" fontSize={14}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Rocket size={16} />
-                  <span>Fast preview/export pipeline (PyonFX)</span>
+              <Stack spacing={1.5}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ color: "text.secondary" }}>
+                  <Box sx={{ 
+                    width: 32, 
+                    height: 32, 
+                    borderRadius: radii.sm, 
+                    bgcolor: alpha(colors.brand.primary, 0.15),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colors.brand.primaryLight,
+                  }}>
+                    <Rocket size={16} />
+                  </Box>
+                  <Typography variant="body2">Fast preview/export pipeline (PyonFX)</Typography>
                 </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Sparkles size={16} />
-                  <span>Preset screenshots stored with projects</span>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ color: "text.secondary" }}>
+                  <Box sx={{ 
+                    width: 32, 
+                    height: 32, 
+                    borderRadius: radii.sm, 
+                    bgcolor: alpha(colors.brand.primary, 0.15),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colors.brand.primaryLight,
+                  }}>
+                    <Palette size={16} />
+                  </Box>
+                  <Typography variant="body2">Preset screenshots stored with projects</Typography>
                 </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Sparkles size={16} />
-                  <span>All effects migrated to new renderer</span>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ color: "text.secondary" }}>
+                  <Box sx={{ 
+                    width: 32, 
+                    height: 32, 
+                    borderRadius: radii.sm, 
+                    bgcolor: alpha(colors.brand.primary, 0.15),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colors.brand.primaryLight,
+                  }}>
+                    <Zap size={16} />
+                  </Box>
+                  <Typography variant="body2">All effects migrated to new renderer</Typography>
                 </Stack>
               </Stack>
-            </Paper>
+            </GlassCard>
           </Grid>
         </Grid>
 
         <Box sx={{ mt: 6 }}>
-          <Typography variant="h5" fontWeight={700} gutterBottom>
-            Why you’ll like it
-          </Typography>
+          <SectionHeader
+            title="Why you'll like it"
+            subtitle="Modern subtitle editing experience"
+            icon={<Sparkles size={18} />}
+          />
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
-              <Feature icon={<SlidersHorizontal size={18} />} title="Style-first" desc="PyonFX-based effects, live preview, and preset screenshots." />
+              <FeatureCard icon={<SlidersHorizontal size={22} />} title="Style-first" description="PyonFX-based effects, live preview, and preset screenshots." gradient />
             </Grid>
             <Grid item xs={12} md={4}>
-              <Feature icon={<ListChecks size={18} />} title="Organized projects" desc="Media, transcripts, and style configs persist together." />
+              <FeatureCard icon={<ListChecks size={22} />} title="Organized projects" description="Media, transcripts, and style configs persist together." />
             </Grid>
             <Grid item xs={12} md={4}>
-              <Feature icon={<Download size={18} />} title="Fast exports" desc="ASS render + ffmpeg burn pipeline kept lean and cached." />
+              <FeatureCard icon={<Download size={22} />} title="Fast exports" description="ASS render + ffmpeg burn pipeline kept lean and cached." />
             </Grid>
           </Grid>
         </Box>
@@ -192,9 +235,29 @@ export default function LandingPage() {
             </Button>
           </Stack>
           {projects.length === 0 ? (
-            <Paper variant="outlined" sx={{ p: 4, textAlign: "center", color: "text.secondary", borderStyle: "dashed" }}>
-              No projects yet. Start by uploading a video.
-            </Paper>
+            <GlassCard sx={{ py: 5, textAlign: "center" }}>
+              <EmptyState
+                icon={<FolderOpen size={36} />}
+                title="No projects yet"
+                description="Start by uploading a video to create your first project."
+                action={
+                  <Button
+                    component={Link}
+                    to="/upload"
+                    variant="contained"
+                    startIcon={<Upload size={18} />}
+                    sx={{
+                      background: colors.gradients.primary,
+                      "&:hover": { 
+                        background: `linear-gradient(135deg, ${colors.brand.primaryDark} 0%, ${colors.brand.primary} 100%)`,
+                      },
+                    }}
+                  >
+                    Upload Video
+                  </Button>
+                }
+              />
+            </GlassCard>
           ) : (
             <Grid container spacing={1}>
               {projects.slice(0, 6).map((project) => (

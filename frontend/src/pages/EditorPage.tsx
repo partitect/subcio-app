@@ -28,12 +28,16 @@ import {
   Tooltip,
   Snackbar,
   Alert,
+  alpha,
 } from "@mui/material";
 import JSOOverlay from "../components/JSOOverlay";
 import AudioSubtitleOverlay from "../components/AudioSubtitleOverlay";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { GlassCard, GradientButton } from "../components/ui";
+import { designTokens } from "../theme";
 import { ProjectMeta, StyleConfig, WordCue } from "../types";
 
+const { colors, radii } = designTokens;
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
 type Preset = StyleConfig & { label?: string };
