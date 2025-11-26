@@ -167,12 +167,53 @@ const categorizePreset = (preset: Preset): PresetCategory => {
 // Default background video for audio mode
 const DEFAULT_BG_VIDEO = "/audiobg/audio-bg-1.mp4";
 
-// Format time as mm:ss.ms
+// Format time as mm:ss.ms with fixed width (no layout shift)
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   const ms = Math.floor((seconds % 1) * 100);
-  return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+};
+
+// Generate timeline tick marks
+const generateTimelineTicks = (duration: number): { position: number; label: string; isMajor: boolean }[] => {
+  if (duration <= 0) return [];
+  
+  // Determine tick interval based on duration
+  let majorInterval: number;
+  let minorInterval: number;
+  
+  if (duration <= 30) {
+    majorInterval = 5;
+    minorInterval = 1;
+  } else if (duration <= 60) {
+    majorInterval = 10;
+    minorInterval = 2;
+  } else if (duration <= 180) {
+    majorInterval = 30;
+    minorInterval = 5;
+  } else if (duration <= 600) {
+    majorInterval = 60;
+    minorInterval = 10;
+  } else {
+    majorInterval = 120;
+    minorInterval = 30;
+  }
+  
+  const ticks: { position: number; label: string; isMajor: boolean }[] = [];
+  
+  for (let t = 0; t <= duration; t += minorInterval) {
+    const isMajor = t % majorInterval === 0;
+    const mins = Math.floor(t / 60);
+    const secs = Math.floor(t % 60);
+    ticks.push({
+      position: (t / duration) * 100,
+      label: isMajor ? `${mins}:${secs.toString().padStart(2, '0')}` : '',
+      isMajor,
+    });
+  }
+  
+  return ticks;
 };
 
 export default function EditorPage() {
@@ -1384,8 +1425,9 @@ export default function EditorPage() {
                 px: 2,
                 py: 1.5,
                 borderRadius: 2,
-                borderColor: "divider",
-                bgcolor: "background.paper",
+                borderColor: alpha(colors.border.default, 0.5),
+                bgcolor: alpha(colors.bg.paper, 0.95),
+                backdropFilter: "blur(8px)",
               }}
             >
               {/* Timeline Header */}
@@ -1393,180 +1435,335 @@ export default function EditorPage() {
                 direction="row"
                 alignItems="center"
                 justifyContent="space-between"
-                spacing={1}
+                spacing={2}
                 mb={1.5}
               >
-                {/* Left: Time Display */}
+                {/* Left: Time Display - Fixed width to prevent jumping */}
                 <Box
                   sx={{
-                    px: 1,
-                    py: 0.25,
+                    px: 1.5,
+                    py: 0.5,
                     borderRadius: 1,
-                    bgcolor: colors.bg.elevated,
-                    fontFamily: "monospace",
-                    fontSize: "0.75rem",
+                    bgcolor: alpha(colors.bg.elevated, 0.8),
+                    border: `1px solid ${alpha(colors.border.default, 0.3)}`,
+                    minWidth: 140,
+                    textAlign: "center",
                   }}
                 >
-                  <Typography component="span" sx={{ color: colors.brand.primary, fontWeight: 600 }}>
+                  <Typography 
+                    component="span" 
+                    sx={{ 
+                      fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      color: colors.brand.primary,
+                      letterSpacing: "0.5px",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
                     {formatTime(currentTime)}
                   </Typography>
-                  <Typography component="span" sx={{ color: "text.secondary" }}>
+                  <Typography 
+                    component="span" 
+                    sx={{ 
+                      fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace",
+                      fontSize: "0.75rem",
+                      color: alpha(colors.text.secondary, 0.6),
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
                     {" / "}{formatTime(totalDuration)}
                   </Typography>
                 </Box>
 
                 {/* Center: Playback Controls */}
                 <Stack direction="row" spacing={0.5} alignItems="center">
-                  <Tooltip title="5s Geri (←)">
-                    <IconButton size="small" onClick={() => mediaControls.skipBackward(5)}>
+                  <Tooltip title="5s Geri (←)" arrow>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => mediaControls.skipBackward(5)}
+                      sx={{
+                        color: colors.text.secondary,
+                        "&:hover": { color: colors.text.primary, bgcolor: alpha(colors.brand.primary, 0.1) },
+                      }}
+                    >
                       <SkipBack size={16} />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title={isPlaying ? "Duraklat (Space)" : "Oynat (Space)"}>
+                  <Tooltip title={isPlaying ? "Duraklat (Space)" : "Oynat (Space)"} arrow>
                     <IconButton 
                       size="small" 
                       onClick={mediaControls.toggle}
                       sx={{ 
-                        color: colors.brand.accent,
-                        bgcolor: alpha(colors.brand.accent, 0.15),
-                        "&:hover": { bgcolor: alpha(colors.brand.accent, 0.25) },
-                        width: 36,
-                        height: 36,
+                        color: "#fff",
+                        bgcolor: colors.brand.primary,
+                        "&:hover": { bgcolor: colors.brand.accent },
+                        width: 40,
+                        height: 40,
+                        boxShadow: `0 2px 8px ${alpha(colors.brand.primary, 0.4)}`,
+                        transition: "all 0.2s ease",
                       }}
                     >
-                      {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                      {isPlaying ? <Pause size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="5s İleri (→)">
-                    <IconButton size="small" onClick={() => mediaControls.skipForward(5)}>
+                  <Tooltip title="5s İleri (→)" arrow>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => mediaControls.skipForward(5)}
+                      sx={{
+                        color: colors.text.secondary,
+                        "&:hover": { color: colors.text.primary, bgcolor: alpha(colors.brand.primary, 0.1) },
+                      }}
+                    >
                       <SkipForward size={16} />
                     </IconButton>
                   </Tooltip>
                 </Stack>
 
-                {/* Right: Volume Control */}
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <Tooltip title={mediaState.muted ? "Sesi Aç (M)" : "Sessize Al (M)"}>
-                    <IconButton size="small" onClick={mediaControls.toggleMute}>
+                {/* Right: Volume Control with Slider */}
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 120 }}>
+                  <Tooltip title={mediaState.muted ? "Sesi Aç (M)" : "Sessize Al (M)"} arrow>
+                    <IconButton 
+                      size="small" 
+                      onClick={mediaControls.toggleMute}
+                      sx={{
+                        color: mediaState.muted ? colors.brand.accent : colors.text.secondary,
+                        "&:hover": { color: colors.text.primary },
+                      }}
+                    >
                       {mediaState.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                     </IconButton>
                   </Tooltip>
+                  <Box
+                    sx={{
+                      width: 60,
+                      height: 4,
+                      borderRadius: 2,
+                      bgcolor: alpha(colors.border.default, 0.3),
+                      position: "relative",
+                      cursor: "pointer",
+                    }}
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = e.clientX - rect.left;
+                      const volume = Math.max(0, Math.min(1, x / rect.width));
+                      mediaControls.setVolume(volume);
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: `${(mediaState.muted ? 0 : mediaState.volume) * 100}%`,
+                        borderRadius: 2,
+                        bgcolor: colors.brand.primary,
+                      }}
+                    />
+                  </Box>
                 </Stack>
               </Stack>
 
-              {/* Timeline Track - Using mouse events for seeking */}
-              <Box
-                onMouseDown={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const percentage = x / rect.width;
-                  const seekTime = percentage * totalDuration;
-                  handleSeek(Math.max(0, Math.min(totalDuration, seekTime)));
-                  
-                  // Enable dragging
-                  const handleMouseMove = (moveEvent: MouseEvent) => {
-                    const moveX = moveEvent.clientX - rect.left;
-                    const movePercentage = moveX / rect.width;
-                    const moveSeekTime = movePercentage * totalDuration;
-                    handleSeek(Math.max(0, Math.min(totalDuration, moveSeekTime)));
-                  };
-                  
-                  const handleMouseUp = () => {
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
-                  };
-                  
-                  document.addEventListener('mousemove', handleMouseMove);
-                  document.addEventListener('mouseup', handleMouseUp);
-                }}
-                sx={{
-                  position: "relative",
-                  height: 48,
-                  borderRadius: 1.5,
-                  bgcolor: colors.bg.elevated,
-                  overflow: "hidden",
-                  border: `1px solid ${colors.border.default}`,
-                  cursor: "pointer",
-                  userSelect: "none",
-                  "&:hover": {
-                    borderColor: colors.border.light,
-                  },
-                }}
-              >
-                {/* Progress Fill */}
+              {/* Timeline Track Container */}
+              <Box sx={{ position: "relative" }}>
+                {/* Time Ruler */}
                 <Box
                   sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    width: `${(currentTime / totalDuration) * 100}%`,
-                    background: `linear-gradient(90deg, ${alpha(colors.brand.primary, 0.2)} 0%, ${alpha(colors.brand.accent, 0.1)} 100%)`,
-                    pointerEvents: "none",
+                    position: "relative",
+                    height: 20,
+                    mb: 0.5,
+                    borderBottom: `1px solid ${alpha(colors.border.default, 0.2)}`,
                   }}
-                />
-
-                {/* Cue Blocks */}
-                {timelineCues.map((cue) => (
-                  <Tooltip 
-                    key={cue.key} 
-                    title={`${cue.text} (${cue.start.toFixed(2)}s - ${cue.end.toFixed(2)}s)`}
-                    placement="top"
-                  >
+                >
+                  {generateTimelineTicks(totalDuration).map((tick, idx) => (
                     <Box
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        handleSeek(cue.start);
-                      }}
+                      key={idx}
                       sx={{
                         position: "absolute",
-                        top: 8,
-                        bottom: 8,
-                        left: cue.left,
-                        width: cue.width,
-                        minWidth: 4,
-                        borderRadius: 0.5,
-                        bgcolor: cue.isActive ? colors.brand.accent : colors.brand.primary,
-                        opacity: cue.isActive ? 1 : 0.6,
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                        "&:hover": {
-                          opacity: 1,
-                          transform: "scaleY(1.1)",
-                        },
-                        ...(cue.isActive && {
-                          boxShadow: `0 0 10px ${alpha(colors.brand.accent, 0.5)}`,
-                        }),
+                        left: `${tick.position}%`,
+                        bottom: 0,
+                        transform: "translateX(-50%)",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
                       }}
-                    />
-                  </Tooltip>
-                ))}
+                    >
+                      {tick.label && (
+                        <Typography
+                          sx={{
+                            fontSize: "0.65rem",
+                            color: alpha(colors.text.secondary, 0.6),
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontVariantNumeric: "tabular-nums",
+                            mb: 0.25,
+                            userSelect: "none",
+                          }}
+                        >
+                          {tick.label}
+                        </Typography>
+                      )}
+                      <Box
+                        sx={{
+                          width: 1,
+                          height: tick.isMajor ? 8 : 4,
+                          bgcolor: alpha(colors.border.default, tick.isMajor ? 0.5 : 0.3),
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
 
-                {/* Playhead */}
+                {/* Main Timeline Track */}
                 <Box
+                  onMouseDown={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const percentage = x / rect.width;
+                    const seekTime = percentage * totalDuration;
+                    handleSeek(Math.max(0, Math.min(totalDuration, seekTime)));
+                    
+                    // Enable dragging
+                    const handleMouseMove = (moveEvent: MouseEvent) => {
+                      const moveX = moveEvent.clientX - rect.left;
+                      const movePercentage = moveX / rect.width;
+                      const moveSeekTime = movePercentage * totalDuration;
+                      handleSeek(Math.max(0, Math.min(totalDuration, moveSeekTime)));
+                    };
+                    
+                    const handleMouseUp = () => {
+                      document.removeEventListener('mousemove', handleMouseMove);
+                      document.removeEventListener('mouseup', handleMouseUp);
+                    };
+                    
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', handleMouseUp);
+                  }}
                   sx={{
-                    position: "absolute",
-                    top: 0,
-                    bottom: 0,
-                    left: `${(currentTime / totalDuration) * 100}%`,
-                    width: 2,
-                    bgcolor: "#fff",
-                    boxShadow: `0 0 8px ${alpha("#fff", 0.5)}`,
-                    zIndex: 10,
-                    pointerEvents: "none",
-                    "&::before": {
-                      content: '""',
-                      position: "absolute",
-                      top: -3,
-                      left: -4,
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      bgcolor: "#fff",
-                      boxShadow: `0 0 6px ${alpha(colors.brand.primary, 0.8)}`,
+                    position: "relative",
+                    height: 56,
+                    borderRadius: 1.5,
+                    bgcolor: alpha(colors.bg.elevated, 0.6),
+                    overflow: "hidden",
+                    border: `1px solid ${alpha(colors.border.default, 0.3)}`,
+                    cursor: "pointer",
+                    userSelect: "none",
+                    transition: "border-color 0.15s ease",
+                    "&:hover": {
+                      borderColor: alpha(colors.brand.primary, 0.4),
                     },
                   }}
-                />
+                >
+                  {/* Background Grid Pattern */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: `repeating-linear-gradient(90deg, ${alpha(colors.border.default, 0.1)} 0, ${alpha(colors.border.default, 0.1)} 1px, transparent 1px, transparent 10%)`,
+                      pointerEvents: "none",
+                    }}
+                  />
+
+                  {/* Progress Fill */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      bottom: 0,
+                      width: `${(currentTime / totalDuration) * 100}%`,
+                      background: `linear-gradient(90deg, ${alpha(colors.brand.primary, 0.15)} 0%, ${alpha(colors.brand.accent, 0.08)} 100%)`,
+                      pointerEvents: "none",
+                    }}
+                  />
+
+                  {/* Cue Blocks */}
+                  {timelineCues.map((cue) => (
+                    <Tooltip 
+                      key={cue.key} 
+                      title={
+                        <Box>
+                          <Typography variant="caption" fontWeight={600}>{cue.text}</Typography>
+                          <Typography variant="caption" display="block" sx={{ opacity: 0.7 }}>
+                            {formatTime(cue.start)} → {formatTime(cue.end)}
+                          </Typography>
+                        </Box>
+                      }
+                      placement="top"
+                      arrow
+                    >
+                      <Box
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          handleSeek(cue.start);
+                        }}
+                        sx={{
+                          position: "absolute",
+                          top: 10,
+                          bottom: 10,
+                          left: cue.left,
+                          width: cue.width,
+                          minWidth: 6,
+                          borderRadius: 1,
+                          bgcolor: cue.isActive ? colors.brand.accent : colors.brand.primary,
+                          opacity: cue.isActive ? 1 : 0.7,
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                          border: `1px solid ${alpha(cue.isActive ? colors.brand.accent : colors.brand.primary, 0.3)}`,
+                          "&:hover": {
+                            opacity: 1,
+                            transform: "scaleY(1.05)",
+                            zIndex: 5,
+                          },
+                          ...(cue.isActive && {
+                            boxShadow: `0 0 12px ${alpha(colors.brand.accent, 0.5)}, inset 0 0 20px ${alpha("#fff", 0.1)}`,
+                          }),
+                        }}
+                      />
+                    </Tooltip>
+                  ))}
+
+                  {/* Playhead */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      bottom: 0,
+                      left: `${(currentTime / totalDuration) * 100}%`,
+                      transform: "translateX(-50%)",
+                      width: 2,
+                      bgcolor: "#fff",
+                      boxShadow: `0 0 10px ${alpha("#fff", 0.6)}, 0 0 20px ${alpha(colors.brand.primary, 0.4)}`,
+                      zIndex: 10,
+                      pointerEvents: "none",
+                      "&::before": {
+                        content: '""',
+                        position: "absolute",
+                        top: -2,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: 0,
+                        height: 0,
+                        borderLeft: "6px solid transparent",
+                        borderRight: "6px solid transparent",
+                        borderTop: `8px solid ${colors.brand.primary}`,
+                      },
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        bottom: -2,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: 0,
+                        height: 0,
+                        borderLeft: "6px solid transparent",
+                        borderRight: "6px solid transparent",
+                        borderBottom: `8px solid ${colors.brand.primary}`,
+                      },
+                    }}
+                  />
+                </Box>
               </Box>
             </Paper>
           </Paper>
