@@ -25,6 +25,7 @@ import {
 import LoadingOverlay from "../components/LoadingOverlay";
 import { ProjectMeta, StyleConfig, WordCue } from "../types";
 import useMediaPlayer from "../hooks/useMediaPlayer";
+import { useKeyboardShortcuts, EDITOR_SHORTCUTS } from "../hooks";
 
 // Import modular components
 import {
@@ -560,6 +561,55 @@ export default function EditorPage() {
     }, 700);
     return () => clearTimeout(handle);
   }, [words, style, projectId]);
+
+  // Keyboard Shortcuts
+  useKeyboardShortcuts({
+    shortcuts: [
+      // Playback controls
+      {
+        ...EDITOR_SHORTCUTS.PLAY_PAUSE,
+        handler: () => mediaControls.toggle(),
+      },
+      {
+        ...EDITOR_SHORTCUTS.SEEK_FORWARD,
+        handler: () => mediaControls.skipForward(),
+      },
+      {
+        ...EDITOR_SHORTCUTS.SEEK_BACKWARD,
+        handler: () => mediaControls.skipBackward(),
+      },
+      {
+        ...EDITOR_SHORTCUTS.MUTE,
+        handler: () => mediaControls.toggleMute(),
+      },
+      {
+        ...EDITOR_SHORTCUTS.VOLUME_UP,
+        handler: () => mediaControls.setVolume(Math.min(1, mediaState.volume + 0.1)),
+      },
+      {
+        ...EDITOR_SHORTCUTS.VOLUME_DOWN,
+        handler: () => mediaControls.setVolume(Math.max(0, mediaState.volume - 0.1)),
+      },
+      // Save & Export
+      {
+        ...EDITOR_SHORTCUTS.SAVE,
+        handler: () => savePreset(),
+      },
+      {
+        ...EDITOR_SHORTCUTS.EXPORT,
+        handler: () => setShowRenderModal(true),
+      },
+      // UI Navigation
+      {
+        ...EDITOR_SHORTCUTS.ESCAPE,
+        handler: () => {
+          setShowRenderModal(false);
+          setShowBgSelector(false);
+        },
+        preventDefault: false,
+      },
+    ],
+  });
 
   return (
     <Box

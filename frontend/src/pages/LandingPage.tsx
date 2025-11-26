@@ -12,6 +12,9 @@ import {
   CardMedia,
   Chip,
   alpha,
+  IconButton,
+  Tooltip,
+  useTheme as useMuiTheme,
 } from "@mui/material";
 import { 
   Play, 
@@ -23,9 +26,9 @@ import {
   Download,
   Zap,
   Palette,
-  Film,
   FolderOpen,
-  ArrowRight,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { ProjectMeta } from "../types";
 import { 
@@ -35,16 +38,15 @@ import {
   FeatureCard,
   AnimatedContainer,
   EmptyState,
-  GradientText,
 } from "../components/ui";
-import { designTokens } from "../theme";
-
-const { colors, radii } = designTokens;
+import { useTheme } from "../ThemeContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
 export default function LandingPage() {
   const [projects, setProjects] = useState<ProjectMeta[]>([]);
+  const { mode, toggleTheme, isDark } = useTheme();
+  const muiTheme = useMuiTheme();
 
   useEffect(() => {
     fetch(`${API_BASE}/projects`)
@@ -70,13 +72,38 @@ export default function LandingPage() {
         overflow: "hidden",
       }}
     >
+      {/* Theme Toggle Button */}
+      <Tooltip title={isDark ? "Açık Tema" : "Koyu Tema"} arrow placement="left">
+        <IconButton
+          onClick={toggleTheme}
+          sx={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 1000,
+            bgcolor: alpha(muiTheme.palette.background.paper, 0.8),
+            backdropFilter: "blur(8px)",
+            border: `1px solid ${alpha(muiTheme.palette.divider, 0.3)}`,
+            color: "text.secondary",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              bgcolor: alpha(muiTheme.palette.background.paper, 0.95),
+              color: isDark ? "warning.main" : "primary.main",
+              transform: "rotate(15deg)",
+            },
+          }}
+        >
+          {isDark ? <Sun size={20} /> : <Moon size={20} />}
+        </IconButton>
+      </Tooltip>
+
       <Box
         sx={{
           position: "absolute",
           inset: 0,
-          background:
-            "radial-gradient(circle at 20% 20%, rgba(123,142,244,0.14), transparent 30%), radial-gradient(circle at 80% 10%, rgba(246,166,178,0.12), transparent 28%), radial-gradient(circle at 70% 80%, rgba(114,197,158,0.1), transparent 25%)",
-          filter: "blur(0px)",
+          background: isDark 
+            ? "radial-gradient(circle at 20% 20%, rgba(123,142,244,0.14), transparent 30%), radial-gradient(circle at 80% 10%, rgba(246,166,178,0.12), transparent 28%), radial-gradient(circle at 70% 80%, rgba(114,197,158,0.1), transparent 25%)"
+            : "radial-gradient(circle at 20% 20%, rgba(99,102,241,0.08), transparent 30%), radial-gradient(circle at 80% 10%, rgba(236,72,153,0.06), transparent 28%), radial-gradient(circle at 70% 80%, rgba(16,185,129,0.05), transparent 25%)",
           pointerEvents: "none",
         }}
       />
@@ -84,11 +111,20 @@ export default function LandingPage() {
         <Grid container spacing={4} alignItems="center">
           <Grid item xs={12} md={7}>
             <Stack spacing={2}>
-              <Chip label="PyonFX Subtitle Studio" color="primary" variant="outlined" sx={{ alignSelf: "flex-start", fontWeight: 600 }} />
+              <Chip 
+                label="PyonFX Subtitle Studio" 
+                color="primary" 
+                variant="outlined" 
+                sx={{ alignSelf: "flex-start", fontWeight: 600 }} 
+              />
               <Typography
                 variant="h2"
                 fontWeight={700}
-                sx={{ lineHeight: 1.1, fontSize: { xs: "2.1rem", sm: "2.6rem", md: "3rem" } }}
+                sx={{ 
+                  lineHeight: 1.1, 
+                  fontSize: { xs: "2.1rem", sm: "2.6rem", md: "3rem" },
+                  color: "text.primary",
+                }}
               >
                 Style-rich captions with{" "}
                 <Box component="span" sx={{ color: "primary.main" }}>
@@ -96,7 +132,7 @@ export default function LandingPage() {
                 </Box>{" "}
                 feedback
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 620 }}>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 620, fontWeight: 500 }}>
                 Upload, transcribe, style, and export without leaving the browser. Saved projects keep your media, transcripts, and presets together.
               </Typography>
               <Stack
@@ -111,7 +147,11 @@ export default function LandingPage() {
                   startIcon={<Upload size={18} />}
                   component={Link}
                   to="/upload"
-                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                  sx={{ 
+                    width: { xs: "100%", sm: "auto" },
+                    borderRadius: 2,
+                    fontWeight: 600,
+                  }}
                 >
                   Get Started
                 </Button>
@@ -121,13 +161,17 @@ export default function LandingPage() {
                   startIcon={<Play size={18} />}
                   component={Link}
                   to="/editor/demo"
-                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                  sx={{ 
+                    width: { xs: "100%", sm: "auto" },
+                    borderRadius: 2,
+                    fontWeight: 600,
+                  }}
                 >
                   Open Demo
                 </Button>
                 <Stack direction="row" spacing={1} alignItems="center" sx={{ color: "text.secondary" }}>
                   <Sparkles size={16} />
-                  <Typography variant="body2">All PyonFX presets included</Typography>
+                  <Typography variant="body2" fontWeight={500}>All PyonFX presets included</Typography>
                 </Stack>
               </Stack>
             </Stack>
@@ -137,58 +181,40 @@ export default function LandingPage() {
               glowEffect
               sx={{
                 p: 3,
-                borderRadius: radii.lg,
+                borderRadius: 3,
               }}
             >
               <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                 Highlights
               </Typography>
               <Stack spacing={1.5}>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ color: "text.secondary" }}>
-                  <Box sx={{ 
-                    width: 32, 
-                    height: 32, 
-                    borderRadius: radii.sm, 
-                    bgcolor: alpha(colors.brand.primary, 0.15),
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: colors.brand.primaryLight,
-                  }}>
-                    <Rocket size={16} />
-                  </Box>
-                  <Typography variant="body2">Fast preview/export pipeline (PyonFX)</Typography>
-                </Stack>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ color: "text.secondary" }}>
-                  <Box sx={{ 
-                    width: 32, 
-                    height: 32, 
-                    borderRadius: radii.sm, 
-                    bgcolor: alpha(colors.brand.primary, 0.15),
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: colors.brand.primaryLight,
-                  }}>
-                    <Palette size={16} />
-                  </Box>
-                  <Typography variant="body2">Preset screenshots stored with projects</Typography>
-                </Stack>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ color: "text.secondary" }}>
-                  <Box sx={{ 
-                    width: 32, 
-                    height: 32, 
-                    borderRadius: radii.sm, 
-                    bgcolor: alpha(colors.brand.primary, 0.15),
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: colors.brand.primaryLight,
-                  }}>
-                    <Zap size={16} />
-                  </Box>
-                  <Typography variant="body2">All effects migrated to new renderer</Typography>
-                </Stack>
+                {[
+                  { icon: <Rocket size={16} />, text: "Fast preview/export pipeline (PyonFX)" },
+                  { icon: <Palette size={16} />, text: "Preset screenshots stored with projects" },
+                  { icon: <Zap size={16} />, text: "All effects migrated to new renderer" },
+                ].map((item, idx) => (
+                  <Stack 
+                    key={idx}
+                    direction="row" 
+                    spacing={1.5} 
+                    alignItems="center" 
+                    sx={{ color: "text.secondary" }}
+                  >
+                    <Box sx={{ 
+                      width: 32, 
+                      height: 32, 
+                      borderRadius: 1, 
+                      bgcolor: alpha(muiTheme.palette.primary.main, 0.15),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "primary.main",
+                    }}>
+                      {item.icon}
+                    </Box>
+                    <Typography variant="body2" fontWeight={500}>{item.text}</Typography>
+                  </Stack>
+                ))}
               </Stack>
             </GlassCard>
           </Grid>
@@ -229,7 +255,10 @@ export default function LandingPage() {
               to="/upload"
               size="small"
               color="primary"
-              sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}
+              sx={{ 
+                alignSelf: { xs: "flex-start", sm: "center" },
+                fontWeight: 600,
+              }}
             >
               New Project →
             </Button>
@@ -247,10 +276,8 @@ export default function LandingPage() {
                     variant="contained"
                     startIcon={<Upload size={18} />}
                     sx={{
-                      background: colors.gradients.primary,
-                      "&:hover": { 
-                        background: `linear-gradient(135deg, ${colors.brand.primaryDark} 0%, ${colors.brand.primary} 100%)`,
-                      },
+                      borderRadius: 2,
+                      fontWeight: 600,
                     }}
                   >
                     Upload Video
@@ -269,8 +296,15 @@ export default function LandingPage() {
                       textDecoration: "none",
                       bgcolor: "background.paper",
                       border: "none",
-                      boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
-                      "&:hover": { boxShadow: "0 12px 28px rgba(123,142,244,0.2)" },
+                      borderRadius: 2,
+                      boxShadow: isDark 
+                        ? "0 10px 24px rgba(0,0,0,0.3)" 
+                        : "0 4px 16px rgba(0,0,0,0.08)",
+                      transition: "all 0.2s ease",
+                      "&:hover": { 
+                        boxShadow: "0 12px 28px rgba(99,102,241,0.2)",
+                        transform: "translateY(-2px)",
+                      },
                     }}
                   >
                     {project.thumb_url ? (
@@ -282,14 +316,22 @@ export default function LandingPage() {
                         sx={{ objectFit: "cover" }}
                       />
                     ) : (
-                      <Box sx={{ height: 120, display: "grid", placeItems: "center", color: "text.secondary" }}>No thumbnail</Box>
+                      <Box sx={{ 
+                        height: 120, 
+                        display: "grid", 
+                        placeItems: "center", 
+                        color: "text.secondary",
+                        bgcolor: isDark ? "grey.900" : "grey.100",
+                      }}>
+                        No thumbnail
+                      </Box>
                     )}
                     <CardContent sx={{ py: 1.5, px: 1.5 }}>
                       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.5}>
-                        <Typography fontWeight={600}>{project.name}</Typography>
+                        <Typography fontWeight={600} color="text.primary">{project.name}</Typography>
                         <Chip label={project.id.slice(0, 6)} size="small" color="primary" variant="outlined" />
                       </Stack>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary" fontWeight={500}>
                         {project.created_at ? new Date(project.created_at).toLocaleString() : "Unknown date"}
                       </Typography>
                     </CardContent>

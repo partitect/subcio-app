@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { UploadCloud, PlayCircle, Languages, CheckCircle, Loader2, FileVideo, ArrowRight } from "lucide-react";
+import { UploadCloud, PlayCircle, Languages, CheckCircle, Loader2, FileVideo, ArrowRight, Sun, Moon } from "lucide-react";
 import {
   Box,
   Button,
@@ -13,12 +13,14 @@ import {
   MenuItem,
   LinearProgress,
   alpha,
+  IconButton,
+  Tooltip,
+  useTheme as useMuiTheme,
 } from "@mui/material";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { GlassCard, GradientButton, AnimatedContainer, SectionHeader } from "../components/ui";
-import { designTokens } from "../theme";
+import { useTheme } from "../ThemeContext";
 
-const { colors, radii } = designTokens;
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 const models = ["tiny", "base", "small", "medium", "large-v2", "large-v3", "distil-large-v3", "turbo"];
 
@@ -29,6 +31,8 @@ export default function UploadPage() {
   const [model, setModel] = useState<string>("medium");
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+  const { mode, toggleTheme, isDark } = useTheme();
+  const muiTheme = useMuiTheme();
 
   const dropLabel = useMemo(() => (file ? file.name : "Drop a video or audio file here"), [file]);
 
@@ -74,12 +78,39 @@ export default function UploadPage() {
         position: "relative",
       }}
     >
+      {/* Theme Toggle Button */}
+      <Tooltip title={isDark ? "Açık Tema" : "Koyu Tema"} arrow placement="left">
+        <IconButton
+          onClick={toggleTheme}
+          sx={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 1000,
+            bgcolor: alpha(muiTheme.palette.background.paper, 0.8),
+            backdropFilter: "blur(8px)",
+            border: `1px solid ${alpha(muiTheme.palette.divider, 0.3)}`,
+            color: "text.secondary",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              bgcolor: alpha(muiTheme.palette.background.paper, 0.95),
+              color: isDark ? "warning.main" : "primary.main",
+              transform: "rotate(15deg)",
+            },
+          }}
+        >
+          {isDark ? <Sun size={20} /> : <Moon size={20} />}
+        </IconButton>
+      </Tooltip>
+
       {/* Background Gradient */}
       <Box
         sx={{
           position: "absolute",
           inset: 0,
-          background: colors.gradients.hero,
+          background: isDark 
+            ? "radial-gradient(circle at 30% 30%, rgba(99,102,241,0.08), transparent 50%)"
+            : "radial-gradient(circle at 30% 30%, rgba(99,102,241,0.04), transparent 50%)",
           pointerEvents: "none",
         }}
       />
@@ -104,16 +135,16 @@ export default function UploadPage() {
                   sx={{
                     p: { xs: 4, md: 5 },
                     textAlign: "center",
-                    borderRadius: radii.lg,
-                    border: `2px dashed ${file ? colors.status.success : colors.border.light}`,
+                    borderRadius: 3,
+                    border: `2px dashed ${file ? muiTheme.palette.success.main : muiTheme.palette.divider}`,
                     bgcolor: file 
-                      ? alpha(colors.status.success, 0.05) 
-                      : alpha(colors.brand.primary, 0.03),
+                      ? alpha(muiTheme.palette.success.main, 0.05) 
+                      : alpha(muiTheme.palette.primary.main, 0.03),
                     cursor: "pointer",
                     transition: "all 0.3s ease",
                     "&:hover": { 
-                      borderColor: colors.brand.primary,
-                      bgcolor: alpha(colors.brand.primary, 0.06),
+                      borderColor: muiTheme.palette.primary.main,
+                      bgcolor: alpha(muiTheme.palette.primary.main, 0.06),
                     },
                   }}
                   onDrop={(e) => {
@@ -129,12 +160,12 @@ export default function UploadPage() {
                         height: 64,
                         borderRadius: "50%",
                         bgcolor: file 
-                          ? alpha(colors.status.success, 0.15) 
-                          : alpha(colors.brand.primary, 0.1),
+                          ? alpha(muiTheme.palette.success.main, 0.15) 
+                          : alpha(muiTheme.palette.primary.main, 0.1),
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: file ? colors.status.success : colors.brand.primary,
+                        color: file ? "success.main" : "primary.main",
                         transition: "all 0.3s ease",
                       }}
                     >
@@ -142,10 +173,10 @@ export default function UploadPage() {
                     </Box>
                     
                     <Box>
-                      <Typography variant="h6" fontWeight={600} gutterBottom>
+                      <Typography variant="h6" fontWeight={600} gutterBottom color="text.primary">
                         {dropLabel}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" fontWeight={500}>
                         Supports MP4, MOV, WAV, MP3
                       </Typography>
                     </Box>
@@ -163,8 +194,9 @@ export default function UploadPage() {
                         variant="outlined" 
                         size="small"
                         sx={{ 
-                          borderRadius: radii.full,
+                          borderRadius: 5,
                           px: 3,
+                          fontWeight: 600,
                         }}
                       >
                         Choose file
@@ -179,9 +211,9 @@ export default function UploadPage() {
                     <Box
                       sx={{
                         p: 2,
-                        borderRadius: radii.md,
-                        bgcolor: colors.bg.elevated,
-                        border: `1px solid ${colors.border.default}`,
+                        borderRadius: 2,
+                        bgcolor: isDark ? "grey.900" : "grey.50",
+                        border: `1px solid ${muiTheme.palette.divider}`,
                       }}
                     >
                       <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
@@ -189,17 +221,17 @@ export default function UploadPage() {
                           sx={{
                             width: 28,
                             height: 28,
-                            borderRadius: radii.sm,
-                            bgcolor: alpha(colors.brand.primary, 0.15),
+                            borderRadius: 1,
+                            bgcolor: alpha(muiTheme.palette.primary.main, 0.15),
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: colors.brand.primaryLight,
+                            color: "primary.main",
                           }}
                         >
                           <PlayCircle size={14} />
                         </Box>
-                        <Typography fontWeight={600} variant="body2">
+                        <Typography fontWeight={600} variant="body2" color="text.primary">
                           Whisper Model
                         </Typography>
                       </Stack>
@@ -223,9 +255,9 @@ export default function UploadPage() {
                     <Box
                       sx={{
                         p: 2,
-                        borderRadius: radii.md,
-                        bgcolor: colors.bg.elevated,
-                        border: `1px solid ${colors.border.default}`,
+                        borderRadius: 2,
+                        bgcolor: isDark ? "grey.900" : "grey.50",
+                        border: `1px solid ${muiTheme.palette.divider}`,
                       }}
                     >
                       <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
@@ -233,17 +265,17 @@ export default function UploadPage() {
                           sx={{
                             width: 28,
                             height: 28,
-                            borderRadius: radii.sm,
-                            bgcolor: alpha(colors.brand.secondary, 0.15),
+                            borderRadius: 1,
+                            bgcolor: alpha(muiTheme.palette.secondary.main, 0.15),
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: colors.brand.secondaryLight,
+                            color: "secondary.main",
                           }}
                         >
                           <Languages size={14} />
                         </Box>
-                        <Typography fontWeight={600} variant="body2">
+                        <Typography fontWeight={600} variant="body2" color="text.primary">
                           Language
                         </Typography>
                       </Stack>
@@ -261,9 +293,9 @@ export default function UploadPage() {
                     <Box
                       sx={{
                         p: 2,
-                        borderRadius: radii.md,
-                        bgcolor: colors.bg.elevated,
-                        border: `1px solid ${colors.border.default}`,
+                        borderRadius: 2,
+                        bgcolor: isDark ? "grey.900" : "grey.50",
+                        border: `1px solid ${muiTheme.palette.divider}`,
                       }}
                     >
                       <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
@@ -271,23 +303,23 @@ export default function UploadPage() {
                           sx={{
                             width: 28,
                             height: 28,
-                            borderRadius: radii.sm,
+                            borderRadius: 1,
                             bgcolor: loading 
-                              ? alpha(colors.status.warning, 0.15) 
-                              : alpha(colors.status.success, 0.15),
+                              ? alpha(muiTheme.palette.warning.main, 0.15) 
+                              : alpha(muiTheme.palette.success.main, 0.15),
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: loading ? colors.status.warning : colors.status.success,
+                            color: loading ? "warning.main" : "success.main",
                           }}
                         >
                           {loading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
                         </Box>
-                        <Typography fontWeight={600} variant="body2">
+                        <Typography fontWeight={600} variant="body2" color="text.primary">
                           Status
                         </Typography>
                       </Stack>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" fontWeight={500}>
                         {loading ? "Processing..." : "Ready to transcribe"}
                       </Typography>
                     </Box>
@@ -299,7 +331,7 @@ export default function UploadPage() {
                     <LinearProgress 
                       color="primary" 
                       sx={{ 
-                        borderRadius: radii.full,
+                        borderRadius: 5,
                         height: 6,
                       }} 
                     />
@@ -346,11 +378,11 @@ export default function UploadPage() {
                       width: 8,
                       height: 8,
                       borderRadius: "50%",
-                      bgcolor: logs.length > 0 ? colors.status.success : colors.text.disabled,
-                      boxShadow: logs.length > 0 ? `0 0 8px ${colors.status.success}` : "none",
+                      bgcolor: logs.length > 0 ? "success.main" : "text.disabled",
+                      boxShadow: logs.length > 0 ? `0 0 8px ${muiTheme.palette.success.main}` : "none",
                     }}
                   />
-                  <Typography variant="h6" fontWeight={700}>
+                  <Typography variant="h6" fontWeight={700} color="text.primary">
                     Progress Log
                   </Typography>
                 </Stack>
@@ -361,14 +393,14 @@ export default function UploadPage() {
                     overflowY: "auto", 
                     pr: 1,
                     maxHeight: 320,
-                    borderRadius: radii.md,
-                    bgcolor: colors.bg.elevated,
+                    borderRadius: 2,
+                    bgcolor: isDark ? "grey.900" : "grey.50",
                     p: 2,
                   }}
                 >
                   <Stack spacing={1.5}>
                     {logs.length === 0 ? (
-                      <Typography color="text.disabled" variant="body2" fontStyle="italic">
+                      <Typography color="text.disabled" variant="body2" fontStyle="italic" fontWeight={500}>
                         Waiting for upload...
                       </Typography>
                     ) : null}
@@ -391,12 +423,12 @@ export default function UploadPage() {
                             width: 6,
                             height: 6,
                             borderRadius: "50%",
-                            bgcolor: colors.brand.primary,
+                            bgcolor: "primary.main",
                             mt: 0.8,
                             flexShrink: 0,
                           }}
                         />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" fontWeight={500}>
                           {line}
                         </Typography>
                       </Stack>

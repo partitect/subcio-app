@@ -1,4 +1,4 @@
-import { memo, RefObject } from "react";
+import { memo, RefObject, VideoHTMLAttributes, AudioHTMLAttributes } from "react";
 import { Box, Stack, Typography, alpha } from "@mui/material";
 import { Pause, Play } from "lucide-react";
 import JSOOverlay from "../JSOOverlay";
@@ -16,9 +16,9 @@ interface VideoPlayerProps {
   overlayFonts: string[];
   isPlaying: boolean;
   onTogglePlay: () => void;
-  getVideoProps: () => Record<string, unknown>;
-  getAudioProps: () => Record<string, unknown>;
-  getBgVideoProps: () => Record<string, unknown>;
+  getVideoProps: () => VideoHTMLAttributes<HTMLVideoElement>;
+  getAudioProps: () => AudioHTMLAttributes<HTMLAudioElement>;
+  getBgVideoProps: () => VideoHTMLAttributes<HTMLVideoElement>;
 }
 
 /**

@@ -1,10 +1,8 @@
 import { memo, useCallback } from "react";
-import { Box, IconButton, Paper, Stack, Tooltip, Typography, alpha } from "@mui/material";
+import { Box, IconButton, Paper, Stack, Tooltip, Typography, useTheme as useMuiTheme } from "@mui/material";
 import { Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
-import { designTokens } from "../../theme";
 import { formatTime, generateTimelineTicks, TimelineTick } from "../../utils/timeFormat";
-
-const { colors } = designTokens;
+import { useTheme } from "../../ThemeContext";
 
 interface TimelineCue {
   key: string;
@@ -49,6 +47,9 @@ function TimelineComponent({
   onSkipBackward,
   onSkipForward,
 }: TimelineProps) {
+  const muiTheme = useMuiTheme();
+  const { isDark } = useTheme();
+
   /**
    * Handle timeline click/drag for seeking
    */
@@ -97,13 +98,14 @@ function TimelineComponent({
 
   return (
     <Paper
-      variant="outlined"
+      elevation={0}
       sx={{
-        px: 2,
-        py: 1.5,
-        borderRadius: 2,
-        borderColor: alpha(colors.border.default, 0.5),
-        bgcolor: alpha(colors.bg.paper, 0.95),
+        px: 2.5,
+        py: 2,
+        borderRadius: 3,
+        border: 1,
+        borderColor: "divider",
+        bgcolor: isDark ? "rgba(15, 23, 42, 0.6)" : "rgba(255, 255, 255, 0.9)",
         backdropFilter: "blur(8px)",
       }}
     >
@@ -113,17 +115,18 @@ function TimelineComponent({
         alignItems="center"
         justifyContent="space-between"
         spacing={2}
-        mb={1.5}
+        mb={2}
       >
         {/* Left: Time Display */}
         <Box
           sx={{
-            px: 1.5,
-            py: 0.5,
-            borderRadius: 1,
-            bgcolor: alpha(colors.bg.elevated, 0.8),
-            border: `1px solid ${alpha(colors.border.default, 0.3)}`,
-            minWidth: 140,
+            px: 2,
+            py: 0.75,
+            borderRadius: 2,
+            bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+            border: 1,
+            borderColor: "divider",
+            minWidth: 150,
             textAlign: "center",
           }}
         >
@@ -131,9 +134,9 @@ function TimelineComponent({
             component="span"
             sx={{
               fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace",
-              fontSize: "0.85rem",
+              fontSize: "0.9rem",
               fontWeight: 600,
-              color: colors.brand.primary,
+              color: "primary.main",
               letterSpacing: "0.5px",
               fontVariantNumeric: "tabular-nums",
             }}
@@ -144,8 +147,8 @@ function TimelineComponent({
             component="span"
             sx={{
               fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace",
-              fontSize: "0.75rem",
-              color: alpha(colors.text.secondary, 0.6),
+              fontSize: "0.8rem",
+              color: "text.secondary",
               fontVariantNumeric: "tabular-nums",
             }}
           >
@@ -155,38 +158,40 @@ function TimelineComponent({
         </Box>
 
         {/* Center: Playback Controls */}
-        <Stack direction="row" spacing={0.5} alignItems="center">
+        <Stack direction="row" spacing={1} alignItems="center">
           <Tooltip title="5s Geri (←)" arrow>
             <IconButton
               size="small"
               onClick={() => onSkipBackward(5)}
               sx={{
-                color: colors.text.secondary,
+                color: "text.secondary",
+                borderRadius: 2,
                 "&:hover": {
-                  color: colors.text.primary,
-                  bgcolor: alpha(colors.brand.primary, 0.1),
+                  color: "text.primary",
+                  bgcolor: isDark ? "rgba(99, 102, 241, 0.15)" : "rgba(99, 102, 241, 0.1)",
                 },
               }}
             >
-              <SkipBack size={16} />
+              <SkipBack size={18} />
             </IconButton>
           </Tooltip>
 
           <Tooltip title={isPlaying ? "Duraklat (Space)" : "Oynat (Space)"} arrow>
             <IconButton
-              size="small"
+              size="medium"
               onClick={onTogglePlay}
               sx={{
                 color: "#fff",
-                bgcolor: colors.brand.primary,
-                "&:hover": { bgcolor: colors.brand.accent },
-                width: 40,
-                height: 40,
-                boxShadow: `0 2px 8px ${alpha(colors.brand.primary, 0.4)}`,
+                bgcolor: "primary.main",
+                "&:hover": { bgcolor: "secondary.main" },
+                width: 44,
+                height: 44,
+                borderRadius: 2.5,
+                boxShadow: `0 4px 12px ${isDark ? "rgba(99, 102, 241, 0.4)" : "rgba(99, 102, 241, 0.3)"}`,
                 transition: "all 0.2s ease",
               }}
             >
-              {isPlaying ? <Pause size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
+              {isPlaying ? <Pause size={22} /> : <Play size={22} style={{ marginLeft: 2 }} />}
             </IconButton>
           </Tooltip>
 
@@ -195,40 +200,42 @@ function TimelineComponent({
               size="small"
               onClick={() => onSkipForward(5)}
               sx={{
-                color: colors.text.secondary,
+                color: "text.secondary",
+                borderRadius: 2,
                 "&:hover": {
-                  color: colors.text.primary,
-                  bgcolor: alpha(colors.brand.primary, 0.1),
+                  color: "text.primary",
+                  bgcolor: isDark ? "rgba(99, 102, 241, 0.15)" : "rgba(99, 102, 241, 0.1)",
                 },
               }}
             >
-              <SkipForward size={16} />
+              <SkipForward size={18} />
             </IconButton>
           </Tooltip>
         </Stack>
 
         {/* Right: Volume Control */}
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 120 }}>
+        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 130 }}>
           <Tooltip title={muted ? "Sesi Aç (M)" : "Sessize Al (M)"} arrow>
             <IconButton
               size="small"
               onClick={onToggleMute}
               sx={{
-                color: muted ? colors.brand.accent : colors.text.secondary,
-                "&:hover": { color: colors.text.primary },
+                color: muted ? "secondary.main" : "text.secondary",
+                borderRadius: 2,
+                "&:hover": { color: "text.primary" },
               }}
             >
-              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
             </IconButton>
           </Tooltip>
 
           <Box
             onClick={handleVolumeClick}
             sx={{
-              width: 60,
-              height: 4,
-              borderRadius: 2,
-              bgcolor: alpha(colors.border.default, 0.3),
+              width: 70,
+              height: 6,
+              borderRadius: 3,
+              bgcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
               position: "relative",
               cursor: "pointer",
             }}
@@ -240,8 +247,8 @@ function TimelineComponent({
                 top: 0,
                 bottom: 0,
                 width: `${(muted ? 0 : volume) * 100}%`,
-                borderRadius: 2,
-                bgcolor: colors.brand.primary,
+                borderRadius: 3,
+                bgcolor: "primary.main",
               }}
             />
           </Box>
@@ -254,9 +261,10 @@ function TimelineComponent({
         <Box
           sx={{
             position: "relative",
-            height: 20,
-            mb: 0.5,
-            borderBottom: `1px solid ${alpha(colors.border.default, 0.2)}`,
+            height: 24,
+            mb: 1,
+            borderBottom: 1,
+            borderColor: "divider",
           }}
         >
           {ticks.map((tick: TimelineTick, idx: number) => (
@@ -275,11 +283,11 @@ function TimelineComponent({
               {tick.label && (
                 <Typography
                   sx={{
-                    fontSize: "0.65rem",
-                    color: alpha(colors.text.secondary, 0.6),
+                    fontSize: "0.7rem",
+                    color: "text.secondary",
                     fontFamily: "'JetBrains Mono', monospace",
                     fontVariantNumeric: "tabular-nums",
-                    mb: 0.25,
+                    mb: 0.5,
                     userSelect: "none",
                   }}
                 >
@@ -289,8 +297,10 @@ function TimelineComponent({
               <Box
                 sx={{
                   width: 1,
-                  height: tick.isMajor ? 8 : 4,
-                  bgcolor: alpha(colors.border.default, tick.isMajor ? 0.5 : 0.3),
+                  height: tick.isMajor ? 10 : 5,
+                  bgcolor: isDark 
+                    ? tick.isMajor ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)" 
+                    : tick.isMajor ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)",
                 }}
               />
             </Box>
@@ -302,16 +312,17 @@ function TimelineComponent({
           onMouseDown={handleTimelineMouseDown}
           sx={{
             position: "relative",
-            height: 56,
-            borderRadius: 1.5,
-            bgcolor: alpha(colors.bg.elevated, 0.6),
+            height: 64,
+            borderRadius: 2,
+            bgcolor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
             overflow: "hidden",
-            border: `1px solid ${alpha(colors.border.default, 0.3)}`,
+            border: 1,
+            borderColor: "divider",
             cursor: "pointer",
             userSelect: "none",
             transition: "border-color 0.15s ease",
             "&:hover": {
-              borderColor: alpha(colors.brand.primary, 0.4),
+              borderColor: "primary.main",
             },
           }}
         >
@@ -320,7 +331,9 @@ function TimelineComponent({
             sx={{
               position: "absolute",
               inset: 0,
-              backgroundImage: `repeating-linear-gradient(90deg, ${alpha(colors.border.default, 0.1)} 0, ${alpha(colors.border.default, 0.1)} 1px, transparent 1px, transparent 10%)`,
+              backgroundImage: isDark
+                ? `repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10%)`
+                : `repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 10%)`,
               pointerEvents: "none",
             }}
           />
@@ -333,7 +346,9 @@ function TimelineComponent({
               left: 0,
               bottom: 0,
               width: `${playheadPosition}%`,
-              background: `linear-gradient(90deg, ${alpha(colors.brand.primary, 0.15)} 0%, ${alpha(colors.brand.accent, 0.08)} 100%)`,
+              background: isDark
+                ? `linear-gradient(90deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.1) 100%)`
+                : `linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.08) 100%)`,
               pointerEvents: "none",
             }}
           />
@@ -362,24 +377,27 @@ function TimelineComponent({
                 }}
                 sx={{
                   position: "absolute",
-                  top: 10,
-                  bottom: 10,
+                  top: 12,
+                  bottom: 12,
                   left: cue.left,
                   width: cue.width,
-                  minWidth: 6,
-                  borderRadius: 1,
-                  bgcolor: cue.isActive ? colors.brand.accent : colors.brand.primary,
-                  opacity: cue.isActive ? 1 : 0.7,
+                  minWidth: 8,
+                  borderRadius: 1.5,
+                  bgcolor: cue.isActive ? "secondary.main" : "primary.main",
+                  opacity: cue.isActive ? 1 : 0.75,
                   cursor: "pointer",
                   transition: "all 0.15s ease",
-                  border: `1px solid ${alpha(cue.isActive ? colors.brand.accent : colors.brand.primary, 0.3)}`,
+                  border: 1,
+                  borderColor: cue.isActive 
+                    ? "secondary.light" 
+                    : isDark ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.4)",
                   "&:hover": {
                     opacity: 1,
-                    transform: "scaleY(1.05)",
+                    transform: "scaleY(1.08)",
                     zIndex: 5,
                   },
                   ...(cue.isActive && {
-                    boxShadow: `0 0 12px ${alpha(colors.brand.accent, 0.5)}, inset 0 0 20px ${alpha("#fff", 0.1)}`,
+                    boxShadow: `0 0 16px ${isDark ? "rgba(236, 72, 153, 0.5)" : "rgba(236, 72, 153, 0.4)"}`,
                   }),
                 }}
               />
@@ -394,34 +412,37 @@ function TimelineComponent({
               bottom: 0,
               left: `${playheadPosition}%`,
               transform: "translateX(-50%)",
-              width: 2,
-              bgcolor: "#fff",
-              boxShadow: `0 0 10px ${alpha("#fff", 0.6)}, 0 0 20px ${alpha(colors.brand.primary, 0.4)}`,
+              width: 3,
+              bgcolor: isDark ? "#fff" : muiTheme.palette.primary.main,
+              boxShadow: isDark 
+                ? `0 0 12px rgba(255,255,255,0.6), 0 0 24px rgba(99, 102, 241, 0.4)`
+                : `0 0 8px rgba(99, 102, 241, 0.5)`,
               zIndex: 10,
               pointerEvents: "none",
+              borderRadius: 1,
               "&::before": {
                 content: '""',
                 position: "absolute",
-                top: -2,
+                top: -3,
                 left: "50%",
                 transform: "translateX(-50%)",
                 width: 0,
                 height: 0,
-                borderLeft: "6px solid transparent",
-                borderRight: "6px solid transparent",
-                borderTop: `8px solid ${colors.brand.primary}`,
+                borderLeft: "7px solid transparent",
+                borderRight: "7px solid transparent",
+                borderTop: `9px solid ${muiTheme.palette.primary.main}`,
               },
               "&::after": {
                 content: '""',
                 position: "absolute",
-                bottom: -2,
+                bottom: -3,
                 left: "50%",
                 transform: "translateX(-50%)",
                 width: 0,
                 height: 0,
-                borderLeft: "6px solid transparent",
-                borderRight: "6px solid transparent",
-                borderBottom: `8px solid ${colors.brand.primary}`,
+                borderLeft: "7px solid transparent",
+                borderRight: "7px solid transparent",
+                borderBottom: `9px solid ${muiTheme.palette.primary.main}`,
               },
             }}
           />

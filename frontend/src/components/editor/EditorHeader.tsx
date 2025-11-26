@@ -8,12 +8,10 @@ import {
   Stack,
   Tooltip,
   Typography,
-  alpha,
+  useTheme as useMuiTheme,
 } from "@mui/material";
-import { ArrowLeft, Download, Settings, Sparkles } from "lucide-react";
-import { designTokens } from "../../theme";
-
-const { colors } = designTokens;
+import { ArrowLeft, Download, Settings, Sparkles, Sun, Moon } from "lucide-react";
+import { useTheme } from "../../ThemeContext";
 
 interface EditorHeaderProps {
   exporting: boolean;
@@ -22,24 +20,29 @@ interface EditorHeaderProps {
 
 /**
  * Editor Header Component
- * Contains logo, navigation, and export button
+ * Contains logo, navigation, theme toggle, and export button
  */
 function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) {
   const navigate = useNavigate();
+  const { mode, toggleTheme } = useTheme();
+  const muiTheme = useMuiTheme();
+
+  const isDark = mode === "dark";
 
   return (
     <Paper
       elevation={0}
       square
       sx={{
-        px: { xs: 1.5, md: 2.5 },
-        py: 1,
+        px: { xs: 2, md: 3 },
+        py: 1.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         gap: 2,
-        borderBottom: `1px solid ${alpha(colors.border.default, 0.5)}`,
-        bgcolor: alpha(colors.bg.paper, 0.8),
+        borderBottom: 1,
+        borderColor: "divider",
+        bgcolor: isDark ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.95)",
         backdropFilter: "blur(12px)",
         position: "sticky",
         top: 0,
@@ -47,20 +50,22 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
       }}
     >
       {/* Left Section: Logo & Navigation */}
-      <Stack direction="row" alignItems="center" spacing={1.5}>
+      <Stack direction="row" alignItems="center" spacing={2}>
         {/* Back Button */}
         <Tooltip title="Ana Sayfa" arrow>
           <IconButton
             onClick={() => navigate("/")}
             size="small"
             sx={{
-              color: colors.text.secondary,
-              bgcolor: alpha(colors.bg.elevated, 0.5),
-              border: `1px solid ${alpha(colors.border.default, 0.3)}`,
+              color: "text.secondary",
+              bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 2,
               "&:hover": {
-                bgcolor: alpha(colors.brand.primary, 0.1),
-                borderColor: alpha(colors.brand.primary, 0.3),
-                color: colors.brand.primary,
+                bgcolor: isDark ? "rgba(99, 102, 241, 0.15)" : "rgba(99, 102, 241, 0.1)",
+                borderColor: "primary.main",
+                color: "primary.main",
               },
             }}
           >
@@ -72,37 +77,38 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
         <Box
           sx={{
             width: 1,
-            height: 24,
-            bgcolor: alpha(colors.border.default, 0.3),
+            height: 28,
+            bgcolor: "divider",
           }}
         />
 
         {/* Logo/Brand */}
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" alignItems="center" spacing={1.5}>
           <Box
             sx={{
-              width: 32,
-              height: 32,
-              borderRadius: 1.5,
-              background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.accent} 100%)`,
+              width: 36,
+              height: 36,
+              borderRadius: 2,
+              background: `linear-gradient(135deg, ${muiTheme.palette.primary.main} 0%, ${muiTheme.palette.secondary.main} 100%)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: `0 2px 8px ${alpha(colors.brand.primary, 0.3)}`,
+              boxShadow: `0 4px 12px ${isDark ? "rgba(99, 102, 241, 0.4)" : "rgba(99, 102, 241, 0.25)"}`,
             }}
           >
-            <Sparkles size={18} color="#fff" />
+            <Sparkles size={20} color="#fff" />
           </Box>
           <Typography
-            variant="subtitle1"
+            variant="h6"
             sx={{
               fontWeight: 700,
-              background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.accent} 100%)`,
+              background: `linear-gradient(135deg, ${muiTheme.palette.primary.main} 0%, ${muiTheme.palette.secondary.main} 100%)`,
               backgroundClip: "text",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               letterSpacing: "-0.02em",
               display: { xs: "none", sm: "block" },
+              fontSize: "1.1rem",
             }}
           >
             PyCaps
@@ -111,49 +117,71 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
       </Stack>
 
       {/* Right Section: Actions */}
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack direction="row" alignItems="center" spacing={1.5}>
+        {/* Theme Toggle Button */}
+        <Tooltip title={isDark ? "Açık Tema" : "Koyu Tema"} arrow>
+          <IconButton
+            size="small"
+            onClick={toggleTheme}
+            sx={{
+              color: "text.secondary",
+              borderRadius: 2,
+              transition: "all 0.3s ease",
+              "&:hover": {
+                color: isDark ? "warning.main" : "primary.main",
+                bgcolor: isDark ? "rgba(251, 191, 36, 0.1)" : "rgba(99, 102, 241, 0.1)",
+                transform: "rotate(15deg)",
+              },
+            }}
+          >
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+          </IconButton>
+        </Tooltip>
+
         {/* Settings Button */}
         <Tooltip title="Ayarlar" arrow>
           <IconButton
             size="small"
             sx={{
-              color: colors.text.secondary,
+              color: "text.secondary",
+              borderRadius: 2,
               "&:hover": {
-                color: colors.text.primary,
-                bgcolor: alpha(colors.bg.elevated, 0.8),
+                color: "text.primary",
+                bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
               },
             }}
           >
-            <Settings size={18} />
+            <Settings size={20} />
           </IconButton>
         </Tooltip>
 
         {/* Export Button */}
         <Button
           variant="contained"
-          size="small"
+          size="medium"
           onClick={onExportClick}
           disabled={exporting}
-          startIcon={exporting ? undefined : <Download size={16} />}
+          startIcon={exporting ? undefined : <Download size={18} />}
           sx={{
-            px: 2,
-            py: 0.75,
+            px: 2.5,
+            py: 1,
             borderRadius: 2,
             fontWeight: 600,
-            fontSize: "0.8rem",
+            fontSize: "0.875rem",
             textTransform: "none",
-            background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.accent} 100%)`,
-            boxShadow: `0 2px 12px ${alpha(colors.brand.primary, 0.4)}`,
+            background: `linear-gradient(135deg, ${muiTheme.palette.primary.main} 0%, ${muiTheme.palette.secondary.main} 100%)`,
+            boxShadow: `0 4px 14px ${isDark ? "rgba(99, 102, 241, 0.4)" : "rgba(99, 102, 241, 0.3)"}`,
             transition: "all 0.2s ease",
             "&:hover": {
-              boxShadow: `0 4px 20px ${alpha(colors.brand.primary, 0.5)}`,
+              boxShadow: `0 6px 20px ${isDark ? "rgba(99, 102, 241, 0.5)" : "rgba(99, 102, 241, 0.4)"}`,
               transform: "translateY(-1px)",
             },
             "&:active": {
               transform: "translateY(0)",
             },
             "&.Mui-disabled": {
-              background: alpha(colors.bg.elevated, 0.5),
+              background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.12)",
+              color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.26)",
             },
           }}
         >
@@ -161,8 +189,8 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
             <Stack direction="row" alignItems="center" spacing={1}>
               <Box
                 sx={{
-                  width: 14,
-                  height: 14,
+                  width: 16,
+                  height: 16,
                   border: "2px solid",
                   borderColor: "currentColor",
                   borderTopColor: "transparent",

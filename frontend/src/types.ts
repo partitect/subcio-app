@@ -19,6 +19,10 @@ export type EffectConfig = {
   amplitude?: number;
   wavelength?: number;
   shift_amount?: number;
+  particle_count?: number;
+  speed?: number;
+  color?: string;
+  [key: string]: unknown;
 };
 
 export type StyleConfig = {
