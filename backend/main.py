@@ -12,10 +12,11 @@ from pathlib import Path
 from typing import List, Optional
 from PIL import ImageFont
 
-from fastapi import FastAPI, File, Form, UploadFile, BackgroundTasks, HTTPException, Response, Request
+from fastapi import FastAPI, File, Form, UploadFile, BackgroundTasks, HTTPException, Response, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+import mimetypes
 from faster_whisper import WhisperModel
 import uvicorn
 
@@ -530,6 +531,94 @@ projects_cors = CORSMiddleware(
     allow_credentials=False,
 )
 app.mount("/projects", projects_cors, name="projects")
+
+# -----------------------------------------------------------------------------
+# Byte-range video streaming endpoint (enables seeking)
+# -----------------------------------------------------------------------------
+def ranged_file_response(file_path: Path, range_header: str | None, content_type: str):
+    """Generate a streaming response with byte-range support for video seeking."""
+    file_size = file_path.stat().st_size
+    
+    if range_header:
+        # Parse Range header: "bytes=start-end" or "bytes=start-"
+        range_match = re.match(r"bytes=(\d+)-(\d*)", range_header)
+        if range_match:
+            start = int(range_match.group(1))
+            end = int(range_match.group(2)) if range_match.group(2) else file_size - 1
+            end = min(end, file_size - 1)
+            
+            chunk_size = end - start + 1
+            
+            def iterfile():
+                with open(file_path, "rb") as f:
+                    f.seek(start)
+                    remaining = chunk_size
+                    while remaining > 0:
+                        read_size = min(64 * 1024, remaining)  # 64KB chunks
+                        data = f.read(read_size)
+                        if not data:
+                            break
+                        remaining -= len(data)
+                        yield data
+            
+            return StreamingResponse(
+                iterfile(),
+                status_code=206,
+                media_type=content_type,
+                headers={
+                    "Content-Range": f"bytes {start}-{end}/{file_size}",
+                    "Accept-Ranges": "bytes",
+                    "Content-Length": str(chunk_size),
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Expose-Headers": "Content-Range, Accept-Ranges, Content-Length",
+                },
+            )
+    
+    # No range header - return full file
+    def iterfile():
+        with open(file_path, "rb") as f:
+            while chunk := f.read(64 * 1024):
+                yield chunk
+    
+    return StreamingResponse(
+        iterfile(),
+        media_type=content_type,
+        headers={
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(file_size),
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Range, Accept-Ranges, Content-Length",
+        },
+    )
+
+
+@app.get("/stream/{project_id}/{filename}")
+async def stream_media(project_id: str, filename: str, range: str | None = Header(None)):
+    """Stream video/audio files with byte-range support for seeking."""
+    file_path = PROJECTS_DIR / project_id / filename
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    # Determine content type
+    content_type, _ = mimetypes.guess_type(str(file_path))
+    if not content_type:
+        content_type = "application/octet-stream"
+    
+    return ranged_file_response(file_path, range, content_type)
+
+
+@app.options("/stream/{project_id}/{filename}")
+async def stream_media_options():
+    """Handle CORS preflight for stream endpoint."""
+    return Response(
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+            "Access-Control-Allow-Headers": "Range",
+            "Access-Control-Expose-Headers": "Content-Range, Accept-Ranges, Content-Length",
+        }
+    )
 
 @app.middleware("http")
 async def enforce_projects_cors(request: Request, call_next):

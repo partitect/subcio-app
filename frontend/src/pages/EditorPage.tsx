@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control, jsx-a11y/no-static-element-interactions */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import ReactPlayer from "react-player";
 import axios from "axios";
-import { Play, Image as ImageIcon, Download, Plus, Copy, Trash2, ListOrdered } from "lucide-react";
+import { Play, Pause, Image as ImageIcon, Download, Plus, Copy, Trash2, ListOrdered, SkipBack, SkipForward, Volume2, VolumeX, Film } from "lucide-react";
 import {
   Box,
   Button,
@@ -36,6 +35,7 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import { GlassCard, GradientButton } from "../components/ui";
 import { designTokens } from "../theme";
 import { ProjectMeta, StyleConfig, WordCue } from "../types";
+import useMediaPlayer from "../hooks/useMediaPlayer";
 
 const { colors, radii } = designTokens;
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
@@ -164,20 +164,29 @@ const categorizePreset = (preset: Preset): PresetCategory => {
   return "text";
 };
 
+// Default background video for audio mode
+const DEFAULT_BG_VIDEO = "/audiobg/audio-bg-1.mp4";
+
+// Format time as mm:ss.ms
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  const ms = Math.floor((seconds % 1) * 100);
+  return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+};
+
 export default function EditorPage() {
   const { projectId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const playerRef = useRef<any>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const [project, setProject] = useState<ProjectMeta | null>((location.state as any)?.project || null);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [audioUrl, setAudioUrl] = useState<string>("");
   const [mediaType, setMediaType] = useState<"video" | "audio">("video");
-  const [backgroundImage, setBackgroundImage] = useState<string>("");
+  const [bgVideoUrl, setBgVideoUrl] = useState<string>(DEFAULT_BG_VIDEO);
   const [words, setWords] = useState<WordCue[]>((location.state as any)?.words || defaultWords);
   const [style, setStyle] = useState<StyleConfig>(defaultFireStormStyle);
   const [assContent, setAssContent] = useState<string>("");
@@ -187,19 +196,38 @@ export default function EditorPage() {
   const [presetFilter, setPresetFilter] = useState<PresetCategory>("all");
   const [resolution, setResolution] = useState("1080p");
   const [exporting, setExporting] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [showRenderModal, setShowRenderModal] = useState(false);
   const [exportName, setExportName] = useState("pycaps_export");
   const [exportQuality, setExportQuality] = useState("1080p");
   const [savingPreset, setSavingPreset] = useState(false);
   const [presetSynced, setPresetSynced] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [showBgSelector, setShowBgSelector] = useState(false);
   const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" | "warning" }>({
     open: false,
     message: "",
     severity: "success",
   });
+
+  // Media player hook - unified for video and audio
+  const {
+    videoRef,
+    audioRef,
+    bgVideoRef,
+    state: mediaState,
+    controls: mediaControls,
+    getVideoProps,
+    getAudioProps,
+    getBgVideoProps,
+  } = useMediaPlayer(mediaType, {
+    onTimeUpdate: (time) => {
+      // This is handled internally, but we can use it for external sync if needed
+    },
+  });
+
+  // Expose current time and playing state from media player
+  const currentTime = mediaState.currentTime;
+  const isPlaying = mediaState.isPlaying;
+  const mediaDuration = mediaState.duration;
 
   const activeIndex = useMemo(
     () => words.findIndex((w) => w && currentTime >= w.start && currentTime < w.end),
@@ -447,10 +475,12 @@ export default function EditorPage() {
   const resolvedVideoUrl = useMemo(() => {
     if (!videoUrl) return "";
     if (videoUrl.startsWith("http")) return videoUrl;
-    // If backend returned a relative /projects/... path, prepend API host (without /api)
+    // Use stream endpoint for byte-range support (enables seeking)
     const apiBase = (import.meta.env.VITE_API_BASE || "http://localhost:8000/api").replace(/\/api$/, "");
-    if (videoUrl.startsWith("/projects")) {
-      return `${apiBase}${videoUrl}`;
+    if (videoUrl.startsWith("/projects/")) {
+      // Convert /projects/abc/video.mp4 to /stream/abc/video.mp4
+      const streamPath = videoUrl.replace("/projects/", "/stream/");
+      return `${apiBase}${streamPath}`;
     }
     return new URL(videoUrl, apiBase).toString();
   }, [videoUrl]);
@@ -458,39 +488,72 @@ export default function EditorPage() {
   const resolvedAudioUrl = useMemo(() => {
     if (!audioUrl) return "";
     if (audioUrl.startsWith("http")) return audioUrl;
+    // Use stream endpoint for byte-range support (enables seeking)
     const apiBase = (import.meta.env.VITE_API_BASE || "http://localhost:8000/api").replace(/\/api$/, "");
-    if (audioUrl.startsWith("/projects")) {
-      return `${apiBase}${audioUrl}`;
+    if (audioUrl.startsWith("/projects/")) {
+      // Convert /projects/abc/audio.mp3 to /stream/abc/audio.mp3
+      const streamPath = audioUrl.replace("/projects/", "/stream/");
+      return `${apiBase}${streamPath}`;
     }
     return new URL(audioUrl, apiBase).toString();
   }, [audioUrl]);
 
-  const handleSeek = (time: number) => {
-    setCurrentTime(time);
+  // Direct seek function - bypasses hook for reliability
+  const handleSeek = useCallback((time: number) => {
+    console.log('[EditorPage] handleSeek called with:', time);
+    
+    // Get the active media element directly
+    const media = mediaType === 'video' ? videoRef.current : audioRef.current;
+    
+    if (!media) {
+      console.warn('[EditorPage] No media element found, mediaType:', mediaType);
+      return;
+    }
+    
+    const duration = media.duration && isFinite(media.duration) ? media.duration : Infinity;
+    const clampedTime = Math.max(0, Math.min(time, duration));
+    
+    // Update UI state immediately for responsiveness
+    mediaControls.seek(clampedTime);
+    
+    // Check seekable ranges
+    const seekableRanges = [];
+    for (let i = 0; i < media.seekable.length; i++) {
+      seekableRanges.push({ start: media.seekable.start(i), end: media.seekable.end(i) });
+    }
+    console.log('[EditorPage] Seekable ranges:', seekableRanges);
+    
+    // If no seekable range, try forcing the seek anyway
+    // Some browsers will buffer and then seek
+    if (media.seekable.length === 0) {
+      console.log('[EditorPage] No seekable ranges, attempting seek anyway...');
+    }
+    
+    // Use fastSeek if available (more efficient for quick seeks)
+    if ('fastSeek' in media && typeof media.fastSeek === 'function') {
+      try {
+        console.log('[EditorPage] Using fastSeek to:', clampedTime);
+        (media as any).fastSeek(clampedTime);
+        return;
+      } catch (e) {
+        console.warn('[EditorPage] fastSeek failed, falling back to currentTime');
+      }
+    }
+    
+    // Standard seek
+    console.log('[EditorPage] Setting currentTime to:', clampedTime);
     try {
-      if (mediaType === "audio" && audioRef.current) {
-        audioRef.current.currentTime = time;
-      } else {
-        playerRef.current?.seekTo(time, "seconds");
-      }
-    } catch {
-      /* noop */
+      media.currentTime = clampedTime;
+      
+      // Log immediately after
+      console.log('[EditorPage] currentTime after set:', media.currentTime);
+    } catch (e) {
+      console.error('[EditorPage] Seek error:', e);
     }
-  };
+  }, [mediaType, videoRef, audioRef, mediaControls]);
 
-  const togglePlayPause = () => {
-    if (mediaType === "audio" && audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleBackgroundSelect = (url: string) => {
-    setBackgroundImage(url);
+  const handleBgVideoSelect = (url: string) => {
+    setBgVideoUrl(url);
     setShowBgSelector(false);
   };
 
@@ -695,16 +758,24 @@ export default function EditorPage() {
     }
   };
 
-  const totalDuration = useMemo(() => Math.max(words[words.length - 1]?.end || 0, 1), [words]);
+  // Total duration: use media duration if available, otherwise use words end time
+  const totalDuration = useMemo(() => {
+    const wordsDuration = words[words.length - 1]?.end || 0;
+    return Math.max(mediaDuration || wordsDuration, wordsDuration, 1);
+  }, [words, mediaDuration]);
 
   const timelineCues = useMemo(
     () =>
       words.map((w, idx) => ({
         key: `${idx}-${w.start}`,
         left: `${(w.start / totalDuration) * 100}%`,
+        width: `${((w.end - w.start) / totalDuration) * 100}%`,
         text: w.text,
+        start: w.start,
+        end: w.end,
+        isActive: currentTime >= w.start && currentTime < w.end,
       })),
-    [words, totalDuration]
+    [words, totalDuration, currentTime]
   );
 
   const overlayFonts = useMemo(() => {
@@ -1168,11 +1239,11 @@ export default function EditorPage() {
         </Grid>
         <Grid item xs={12} lg={7}>
           <Paper sx={{ p: { xs: 1.5, md: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 2, borderRadius: 2 }}>
-            {/* Audio Mode: Background selector button */}
+            {/* Audio Mode: Background video selector button */}
             {mediaType === "audio" && (
               <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                 <Chip 
-                  icon={<ImageIcon size={14} />} 
+                  icon={<Film size={14} />} 
                   label="Audio Mode" 
                   size="small" 
                   color="info" 
@@ -1181,14 +1252,15 @@ export default function EditorPage() {
                 <Button
                   variant="outlined"
                   size="small"
-                  startIcon={<ImageIcon size={14} />}
+                  startIcon={<Film size={14} />}
                   onClick={() => setShowBgSelector(true)}
                 >
-                  {backgroundImage ? "Change Background" : "Select Background"}
+                  Change Background Video
                 </Button>
               </Stack>
             )}
 
+            {/* Unified Media Player Container */}
             <Box
               ref={overlayRef}
               sx={{
@@ -1198,110 +1270,114 @@ export default function EditorPage() {
                 borderRadius: 2,
                 overflow: "hidden",
                 aspectRatio: "16 / 9",
-                backgroundImage: mediaType === "audio" && backgroundImage ? `url(${backgroundImage})` : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
               }}
             >
-              {/* Video Mode */}
-              {mediaType === "video" && resolvedVideoUrl ? (
+              {/* Video Mode - Native HTML5 Video */}
+              {mediaType === "video" && resolvedVideoUrl && (
+                <video
+                  ref={videoRef}
+                  src={resolvedVideoUrl}
+                  crossOrigin="anonymous"
+                  playsInline
+                  preload="auto"
+                  {...getVideoProps()}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+
+              {/* Audio Mode - Background Video + Hidden Audio */}
+              {mediaType === "audio" && resolvedAudioUrl && (
                 <>
-                  <ReactPlayer
-                    ref={playerRef}
-                    url={resolvedVideoUrl}
-                    width="100%"
-                    height="100%"
-                    controls
-                    onError={(e) => console.error("Video load error", e)}
-                    config={{
-                      file: {
-                        attributes: { crossOrigin: "anonymous" },
-                      },
-                    }}
-                    onProgress={({ playedSeconds }) => setCurrentTime(playedSeconds)}
-                  />
+                  {/* Background video (loops, muted) */}
                   <video
-                    src={resolvedVideoUrl}
-                    style={{ display: "none" }}
-                    onError={(e) => console.error("Fallback video tag error", e)}
+                    ref={bgVideoRef}
+                    src={bgVideoUrl}
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    {...getBgVideoProps()}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
                   />
-                </>
-              ) : mediaType === "audio" && resolvedAudioUrl ? (
-                /* Audio Mode - Hidden audio element with visual controls */
-                <>
+                  {/* Hidden audio element - main audio source */}
                   <audio
                     ref={audioRef}
                     src={resolvedAudioUrl}
-                    onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                    onPlay={() => setIsPlaying(true)}
-                    onPause={() => setIsPlaying(false)}
-                    onEnded={() => setIsPlaying(false)}
+                    {...getAudioProps()}
                     style={{ display: "none" }}
                   />
-                  {/* Audio visualization overlay */}
-                  <Stack
-                    alignItems="center"
-                    justifyContent="center"
-                    sx={{
-                      position: "absolute",
-                      inset: 0,
-                      color: "white",
-                      zIndex: 1,
-                      background: !backgroundImage ? "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" : "transparent",
-                    }}
-                  >
-                    {!backgroundImage && (
-                      <Stack spacing={2} alignItems="center">
-                        <Box
-                          sx={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: "50%",
-                            bgcolor: "rgba(255,255,255,0.1)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            border: "2px solid rgba(255,255,255,0.2)",
-                          }}
-                        >
-                          <Play size={32} />
-                        </Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Select a background image for better preview
-                        </Typography>
-                      </Stack>
-                    )}
-                  </Stack>
-                  {/* Play/Pause button for audio */}
-                  <IconButton
-                    onClick={togglePlayPause}
-                    sx={{
-                      position: "absolute",
-                      bottom: 16,
-                      left: 16,
-                      bgcolor: "rgba(0,0,0,0.6)",
-                      color: "white",
-                      zIndex: 10,
-                      "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
-                    }}
-                  >
-                    {isPlaying ? <Box sx={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>⏸</Box> : <Play size={24} />}
-                  </IconButton>
                 </>
-              ) : (
+              )}
+
+              {/* No media loaded */}
+              {!resolvedVideoUrl && !resolvedAudioUrl && (
                 <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0, color: "text.secondary" }}>
                   <Typography variant="body2">Load a project to preview</Typography>
                 </Stack>
               )}
-              {/* Subtitle overlay - use different component based on media type */}
-              {mediaType === "video" && assContent && (
-                <JSOOverlay videoRef={playerRef} assContent={assContent} fonts={overlayFonts} />
+
+              {/* Click overlay for play/pause */}
+              {(resolvedVideoUrl || resolvedAudioUrl) && (
+                <Box
+                  onClick={mediaControls.toggle}
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: "transparent",
+                    transition: "background-color 0.2s ease",
+                    zIndex: 5,
+                    "&:hover": {
+                      bgcolor: alpha("#000", 0.1),
+                    },
+                    "&:hover .play-indicator": {
+                      opacity: 1,
+                    },
+                  }}
+                >
+                  <Box
+                    className="play-indicator"
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: "50%",
+                      bgcolor: alpha("#000", 0.6),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: 0,
+                      transition: "opacity 0.2s ease",
+                      color: "#fff",
+                    }}
+                  >
+                    {isPlaying ? <Pause size={32} /> : <Play size={32} />}
+                  </Box>
+                </Box>
               )}
-              {mediaType === "audio" && (
-                <AudioSubtitleOverlay words={words} currentTime={currentTime} style={style} />
+
+              {/* Subtitle overlay - JSOOverlay uses video element */}
+              {/* For audio mode, we use bgVideoRef since JASSUB needs a video element */}
+              {assContent && (
+                <JSOOverlay 
+                  videoRef={mediaType === "video" ? videoRef : bgVideoRef} 
+                  assContent={assContent} 
+                  fonts={overlayFonts} 
+                />
               )}
             </Box>
 
+            {/* Professional Timeline */}
             <Paper
               variant="outlined"
               sx={{
@@ -1312,72 +1388,189 @@ export default function EditorPage() {
                 bgcolor: "background.paper",
               }}
             >
+              {/* Timeline Header */}
               <Stack
-                direction={{ xs: "column", sm: "row" }}
-                alignItems={{ xs: "flex-start", sm: "center" }}
+                direction="row"
+                alignItems="center"
                 justifyContent="space-between"
-                spacing={{ xs: 0.5, sm: 1 }}
-                mb={1}
+                spacing={1}
+                mb={1.5}
               >
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Play size={16} color="#66e3c4" />
-                  <Typography variant="body2" color="text.secondary">
-                    Timeline
+                {/* Left: Time Display */}
+                <Box
+                  sx={{
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 1,
+                    bgcolor: colors.bg.elevated,
+                    fontFamily: "monospace",
+                    fontSize: "0.75rem",
+                  }}
+                >
+                  <Typography component="span" sx={{ color: colors.brand.primary, fontWeight: 600 }}>
+                    {formatTime(currentTime)}
                   </Typography>
+                  <Typography component="span" sx={{ color: "text.secondary" }}>
+                    {" / "}{formatTime(totalDuration)}
+                  </Typography>
+                </Box>
+
+                {/* Center: Playback Controls */}
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Tooltip title="5s Geri (←)">
+                    <IconButton size="small" onClick={() => mediaControls.skipBackward(5)}>
+                      <SkipBack size={16} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={isPlaying ? "Duraklat (Space)" : "Oynat (Space)"}>
+                    <IconButton 
+                      size="small" 
+                      onClick={mediaControls.toggle}
+                      sx={{ 
+                        color: colors.brand.accent,
+                        bgcolor: alpha(colors.brand.accent, 0.15),
+                        "&:hover": { bgcolor: alpha(colors.brand.accent, 0.25) },
+                        width: 36,
+                        height: 36,
+                      }}
+                    >
+                      {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="5s İleri (→)">
+                    <IconButton size="small" onClick={() => mediaControls.skipForward(5)}>
+                      <SkipForward size={16} />
+                    </IconButton>
+                  </Tooltip>
                 </Stack>
-                <Typography variant="caption" color="text.secondary">
-                  {currentTime.toFixed(2)}s / {(words[words.length - 1]?.end ?? 0).toFixed(2)}s
-                </Typography>
+
+                {/* Right: Volume Control */}
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Tooltip title={mediaState.muted ? "Sesi Aç (M)" : "Sessize Al (M)"}>
+                    <IconButton size="small" onClick={mediaControls.toggleMute}>
+                      {mediaState.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               </Stack>
+
+              {/* Timeline Track - Using mouse events for seeking */}
               <Box
+                onMouseDown={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const percentage = x / rect.width;
+                  const seekTime = percentage * totalDuration;
+                  handleSeek(Math.max(0, Math.min(totalDuration, seekTime)));
+                  
+                  // Enable dragging
+                  const handleMouseMove = (moveEvent: MouseEvent) => {
+                    const moveX = moveEvent.clientX - rect.left;
+                    const movePercentage = moveX / rect.width;
+                    const moveSeekTime = movePercentage * totalDuration;
+                    handleSeek(Math.max(0, Math.min(totalDuration, moveSeekTime)));
+                  };
+                  
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  };
+                  
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
+                }}
                 sx={{
                   position: "relative",
-                  height: 36,
+                  height: 48,
                   borderRadius: 1.5,
-                  bgcolor: "grey.900",
+                  bgcolor: colors.bg.elevated,
                   overflow: "hidden",
-                  border: "1px solid",
-                  borderColor: "divider",
+                  border: `1px solid ${colors.border.default}`,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  "&:hover": {
+                    borderColor: colors.border.light,
+                  },
                 }}
               >
+                {/* Progress Fill */}
                 <Box
                   sx={{
                     position: "absolute",
-                    inset: 0,
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
                     width: `${(currentTime / totalDuration) * 100}%`,
-                    bgcolor: "primary.main",
-                    opacity: 0.14,
-                    transition: "width 120ms ease-out",
+                    background: `linear-gradient(90deg, ${alpha(colors.brand.primary, 0.2)} 0%, ${alpha(colors.brand.accent, 0.1)} 100%)`,
+                    pointerEvents: "none",
                   }}
                 />
+
+                {/* Cue Blocks */}
                 {timelineCues.map((cue) => (
-                  <Box
-                    key={cue.key}
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      bottom: 0,
-                      width: 2,
-                      bgcolor: "primary.light",
-                      left: cue.left,
-                    }}
-                    title={cue.text}
-                  />
+                  <Tooltip 
+                    key={cue.key} 
+                    title={`${cue.text} (${cue.start.toFixed(2)}s - ${cue.end.toFixed(2)}s)`}
+                    placement="top"
+                  >
+                    <Box
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        handleSeek(cue.start);
+                      }}
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        bottom: 8,
+                        left: cue.left,
+                        width: cue.width,
+                        minWidth: 4,
+                        borderRadius: 0.5,
+                        bgcolor: cue.isActive ? colors.brand.accent : colors.brand.primary,
+                        opacity: cue.isActive ? 1 : 0.6,
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        "&:hover": {
+                          opacity: 1,
+                          transform: "scaleY(1.1)",
+                        },
+                        ...(cue.isActive && {
+                          boxShadow: `0 0 10px ${alpha(colors.brand.accent, 0.5)}`,
+                        }),
+                      }}
+                    />
+                  </Tooltip>
                 ))}
-                <input
-                  type="range"
-                  min={0}
-                  max={totalDuration}
-                  step={0.01}
-                  value={currentTime}
-                  onChange={(e) => handleSeek(Number(e.target.value))}
-                  style={{ position: "absolute", inset: 0, width: "100%", opacity: 0, cursor: "pointer" }}
+
+                {/* Playhead */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    left: `${(currentTime / totalDuration) * 100}%`,
+                    width: 2,
+                    bgcolor: "#fff",
+                    boxShadow: `0 0 8px ${alpha("#fff", 0.5)}`,
+                    zIndex: 10,
+                    pointerEvents: "none",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      top: -3,
+                      left: -4,
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      bgcolor: "#fff",
+                      boxShadow: `0 0 6px ${alpha(colors.brand.primary, 0.8)}`,
+                    },
+                  }}
                 />
               </Box>
             </Paper>
           </Paper>
         </Grid>
-
 
       </Grid>
 
@@ -1414,93 +1607,95 @@ export default function EditorPage() {
         </DialogActions>
       </Dialog>
 
-      {/* Background Selector Dialog for Audio Mode */}
+      {/* Background Video Selector Dialog for Audio Mode */}
       <Dialog open={showBgSelector} onClose={() => setShowBgSelector(false)} maxWidth="md" fullWidth>
         <DialogTitle>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <ImageIcon size={20} />
-            <Typography variant="h6">Select Background Image</Typography>
+            <Film size={20} />
+            <Typography variant="h6">Select Background Video</Typography>
           </Stack>
         </DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Choose a background image for your audio subtitle preview. You can also use a custom image URL.
+            Choose a background video for your audio subtitle preview. The video will loop and play in sync with your audio.
           </Typography>
           
-          {/* Preset backgrounds */}
-          <Typography variant="subtitle2" mb={1}>Preset Backgrounds</Typography>
+          {/* Available background videos */}
+          <Typography variant="subtitle2" mb={1}>Available Background Videos</Typography>
           <Grid container spacing={1.5} mb={3}>
             {[
-              { name: "Gradient Dark", url: "", gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" },
-              { name: "Gradient Purple", url: "", gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
-              { name: "Gradient Ocean", url: "", gradient: "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)" },
-              { name: "Gradient Sunset", url: "", gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" },
-              { name: "Solid Black", url: "", gradient: "#000000" },
-              { name: "Solid Dark Gray", url: "", gradient: "#1a1a1a" },
+              { name: "Default BG 1", url: "/audiobg/audio-bg-1.mp4" },
             ].map((bg, idx) => (
-              <Grid item xs={4} sm={3} md={2} key={idx}>
+              <Grid item xs={6} sm={4} md={3} key={idx}>
                 <Paper
                   variant="outlined"
-                  onClick={() => {
-                    setBackgroundImage("");
-                    setShowBgSelector(false);
-                  }}
+                  onClick={() => handleBgVideoSelect(bg.url)}
                   sx={{
-                    height: 80,
                     cursor: "pointer",
-                    background: bg.gradient,
                     borderRadius: 1.5,
-                    display: "flex",
-                    alignItems: "flex-end",
-                    justifyContent: "center",
-                    p: 0.5,
+                    overflow: "hidden",
+                    borderColor: bgVideoUrl === bg.url ? "primary.main" : "divider",
+                    borderWidth: bgVideoUrl === bg.url ? 2 : 1,
                     "&:hover": { borderColor: "primary.main", transform: "scale(1.02)" },
                     transition: "all 150ms ease",
                   }}
                 >
-                  <Typography variant="caption" sx={{ color: "white", textShadow: "0 1px 2px rgba(0,0,0,0.8)", fontSize: 10 }}>
-                    {bg.name}
-                  </Typography>
+                  <Box
+                    sx={{
+                      height: 100,
+                      bgcolor: "grey.900",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <video
+                      src={bg.url}
+                      muted
+                      loop
+                      autoPlay
+                      playsInline
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </Box>
+                  <Box sx={{ p: 1, textAlign: "center" }}>
+                    <Typography variant="caption">{bg.name}</Typography>
+                  </Box>
                 </Paper>
               </Grid>
             ))}
           </Grid>
 
           {/* Custom URL input */}
-          <Typography variant="subtitle2" mb={1}>Custom Image URL</Typography>
+          <Typography variant="subtitle2" mb={1}>Custom Video URL</Typography>
           <Stack direction="row" spacing={1}>
             <TextField
               fullWidth
               size="small"
-              placeholder="https://example.com/image.jpg"
-              value={backgroundImage}
-              onChange={(e) => setBackgroundImage(e.target.value)}
+              placeholder="https://example.com/video.mp4"
+              value={bgVideoUrl}
+              onChange={(e) => setBgVideoUrl(e.target.value)}
             />
             <Button 
               variant="contained" 
               onClick={() => setShowBgSelector(false)}
-              disabled={!backgroundImage}
             >
               Apply
             </Button>
           </Stack>
 
-          {/* Upload option hint */}
+          {/* Tip */}
           <Typography variant="caption" color="text.secondary" mt={2} display="block">
-            Tip: Use services like Unsplash, Pexels, or upload your image to a hosting service to get a URL.
+            Tip: Use short looping videos for best results. Videos will loop automatically during playback.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowBgSelector(false)}>Cancel</Button>
           <Button 
             variant="outlined" 
-            color="error"
-            onClick={() => {
-              setBackgroundImage("");
-              setShowBgSelector(false);
-            }}
+            onClick={() => handleBgVideoSelect(DEFAULT_BG_VIDEO)}
           >
-            Remove Background
+            Reset to Default
           </Button>
         </DialogActions>
       </Dialog>
