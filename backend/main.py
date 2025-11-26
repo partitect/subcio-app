@@ -225,10 +225,36 @@ def build_ass(words: List[dict], style: dict) -> str:
     bold = style.get("bold", 1)
     border_style = style.get("border_style", 1)
     margin_v = style.get("margin_v", 40)
+    margin_l = style.get("margin_l", 20)
+    margin_r = style.get("margin_r", 20)
     style_id = style.get("id", "default")
 
     # Animation tags based on preset
     anim_tags = get_animation_tags(style_id)
+    
+    # Calculate Y position based on alignment and margin_v
+    # PlayResY = 1080, PlayResX = 1920
+    play_res_y = 1080
+    play_res_x = 1920
+    
+    # Calculate Y position for \pos tag
+    # Alignment: 1,2,3 = bottom, 4,5,6 = middle, 7,8,9 = top
+    if alignment in [1, 2, 3]:  # Bottom
+        y_pos = play_res_y - margin_v
+    elif alignment in [4, 5, 6]:  # Middle  
+        y_pos = (play_res_y // 2) + (margin_v - 150)
+    else:  # Top (7, 8, 9)
+        y_pos = margin_v
+    
+    # X position based on horizontal alignment
+    if alignment in [1, 4, 7]:  # Left
+        x_pos = margin_l + 100
+    elif alignment in [3, 6, 9]:  # Right
+        x_pos = play_res_x - margin_r - 100
+    else:  # Center (2, 5, 8)
+        x_pos = play_res_x // 2
+    
+    pos_tag = f"\\pos({x_pos},{y_pos})"
 
     header = f"""[Script Info]
 ScriptType: v4.00+
@@ -237,7 +263,7 @@ PlayResY: 1080
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Styled, {font}, {size}, {color_primary}, &H000000FF, {color_outline}, {color_back}, {bold}, {italic}, 0, 0, 100, 100, 0, 0, {border_style}, {border}, {shadow}, {alignment}, 20, 20, {margin_v}, 0
+Style: Styled, {font}, {size}, {color_primary}, &H000000FF, {color_outline}, {color_back}, {bold}, {italic}, 0, 0, 100, 100, 0, 0, {border_style}, {border}, {shadow}, {alignment}, {margin_l}, {margin_r}, {margin_v}, 0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -251,8 +277,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         end_ts = ms_to_ass_timestamp(end_ms)
         safe_text = word["text"].replace("{", r"\{").replace("}", r"\}")
         
-        # Add animation tags to active word
-        text = f"{{\\k{duration_cs}{anim_tags}}}{safe_text}"
+        # Add position tag and animation tags
+        text = f"{{{pos_tag}\\k{duration_cs}{anim_tags}}}{safe_text}"
         lines.append(f"Dialogue: 0,{start_ts},{end_ts},Styled,,0,0,0,,{text}")
     return header + "\n".join(lines)
 

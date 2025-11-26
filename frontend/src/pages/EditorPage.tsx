@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { Play, Pause, Image as ImageIcon, Download, Plus, Copy, Trash2, ListOrdered, SkipBack, SkipForward, Volume2, VolumeX, Film } from "lucide-react";
+import { Play, Pause, Image as ImageIcon, Download, Plus, Copy, Trash2, ListOrdered, SkipBack, SkipForward, Volume2, VolumeX, Film, ArrowLeft, Save, Settings, Sparkles, Clock, Layers } from "lucide-react";
 import {
   Box,
   Button,
@@ -541,15 +541,8 @@ export default function EditorPage() {
 
   // Direct seek function - bypasses hook for reliability
   const handleSeek = useCallback((time: number) => {
-    console.log('[EditorPage] handleSeek called with:', time);
-    
-    // Get the active media element directly
     const media = mediaType === 'video' ? videoRef.current : audioRef.current;
-    
-    if (!media) {
-      console.warn('[EditorPage] No media element found, mediaType:', mediaType);
-      return;
-    }
+    if (!media) return;
     
     const duration = media.duration && isFinite(media.duration) ? media.duration : Infinity;
     const clampedTime = Math.max(0, Math.min(time, duration));
@@ -557,39 +550,21 @@ export default function EditorPage() {
     // Update UI state immediately for responsiveness
     mediaControls.seek(clampedTime);
     
-    // Check seekable ranges
-    const seekableRanges = [];
-    for (let i = 0; i < media.seekable.length; i++) {
-      seekableRanges.push({ start: media.seekable.start(i), end: media.seekable.end(i) });
-    }
-    console.log('[EditorPage] Seekable ranges:', seekableRanges);
-    
-    // If no seekable range, try forcing the seek anyway
-    // Some browsers will buffer and then seek
-    if (media.seekable.length === 0) {
-      console.log('[EditorPage] No seekable ranges, attempting seek anyway...');
-    }
-    
     // Use fastSeek if available (more efficient for quick seeks)
     if ('fastSeek' in media && typeof media.fastSeek === 'function') {
       try {
-        console.log('[EditorPage] Using fastSeek to:', clampedTime);
         (media as any).fastSeek(clampedTime);
         return;
       } catch (e) {
-        console.warn('[EditorPage] fastSeek failed, falling back to currentTime');
+        // Fall back to currentTime
       }
     }
     
     // Standard seek
-    console.log('[EditorPage] Setting currentTime to:', clampedTime);
     try {
       media.currentTime = clampedTime;
-      
-      // Log immediately after
-      console.log('[EditorPage] currentTime after set:', media.currentTime);
     } catch (e) {
-      console.error('[EditorPage] Seek error:', e);
+      console.error('Seek error:', e);
     }
   }, [mediaType, videoRef, audioRef, mediaControls]);
 
@@ -600,6 +575,24 @@ export default function EditorPage() {
 
   const applyPreset = (preset: Preset) => {
     const normalizedFont = normalizeFontName(fontOptions, preset.font as string);
+    
+    // Eski margin_v değerlerini yeni sisteme dönüştür
+    // Eski: 0-150 (alttan piksel), Yeni: -100 (alt) → +100 (üst)
+    // Eski ~40 = alta yakın → Yeni ~ -80
+    let newMarginV = 0; // Varsayılan orta
+    if (preset.margin_v !== undefined) {
+      const oldValue = preset.margin_v;
+      // Eski değer 0-150 arasında ise dönüştür
+      if (oldValue >= 0 && oldValue <= 150) {
+        // 0 → -100, 75 → 0, 150 → +100 (yaklaşık)
+        newMarginV = Math.round((oldValue - 75) * (100 / 75));
+        newMarginV = Math.max(-100, Math.min(100, newMarginV));
+      } else {
+        // Zaten yeni formatta
+        newMarginV = oldValue;
+      }
+    }
+    
     setStyle((prev) => ({
       ...prev,
       ...preset,
@@ -612,6 +605,8 @@ export default function EditorPage() {
       back_color: assToHex((preset as any).back_color as string),
       effect_type: preset.effect_type,
       effect_config: preset.effect_config,
+      alignment: preset.alignment ?? prev.alignment ?? 5,
+      margin_v: newMarginV,
     }));
   };
 
@@ -847,63 +842,150 @@ export default function EditorPage() {
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary", display: "flex", flexDirection: "column" }}>
       <LoadingOverlay isLoading={exporting} />
+      
+      {/* Professional Header */}
       <Paper
-        variant="outlined"
+        elevation={0}
         square
         sx={{
-          px: { xs: 2, md: 3 },
-          py: { xs: 1.5, md: 2 },
+          px: { xs: 1.5, md: 2.5 },
+          py: 1,
           display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "flex-start", md: "center" },
+          alignItems: "center",
           justifyContent: "space-between",
-          gap: { xs: 1.5, md: 2 },
-          borderColor: "divider",
-          backdropFilter: "blur(6px)",
+          gap: 2,
+          borderBottom: `1px solid ${alpha(colors.border.default, 0.5)}`,
+          bgcolor: alpha(colors.bg.paper, 0.8),
+          backdropFilter: "blur(12px)",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
         }}
       >
-        <Stack spacing={0.75} sx={{ width: "100%" }}>
-          <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
-            <Typography variant="overline" color="text.secondary" letterSpacing="0.2em">
-              Editor
+        {/* Left Section: Logo & Navigation */}
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          {/* Back Button */}
+          <Tooltip title="Ana Sayfa" arrow>
+            <IconButton
+              onClick={() => navigate("/")}
+              size="small"
+              sx={{
+                color: colors.text.secondary,
+                bgcolor: alpha(colors.bg.elevated, 0.5),
+                border: `1px solid ${alpha(colors.border.default, 0.3)}`,
+                "&:hover": {
+                  bgcolor: alpha(colors.brand.primary, 0.1),
+                  borderColor: alpha(colors.brand.primary, 0.3),
+                  color: colors.brand.primary,
+                },
+              }}
+            >
+              <ArrowLeft size={18} />
+            </IconButton>
+          </Tooltip>
+
+          {/* Divider */}
+          <Box sx={{ width: 1, height: 24, bgcolor: alpha(colors.border.default, 0.3) }} />
+
+          {/* Logo/Brand */}
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: 1.5,
+                background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.accent} 100%)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: `0 2px 8px ${alpha(colors.brand.primary, 0.3)}`,
+              }}
+            >
+              <Sparkles size={18} color="#fff" />
+            </Box>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 700,
+                background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.accent} 100%)`,
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                letterSpacing: "-0.02em",
+                display: { xs: "none", sm: "block" },
+              }}
+            >
+              PyCaps
             </Typography>
-            <Chip label={projectId || "demo"} size="small" variant="outlined" />
           </Stack>
-          <TextField
-            variant="outlined"
-            label="Project Name"
-            value={project?.name || "Untitled Project"}
-            onChange={(e) => setProject((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
-            size="small"
-            sx={{ maxWidth: { xs: "100%", sm: 320 }, width: "100%" }}
-          />
         </Stack>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={1}
-          sx={{
-            width: { xs: "100%", md: "auto" },
-            alignItems: { xs: "stretch", sm: "center" },
-            justifyContent: { xs: "flex-start", sm: "flex-end" },
-          }}
-        >
-          <Button
-            variant="outlined"
-            size="small"
-            color="inherit"
-            onClick={() => navigate("/")}
-            sx={{ width: { xs: "100%", sm: "auto" } }}
-          >
-            Back Home
-          </Button>
+
+        {/* Right Section: Actions */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          {/* Settings Button */}
+          <Tooltip title="Ayarlar" arrow>
+            <IconButton
+              size="small"
+              sx={{
+                color: colors.text.secondary,
+                "&:hover": { color: colors.text.primary, bgcolor: alpha(colors.bg.elevated, 0.8) },
+              }}
+            >
+              <Settings size={18} />
+            </IconButton>
+          </Tooltip>
+
+          {/* Export Button */}
           <Button
             variant="contained"
             size="small"
-            startIcon={<Download size={16} />}
             onClick={() => setShowRenderModal(true)}
-            sx={{ width: { xs: "100%", sm: "auto" } }}
+            disabled={exporting}
+            startIcon={exporting ? undefined : <Download size={16} />}
+            sx={{
+              px: 2,
+              py: 0.75,
+              borderRadius: 2,
+              fontWeight: 600,
+              fontSize: "0.8rem",
+              textTransform: "none",
+              background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.accent} 100%)`,
+              boxShadow: `0 2px 12px ${alpha(colors.brand.primary, 0.4)}`,
+              transition: "all 0.2s ease",
+              "&:hover": {
+                boxShadow: `0 4px 20px ${alpha(colors.brand.primary, 0.5)}`,
+                transform: "translateY(-1px)",
+              },
+              "&:active": {
+                transform: "translateY(0)",
+              },
+              "&.Mui-disabled": {
+                background: alpha(colors.bg.elevated, 0.5),
+              },
+            }}
           >
-            {exporting ? "Rendering..." : "Render & Export"}
+            {exporting ? (
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Box
+                  sx={{
+                    width: 14,
+                    height: 14,
+                    border: "2px solid",
+                    borderColor: "currentColor",
+                    borderTopColor: "transparent",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                    "@keyframes spin": {
+                      "0%": { transform: "rotate(0deg)" },
+                      "100%": { transform: "rotate(360deg)" },
+                    },
+                  }}
+                />
+                <span>Rendering...</span>
+              </Stack>
+            ) : (
+              "Export"
+            )}
           </Button>
         </Stack>
       </Paper>
@@ -933,36 +1015,28 @@ export default function EditorPage() {
           </Tabs>
 
           {activeTab === "presets" && (
-            <Grid container spacing={1.5} sx={{ maxHeight: { xs: "unset", md: "80vh" }, overflowY: { md: "auto" }, pr: 1 }}>
+            <Grid container spacing={0.75} sx={{ maxHeight: { xs: "unset", md: "80vh" }, overflowY: { md: "auto" }, pr: 0.5 }}>
               {presets.map((preset) => {
                 const selected = style.id === preset.id;
                 return (
-                  <Grid item xs={6} key={preset.id}>
+                  <Grid item xs={3} key={preset.id}>
                     <Paper
                       variant="outlined"
                       onClick={() => applyPreset(preset)}
                       sx={{
-                        p: 1.5,
-                        borderRadius: 2,
+                        p: 0.75,
+                        borderRadius: 1,
                         cursor: "pointer",
                         borderColor: selected ? "primary.main" : "divider",
                         bgcolor: selected ? "action.selected" : "background.paper",
                         transition: "border-color 120ms ease, transform 120ms ease",
-                        "&:hover": { borderColor: "primary.main", transform: "translateY(-2px)" },
+                        "&:hover": { borderColor: "primary.main", transform: "translateY(-1px)" },
                       }}
                     >
-                      <Typography variant="subtitle2" noWrap>
-                        {preset.id
-                          .replace(/-/g, " ")
-                          .split(" ")
-                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                          .join(" ")}
-                      </Typography>
                       <Box
                         sx={{
-                          mt: 1,
-                          height: 100,
-                          borderRadius: 1.5,
+                          height: 55,
+                          borderRadius: 0.75,
                           border: "1px solid",
                           borderColor: "divider",
                           bgcolor: "grey.900",
@@ -979,6 +1053,24 @@ export default function EditorPage() {
                           onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
                         />
                       </Box>
+                      <Typography 
+                        variant="caption" 
+                        noWrap 
+                        sx={{ 
+                          fontWeight: 500, 
+                          display: "block", 
+                          mt: 0.5, 
+                          fontSize: "0.65rem",
+                          textAlign: "center",
+                          opacity: 0.85,
+                        }}
+                      >
+                        {preset.id
+                          .replace(/-/g, " ")
+                          .split(" ")
+                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                          .join(" ")}
+                      </Typography>
                     </Paper>
                   </Grid>
                 );
@@ -1161,22 +1253,72 @@ export default function EditorPage() {
                 </Grid>
               </Grid>
 
-             
+              {/* Position Controls - Slider ve butonlar eşzamanlı */}
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 2, mb: 1, display: "block" }}>
+                Dikey Konum
+              </Typography>
+              
+              {(() => {
+                // margin_v: -100 (alt) → 0 (orta) → +100 (üst)
+                const value = style.margin_v ?? 0;
+                
+                // Hangi buton aktif? Slider değerine göre
+                const activeButton = value <= -34 ? 2 : value >= 34 ? 8 : 5;
+                
+                return (
+                  <>
+                    <Grid container spacing={1} alignItems="center">
+                      {[
+                        { align: 2, label: "Alt", targetValue: -100 },
+                        { align: 5, label: "Orta", targetValue: 0 },
+                        { align: 8, label: "Üst", targetValue: 100 },
+                      ].map(({ align, label, targetValue }) => (
+                        <Grid item xs={4} key={align}>
+                          <Button
+                            fullWidth
+                            variant={activeButton === align ? "contained" : "outlined"}
+                            size="small"
+                            onClick={() => {
+                              setStyle({ ...style, margin_v: targetValue });
+                            }}
+                            sx={{
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            {label}
+                          </Button>
+                        </Grid>
+                      ))}
+                    </Grid>
 
-              <Grid container spacing={1}>
-                {[2, 5, 8].map((align) => (
-                  <Grid item xs={4} key={align}>
-                    <Button
-                      fullWidth
-                      variant={style.alignment === align ? "contained" : "outlined"}
-                      size="small"
-                      onClick={() => setStyle({ ...style, alignment: align })}
-                    >
-                      {align === 2 ? "Bottom" : align === 5 ? "Center" : "Top"}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
+                    {/* Vertical Position Slider */}
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1.5 }}>
+                      <Slider
+                        min={-100}
+                        max={100}
+                        value={value}
+                        onChange={(_, val) => {
+                          setStyle({ ...style, margin_v: val as number });
+                        }}
+                        sx={{ 
+                          flex: 1,
+                          '& .MuiSlider-track': {
+                            background: 'linear-gradient(90deg, rgba(99,102,241,0.8) 0%, rgba(139,92,246,0.8) 100%)'
+                          },
+                          '& .MuiSlider-thumb': {
+                            transition: 'left 0.1s ease'
+                          }
+                        }}
+                        marks={[
+                          { value: -100, label: 'Alt' },
+                          { value: 0, label: 'Orta' },
+                          { value: 100, label: 'Üst' },
+                        ]}
+                      />
+                    </Stack>
+                  </>
+                );
+              })()}
 
             </Stack>
           )}

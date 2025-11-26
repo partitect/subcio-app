@@ -4,16 +4,43 @@ from ..utils import hex_to_ass
 
 class PyonFXRenderMixin:
     def _get_center_coordinates(self) -> tuple[int, int]:
-        """Match StyleRenderer center logic from render_engine."""
+        """Dikey konum hesaplama.
+        
+        margin_v aralığı: -100 (alt) → 0 (orta) → +100 (üst)
+        Ekran: 1920x1080, güvenli alan: Y=80 ile Y=1000 arası
+        """
         screen_h = 1080
-        cx = 1920 // 2
-        alignment = int(self.style.get("alignment", 2))
-        if alignment == 8:
-            cy = 150
-        elif alignment == 5:
-            cy = screen_h // 2
+        screen_w = 1920
+        cx = screen_w // 2
+        
+        margin_v = int(self.style.get("margin_v", 0))
+        
+        # Güvenli Y aralığı (kenarlardan 80px boşluk)
+        min_y = 80   # Üst sınır
+        max_y = 1000  # Alt sınır
+        center_y = screen_h // 2  # 540
+        
+        # margin_v: -100 → max_y (alt), 0 → center_y (orta), +100 → min_y (üst)
+        # Linear interpolation
+        if margin_v >= 0:
+            # 0 → center_y, +100 → min_y
+            cy = center_y - int((margin_v / 100) * (center_y - min_y))
         else:
-            cy = screen_h - 150
+            # 0 → center_y, -100 → max_y
+            cy = center_y + int((abs(margin_v) / 100) * (max_y - center_y))
+        
+        # Güvenlik sınırları
+        cy = max(min_y, min(max_y, cy))
+        
+        # X pozisyonu (yatay hizalama için)
+        alignment = int(self.style.get("alignment", 5))
+        margin_l = int(self.style.get("margin_l", 10))
+        margin_r = int(self.style.get("margin_r", 10))
+        if alignment in [1, 4, 7]:  # Left
+            cx = margin_l + 100
+        elif alignment in [3, 6, 9]:  # Right
+            cx = screen_w - margin_r - 100
+        
         return cx, cy
 
     def render_ass_header(self) -> str:
