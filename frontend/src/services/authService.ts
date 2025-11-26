@@ -4,6 +4,9 @@
 
 import { AuthTokens, LoginCredentials, RegisterCredentials, User, UsageStats } from '../types/auth';
 
+// Re-export types for convenience
+export type { UsageStats } from '../types/auth';
+
 const API_BASE = 'http://localhost:8000/api';
 
 // Token storage keys

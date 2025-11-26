@@ -1,0 +1,390 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "success": "Başarılı",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "close": "Kapat",
+    "confirm": "Onayla",
+    "back": "Geri",
+    "next": "İleri",
+    "submit": "Gönder",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "all": "Tümü",
+    "none": "Hiçbiri",
+    "yes": "Evet",
+    "no": "Hayır"
+  },
+  "nav": {
+    "features": "Özellikler",
+    "pricing": "Fiyatlar",
+    "docs": "Dokümantasyon",
+    "blog": "Blog",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "startFree": "Ücretsiz Başla",
+    "dashboard": "Panel",
+    "settings": "Ayarlar",
+    "upgradePlan": "Plan Yükselt",
+    "logout": "Çıkış Yap",
+    "menu": "Menü"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Yapay Zeka Destekli Altyazılar",
+      "title": "Saniyeler İçinde",
+      "titleHighlight": "AI Altyazılar",
+      "titleEnd": "Oluşturun",
+      "subtitle": "Videolarınızı profesyonel, animasyonlu altyazılarla dönüştürün. Yapay zeka transkripsiyonu ve güzel hazır stiller.",
+      "cta": "Ücretsiz Başla",
+      "ctaSecondary": "Demo İzle",
+      "stats": {
+        "users": "Aktif Kullanıcı",
+        "videos": "İşlenen Video",
+        "languages": "Dil Desteği",
+        "rating": "Kullanıcı Puanı"
+      }
+    },
+    "features": {
+      "title": "Mükemmel Altyazılar için",
+      "titleHighlight": "İhtiyacınız Olan Her Şey",
+      "subtitle": "Altyazı oluşturmayı kolaylaştıran güçlü özellikler"
+    },
+    "howItWorks": {
+      "title": "Nasıl",
+      "titleHighlight": "Çalışır",
+      "subtitle": "3 basit adımda profesyonel altyazılar oluşturun",
+      "step1": {
+        "title": "Videonuzu Yükleyin",
+        "description": "Video dosyanızı sürükleyip bırakın veya URL yapıştırın. Tüm popüler formatları destekliyoruz."
+      },
+      "step2": {
+        "title": "AI Transkripsiyon",
+        "description": "Yapay zekamız videonuzu 100+ dilde yüksek doğrulukla otomatik olarak yazıya döker."
+      },
+      "step3": {
+        "title": "Stillendir & Dışa Aktar",
+        "description": "Güzel hazır stillerden seçin, özelleştirin ve istediğiniz formatta dışa aktarın."
+      }
+    },
+    "presets": {
+      "title": "Güzel",
+      "titleHighlight": "Hazır Stiller",
+      "subtitle": "Profesyonelce tasarlanmış düzinelerce altyazı stilinden seçin"
+    },
+    "testimonials": {
+      "title": "İçerik Üreticilerin",
+      "titleHighlight": "Tercihi",
+      "subtitle": "PyCaps'e güvenen binlerce içerik üreticisine katılın"
+    },
+    "cta": {
+      "title": "Harika Altyazılar Oluşturmaya Hazır mısınız?",
+      "subtitle": "Ücretsiz başlayın, ihtiyacınız olduğunda yükseltin. Kredi kartı gerekmez.",
+      "button": "Ücretsiz Deneyin"
+    }
+  },
+  "pricing": {
+    "title": "Basit,",
+    "titleHighlight": "Şeffaf Fiyatlandırma",
+    "subtitle": "Size uygun planı seçin. Ücretsiz başlayın, istediğiniz zaman yükseltin.",
+    "monthly": "Aylık",
+    "yearly": "Yıllık",
+    "yearlyDiscount": "%20 Tasarruf",
+    "perMonth": "/ay",
+    "perYear": "/yıl",
+    "popular": "En Popüler",
+    "recommended": "Önerilen",
+    "bestValue": "En İyi Değer",
+    "currentPlan": "Mevcut Plan",
+    "getStarted": "Başla",
+    "startFreeTrial": "Ücretsiz Dene",
+    "contactSales": "Satış ile İletişime Geç",
+    "features": {
+      "minutes": "Aylık {{count}} dakika",
+      "minutesUnlimited": "Sınırsız dakika",
+      "exports": "Aylık {{count}} dışa aktarma",
+      "exportsUnlimited": "Sınırsız dışa aktarma",
+      "storage": "{{count}}GB depolama",
+      "storageUnlimited": "Sınırsız depolama",
+      "watermark": "Filigran yok",
+      "watermarkIncluded": "Filigran dahil",
+      "priority": "Öncelikli işleme",
+      "support": "{{type}} destek",
+      "presets": "{{count}}+ hazır stil",
+      "presetsAll": "Tüm hazır stiller",
+      "customPresets": "Özel stiller",
+      "teamMembers": "{{count}} takım üyesi",
+      "api": "API erişimi",
+      "analytics": "Gelişmiş analitik"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Tekrar Hoşgeldiniz",
+      "subtitle": "Hesabınıza giriş yapın ve kaldığınız yerden devam edin",
+      "email": "E-posta",
+      "password": "Şifre",
+      "rememberMe": "Beni hatırla",
+      "forgotPassword": "Şifremi unuttum",
+      "submit": "Giriş Yap",
+      "submitting": "Giriş yapılıyor...",
+      "noAccount": "Hesabınız yok mu?",
+      "signUp": "Ücretsiz Kayıt Olun",
+      "orWith": "veya şununla devam edin",
+      "errors": {
+        "invalidCredentials": "Geçersiz e-posta veya şifre",
+        "emailRequired": "Lütfen e-posta adresinizi girin",
+        "passwordRequired": "Lütfen şifrenizi girin"
+      }
+    },
+    "register": {
+      "title": "Hesap Oluştur",
+      "subtitle": "SubGen AI ile profesyonel altyazılar oluşturmaya başlayın",
+      "name": "Ad Soyad",
+      "email": "E-posta",
+      "password": "Şifre",
+      "confirmPassword": "Şifre Tekrar",
+      "agreeTerms": "Kabul ediyorum:",
+      "terms": "Kullanım Koşulları",
+      "and": "ve",
+      "privacy": "Gizlilik Politikası",
+      "newsletter": "Ürün güncellemeleri ve ipuçları hakkında e-posta almak istiyorum",
+      "submit": "Hesap Oluştur",
+      "submitting": "Hesap oluşturuluyor...",
+      "hasAccount": "Zaten hesabınız var mı?",
+      "logIn": "Giriş Yapın",
+      "orWith": "veya şununla kayıt olun",
+      "selectedPlan": "Seçilen Plan",
+      "changePlan": "Değiştir",
+      "freeFeatures": "Ücretsiz planla şunları alırsınız:",
+      "errors": {
+        "nameRequired": "Lütfen adınızı girin",
+        "emailRequired": "Lütfen e-posta adresinizi girin",
+        "passwordRequired": "Lütfen bir şifre belirleyin",
+        "passwordLength": "Şifre en az 8 karakter olmalıdır",
+        "passwordMismatch": "Şifreler eşleşmiyor",
+        "termsRequired": "Devam etmek için kullanım koşullarını kabul etmelisiniz",
+        "emailExists": "E-posta zaten kayıtlı"
+      }
+    },
+    "forgotPassword": {
+      "title": "Şifrenizi mi Unuttunuz?",
+      "subtitle": "Endişelenmeyin! E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.",
+      "email": "E-posta Adresi",
+      "submit": "Şifre Sıfırlama Bağlantısı Gönder",
+      "submitting": "Gönderiliyor...",
+      "backToLogin": "Giriş sayfasına dön",
+      "success": {
+        "title": "E-posta Gönderildi",
+        "message": "Şifre sıfırlama bağlantısı {{email}} adresine gönderildi. Gelen kutunuzu kontrol edin.",
+        "hint": "E-posta birkaç dakika içinde gelmezse, spam klasörünü kontrol edin."
+      }
+    },
+    "resetPassword": {
+      "title": "Şifre Sıfırla",
+      "subtitle": "Yeni şifrenizi girin",
+      "password": "Yeni Şifre",
+      "confirmPassword": "Yeni Şifre Tekrar",
+      "submit": "Şifreyi Sıfırla",
+      "success": "Şifre başarıyla sıfırlandı"
+    }
+  },
+  "dashboard": {
+    "welcome": "Hoşgeldin, {{name}}!",
+    "subtitle": "Altyazı projelerini yönet ve dışa aktar",
+    "newProject": "Yeni Proje",
+    "batchExport": "Toplu Dışa Aktar",
+    "stats": {
+      "minutesUsed": "Kullanılan Dakika",
+      "storage": "Depolama",
+      "totalProjects": "Toplam Proje",
+      "currentPlan": "Mevcut Plan",
+      "upgrade": "Yükselt →"
+    },
+    "projects": {
+      "title": "Projelerin",
+      "viewAll": "Tümünü Gör →",
+      "loading": "Projeler yükleniyor...",
+      "empty": {
+        "title": "Henüz proje yok",
+        "subtitle": "Başlamak için ilk projenizi oluşturun",
+        "cta": "Video Yükle"
+      },
+      "actions": {
+        "edit": "Düzenle",
+        "export": "Dışa Aktar",
+        "delete": "Sil"
+      }
+    }
+  },
+  "upload": {
+    "title": "Yeni Proje Oluştur",
+    "subtitle": "Başlamak için bir video veya ses dosyası yükleyin",
+    "dropzone": {
+      "title": "Dosyanızı buraya sürükleyip bırakın",
+      "or": "veya",
+      "browse": "Dosya Seç",
+      "formats": "Desteklenen formatlar: MP4, MOV, AVI, MKV, MP3, WAV",
+      "maxSize": "Maksimum dosya boyutu: {{size}}"
+    },
+    "processing": {
+      "uploading": "Dosya yükleniyor...",
+      "transcribing": "Ses yazıya dökülüyor...",
+      "analyzing": "İçerik analiz ediliyor...",
+      "generating": "Altyazılar oluşturuluyor...",
+      "complete": "Tamamlandı!"
+    },
+    "usage": {
+      "title": "Bu Ayki Kullanım",
+      "minutes": "{{used}}/{{limit}} dakika",
+      "minutesRemaining": "{{count}} dakika kaldı"
+    },
+    "recentUploads": {
+      "title": "Son Yüklemeler",
+      "empty": "Henüz yükleme yok"
+    },
+    "tips": {
+      "title": "Pro İpuçları",
+      "tip1": "Daha iyi transkripsiyon doğruluğu için yüksek kaliteli ses kullanın",
+      "tip2": "Kısa videolar daha hızlı işlenir",
+      "tip3": "Büyük dosyaları yüklemeden önce kullanım limitinizi kontrol edin"
+    }
+  },
+  "editor": {
+    "title": "Altyazıları Düzenle",
+    "save": "Kaydet",
+    "export": "Dışa Aktar",
+    "preview": "Önizle",
+    "timeline": "Zaman Çizelgesi",
+    "subtitles": "Altyazılar",
+    "style": "Stil",
+    "settings": "Ayarlar",
+    "addSubtitle": "Altyazı Ekle",
+    "deleteSubtitle": "Sil",
+    "splitSubtitle": "Böl",
+    "mergeSubtitles": "Birleştir",
+    "autoSync": "Otomatik Senkronize",
+    "preset": {
+      "title": "Hazır Stil",
+      "apply": "Uygula",
+      "customize": "Özelleştir"
+    },
+    "font": {
+      "title": "Yazı Tipi",
+      "family": "Font",
+      "size": "Boyut",
+      "color": "Renk",
+      "bold": "Kalın",
+      "italic": "İtalik"
+    },
+    "position": {
+      "title": "Konum",
+      "alignment": "Hizalama",
+      "margin": "Kenar Boşluğu"
+    },
+    "effects": {
+      "title": "Efektler",
+      "outline": "Kenarlık",
+      "shadow": "Gölge",
+      "background": "Arka Plan"
+    }
+  },
+  "export": {
+    "title": "Projeyi Dışa Aktar",
+    "format": {
+      "title": "Format",
+      "video": "Altyazılı Video",
+      "ass": "ASS Altyazı Dosyası",
+      "srt": "SRT Altyazı Dosyası"
+    },
+    "resolution": {
+      "title": "Çözünürlük",
+      "original": "Orijinal",
+      "1080p": "1080p (Full HD)",
+      "4k": "4K (Ultra HD)"
+    },
+    "quality": {
+      "title": "Kalite",
+      "high": "Yüksek",
+      "medium": "Orta",
+      "low": "Düşük (daha hızlı)"
+    },
+    "processing": "Dışa aktarılıyor...",
+    "complete": "Dışa Aktarma Tamamlandı!",
+    "download": "İndir",
+    "errors": {
+      "failed": "Dışa aktarma başarısız. Lütfen tekrar deneyin."
+    }
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "profile": {
+      "title": "Profil",
+      "name": "Ad Soyad",
+      "email": "E-posta",
+      "save": "Değişiklikleri Kaydet"
+    },
+    "password": {
+      "title": "Şifre Değiştir",
+      "current": "Mevcut Şifre",
+      "new": "Yeni Şifre",
+      "confirm": "Yeni Şifre Tekrar",
+      "change": "Şifreyi Değiştir"
+    },
+    "language": {
+      "title": "Dil",
+      "select": "Dil Seçin"
+    },
+    "theme": {
+      "title": "Tema",
+      "light": "Açık",
+      "dark": "Koyu",
+      "system": "Sistem"
+    },
+    "notifications": {
+      "title": "Bildirimler",
+      "email": "E-posta Bildirimleri",
+      "updates": "Ürün Güncellemeleri"
+    },
+    "danger": {
+      "title": "Tehlikeli Bölge",
+      "deleteAccount": "Hesabı Sil",
+      "deleteWarning": "Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir."
+    }
+  },
+  "errors": {
+    "404": {
+      "title": "Sayfa Bulunamadı",
+      "message": "Aradığınız sayfa mevcut değil.",
+      "backHome": "Ana Sayfaya Dön"
+    },
+    "500": {
+      "title": "Sunucu Hatası",
+      "message": "Bir şeyler ters gitti. Lütfen daha sonra tekrar deneyin."
+    },
+    "network": "Ağ hatası. Lütfen bağlantınızı kontrol edin.",
+    "unauthorized": "Devam etmek için lütfen giriş yapın.",
+    "forbidden": "Bu sayfaya erişim yetkiniz yok."
+  },
+  "footer": {
+    "product": "Ürün",
+    "company": "Şirket",
+    "resources": "Kaynaklar",
+    "legal": "Yasal",
+    "about": "Hakkımızda",
+    "careers": "Kariyer",
+    "contact": "İletişim",
+    "blog": "Blog",
+    "help": "Yardım Merkezi",
+    "api": "API",
+    "terms": "Kullanım Koşulları",
+    "privacy": "Gizlilik Politikası",
+    "cookies": "Çerez Politikası",
+    "copyright": "© {{year}} PyCaps. Tüm hakları saklıdır.",
+    "madeWith": "İçerik üreticileri için ❤️ ile yapıldı"
+  }
+}

@@ -1,22 +1,27 @@
 /**
  * Navbar Component
  * 
- * Top navigation bar with auth buttons
+ * Top navigation bar with auth buttons and language selector
  */
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   Container,
+  Divider,
   Drawer,
   IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   Toolbar,
   Typography,
@@ -24,20 +29,26 @@ import {
   useScrollTrigger,
   useTheme,
 } from "@mui/material";
-import { Menu, X, Sparkles, Sun, Moon } from "lucide-react";
+import { Menu as MenuIcon, X, Sparkles, Sun, Moon, Settings, LogOut, LayoutDashboard, CreditCard } from "lucide-react";
 import { useTheme as useAppTheme } from "../../ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
+import LanguageSelector from "../LanguageSelector";
 
 const NAV_LINKS = [
-  { label: "Features", href: "/#features" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Docs", href: "/docs" },
-  { label: "Blog", href: "/blog" },
+  { label: "nav.features", href: "/#features" },
+  { label: "nav.pricing", href: "/pricing" },
+  { label: "nav.docs", href: "/docs" },
+  { label: "nav.blog", href: "/blog" },
 ];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const theme = useTheme();
   const { isDark, toggleTheme } = useAppTheme();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const trigger = useScrollTrigger({
@@ -48,6 +59,14 @@ export function Navbar() {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const handleLogout = () => {
+    logout();
+    setUserMenuAnchor(null);
+    navigate("/");
+  };
+
+  const userName = user?.name || user?.email?.split("@")[0] || "User";
 
   return (
     <>
@@ -97,7 +116,7 @@ export function Navbar() {
             {/* Desktop Nav Links */}
             <Stack
               direction="row"
-              spacing={1}
+              spacing={0.5}
               sx={{
                 ml: 6,
                 display: { xs: "none", md: "flex" },
@@ -112,13 +131,14 @@ export function Navbar() {
                     color: "text.secondary",
                     fontWeight: 600,
                     px: 2,
+                    minWidth: 110,
                     "&:hover": {
                       color: "text.primary",
                       bgcolor: alpha(theme.palette.primary.main, 0.05),
                     },
                   }}
                 >
-                  {link.label}
+                  {t(link.label)}
                 </Button>
               ))}
             </Stack>
@@ -132,6 +152,7 @@ export function Navbar() {
               alignItems="center"
               sx={{ display: { xs: "none", md: "flex" } }}
             >
+              <LanguageSelector variant="full" size="small" />
               <IconButton
                 onClick={toggleTheme}
                 size="small"
@@ -139,29 +160,104 @@ export function Navbar() {
               >
                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
               </IconButton>
-              <Button
-                component={Link}
-                to="/login"
-                sx={{
-                  color: "text.primary",
-                  fontWeight: 600,
-                }}
-              >
-                Log in
-              </Button>
-              <Button
-                component={Link}
-                to="/signup"
-                variant="contained"
-                sx={{
-                  fontWeight: 600,
-                  borderRadius: 2,
-                  px: 2.5,
-                }}
-              >
-                Start Free
-              </Button>
+              
+              {isAuthenticated ? (
+                <>
+                  <Button
+                    component={Link}
+                    to="/dashboard"
+                    sx={{
+                      color: "text.primary",
+                      fontWeight: 600,
+                      minWidth: 100,
+                    }}
+                  >
+                    {t('nav.dashboard')}
+                  </Button>
+                  <IconButton 
+                    size="small"
+                    onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+                  >
+                    <Avatar 
+                      sx={{ 
+                        width: 32, 
+                        height: 32,
+                        bgcolor: theme.palette.primary.main,
+                        fontSize: 14,
+                      }}
+                    >
+                      {userName.charAt(0).toUpperCase()}
+                    </Avatar>
+                  </IconButton>
+                </>
+              ) : (
+                <>
+                  <Button
+                    component={Link}
+                    to="/login"
+                    sx={{
+                      color: "text.primary",
+                      fontWeight: 600,
+                      minWidth: 90,
+                    }}
+                  >
+                    {t('nav.login')}
+                  </Button>
+                  <Button
+                    component={Link}
+                    to="/register"
+                    variant="contained"
+                    sx={{
+                      fontWeight: 600,
+                      borderRadius: 2,
+                      px: 2.5,
+                      minWidth: 130,
+                    }}
+                  >
+                    {t('nav.startFree')}
+                  </Button>
+                </>
+              )}
             </Stack>
+
+            {/* User Menu */}
+            <Menu
+              anchorEl={userMenuAnchor}
+              open={Boolean(userMenuAnchor)}
+              onClose={() => setUserMenuAnchor(null)}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              PaperProps={{
+                sx: { minWidth: 200, mt: 1 }
+              }}
+            >
+              <Box sx={{ px: 2, py: 1.5 }}>
+                <Typography variant="subtitle2" fontWeight={600}>
+                  {userName}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {user?.email}
+                </Typography>
+              </Box>
+              <Divider />
+              <MenuItem component={Link} to="/dashboard" onClick={() => setUserMenuAnchor(null)}>
+                <LayoutDashboard size={16} style={{ marginRight: 8 }} />
+                {t('nav.dashboard')}
+              </MenuItem>
+              <MenuItem component={Link} to="/settings" onClick={() => setUserMenuAnchor(null)}>
+                <Settings size={16} style={{ marginRight: 8 }} />
+                {t('nav.settings')}
+              </MenuItem>
+              <MenuItem component={Link} to="/pricing" onClick={() => setUserMenuAnchor(null)}>
+                <CreditCard size={16} style={{ marginRight: 8 }} />
+                {t('nav.upgradePlan')}
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+                <LogOut size={16} style={{ marginRight: 8 }} />
+                {t('nav.logout')}
+              </MenuItem>
+            </Menu>
 
             {/* Mobile Menu Button */}
             <Stack
@@ -180,7 +276,7 @@ export function Navbar() {
                 onClick={handleDrawerToggle}
                 sx={{ color: "text.primary" }}
               >
-                <Menu size={24} />
+                <MenuIcon size={24} />
               </IconButton>
             </Stack>
           </Toolbar>
@@ -202,7 +298,7 @@ export function Navbar() {
         <Box sx={{ p: 2 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="h6" fontWeight={700}>
-              Menu
+              {t('nav.menu')}
             </Typography>
             <IconButton onClick={handleDrawerToggle}>
               <X size={20} />
@@ -218,35 +314,66 @@ export function Navbar() {
                 onClick={handleDrawerToggle}
               >
                 <ListItemText
-                  primary={link.label}
+                  primary={t(link.label)}
                   primaryTypographyProps={{ fontWeight: 600 }}
                 />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
+        <Box sx={{ px: 2, py: 1 }}>
+          <LanguageSelector variant="full" />
+        </Box>
         <Box sx={{ p: 2, mt: "auto" }}>
           <Stack spacing={1.5}>
-            <Button
-              component={Link}
-              to="/login"
-              variant="outlined"
-              fullWidth
-              sx={{ fontWeight: 600 }}
-              onClick={handleDrawerToggle}
-            >
-              Log in
-            </Button>
-            <Button
-              component={Link}
-              to="/signup"
-              variant="contained"
-              fullWidth
-              sx={{ fontWeight: 600 }}
-              onClick={handleDrawerToggle}
-            >
-              Start Free
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  component={Link}
+                  to="/dashboard"
+                  variant="contained"
+                  fullWidth
+                  sx={{ fontWeight: 600 }}
+                  onClick={handleDrawerToggle}
+                >
+                  {t('nav.dashboard')}
+                </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{ fontWeight: 600, color: "error.main", borderColor: "error.main" }}
+                  onClick={() => {
+                    handleLogout();
+                    handleDrawerToggle();
+                  }}
+                >
+                  {t('nav.logout')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="outlined"
+                  fullWidth
+                  sx={{ fontWeight: 600 }}
+                  onClick={handleDrawerToggle}
+                >
+                  {t('nav.login')}
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  fullWidth
+                  sx={{ fontWeight: 600 }}
+                  onClick={handleDrawerToggle}
+                >
+                  {t('nav.startFree')}
+                </Button>
+              </>
+            )}
           </Stack>
         </Box>
       </Drawer>

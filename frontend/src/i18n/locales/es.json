@@ -1,0 +1,390 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "none": "Ninguno",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "nav": {
+    "features": "Características",
+    "pricing": "Precios",
+    "docs": "Documentación",
+    "blog": "Blog",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "startFree": "Empezar Gratis",
+    "dashboard": "Panel",
+    "settings": "Configuración",
+    "upgradePlan": "Mejorar Plan",
+    "logout": "Cerrar Sesión",
+    "menu": "Menú"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Subtítulos con IA",
+      "title": "Crea",
+      "titleHighlight": "Subtítulos con IA",
+      "titleEnd": "en Segundos",
+      "subtitle": "Transforma tus videos con subtítulos profesionales y animados. Transcripción con IA y hermosos estilos prediseñados.",
+      "cta": "Empezar Gratis",
+      "ctaSecondary": "Ver Demo",
+      "stats": {
+        "users": "Usuarios Activos",
+        "videos": "Videos Procesados",
+        "languages": "Idiomas Soportados",
+        "rating": "Calificación de Usuarios"
+      }
+    },
+    "features": {
+      "title": "Todo lo que Necesitas para",
+      "titleHighlight": "Subtítulos Perfectos",
+      "subtitle": "Potentes características que hacen fácil la creación de subtítulos"
+    },
+    "howItWorks": {
+      "title": "Cómo",
+      "titleHighlight": "Funciona",
+      "subtitle": "Crea subtítulos profesionales en 3 simples pasos",
+      "step1": {
+        "title": "Sube tu Video",
+        "description": "Arrastra y suelta tu archivo de video o pega una URL. Soportamos todos los formatos populares."
+      },
+      "step2": {
+        "title": "Transcripción con IA",
+        "description": "Nuestra IA transcribe automáticamente tu video en más de 100 idiomas con alta precisión."
+      },
+      "step3": {
+        "title": "Estiliza y Exporta",
+        "description": "Elige entre hermosos estilos prediseñados, personaliza y exporta en tu formato preferido."
+      }
+    },
+    "presets": {
+      "title": "Hermosos",
+      "titleHighlight": "Estilos Prediseñados",
+      "subtitle": "Elige entre docenas de estilos de subtítulos diseñados profesionalmente"
+    },
+    "testimonials": {
+      "title": "La Elección de los",
+      "titleHighlight": "Creadores de Contenido",
+      "subtitle": "Únete a miles de creadores de contenido que confían en PyCaps"
+    },
+    "cta": {
+      "title": "¿Listo para Crear Subtítulos Increíbles?",
+      "subtitle": "Empieza gratis, actualiza cuando lo necesites. Sin tarjeta de crédito.",
+      "button": "Pruébalo Gratis"
+    }
+  },
+  "pricing": {
+    "title": "Precios Simples y",
+    "titleHighlight": "Transparentes",
+    "subtitle": "Elige el plan que mejor se adapte a ti. Empieza gratis, actualiza cuando quieras.",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "yearlyDiscount": "Ahorra 20%",
+    "perMonth": "/mes",
+    "perYear": "/año",
+    "popular": "Más Popular",
+    "recommended": "Recomendado",
+    "bestValue": "Mejor Valor",
+    "currentPlan": "Plan Actual",
+    "getStarted": "Empezar",
+    "startFreeTrial": "Prueba Gratis",
+    "contactSales": "Contactar Ventas",
+    "features": {
+      "minutes": "{{count}} minutos/mes",
+      "minutesUnlimited": "Minutos ilimitados",
+      "exports": "{{count}} exportaciones/mes",
+      "exportsUnlimited": "Exportaciones ilimitadas",
+      "storage": "{{count}}GB de almacenamiento",
+      "storageUnlimited": "Almacenamiento ilimitado",
+      "watermark": "Sin marca de agua",
+      "watermarkIncluded": "Incluye marca de agua",
+      "priority": "Procesamiento prioritario",
+      "support": "Soporte {{type}}",
+      "presets": "{{count}}+ estilos prediseñados",
+      "presetsAll": "Todos los estilos",
+      "customPresets": "Estilos personalizados",
+      "teamMembers": "{{count}} miembros del equipo",
+      "api": "Acceso a API",
+      "analytics": "Analíticas avanzadas"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de Nuevo",
+      "subtitle": "Inicia sesión en tu cuenta y continúa donde lo dejaste",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "rememberMe": "Recordarme",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar Sesión",
+      "submitting": "Iniciando sesión...",
+      "noAccount": "¿No tienes cuenta?",
+      "signUp": "Regístrate Gratis",
+      "orWith": "o continúa con",
+      "errors": {
+        "invalidCredentials": "Correo electrónico o contraseña inválidos",
+        "emailRequired": "Por favor ingresa tu correo electrónico",
+        "passwordRequired": "Por favor ingresa tu contraseña"
+      }
+    },
+    "register": {
+      "title": "Crear Cuenta",
+      "subtitle": "Comienza a crear subtítulos profesionales con SubGen AI",
+      "name": "Nombre Completo",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "agreeTerms": "Acepto los",
+      "terms": "Términos de Servicio",
+      "and": "y la",
+      "privacy": "Política de Privacidad",
+      "newsletter": "Quiero recibir actualizaciones de productos y consejos por correo",
+      "submit": "Crear Cuenta",
+      "submitting": "Creando cuenta...",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "logIn": "Iniciar Sesión",
+      "orWith": "o regístrate con",
+      "selectedPlan": "Plan Seleccionado",
+      "changePlan": "Cambiar",
+      "freeFeatures": "Con el plan gratuito obtienes:",
+      "errors": {
+        "nameRequired": "Por favor ingresa tu nombre",
+        "emailRequired": "Por favor ingresa tu correo electrónico",
+        "passwordRequired": "Por favor crea una contraseña",
+        "passwordLength": "La contraseña debe tener al menos 8 caracteres",
+        "passwordMismatch": "Las contraseñas no coinciden",
+        "termsRequired": "Debes aceptar los términos de servicio para continuar",
+        "emailExists": "El correo electrónico ya está registrado"
+      }
+    },
+    "forgotPassword": {
+      "title": "¿Olvidaste tu Contraseña?",
+      "subtitle": "¡No te preocupes! Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+      "email": "Correo Electrónico",
+      "submit": "Enviar Enlace de Restablecimiento",
+      "submitting": "Enviando...",
+      "backToLogin": "Volver al inicio de sesión",
+      "success": {
+        "title": "Correo Enviado",
+        "message": "Se ha enviado un enlace de restablecimiento de contraseña a {{email}}. Revisa tu bandeja de entrada.",
+        "hint": "Si no recibes el correo en unos minutos, revisa tu carpeta de spam."
+      }
+    },
+    "resetPassword": {
+      "title": "Restablecer Contraseña",
+      "subtitle": "Ingresa tu nueva contraseña",
+      "password": "Nueva Contraseña",
+      "confirmPassword": "Confirmar Nueva Contraseña",
+      "submit": "Restablecer Contraseña",
+      "success": "Contraseña restablecida exitosamente"
+    }
+  },
+  "dashboard": {
+    "welcome": "¡Bienvenido, {{name}}!",
+    "subtitle": "Gestiona y exporta tus proyectos de subtítulos",
+    "newProject": "Nuevo Proyecto",
+    "batchExport": "Exportar en Lote",
+    "stats": {
+      "minutesUsed": "Minutos Usados",
+      "storage": "Almacenamiento",
+      "totalProjects": "Total de Proyectos",
+      "currentPlan": "Plan Actual",
+      "upgrade": "Mejorar →"
+    },
+    "projects": {
+      "title": "Tus Proyectos",
+      "viewAll": "Ver Todos →",
+      "loading": "Cargando proyectos...",
+      "empty": {
+        "title": "Aún no hay proyectos",
+        "subtitle": "Crea tu primer proyecto para empezar",
+        "cta": "Subir Video"
+      },
+      "actions": {
+        "edit": "Editar",
+        "export": "Exportar",
+        "delete": "Eliminar"
+      }
+    }
+  },
+  "upload": {
+    "title": "Crear Nuevo Proyecto",
+    "subtitle": "Sube un archivo de video o audio para empezar",
+    "dropzone": {
+      "title": "Arrastra y suelta tu archivo aquí",
+      "or": "o",
+      "browse": "Explorar Archivos",
+      "formats": "Formatos soportados: MP4, MOV, AVI, MKV, MP3, WAV",
+      "maxSize": "Tamaño máximo: {{size}}"
+    },
+    "processing": {
+      "uploading": "Subiendo archivo...",
+      "transcribing": "Transcribiendo audio...",
+      "analyzing": "Analizando contenido...",
+      "generating": "Generando subtítulos...",
+      "complete": "¡Completado!"
+    },
+    "usage": {
+      "title": "Uso Este Mes",
+      "minutes": "{{used}}/{{limit}} minutos",
+      "minutesRemaining": "{{count}} minutos restantes"
+    },
+    "recentUploads": {
+      "title": "Subidas Recientes",
+      "empty": "Aún no hay subidas"
+    },
+    "tips": {
+      "title": "Consejos Pro",
+      "tip1": "Usa audio de alta calidad para mejor precisión de transcripción",
+      "tip2": "Los videos cortos se procesan más rápido",
+      "tip3": "Verifica tu límite de uso antes de subir archivos grandes"
+    }
+  },
+  "editor": {
+    "title": "Editar Subtítulos",
+    "save": "Guardar",
+    "export": "Exportar",
+    "preview": "Vista Previa",
+    "timeline": "Línea de Tiempo",
+    "subtitles": "Subtítulos",
+    "style": "Estilo",
+    "settings": "Configuración",
+    "addSubtitle": "Agregar Subtítulo",
+    "deleteSubtitle": "Eliminar",
+    "splitSubtitle": "Dividir",
+    "mergeSubtitles": "Fusionar",
+    "autoSync": "Sincronizar Auto",
+    "preset": {
+      "title": "Estilo Prediseñado",
+      "apply": "Aplicar",
+      "customize": "Personalizar"
+    },
+    "font": {
+      "title": "Fuente",
+      "family": "Familia",
+      "size": "Tamaño",
+      "color": "Color",
+      "bold": "Negrita",
+      "italic": "Cursiva"
+    },
+    "position": {
+      "title": "Posición",
+      "alignment": "Alineación",
+      "margin": "Margen"
+    },
+    "effects": {
+      "title": "Efectos",
+      "outline": "Contorno",
+      "shadow": "Sombra",
+      "background": "Fondo"
+    }
+  },
+  "export": {
+    "title": "Exportar Proyecto",
+    "format": {
+      "title": "Formato",
+      "video": "Video con Subtítulos",
+      "ass": "Archivo de Subtítulos ASS",
+      "srt": "Archivo de Subtítulos SRT"
+    },
+    "resolution": {
+      "title": "Resolución",
+      "original": "Original",
+      "1080p": "1080p (Full HD)",
+      "4k": "4K (Ultra HD)"
+    },
+    "quality": {
+      "title": "Calidad",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja (más rápido)"
+    },
+    "processing": "Exportando...",
+    "complete": "¡Exportación Completada!",
+    "download": "Descargar",
+    "errors": {
+      "failed": "La exportación falló. Por favor intenta de nuevo."
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "profile": {
+      "title": "Perfil",
+      "name": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "save": "Guardar Cambios"
+    },
+    "password": {
+      "title": "Cambiar Contraseña",
+      "current": "Contraseña Actual",
+      "new": "Nueva Contraseña",
+      "confirm": "Confirmar Nueva Contraseña",
+      "change": "Cambiar Contraseña"
+    },
+    "language": {
+      "title": "Idioma",
+      "select": "Seleccionar Idioma"
+    },
+    "theme": {
+      "title": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "email": "Notificaciones por Correo",
+      "updates": "Actualizaciones de Producto"
+    },
+    "danger": {
+      "title": "Zona de Peligro",
+      "deleteAccount": "Eliminar Cuenta",
+      "deleteWarning": "Esta acción no se puede deshacer. Todos tus datos serán eliminados permanentemente."
+    }
+  },
+  "errors": {
+    "404": {
+      "title": "Página No Encontrada",
+      "message": "La página que buscas no existe.",
+      "backHome": "Volver al Inicio"
+    },
+    "500": {
+      "title": "Error del Servidor",
+      "message": "Algo salió mal. Por favor intenta más tarde."
+    },
+    "network": "Error de red. Por favor verifica tu conexión.",
+    "unauthorized": "Por favor inicia sesión para continuar.",
+    "forbidden": "No tienes permiso para acceder a esta página."
+  },
+  "footer": {
+    "product": "Producto",
+    "company": "Empresa",
+    "resources": "Recursos",
+    "legal": "Legal",
+    "about": "Sobre Nosotros",
+    "careers": "Carreras",
+    "contact": "Contacto",
+    "blog": "Blog",
+    "help": "Centro de Ayuda",
+    "api": "API",
+    "terms": "Términos de Servicio",
+    "privacy": "Política de Privacidad",
+    "cookies": "Política de Cookies",
+    "copyright": "© {{year}} PyCaps. Todos los derechos reservados.",
+    "madeWith": "Hecho con ❤️ para creadores de contenido"
+  }
+}

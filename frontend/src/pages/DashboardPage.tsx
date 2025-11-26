@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -24,6 +24,8 @@ import {
   Typography,
   alpha,
   useTheme,
+  Avatar,
+  Divider,
 } from "@mui/material";
 import {
   Plus,
@@ -46,35 +48,29 @@ import {
 } from "lucide-react";
 import { ProjectMeta } from "../types";
 import { useTheme as useAppTheme } from "../ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { getUsageStats, UsageStats } from "../services/authService";
 import BatchExportDialog from "../components/BatchExportDialog";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
-
-// Mock user data - replace with real auth
-const MOCK_USER = {
-  name: "John Doe",
-  email: "john@example.com",
-  plan: "creator",
-  usage: {
-    videosThisMonth: 12,
-    videosLimit: 30,
-    storageUsed: 8.5,
-    storageLimit: 25,
-  },
-};
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<ProjectMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBatchExport, setShowBatchExport] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
   
   const theme = useTheme();
   const { isDark, toggleTheme } = useAppTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProjects();
+    fetchUsageStats();
   }, []);
 
   const fetchProjects = async () => {
@@ -87,6 +83,15 @@ export default function DashboardPage() {
       console.error("Failed to load projects", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUsageStats = async () => {
+    try {
+      const stats = await getUsageStats();
+      setUsageStats(stats);
+    } catch (err) {
+      console.error("Failed to load usage stats", err);
     }
   };
 
@@ -113,6 +118,11 @@ export default function DashboardPage() {
     handleMenuClose();
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   const resolveAssetUrl = (url?: string) => {
     if (!url) return "";
     if (url.startsWith("http")) return url;
@@ -120,8 +130,16 @@ export default function DashboardPage() {
     return `${apiHost}${url.startsWith("/") ? url : `/${url}`}`;
   };
 
-  const usagePercent = (MOCK_USER.usage.videosThisMonth / MOCK_USER.usage.videosLimit) * 100;
-  const storagePercent = (MOCK_USER.usage.storageUsed / MOCK_USER.usage.storageLimit) * 100;
+  // Calculate usage percentages
+  const minutesPercent = usageStats 
+    ? (usageStats.usage.minutes_used / usageStats.usage.minutes_limit) * 100 
+    : 0;
+  const storagePercent = usageStats 
+    ? (usageStats.usage.storage_used_mb / usageStats.usage.storage_limit_mb) * 100 
+    : 0;
+
+  const userName = user?.name || user?.email?.split("@")[0] || "User";
+  const userPlan = user?.plan || "free";
 
   return (
     <Box
@@ -177,28 +195,66 @@ export default function DashboardPage() {
               <IconButton onClick={toggleTheme} size="small">
                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
               </IconButton>
-              <Button
-                component={Link}
-                to="/settings"
-                startIcon={<Settings size={16} />}
-                size="small"
-                sx={{ color: "text.secondary" }}
-              >
-                Settings
-              </Button>
               <Chip
-                label={MOCK_USER.plan.toUpperCase()}
+                label={userPlan.toUpperCase()}
                 size="small"
                 color="primary"
                 variant="outlined"
               />
-              <IconButton size="small">
-                <User size={18} />
+              <IconButton 
+                size="small"
+                onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+              >
+                <Avatar 
+                  sx={{ 
+                    width: 32, 
+                    height: 32,
+                    bgcolor: theme.palette.primary.main,
+                    fontSize: 14,
+                  }}
+                >
+                  {userName.charAt(0).toUpperCase()}
+                </Avatar>
               </IconButton>
             </Stack>
           </Stack>
         </Container>
       </Paper>
+
+      {/* User Menu */}
+      <Menu
+        anchorEl={userMenuAnchor}
+        open={Boolean(userMenuAnchor)}
+        onClose={() => setUserMenuAnchor(null)}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        PaperProps={{
+          sx: { minWidth: 200, mt: 1 }
+        }}
+      >
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="subtitle2" fontWeight={600}>
+            {userName}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {user?.email}
+          </Typography>
+        </Box>
+        <Divider />
+        <MenuItem component={Link} to="/settings" onClick={() => setUserMenuAnchor(null)}>
+          <Settings size={16} style={{ marginRight: 8 }} />
+          Ayarlar
+        </MenuItem>
+        <MenuItem component={Link} to="/pricing" onClick={() => setUserMenuAnchor(null)}>
+          <CreditCard size={16} style={{ marginRight: 8 }} />
+          Plan Yükselt
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+          <LogOut size={16} style={{ marginRight: 8 }} />
+          Çıkış Yap
+        </MenuItem>
+      </Menu>
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
@@ -211,10 +267,10 @@ export default function DashboardPage() {
         >
           <Box>
             <Typography variant="h4" fontWeight={800}>
-              Welcome back, {MOCK_USER.name.split(" ")[0]}!
+              Hoşgeldin, {userName.split(" ")[0]}!
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Manage your subtitle projects and exports
+              Altyazı projelerini yönet ve dışa aktar
             </Typography>
           </Box>
           <Stack direction="row" spacing={1}>
@@ -246,12 +302,12 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" color="text.secondary">
-                      Videos This Month
+                      Bu Ay Kullanılan
                     </Typography>
                     <Typography variant="h4" fontWeight={700}>
-                      {MOCK_USER.usage.videosThisMonth}
+                      {usageStats?.usage.minutes_used.toFixed(0) || 0}
                       <Typography component="span" variant="body2" color="text.secondary">
-                        /{MOCK_USER.usage.videosLimit}
+                        /{usageStats?.usage.minutes_limit || 30} dk
                       </Typography>
                     </Typography>
                   </Box>
@@ -266,12 +322,12 @@ export default function DashboardPage() {
                       justifyContent: "center",
                     }}
                   >
-                    <Film size={20} color={theme.palette.primary.main} />
+                    <Clock size={20} color={theme.palette.primary.main} />
                   </Box>
                 </Stack>
                 <LinearProgress
                   variant="determinate"
-                  value={usagePercent}
+                  value={Math.min(minutesPercent, 100)}
                   sx={{ mt: 2, height: 6, borderRadius: 3 }}
                 />
               </CardContent>
@@ -284,12 +340,12 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" color="text.secondary">
-                      Storage Used
+                      Depolama
                     </Typography>
                     <Typography variant="h4" fontWeight={700}>
-                      {MOCK_USER.usage.storageUsed}
+                      {((usageStats?.usage.storage_used_mb || 0) / 1024).toFixed(1)}
                       <Typography component="span" variant="body2" color="text.secondary">
-                        GB/{MOCK_USER.usage.storageLimit}GB
+                        GB/{((usageStats?.usage.storage_limit_mb || 500) / 1024).toFixed(0)}GB
                       </Typography>
                     </Typography>
                   </Box>
@@ -309,7 +365,7 @@ export default function DashboardPage() {
                 </Stack>
                 <LinearProgress
                   variant="determinate"
-                  value={storagePercent}
+                  value={Math.min(storagePercent, 100)}
                   color="secondary"
                   sx={{ mt: 2, height: 6, borderRadius: 3 }}
                 />
@@ -323,7 +379,7 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" color="text.secondary">
-                      Total Projects
+                      Toplam Proje
                     </Typography>
                     <Typography variant="h4" fontWeight={700}>
                       {projects.length}
@@ -365,13 +421,13 @@ export default function DashboardPage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      Current Plan
+                      Mevcut Plan
                     </Typography>
                     <Typography variant="h5" fontWeight={700}>
-                      {MOCK_USER.plan.charAt(0).toUpperCase() + MOCK_USER.plan.slice(1)}
+                      {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}
                     </Typography>
                     <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                      Upgrade for more →
+                      Yükselt →
                     </Typography>
                   </Box>
                   <CreditCard size={24} />
@@ -389,7 +445,7 @@ export default function DashboardPage() {
           sx={{ mb: 2 }}
         >
           <Typography variant="h6" fontWeight={700}>
-            Your Projects
+            Projelerin
           </Typography>
           <Button
             component={Link}
@@ -397,22 +453,22 @@ export default function DashboardPage() {
             size="small"
             sx={{ color: "text.secondary" }}
           >
-            View All →
+            Tümünü Gör →
           </Button>
         </Stack>
 
         {loading ? (
           <Card sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
-            <Typography color="text.secondary">Loading projects...</Typography>
+            <Typography color="text.secondary">Projeler yükleniyor...</Typography>
           </Card>
         ) : projects.length === 0 ? (
           <Card sx={{ p: 6, textAlign: "center", borderRadius: 2 }}>
             <FolderOpen size={48} color={theme.palette.text.secondary} style={{ marginBottom: 16 }} />
             <Typography variant="h6" fontWeight={600} gutterBottom>
-              No projects yet
+              Henüz proje yok
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Create your first project to get started
+              Başlamak için ilk projenizi oluşturun
             </Typography>
             <Button
               component={Link}
@@ -420,7 +476,7 @@ export default function DashboardPage() {
               variant="contained"
               startIcon={<Upload size={18} />}
             >
-              Upload Video
+              Video Yükle
             </Button>
           </Card>
         ) : (
@@ -510,15 +566,15 @@ export default function DashboardPage() {
             onClick={handleMenuClose}
           >
             <Edit size={16} style={{ marginRight: 8 }} />
-            Edit
+            Düzenle
           </MenuItem>
           <MenuItem onClick={handleMenuClose}>
             <Download size={16} style={{ marginRight: 8 }} />
-            Export
+            Dışa Aktar
           </MenuItem>
           <MenuItem onClick={handleDeleteProject} sx={{ color: "error.main" }}>
             <Trash2 size={16} style={{ marginRight: 8 }} />
-            Delete
+            Sil
           </MenuItem>
         </Menu>
       </Container>
