@@ -33,9 +33,13 @@ if __package__ in (None, ""):
 try:
     from .styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from .data_store import load_presets, save_presets, load_effects
+    from .auth.routes import router as auth_router
+    from .auth.database import init_db
 except ImportError:
     from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from data_store import load_presets, save_presets, load_effects
+    from auth.routes import router as auth_router
+    from auth.database import init_db
 PYONFX_EFFECT_TYPES = set(PyonFXRenderer.EFFECTS.keys())
 
 def ms_to_ass_timestamp(ms: int) -> str:
@@ -601,6 +605,12 @@ def load_project(project_id: str) -> dict:
 # FastAPI app
 # -----------------------------------------------------------------------------
 app = FastAPI(title="PyCaps API", version="0.1.0")
+
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    init_db()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
@@ -617,6 +627,9 @@ projects_cors = CORSMiddleware(
     allow_credentials=False,
 )
 app.mount("/projects", projects_cors, name="projects")
+
+# Include Auth Router
+app.include_router(auth_router, prefix="/api")
 
 # -----------------------------------------------------------------------------
 # Byte-range video streaming endpoint (enables seeking)

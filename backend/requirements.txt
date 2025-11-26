@@ -5,6 +5,12 @@ faster-whisper==1.0.3
 av==12.3.0
 numpy==1.26.4
 pydantic==2.6.3
+pydantic[email]
 requests==2.32.5
 Pillow
 pyonfx
+# Authentication
+sqlalchemy==2.0.25
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2

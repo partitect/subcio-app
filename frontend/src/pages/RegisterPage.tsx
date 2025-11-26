@@ -33,10 +33,12 @@ import {
   AutoAwesome,
 } from "@mui/icons-material";
 import { PRICING_PLANS } from "../config/pricing";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function RegisterPage() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [searchParams] = useSearchParams();
   const selectedPlanId = searchParams.get("plan") || "free";
   
@@ -92,17 +94,26 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+    setError("");
     
-    // TODO: Implement actual registration
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await register({
+        email: formData.email,
+        password: formData.password,
+        name: formData.fullName,
+      });
+      
       // If paid plan, redirect to checkout
       if (selectedPlan.price.monthly > 0) {
         navigate(`/checkout?plan=${selectedPlanId}`);
       } else {
         navigate("/dashboard");
       }
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Kayıt başarısız. Lütfen tekrar deneyin.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSocialLogin = (provider: string) => {

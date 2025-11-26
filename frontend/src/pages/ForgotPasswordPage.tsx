@@ -19,6 +19,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { ArrowBack, CheckCircle, Email } from "@mui/icons-material";
+import { forgotPassword } from "../services/authService";
 
 export default function ForgotPasswordPage() {
   const theme = useTheme();
@@ -39,11 +40,15 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setError("");
     
-    // TODO: Implement actual password reset
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await forgotPassword(email);
       setSuccess(true);
-    }, 1500);
+    } catch (err: any) {
+      // Always show success to prevent email enumeration
+      setSuccess(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

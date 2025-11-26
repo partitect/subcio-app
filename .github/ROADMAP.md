@@ -8,13 +8,14 @@
 ## 📋 İçindekiler
 
 1. [UI/UX Geliştirmeleri](#-uiux-geliştirmeleri)
-2. [Üretim Geliştirmeleri](#-üretim-geliştirmeleri)
-3. [Performans & Hızlandırma](#-performans--hızlandırma)
-4. [Refaktör Önerileri](#-refaktör-önerileri)
-5. [Kod Kalitesi](#-kod-kalitesi)
-6. [Yeni Özellikler](#-yeni-özellikler)
-7. [Altyapı & DevOps](#%EF%B8%8F-altyapı--devops)
-8. [Dokümantasyon](#-dokümantasyon)
+2. [SaaS & Subscription](#-saas--subscription)
+3. [Üretim Geliştirmeleri](#-üretim-geliştirmeleri)
+4. [Performans & Hızlandırma](#-performans--hızlandırma)
+5. [Refaktör Önerileri](#-refaktör-önerileri)
+6. [Kod Kalitesi](#-kod-kalitesi)
+7. [Yeni Özellikler](#-yeni-özellikler)
+8. [Altyapı & DevOps](#%EF%B8%8F-altyapı--devops)
+9. [Dokümantasyon](#-dokümantasyon)
 
 ---
 
@@ -83,6 +84,87 @@
   - Keyboard navigation desteği
   - Screen reader uyumluluğu
   - Renk kontrastı kontrolü
+
+---
+
+## 💳 SaaS & Subscription
+
+### Öncelik: Yüksek 🔴
+
+- [x] **Landing Page Redesign** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Profesyonel SaaS landing page~~ → 8 yeni bileşen oluşturuldu:
+    - `HeroSection.tsx` - Ana hero bölümü
+    - `FeaturesSection.tsx` - 6 özellik kartı
+    - `PricingSection.tsx` - 4 plan (Free/Creator/Pro/Enterprise)
+    - `TestimonialsSection.tsx` - Müşteri yorumları
+    - `FAQSection.tsx` - Sık sorulan sorular
+    - `CTASection.tsx` - Son çağrı
+    - `Footer.tsx` - Site footer
+    - `Navbar.tsx` - Responsive navigasyon
+  - ~~Monthly/Yearly toggle~~ → %20 yearly indirim
+  - ~~Feature comparison table~~ → Plan karşılaştırma
+
+- [x] **Upload Page Redesign** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Navbar entegrasyonu~~ → Landing page ile tutarlı
+  - ~~Lottie animasyonları~~ → Upload, processing, success animasyonları
+  - ~~Desteklenen formatlar~~ → Renkli ikonlarla gösterim
+  - ~~Usage limit gösterimi~~ → Progress bar ile dakika kullanımı
+  - ~~Recent uploads~~ → Son yüklemeler listesi
+  - ~~Step-by-step progress~~ → 5 adımlı ilerleme göstergesi
+  - ~~Pro Tips~~ → Kullanıcı ipuçları kartı
+
+- [x] **Pricing Configuration** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Plan tanımları~~ → `config/pricing.ts`
+  - 4 plan: Starter ($0), Creator ($19/mo), Professional ($49/mo), Enterprise ($149/mo)
+  - Video limitleri, storage, özellik setleri
+
+- [x] **Authentication Pages** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Login sayfası~~ → `LoginPage.tsx`
+  - ~~Register sayfası~~ → `RegisterPage.tsx` (plan seçimi desteği)
+  - ~~Forgot password~~ → `ForgotPasswordPage.tsx`
+  - ~~OAuth butonları~~ → Google, GitHub (hazır UI)
+
+- [x] **Dashboard Page** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Kullanıcı projeler listesi~~ → `DashboardPage.tsx`
+  - ~~Usage stats~~ → Dakika kullanımı, proje sayısı
+  - ~~Quick actions~~ → Yeni proje, son projeler
+
+### Öncelik: Orta 🟡 (Devam Edecek)
+
+- [ ] **Backend Authentication**
+  - JWT token sistemi
+  - User model (SQLite/PostgreSQL)
+  - Password hashing (bcrypt)
+  - OAuth integration (Google, GitHub)
+  - Refresh token flow
+
+- [ ] **Payment Integration**
+  - Stripe veya Paddle entegrasyonu
+  - Subscription management
+  - Usage-based billing
+  - Invoice generation
+  - Webhook handling
+
+- [ ] **User Management**
+  - Profile settings
+  - Password change
+  - Email verification
+  - Account deletion
+  - Usage history
+
+### Öncelik: Düşük 🟢
+
+- [ ] **Team Features**
+  - Team workspace
+  - Member invitations
+  - Role-based permissions
+  - Shared projects
+
+- [ ] **Admin Dashboard**
+  - User management
+  - Subscription analytics
+  - Usage reports
+  - System health
 
 ---
 
@@ -456,6 +538,13 @@ backend/
 | UI Component Library | Orta | Orta | 🟡 P2 | ✅ Tamamlandı |
 | ASS preview caching | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
 | Batch export | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
+| **Landing Page Redesign** | Yüksek | Yüksek | 🔴 P1 | ✅ Tamamlandı |
+| **Upload Page Redesign** | Orta | Orta | 🔴 P1 | ✅ Tamamlandı |
+| **Auth Pages (UI)** | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
+| **Dashboard Page** | Orta | Orta | 🔴 P1 | ✅ Tamamlandı |
+| **Pricing Config** | Orta | Düşük | 🔴 P1 | ✅ Tamamlandı |
+| Backend Auth | Yüksek | Yüksek | 🔴 P1 | ⏳ Devam |
+| Payment Integration | Yüksek | Yüksek | 🔴 P1 | ⏳ Bekliyor |
 | Unit test coverage | Orta | Yüksek | 🟡 P2 | ⏳ Bekliyor |
 | Mobile responsive | Orta | Orta | 🟡 P2 | ⏳ Bekliyor |
 | Plugin sistemi | Yüksek | Çok Yüksek | 🟢 P3 | ⏳ Bekliyor |
@@ -473,30 +562,40 @@ backend/
 - [x] Klavye kısayolları
 - [x] Preset arama/filtreleme
 - [x] UI Component Library güncelleme
-- [ ] Test coverage %50
-- [ ] Bug fixes
+- [x] ASS preview caching
+- [x] Batch export
 
-### v1.2 - UX İyileştirmeleri (Mart 2026)
+### v1.2 - SaaS Foundation ✅ *Kasım 2025 - TAMAMLANDI*
 
-- [x] ~~Timeline editörü~~ ✅
-- [x] ~~Tema sistemi~~ ✅
-- [ ] Preset galerisi v2 (favoriler, drag & drop)
+- [x] Landing Page Redesign (8 bileşen)
+- [x] Pricing Configuration (4 plan)
+- [x] Upload Page Redesign (Lottie animasyonları)
+- [x] Auth Pages UI (Login, Register, Forgot Password)
+- [x] Dashboard Page
+- [ ] Backend Authentication (JWT, OAuth)
+- [ ] Payment Integration (Stripe/Paddle)
+
+### v1.3 - SaaS Complete (Aralık 2025)
+
+- [ ] Backend Auth sistemi
+- [ ] Stripe/Paddle entegrasyonu
+- [ ] User profile & settings
+- [ ] Usage tracking & limits
+- [ ] Email notifications
+
+### v1.4 - UX İyileştirmeleri (Ocak 2026)
+
 - [ ] Mobile responsive
+- [ ] Preset galerisi v2 (favoriler)
 - [ ] Kısayol referans paneli
+- [ ] Test coverage %50
 
-### v1.3 - Üretim Özellikleri (Haziran 2026)
-
-- [ ] Batch export
-- [ ] Yeni efektler
-- [ ] Cloud storage
-- [ ] API documentation
-
-### v2.0 - Büyük Güncelleme (2026 Q4)
+### v2.0 - Büyük Güncelleme (2026 Q2)
 
 - [ ] Plugin sistemi
 - [ ] AI features
+- [ ] Team features
 - [ ] Real-time collaboration
-- [ ] Desktop app
 
 ---
 
@@ -512,33 +611,68 @@ backend/
 | ⌨️ Kısayollar | Klavye Kısayolları | Space, arrows, Ctrl+S/E/Z/Y |
 | 🔍 Arama | Preset Filtreleme | 11 kategori, arama fonksiyonu |
 | 📦 Bileşenler | UI Component Library | MUI tema entegrasyonu |
+| ⚡ Performance | ASS Preview Caching | Diff-based, debounced updates |
+| 📤 Export | Batch Export | Queue system, progress tracking |
+| 🌐 Landing | Landing Page Redesign | 8 profesyonel SaaS bileşeni |
+| 📤 Upload | Upload Page Redesign | Lottie, progress steps, usage |
+| 🔐 Auth | Auth Pages UI | Login, Register, Forgot Password |
+| 📊 Dashboard | Dashboard Page | Projects, usage stats |
+| 💰 Pricing | Pricing Config | 4 plan, feature comparison |
 
 ### Oluşturulan Yeni Dosyalar
 
 ```plaintext
 frontend/src/
-├── components/editor/
-│   ├── EditorHeader.tsx     # Header ve navigasyon
-│   ├── VideoPlayer.tsx      # Video/audio player (cache indicator ekli)
-│   ├── Timeline.tsx         # Profesyonel timeline
-│   ├── StylePanel.tsx       # Stil düzenleme
-│   ├── TranscriptPanel.tsx  # Transcript düzenleme
-│   ├── PresetGallery.tsx    # Preset galerisi
-│   └── EffectConfig.tsx     # Efekt konfigürasyonu
+├── components/
+│   ├── editor/
+│   │   ├── EditorHeader.tsx     # Header ve navigasyon
+│   │   ├── VideoPlayer.tsx      # Video/audio player
+│   │   ├── Timeline.tsx         # Profesyonel timeline
+│   │   ├── StylePanel.tsx       # Stil düzenleme
+│   │   ├── TranscriptPanel.tsx  # Transcript düzenleme
+│   │   ├── PresetGallery.tsx    # Preset galerisi
+│   │   └── EffectConfig.tsx     # Efekt konfigürasyonu
+│   ├── landing/                  # YENİ - Landing page bileşenleri
+│   │   ├── Navbar.tsx
+│   │   ├── HeroSection.tsx
+│   │   ├── FeaturesSection.tsx
+│   │   ├── PricingSection.tsx
+│   │   ├── TestimonialsSection.tsx
+│   │   ├── FAQSection.tsx
+│   │   ├── CTASection.tsx
+│   │   ├── Footer.tsx
+│   │   └── index.ts
+│   └── BatchExportDialog.tsx
+├── config/
+│   └── pricing.ts               # YENİ - Plan tanımları
+├── pages/
+│   ├── LandingPage.tsx          # Yeniden tasarlandı
+│   ├── UploadPage.tsx           # Yeniden tasarlandı
+│   ├── DashboardPage.tsx        # YENİ
+│   ├── PricingPage.tsx          # YENİ
+│   ├── LoginPage.tsx            # YENİ
+│   ├── RegisterPage.tsx         # YENİ
+│   └── ForgotPasswordPage.tsx   # YENİ
 ├── hooks/
 │   ├── useKeyboardShortcuts.ts
-│   └── useAssPreview.ts     # ASS preview caching hook
+│   └── useAssPreview.ts
 ├── utils/
-│   └── assCache.ts          # ASS cache utility
-└── ThemeContext.tsx         # Tema yönetimi
+│   └── assCache.ts
+├── ThemeContext.tsx
+└── App.tsx                      # Yeni route'lar eklendi
+    
+frontend/public/lottie/          # YENİ - Lottie animasyonları
+├── upload-animation.json
+├── processing-dots.json
+└── success-check.json
 ```
 
 ### Sonraki Adımlar
 
-1. ✅ ASS preview caching optimizasyonu (Tamamlandı)
-2. ✅ Batch export özelliği (Tamamlandı)
-3. ⏳ Backend test coverage artırma
-4. ⏳ Mobile responsive tasarım
+1. ⏳ Backend Authentication (JWT, user model, OAuth)
+2. ⏳ Payment Integration (Stripe/Paddle)
+3. ⏳ User profile & settings
+4. ⏳ Usage tracking & billing
 
 ---
 

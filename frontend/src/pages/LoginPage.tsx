@@ -29,10 +29,12 @@ import {
   Google as GoogleIcon,
   GitHub as GitHubIcon,
 } from "@mui/icons-material";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { login } = useAuth();
   
   const [formData, setFormData] = useState({
     email: "",
@@ -64,12 +66,19 @@ export default function LoginPage() {
     }
 
     setLoading(true);
+    setError("");
     
-    // TODO: Implement actual login
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await login({
+        email: formData.email,
+        password: formData.password,
+      });
       navigate("/dashboard");
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
