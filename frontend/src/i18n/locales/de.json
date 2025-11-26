@@ -17,7 +17,8 @@
     "all": "Alle",
     "none": "Keine",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "apply": "Anwenden"
   },
   "nav": {
     "features": "Funktionen",
@@ -278,39 +279,148 @@
     "title": "Untertitel bearbeiten",
     "save": "Speichern",
     "export": "Exportieren",
+    "exporting": "Verarbeitung...",
     "preview": "Vorschau",
-    "timeline": "Zeitleiste",
     "subtitles": "Untertitel",
-    "style": "Stil",
+    "presets": "Vorlagen",
     "settings": "Einstellungen",
     "addSubtitle": "Untertitel hinzufügen",
     "deleteSubtitle": "Löschen",
     "splitSubtitle": "Teilen",
     "mergeSubtitles": "Zusammenführen",
     "autoSync": "Auto-Sync",
+    "backToHome": "Startseite",
+    "lightTheme": "Helles Theme",
+    "darkTheme": "Dunkles Theme",
+    "audioMode": "Audio-Modus",
+    "changeBackground": "Hintergrundvideo ändern",
+    "renderSettings": "Render-Einstellungen",
+    "outputName": "Ausgabename",
+    "quality": "Qualität",
+    "original": "Original",
+    "rendering": "Rendering...",
+    "render": "Rendern",
+    "selectBackground": "Hintergrundvideo auswählen",
+    "selectBackgroundDescription": "Wählen Sie ein Hintergrundvideo für die Audio-Untertitelvorschau.",
+    "availableBackgrounds": "Verfügbare Hintergrundvideos",
+    "customVideoUrl": "Benutzerdefinierte Video-URL",
+    "resetToDefault": "Auf Standard zurücksetzen",
+    "header": {
+      "settings": "Einstellungen",
+      "export": "Exportieren",
+      "exporting": "Rendering...",
+      "backToHome": "Startseite",
+      "lightTheme": "Helles Theme",
+      "darkTheme": "Dunkles Theme"
+    },
+    "tabs": {
+      "style": "Stil",
+      "presets": "Vorlagen",
+      "transcript": "Transkript"
+    },
     "preset": {
       "title": "Vorlage",
       "apply": "Anwenden",
-      "customize": "Anpassen"
+      "customize": "Anpassen",
+      "searchPlaceholder": "Presets suchen...",
+      "categories": "Kategorien",
+      "found": "{{count}} Presets gefunden",
+      "noResults": "Keine Presets gefunden, die Ihrer Suche entsprechen",
+      "tryDifferent": "Versuchen Sie einen anderen Suchbegriff oder eine andere Kategorie",
+      "category": {
+        "all": "Alle",
+        "tiktok": "TikTok",
+        "karaoke": "Karaoke",
+        "fire": "Feuer/Flamme",
+        "neon": "Neon/Leuchten",
+        "glitch": "Glitch/Retro",
+        "nature": "Natur",
+        "cinema": "Kinematisch",
+        "horror": "Horror",
+        "bounce": "Bewegung",
+        "text": "Texteffekt"
+      }
     },
-    "font": {
-      "title": "Schriftart",
-      "family": "Schriftfamilie",
-      "size": "Größe",
-      "color": "Farbe",
+    "style": {
+      "font": "Schriftart",
+      "fontSize": "Schriftgröße",
+      "fontWeight": "Schriftstärke",
+      "letterSpacing": "Zeichenabstand",
+      "regular": "Normal",
       "bold": "Fett",
-      "italic": "Kursiv"
+      "savePreset": "Preset speichern",
+      "saving": "Speichern...",
+      "border": "Rahmen",
+      "shadowBlur": "Schattenunschärfe",
+      "shadowOffset": "Schattenversatz",
+      "blur": "Unschärfe",
+      "verticalPosition": "Vertikale Position",
+      "colors": {
+        "primary": "Primär",
+        "secondary": "Sekundär",
+        "outline": "Umrandung",
+        "shadow": "Schatten",
+        "background": "Hintergrund"
+      },
+      "position": {
+        "bottom": "Unten",
+        "middle": "Mitte",
+        "top": "Oben"
+      }
     },
-    "position": {
-      "title": "Position",
-      "alignment": "Ausrichtung",
-      "margin": "Rand"
+    "transcript": {
+      "title": "Transkript-Editor",
+      "lines": "{{count}} Zeilen",
+      "endsAt": "Endet bei {{time}}s",
+      "sortByTime": "Nach Zeit sortieren",
+      "addLine": "Neue Zeile hinzufügen",
+      "start": "Start",
+      "end": "Ende",
+      "duration": "Dauer: {{time}}s",
+      "seekToStart": "Zum Anfang springen",
+      "duplicateLine": "Zeile duplizieren",
+      "deleteLine": "Zeile löschen"
     },
-    "effects": {
-      "title": "Effekte",
-      "outline": "Umrandung",
-      "shadow": "Schatten",
-      "background": "Hintergrund"
+    "timeline": {
+      "zoom": "Zoom",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern",
+      "playhead": "Abspielkopf",
+      "skipBack": "5s Zurück (←)",
+      "skipForward": "5s Vor (→)",
+      "play": "Abspielen (Space)",
+      "pause": "Pause (Space)",
+      "mute": "Stummschalten (M)",
+      "unmute": "Ton an (M)"
+    },
+    "video": {
+      "noVideo": "Kein Video geladen",
+      "audioOnly": "Audio-Visualisierung",
+      "play": "Abspielen",
+      "pause": "Pause",
+      "loadProject": "Projekt laden für Vorschau",
+      "updating": "Aktualisieren...",
+      "cached": "Zwischengespeichert"
+    },
+    "shortcuts": {
+      "title": "Tastaturkürzel",
+      "playPause": "Abspielen/Pause",
+      "seekBack": "5s Zurück",
+      "seekForward": "5s Vor",
+      "save": "Speichern",
+      "export": "Exportieren",
+      "undo": "Rückgängig",
+      "redo": "Wiederholen"
+    },
+    "messages": {
+      "saved": "Änderungen erfolgreich gespeichert",
+      "exportStarted": "Export gestartet",
+      "exportComplete": "Export abgeschlossen!",
+      "exportFailed": "Export fehlgeschlagen. Bitte versuche es erneut.",
+      "noChanges": "Keine Änderungen zum Speichern",
+      "noPreset": "Kein Preset zum Speichern.",
+      "presetSaved": "Preset gespeichert.",
+      "saveFailed": "Fehler beim Speichern des Presets"
     }
   },
   "export": {

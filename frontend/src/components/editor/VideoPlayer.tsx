@@ -1,4 +1,5 @@
 import { memo, RefObject, VideoHTMLAttributes, AudioHTMLAttributes } from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Stack, Typography, alpha, Chip, CircularProgress } from "@mui/material";
 import { Pause, Play, Zap } from "lucide-react";
 import JSOOverlay from "../JSOOverlay";
@@ -46,6 +47,8 @@ function VideoPlayerComponent({
   getAudioProps,
   getBgVideoProps,
 }: VideoPlayerProps) {
+  const { t } = useTranslation();
+
   return (
     <Box
       ref={overlayRef}
@@ -117,7 +120,7 @@ function VideoPlayerComponent({
             color: "text.secondary",
           }}
         >
-          <Typography variant="body2">Load a project to preview</Typography>
+          <Typography variant="body2">{t('editor.video.loadProject')}</Typography>
         </Stack>
       )}
 
@@ -178,7 +181,7 @@ function VideoPlayerComponent({
           <Chip
             size="small"
             icon={<CircularProgress size={12} sx={{ color: "inherit" }} />}
-            label="Updating..."
+            label={t('editor.video.updating')}
             sx={{
               bgcolor: alpha("#000", 0.6),
               color: "#fff",
@@ -191,7 +194,7 @@ function VideoPlayerComponent({
           <Chip
             size="small"
             icon={<Zap size={12} />}
-            label="Cached"
+            label={t('editor.video.cached')}
             sx={{
               bgcolor: alpha("#4caf50", 0.8),
               color: "#fff",

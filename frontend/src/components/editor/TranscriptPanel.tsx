@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Chip,
@@ -42,6 +43,8 @@ function TranscriptPanelComponent({
   onSortWords,
   onSeekToWord,
 }: TranscriptPanelProps) {
+  const { t } = useTranslation();
+
   return (
     <Stack
       spacing={1.5}
@@ -60,19 +63,19 @@ function TranscriptPanelComponent({
       >
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
           <Typography variant="h6" fontWeight={700}>
-            Transcript Editor
+            {t('editor.transcript.title')}
           </Typography>
-          <Chip label={`${words.length} lines`} size="small" />
-          <Chip label={`Ends at ${(totalDuration || 0).toFixed(2)}s`} size="small" />
+          <Chip label={t('editor.transcript.lines', { count: words.length })} size="small" />
+          <Chip label={t('editor.transcript.endsAt', { time: (totalDuration || 0).toFixed(2) })} size="small" />
         </Stack>
 
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Sort by start time">
+          <Tooltip title={t('editor.transcript.sortByTime')}>
             <IconButton color="default" onClick={onSortWords}>
               <ListOrdered size={18} />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Add new line">
+          <Tooltip title={t('editor.transcript.addLine')}>
             <IconButton color="primary" onClick={onAddWord}>
               <Plus size={18} />
             </IconButton>
@@ -103,7 +106,7 @@ function TranscriptPanelComponent({
           >
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
               <TextField
-                label="Start"
+                label={t('editor.transcript.start')}
                 type="number"
                 size="small"
                 value={w.start.toFixed(2)}
@@ -112,7 +115,7 @@ function TranscriptPanelComponent({
                 sx={{ width: 120 }}
               />
               <TextField
-                label="End"
+                label={t('editor.transcript.end')}
                 type="number"
                 size="small"
                 value={w.end.toFixed(2)}
@@ -121,23 +124,23 @@ function TranscriptPanelComponent({
                 sx={{ width: 120 }}
               />
               <Typography variant="caption" color="text.secondary">
-                Dur. {(w.end - w.start).toFixed(2)}s
+                {t('editor.transcript.duration', { time: (w.end - w.start).toFixed(2) })}
               </Typography>
             </Stack>
 
             {/* Action Buttons */}
             <Stack direction="row" spacing={0.5}>
-              <Tooltip title="Seek to start">
+              <Tooltip title={t('editor.transcript.seekToStart')}>
                 <IconButton size="small" onClick={() => onSeekToWord(w.start)}>
                   <Play size={16} />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Duplicate line">
+              <Tooltip title={t('editor.transcript.duplicateLine')}>
                 <IconButton size="small" onClick={() => onDuplicateWord(idx)}>
                   <Copy size={16} />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Delete line">
+              <Tooltip title={t('editor.transcript.deleteLine')}>
                 <IconButton size="small" color="error" onClick={() => onDeleteWord(idx)}>
                   <Trash2 size={16} />
                 </IconButton>

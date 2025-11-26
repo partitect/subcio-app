@@ -17,7 +17,8 @@
     "all": "Tümü",
     "none": "Hiçbiri",
     "yes": "Evet",
-    "no": "Hayır"
+    "no": "Hayır",
+    "apply": "Uygula"
   },
   "nav": {
     "features": "Özellikler",
@@ -278,39 +279,149 @@
     "title": "Altyazıları Düzenle",
     "save": "Kaydet",
     "export": "Dışa Aktar",
+    "exporting": "İşleniyor...",
     "preview": "Önizle",
-    "timeline": "Zaman Çizelgesi",
     "subtitles": "Altyazılar",
-    "style": "Stil",
+    "presets": "Hazır Stiller",
     "settings": "Ayarlar",
     "addSubtitle": "Altyazı Ekle",
     "deleteSubtitle": "Sil",
     "splitSubtitle": "Böl",
     "mergeSubtitles": "Birleştir",
     "autoSync": "Otomatik Senkronize",
+    "backToHome": "Ana Sayfa",
+    "lightTheme": "Açık Tema",
+    "darkTheme": "Koyu Tema",
+    "audioMode": "Ses Modu",
+    "changeBackground": "Arka Plan Videosunu Değiştir",
+    "renderSettings": "Render Ayarları",
+    "outputName": "Çıktı Adı",
+    "quality": "Kalite",
+    "original": "Orijinal",
+    "rendering": "İşleniyor...",
+    "render": "Render",
+    "selectBackground": "Arka Plan Videosu Seç",
+    "selectBackgroundDescription": "Ses altyazı önizlemesi için bir arka plan videosu seçin.",
+    "availableBackgrounds": "Mevcut Arka Plan Videoları",
+    "customVideoUrl": "Özel Video URL'si",
+    "resetToDefault": "Varsayılana Sıfırla",
+    "header": {
+      "settings": "Ayarlar",
+      "export": "Dışa Aktar",
+      "exporting": "İşleniyor...",
+      "backToHome": "Ana Sayfa",
+      "lightTheme": "Açık Tema",
+      "darkTheme": "Koyu Tema"
+    },
+    "tabs": {
+      "style": "Stil",
+      "presets": "Stiller",
+      "transcript": "Transkript"
+    },
     "preset": {
       "title": "Hazır Stil",
       "apply": "Uygula",
-      "customize": "Özelleştir"
+      "customize": "Özelleştir",
+      "searchPlaceholder": "Preset ara...",
+      "categories": "Kategoriler",
+      "found": "{{count}} preset bulundu",
+      "noResults": "Aramanızla eşleşen preset bulunamadı",
+      "tryDifferent": "Farklı bir arama terimi veya kategori deneyin",
+      "category": {
+        "all": "Tümü",
+        "tiktok": "TikTok",
+        "karaoke": "Karaoke",
+        "fire": "Ateş/Alev",
+        "neon": "Neon/Parıltı",
+        "glitch": "Glitch/Retro",
+        "nature": "Doğa",
+        "cinema": "Sinematik",
+        "horror": "Korku",
+        "bounce": "Hareket",
+        "text": "Yazı Efekti"
+      }
     },
-    "font": {
-      "title": "Yazı Tipi",
-      "family": "Font",
-      "size": "Boyut",
-      "color": "Renk",
+    "style": {
+      "font": "Yazı Tipi",
+      "fontSize": "Yazı Boyutu",
+      "fontWeight": "Yazı Kalınlığı",
+      "letterSpacing": "Harf Aralığı",
+      "regular": "Normal",
       "bold": "Kalın",
-      "italic": "İtalik"
+      "savePreset": "Preset Kaydet",
+      "saving": "Kaydediliyor...",
+      "border": "Çerçeve",
+      "shadowBlur": "Gölge Bulanıklığı",
+      "shadowOffset": "Gölge Offset",
+      "blur": "Bulanıklık",
+      "verticalPosition": "Dikey Konum",
+      "colors": {
+        "primary": "Ana",
+        "secondary": "İkincil",
+        "outline": "Çerçeve",
+        "shadow": "Gölge",
+        "background": "Arka Plan"
+      },
+      "position": {
+        "bottom": "Alt",
+        "middle": "Orta",
+        "top": "Üst"
+      }
     },
-    "position": {
-      "title": "Konum",
-      "alignment": "Hizalama",
-      "margin": "Kenar Boşluğu"
+    "transcript": {
+      "title": "Transkript Editörü",
+      "lines": "{{count}} satır",
+      "endsAt": "Bitiş: {{time}}sn",
+      "sortByTime": "Zamana göre sırala",
+      "addLine": "Yeni satır ekle",
+      "start": "Başlangıç",
+      "end": "Bitiş",
+      "duration": "Süre: {{time}}sn",
+      "seekToStart": "Başlangıca git",
+      "duplicateLine": "Satırı çoğalt",
+      "deleteLine": "Satırı sil"
     },
-    "effects": {
-      "title": "Efektler",
-      "outline": "Kenarlık",
-      "shadow": "Gölge",
-      "background": "Arka Plan"
+    "timeline": {
+      "title": "Zaman Çizelgesi",
+      "zoom": "Yakınlaştır",
+      "zoomIn": "Yakınlaştır",
+      "zoomOut": "Uzaklaştır",
+      "playhead": "Oynatma Kafası",
+      "skipBack": "5sn Geri (←)",
+      "skipForward": "5sn İleri (→)",
+      "play": "Oynat (Space)",
+      "pause": "Duraklat (Space)",
+      "mute": "Sessize Al (M)",
+      "unmute": "Sesi Aç (M)"
+    },
+    "video": {
+      "noVideo": "Video yüklenmedi",
+      "audioOnly": "Ses görselleştirme",
+      "play": "Oynat",
+      "pause": "Duraklat",
+      "loadProject": "Önizleme için proje yükleyin",
+      "updating": "Güncelleniyor...",
+      "cached": "Önbellekte"
+    },
+    "shortcuts": {
+      "title": "Klavye Kısayolları",
+      "playPause": "Oynat/Duraklat",
+      "seekBack": "5 sn Geri",
+      "seekForward": "5 sn İleri",
+      "save": "Kaydet",
+      "export": "Dışa Aktar",
+      "undo": "Geri Al",
+      "redo": "Yinele"
+    },
+    "messages": {
+      "saved": "Değişiklikler kaydedildi",
+      "exportStarted": "Dışa aktarma başladı",
+      "exportComplete": "Dışa aktarma tamamlandı!",
+      "exportFailed": "Dışa aktarma başarısız. Lütfen tekrar deneyin.",
+      "noChanges": "Kaydedilecek değişiklik yok",
+      "noPreset": "Kaydedilecek preset yok.",
+      "presetSaved": "Preset kaydedildi.",
+      "saveFailed": "Preset kaydedilemedi"
     }
   },
   "export": {

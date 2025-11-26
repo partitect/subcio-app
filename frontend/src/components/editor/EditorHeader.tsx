@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -24,6 +25,7 @@ interface EditorHeaderProps {
  */
 function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { mode, toggleTheme } = useTheme();
   const muiTheme = useMuiTheme();
 
@@ -52,7 +54,7 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
       {/* Left Section: Logo & Navigation */}
       <Stack direction="row" alignItems="center" spacing={2}>
         {/* Back Button */}
-        <Tooltip title="Ana Sayfa" arrow>
+        <Tooltip title={t('editor.header.backToHome')} arrow>
           <IconButton
             onClick={() => navigate("/")}
             size="small"
@@ -119,7 +121,7 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
       {/* Right Section: Actions */}
       <Stack direction="row" alignItems="center" spacing={1.5}>
         {/* Theme Toggle Button */}
-        <Tooltip title={isDark ? "Açık Tema" : "Koyu Tema"} arrow>
+        <Tooltip title={isDark ? t('editor.header.lightTheme') : t('editor.header.darkTheme')} arrow>
           <IconButton
             size="small"
             onClick={toggleTheme}
@@ -139,7 +141,7 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
         </Tooltip>
 
         {/* Settings Button */}
-        <Tooltip title="Ayarlar" arrow>
+        <Tooltip title={t('editor.header.settings')} arrow>
           <IconButton
             size="small"
             sx={{
@@ -202,10 +204,10 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
                   },
                 }}
               />
-              <span>Rendering...</span>
+              <span>{t('editor.header.exporting')}</span>
             </Stack>
           ) : (
-            "Export"
+            t('editor.header.export')
           )}
         </Button>
       </Stack>

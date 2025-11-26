@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control, jsx-a11y/no-static-element-interactions */
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { Film } from "lucide-react";
 import {
@@ -142,6 +143,7 @@ const normalizeFontName = (
 };
 
 export default function EditorPage() {
+  const { t } = useTranslation();
   const { projectId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -399,7 +401,7 @@ export default function EditorPage() {
 
   const savePreset = useCallback(async () => {
     if (!style.id) {
-      setToast({ open: true, message: "Kaydedilecek preset yok.", severity: "error" });
+      setToast({ open: true, message: t('editor.messages.noPreset'), severity: "error" });
       return;
     }
 
@@ -417,15 +419,15 @@ export default function EditorPage() {
     setSavingPreset(true);
     try {
       await axios.post(`${API_BASE}/presets/update`, payload);
-      setToast({ open: true, message: "Preset kaydedildi.", severity: "success" });
+      setToast({ open: true, message: t('editor.messages.presetSaved'), severity: "success" });
     } catch (err: any) {
       console.error("Preset save failed", err);
-      const msg = err?.response?.data?.detail || "Failed to save preset";
+      const msg = err?.response?.data?.detail || t('editor.messages.saveFailed');
       setToast({ open: true, message: msg, severity: "error" });
     } finally {
       setSavingPreset(false);
     }
-  }, [style, presets]);
+  }, [style, presets, t]);
 
   const handleExport = useCallback(async () => {
     setShowRenderModal(false);
@@ -645,9 +647,9 @@ export default function EditorPage() {
               indicatorColor="primary"
               sx={{ mb: 1 }}
             >
-              <Tab value="presets" label="Presets" />
-              <Tab value="style" label="Style" />
-              <Tab value="transcript" label="Transcript" />
+              <Tab value="presets" label={t('editor.tabs.presets')} />
+              <Tab value="style" label={t('editor.tabs.style')} />
+              <Tab value="transcript" label={t('editor.tabs.transcript')} />
             </Tabs>
 
             {activeTab === "presets" && (
@@ -705,14 +707,14 @@ export default function EditorPage() {
                 alignItems="center"
                 justifyContent="space-between"
               >
-                <Chip icon={<Film size={14} />} label="Audio Mode" size="small" color="info" variant="outlined" />
+                <Chip icon={<Film size={14} />} label={t('editor.audioMode')} size="small" color="info" variant="outlined" />
                 <Button
                   variant="outlined"
                   size="small"
                   startIcon={<Film size={14} />}
                   onClick={() => setShowBgSelector(true)}
                 >
-                  Change Background Video
+                  {t('editor.changeBackground')}
                 </Button>
               </Stack>
             )}
@@ -759,32 +761,32 @@ export default function EditorPage() {
 
       {/* Render Modal */}
       <Dialog open={showRenderModal} onClose={() => setShowRenderModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Render Settings</DialogTitle>
+        <DialogTitle>{t('editor.renderSettings')}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2}>
             <TextField
-              label="Output Name"
+              label={t('editor.outputName')}
               fullWidth
               value={exportName}
               onChange={(e) => setExportName(e.target.value)}
             />
             <TextField
               select
-              label="Quality"
+              label={t('editor.quality')}
               fullWidth
               value={exportQuality}
               onChange={(e) => setExportQuality(e.target.value)}
             >
               <MenuItem value="1080p">1080p</MenuItem>
               <MenuItem value="4k">4K</MenuItem>
-              <MenuItem value="original">Original</MenuItem>
+              <MenuItem value="original">{t('editor.original')}</MenuItem>
             </TextField>
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowRenderModal(false)}>Cancel</Button>
+          <Button onClick={() => setShowRenderModal(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleExport} disabled={exporting}>
-            {exporting ? "Rendering..." : "Render"}
+            {exporting ? t('editor.rendering') : t('editor.render')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -794,16 +796,16 @@ export default function EditorPage() {
         <DialogTitle>
           <Stack direction="row" alignItems="center" spacing={1}>
             <Film size={20} />
-            <Typography variant="h6">Select Background Video</Typography>
+            <Typography variant="h6">{t('editor.selectBackground')}</Typography>
           </Stack>
         </DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Choose a background video for your audio subtitle preview.
+            {t('editor.selectBackgroundDescription')}
           </Typography>
 
           <Typography variant="subtitle2" mb={1}>
-            Available Background Videos
+            {t('editor.availableBackgrounds')}
           </Typography>
           <Grid container spacing={1.5} mb={3}>
             {[{ name: "Default BG 1", url: "/audiobg/audio-bg-1.mp4" }].map((bg, idx) => (
@@ -849,7 +851,7 @@ export default function EditorPage() {
           </Grid>
 
           <Typography variant="subtitle2" mb={1}>
-            Custom Video URL
+            {t('editor.customVideoUrl')}
           </Typography>
           <Stack direction="row" spacing={1}>
             <TextField
@@ -860,14 +862,14 @@ export default function EditorPage() {
               onChange={(e) => setBgVideoUrl(e.target.value)}
             />
             <Button variant="contained" onClick={() => setShowBgSelector(false)}>
-              Apply
+              {t('common.apply')}
             </Button>
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowBgSelector(false)}>Cancel</Button>
+          <Button onClick={() => setShowBgSelector(false)}>{t('common.cancel')}</Button>
           <Button variant="outlined" onClick={() => handleBgVideoSelect(DEFAULT_BG_VIDEO)}>
-            Reset to Default
+            {t('editor.resetToDefault')}
           </Button>
         </DialogActions>
       </Dialog>

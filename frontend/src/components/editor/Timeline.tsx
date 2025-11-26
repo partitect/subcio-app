@@ -1,4 +1,5 @@
 import { memo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Box, IconButton, Paper, Stack, Tooltip, Typography, useTheme as useMuiTheme } from "@mui/material";
 import { Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { formatTime, generateTimelineTicks, TimelineTick } from "../../utils/timeFormat";
@@ -47,6 +48,7 @@ function TimelineComponent({
   onSkipBackward,
   onSkipForward,
 }: TimelineProps) {
+  const { t } = useTranslation();
   const muiTheme = useMuiTheme();
   const { isDark } = useTheme();
 
@@ -159,7 +161,7 @@ function TimelineComponent({
 
         {/* Center: Playback Controls */}
         <Stack direction="row" spacing={1} alignItems="center">
-          <Tooltip title="5s Geri (←)" arrow>
+          <Tooltip title={t('editor.timeline.skipBack')} arrow>
             <IconButton
               size="small"
               onClick={() => onSkipBackward(5)}
@@ -176,7 +178,7 @@ function TimelineComponent({
             </IconButton>
           </Tooltip>
 
-          <Tooltip title={isPlaying ? "Duraklat (Space)" : "Oynat (Space)"} arrow>
+          <Tooltip title={isPlaying ? t('editor.timeline.pause') : t('editor.timeline.play')} arrow>
             <IconButton
               size="medium"
               onClick={onTogglePlay}
@@ -195,7 +197,7 @@ function TimelineComponent({
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="5s İleri (→)" arrow>
+          <Tooltip title={t('editor.timeline.skipForward')} arrow>
             <IconButton
               size="small"
               onClick={() => onSkipForward(5)}
@@ -215,7 +217,7 @@ function TimelineComponent({
 
         {/* Right: Volume Control */}
         <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 130 }}>
-          <Tooltip title={muted ? "Sesi Aç (M)" : "Sessize Al (M)"} arrow>
+          <Tooltip title={muted ? t('editor.timeline.unmute') : t('editor.timeline.mute')} arrow>
             <IconButton
               size="small"
               onClick={onToggleMute}

@@ -1,4 +1,5 @@
 import { memo, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { 
   Box, 
   Grid, 
@@ -28,19 +29,21 @@ interface PresetGalleryProps {
   onPresetSelect: (preset: Preset) => void;
 }
 
-// Preset kategorileri - effect_type bazlı otomatik kategorileme
-const PRESET_CATEGORIES: Record<string, { label: string; keywords: string[] }> = {
-  all: { label: "Tümü", keywords: [] },
-  tiktok: { label: "TikTok", keywords: ["tiktok", "group", "box"] },
-  karaoke: { label: "Karaoke", keywords: ["karaoke", "sentence"] },
-  fire: { label: "Ateş/Alev", keywords: ["fire", "flame", "phoenix", "storm"] },
-  neon: { label: "Neon/Glow", keywords: ["neon", "glow", "pulse", "electric"] },
-  glitch: { label: "Glitch/Retro", keywords: ["glitch", "pixel", "retro", "arcade", "matrix"] },
-  nature: { label: "Doğa", keywords: ["wave", "ocean", "ice", "sakura", "butterfly", "crystal"] },
-  cinema: { label: "Sinematik", keywords: ["cinematic", "movie", "credits", "dramatic", "film", "blur"] },
-  horror: { label: "Korku", keywords: ["horror", "creepy", "flicker", "ghost"] },
-  bounce: { label: "Hareket", keywords: ["bounce", "shake", "pop", "zoom", "slide", "spin"] },
-  text: { label: "Yazı Efekti", keywords: ["typewriter", "fade", "highlight", "reveal"] },
+// Preset category keys - matching i18n keys
+const PRESET_CATEGORY_KEYS = ["all", "tiktok", "karaoke", "fire", "neon", "glitch", "nature", "cinema", "horror", "bounce", "text"] as const;
+
+// Keywords for each category (for automatic categorization)
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  tiktok: ["tiktok", "group", "box"],
+  karaoke: ["karaoke", "sentence"],
+  fire: ["fire", "flame", "phoenix", "storm"],
+  neon: ["neon", "glow", "pulse", "electric"],
+  glitch: ["glitch", "pixel", "retro", "arcade", "matrix"],
+  nature: ["wave", "ocean", "ice", "sakura", "butterfly", "crystal"],
+  cinema: ["cinematic", "movie", "credits", "dramatic", "film", "blur"],
+  horror: ["horror", "creepy", "flicker", "ghost"],
+  bounce: ["bounce", "shake", "pop", "zoom", "slide", "spin"],
+  text: ["typewriter", "fade", "highlight", "reveal"],
 };
 
 /**
@@ -52,6 +55,7 @@ function PresetGalleryComponent({
   selectedPresetId,
   onPresetSelect,
 }: PresetGalleryProps) {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
@@ -78,8 +82,7 @@ function PresetGalleryComponent({
   const getPresetCategory = (preset: Preset): string => {
     const searchText = `${preset.id} ${preset.effect_type || ""}`.toLowerCase();
     
-    for (const [category, { keywords }] of Object.entries(PRESET_CATEGORIES)) {
-      if (category === "all") continue;
+    for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
       if (keywords.some(keyword => searchText.includes(keyword))) {
         return category;
       }
@@ -125,7 +128,7 @@ function PresetGalleryComponent({
       <TextField
         fullWidth
         size="small"
-        placeholder="Preset ara..."
+        placeholder={t('editor.preset.searchPlaceholder')}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         InputProps={{
@@ -168,11 +171,11 @@ function PresetGalleryComponent({
             <Stack direction="row" alignItems="center" spacing={1}>
               <Filter size={16} />
               <Typography variant="body2" fontWeight={500}>
-                Kategoriler
+                {t('editor.preset.categories')}
               </Typography>
               {selectedCategory !== "all" && (
                 <Chip 
-                  label={PRESET_CATEGORIES[selectedCategory]?.label || selectedCategory} 
+                  label={t(`editor.preset.category.${selectedCategory}`)} 
                   size="small" 
                   color="primary"
                   sx={{ height: 22, fontSize: "0.75rem" }}
@@ -194,14 +197,14 @@ function PresetGalleryComponent({
             pb: 1,
           }}
         >
-          {Object.entries(PRESET_CATEGORIES).map(([key, { label }]) => {
+          {PRESET_CATEGORY_KEYS.map((key) => {
             const count = categoryCounts[key] || 0;
             if (key !== "all" && count === 0) return null;
             
             return (
               <Chip
                 key={key}
-                label={`${label} (${count})`}
+                label={`${t(`editor.preset.category.${key}`)} (${count})`}
                 size="small"
                 variant={selectedCategory === key ? "filled" : "outlined"}
                 color={selectedCategory === key ? "primary" : "default"}
@@ -222,7 +225,7 @@ function PresetGalleryComponent({
 
       {/* Results Count */}
       <Typography variant="body2" color="text.secondary" fontWeight={500}>
-        {filteredPresets.length} preset bulundu
+        {t('editor.preset.found', { count: filteredPresets.length })}
       </Typography>
 
       {/* Presets Grid */}
@@ -332,10 +335,10 @@ function PresetGalleryComponent({
               }}
             >
               <Typography variant="body1" color="text.secondary" fontWeight={500}>
-                Aramanızla eşleşen preset bulunamadı
+                {t('editor.preset.noResults')}
               </Typography>
               <Typography variant="body2" color="text.disabled" sx={{ mt: 0.5 }}>
-                Farklı bir arama terimi veya kategori deneyin
+                {t('editor.preset.tryDifferent')}
               </Typography>
             </Card>
           </Grid>

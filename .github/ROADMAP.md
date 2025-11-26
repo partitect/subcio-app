@@ -142,12 +142,12 @@
 
 ### Öncelik: Orta 🟡 (Devam Edecek)
 
-- [ ] **Editor Page i18n**
-  - StylePanel etiketleri
-  - TranscriptPanel metinleri
-  - PresetGallery kategorileri
-  - Timeline kontrolleri
-  - Klavye kısayolları referansı
+- [x] **Editor Page i18n** ✅ *Tamamlandı - Kasım 2025*
+  - ~~StylePanel etiketleri~~ → Font, size, colors, border/shadow labels
+  - ~~TranscriptPanel metinleri~~ → Title, lines, duration, tooltips
+  - ~~PresetGallery kategorileri~~ → 11 kategori çevirisi
+  - ~~Timeline kontrolleri~~ → Play/pause, skip, mute/unmute tooltips
+  - ~~Klavye kısayolları referansı~~ → Tooltip metinleri
 
 - [ ] **Export/Settings i18n**
   - Export dialog metinleri
@@ -707,7 +707,7 @@ backend/
 | 🔐 Auth | Auth Pages UI | Login, Register, Forgot Password |
 | 📊 Dashboard | Dashboard Page | Projects, usage stats |
 | 💰 Pricing | Pricing Config | 4 plan, feature comparison |
-| 🌍 i18n | Çoklu Dil Desteği | 4 dil (EN, TR, ES, DE), 400+ çeviri |
+| 🌍 i18n | Çoklu Dil Desteği | 4 dil (EN, TR, ES, DE), 600+ çeviri, Editor Page dahil |
 
 ### Oluşturulan Yeni Dosyalar
 

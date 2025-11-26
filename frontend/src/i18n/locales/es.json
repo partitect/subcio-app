@@ -17,7 +17,8 @@
     "all": "Todos",
     "none": "Ninguno",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "apply": "Aplicar"
   },
   "nav": {
     "features": "Características",
@@ -278,39 +279,148 @@
     "title": "Editar Subtítulos",
     "save": "Guardar",
     "export": "Exportar",
+    "exporting": "Procesando...",
     "preview": "Vista Previa",
-    "timeline": "Línea de Tiempo",
     "subtitles": "Subtítulos",
-    "style": "Estilo",
+    "presets": "Preajustes",
     "settings": "Configuración",
     "addSubtitle": "Agregar Subtítulo",
     "deleteSubtitle": "Eliminar",
     "splitSubtitle": "Dividir",
     "mergeSubtitles": "Fusionar",
     "autoSync": "Sincronizar Auto",
+    "backToHome": "Inicio",
+    "lightTheme": "Tema Claro",
+    "darkTheme": "Tema Oscuro",
+    "audioMode": "Modo Audio",
+    "changeBackground": "Cambiar Video de Fondo",
+    "renderSettings": "Configuración de Render",
+    "outputName": "Nombre de Salida",
+    "quality": "Calidad",
+    "original": "Original",
+    "rendering": "Renderizando...",
+    "render": "Renderizar",
+    "selectBackground": "Seleccionar Video de Fondo",
+    "selectBackgroundDescription": "Elige un video de fondo para la vista previa de subtítulos de audio.",
+    "availableBackgrounds": "Videos de Fondo Disponibles",
+    "customVideoUrl": "URL de Video Personalizado",
+    "resetToDefault": "Restablecer a Predeterminado",
+    "header": {
+      "settings": "Configuración",
+      "export": "Exportar",
+      "exporting": "Renderizando...",
+      "backToHome": "Inicio",
+      "lightTheme": "Tema Claro",
+      "darkTheme": "Tema Oscuro"
+    },
+    "tabs": {
+      "style": "Estilo",
+      "presets": "Preajustes",
+      "transcript": "Transcripción"
+    },
     "preset": {
       "title": "Estilo Prediseñado",
       "apply": "Aplicar",
-      "customize": "Personalizar"
+      "customize": "Personalizar",
+      "searchPlaceholder": "Buscar presets...",
+      "categories": "Categorías",
+      "found": "{{count}} presets encontrados",
+      "noResults": "No se encontraron presets que coincidan con tu búsqueda",
+      "tryDifferent": "Prueba con un término o categoría diferente",
+      "category": {
+        "all": "Todos",
+        "tiktok": "TikTok",
+        "karaoke": "Karaoke",
+        "fire": "Fuego/Llama",
+        "neon": "Neón/Brillo",
+        "glitch": "Glitch/Retro",
+        "nature": "Naturaleza",
+        "cinema": "Cinemático",
+        "horror": "Terror",
+        "bounce": "Movimiento",
+        "text": "Efecto de Texto"
+      }
     },
-    "font": {
-      "title": "Fuente",
-      "family": "Familia",
-      "size": "Tamaño",
-      "color": "Color",
+    "style": {
+      "font": "Fuente",
+      "fontSize": "Tamaño de Fuente",
+      "fontWeight": "Peso de Fuente",
+      "letterSpacing": "Espaciado de Letras",
+      "regular": "Regular",
       "bold": "Negrita",
-      "italic": "Cursiva"
+      "savePreset": "Guardar Preset",
+      "saving": "Guardando...",
+      "border": "Borde",
+      "shadowBlur": "Desenfoque de Sombra",
+      "shadowOffset": "Offset de Sombra",
+      "blur": "Desenfoque",
+      "verticalPosition": "Posición Vertical",
+      "colors": {
+        "primary": "Primario",
+        "secondary": "Secundario",
+        "outline": "Contorno",
+        "shadow": "Sombra",
+        "background": "Fondo"
+      },
+      "position": {
+        "bottom": "Abajo",
+        "middle": "Centro",
+        "top": "Arriba"
+      }
     },
-    "position": {
-      "title": "Posición",
-      "alignment": "Alineación",
-      "margin": "Margen"
+    "transcript": {
+      "title": "Editor de Transcripción",
+      "lines": "{{count}} líneas",
+      "endsAt": "Termina en {{time}}s",
+      "sortByTime": "Ordenar por tiempo",
+      "addLine": "Agregar nueva línea",
+      "start": "Inicio",
+      "end": "Fin",
+      "duration": "Dur. {{time}}s",
+      "seekToStart": "Ir al inicio",
+      "duplicateLine": "Duplicar línea",
+      "deleteLine": "Eliminar línea"
     },
-    "effects": {
-      "title": "Efectos",
-      "outline": "Contorno",
-      "shadow": "Sombra",
-      "background": "Fondo"
+    "timeline": {
+      "zoom": "Zoom",
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar",
+      "playhead": "Cabezal",
+      "skipBack": "5s Atrás (←)",
+      "skipForward": "5s Adelante (→)",
+      "play": "Reproducir (Space)",
+      "pause": "Pausar (Space)",
+      "mute": "Silenciar (M)",
+      "unmute": "Activar Audio (M)"
+    },
+    "video": {
+      "noVideo": "Sin video cargado",
+      "audioOnly": "Visualización de audio",
+      "play": "Reproducir",
+      "pause": "Pausar",
+      "loadProject": "Carga un proyecto para previsualizar",
+      "updating": "Actualizando...",
+      "cached": "En caché"
+    },
+    "shortcuts": {
+      "title": "Atajos de Teclado",
+      "playPause": "Reproducir/Pausar",
+      "seekBack": "Retroceder 5s",
+      "seekForward": "Avanzar 5s",
+      "save": "Guardar",
+      "export": "Exportar",
+      "undo": "Deshacer",
+      "redo": "Rehacer"
+    },
+    "messages": {
+      "saved": "Cambios guardados exitosamente",
+      "exportStarted": "Exportación iniciada",
+      "exportComplete": "¡Exportación completada!",
+      "exportFailed": "La exportación falló. Por favor, inténtalo de nuevo.",
+      "noChanges": "No hay cambios para guardar",
+      "noPreset": "No hay preset para guardar.",
+      "presetSaved": "Preset guardado.",
+      "saveFailed": "Error al guardar preset"
     }
   },
   "export": {

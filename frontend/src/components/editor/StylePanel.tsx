@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -30,11 +31,13 @@ function StylePanelComponent({
   onStyleChange,
   onSavePreset,
 }: StylePanelProps) {
+  const { t } = useTranslation();
+
   const updateStyle = (updates: Partial<StyleConfig>) => {
     onStyleChange({ ...style, ...updates });
   };
 
-  // margin_v: -100 (alt) → 0 (orta) → +100 (üst)
+  // margin_v: -100 (bottom) → 0 (middle) → +100 (top)
   const marginValue = style.margin_v ?? 0;
   const activeButton = marginValue <= -34 ? 2 : marginValue >= 34 ? 8 : 5;
 
@@ -57,7 +60,7 @@ function StylePanelComponent({
           onClick={onSavePreset}
           disabled={savingPreset}
         >
-          {savingPreset ? "Saving..." : "Save preset"}
+          {savingPreset ? t('editor.style.saving') : t('editor.style.savePreset')}
         </Button>
       </Stack>
 
@@ -66,7 +69,7 @@ function StylePanelComponent({
         <Grid item xs={12}>
           <TextField
             select
-            label="Font"
+            label={t('editor.style.font')}
             fullWidth
             size="small"
             value={style.font || ""}
@@ -83,7 +86,7 @@ function StylePanelComponent({
         <Grid item xs={12}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              Font Size
+              {t('editor.style.fontSize')}
             </Typography>
             <Slider
               min={12}
@@ -101,21 +104,21 @@ function StylePanelComponent({
         <Grid item xs={12} sm={6}>
           <TextField
             select
-            label="Font Weight"
+            label={t('editor.style.fontWeight')}
             fullWidth
             size="small"
             value={style.bold ? 1 : 0}
             onChange={(e) => updateStyle({ bold: Number(e.target.value) })}
           >
-            <MenuItem value={0}>Regular</MenuItem>
-            <MenuItem value={1}>Bold</MenuItem>
+            <MenuItem value={0}>{t('editor.style.regular')}</MenuItem>
+            <MenuItem value={1}>{t('editor.style.bold')}</MenuItem>
           </TextField>
         </Grid>
 
         <Grid item xs={12} sm={6}>
           <TextField
             type="number"
-            label="Letter Spacing"
+            label={t('editor.style.letterSpacing')}
             fullWidth
             size="small"
             value={style.letter_spacing ?? 0}
@@ -127,15 +130,15 @@ function StylePanelComponent({
       {/* Color Settings */}
       <Grid container spacing={2}>
         {[
-          { key: "primary_color", label: "Primary", fallback: "#ffffff" },
-          { key: "secondary_color", label: "Secondary", fallback: "#00ffff" },
-          { key: "outline_color", label: "Outline", fallback: "#000000" },
-          { key: "shadow_color", label: "Shadow", fallback: "#000000" },
-          { key: "back_color", label: "Background", fallback: "#000000" },
+          { key: "primary_color", labelKey: "primary", fallback: "#ffffff" },
+          { key: "secondary_color", labelKey: "secondary", fallback: "#00ffff" },
+          { key: "outline_color", labelKey: "outline", fallback: "#000000" },
+          { key: "shadow_color", labelKey: "shadow", fallback: "#000000" },
+          { key: "back_color", labelKey: "background", fallback: "#000000" },
         ].map((c) => (
           <Grid item xs={6} sm={4} md={3} key={c.key}>
             <TextField
-              label={c.label}
+              label={t(`editor.style.colors.${c.labelKey}`)}
               type="color"
               fullWidth
               size="small"
@@ -152,7 +155,7 @@ function StylePanelComponent({
         <Grid item xs={12}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              Border
+              {t('editor.style.border')}
             </Typography>
             <Slider
               min={0}
@@ -170,7 +173,7 @@ function StylePanelComponent({
         <Grid item xs={12}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              Shadow Blur
+              {t('editor.style.shadowBlur')}
             </Typography>
             <Slider
               min={0}
@@ -188,7 +191,7 @@ function StylePanelComponent({
         <Grid item xs={12}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              Shadow Offset
+              {t('editor.style.shadowOffset')}
             </Typography>
             <Slider
               min={0}
@@ -206,7 +209,7 @@ function StylePanelComponent({
         <Grid item xs={12}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              Blur
+              {t('editor.style.blur')}
             </Typography>
             <Slider
               min={0}
@@ -224,15 +227,15 @@ function StylePanelComponent({
 
       {/* Position Controls */}
       <Typography variant="caption" color="text.secondary" sx={{ mt: 2, mb: 1, display: "block" }}>
-        Dikey Konum
+        {t('editor.style.verticalPosition')}
       </Typography>
 
       <Grid container spacing={1} alignItems="center">
         {[
-          { align: 2, label: "Alt", targetValue: -100 },
-          { align: 5, label: "Orta", targetValue: 0 },
-          { align: 8, label: "Üst", targetValue: 100 },
-        ].map(({ align, label, targetValue }) => (
+          { align: 2, labelKey: "bottom", targetValue: -100 },
+          { align: 5, labelKey: "middle", targetValue: 0 },
+          { align: 8, labelKey: "top", targetValue: 100 },
+        ].map(({ align, labelKey, targetValue }) => (
           <Grid item xs={4} key={align}>
             <Button
               fullWidth
@@ -241,7 +244,7 @@ function StylePanelComponent({
               onClick={() => updateStyle({ margin_v: targetValue })}
               sx={{ transition: "all 0.15s ease" }}
             >
-              {label}
+              {t(`editor.style.position.${labelKey}`)}
             </Button>
           </Grid>
         ))}
@@ -264,9 +267,9 @@ function StylePanelComponent({
             },
           }}
           marks={[
-            { value: -100, label: "Alt" },
-            { value: 0, label: "Orta" },
-            { value: 100, label: "Üst" },
+            { value: -100, label: t('editor.style.position.bottom') },
+            { value: 0, label: t('editor.style.position.middle') },
+            { value: 100, label: t('editor.style.position.top') },
           ]}
         />
       </Stack>

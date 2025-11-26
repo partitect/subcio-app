@@ -17,7 +17,8 @@
     "all": "All",
     "none": "None",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "apply": "Apply"
   },
   "nav": {
     "features": "Features",
@@ -278,39 +279,148 @@
     "title": "Edit Subtitles",
     "save": "Save",
     "export": "Export",
+    "exporting": "Rendering...",
     "preview": "Preview",
-    "timeline": "Timeline",
     "subtitles": "Subtitles",
-    "style": "Style",
+    "presets": "Presets",
     "settings": "Settings",
     "addSubtitle": "Add Subtitle",
     "deleteSubtitle": "Delete",
     "splitSubtitle": "Split",
     "mergeSubtitles": "Merge",
     "autoSync": "Auto Sync",
+    "backToHome": "Home",
+    "lightTheme": "Light Theme",
+    "darkTheme": "Dark Theme",
+    "audioMode": "Audio Mode",
+    "changeBackground": "Change Background Video",
+    "renderSettings": "Render Settings",
+    "outputName": "Output Name",
+    "quality": "Quality",
+    "original": "Original",
+    "rendering": "Rendering...",
+    "render": "Render",
+    "selectBackground": "Select Background Video",
+    "selectBackgroundDescription": "Choose a background video for your audio subtitle preview.",
+    "availableBackgrounds": "Available Background Videos",
+    "customVideoUrl": "Custom Video URL",
+    "resetToDefault": "Reset to Default",
+    "header": {
+      "settings": "Settings",
+      "export": "Export",
+      "exporting": "Rendering...",
+      "backToHome": "Home",
+      "lightTheme": "Light Theme",
+      "darkTheme": "Dark Theme"
+    },
+    "tabs": {
+      "style": "Style",
+      "presets": "Presets",
+      "transcript": "Transcript"
+    },
     "preset": {
       "title": "Preset Style",
       "apply": "Apply",
-      "customize": "Customize"
+      "customize": "Customize",
+      "searchPlaceholder": "Search presets...",
+      "categories": "Categories",
+      "found": "{{count}} presets found",
+      "noResults": "No presets match your search",
+      "tryDifferent": "Try a different search term or category",
+      "category": {
+        "all": "All",
+        "tiktok": "TikTok",
+        "karaoke": "Karaoke",
+        "fire": "Fire/Flame",
+        "neon": "Neon/Glow",
+        "glitch": "Glitch/Retro",
+        "nature": "Nature",
+        "cinema": "Cinematic",
+        "horror": "Horror",
+        "bounce": "Motion",
+        "text": "Text Effect"
+      }
     },
-    "font": {
-      "title": "Font",
-      "family": "Family",
-      "size": "Size",
-      "color": "Color",
+    "style": {
+      "font": "Font",
+      "fontSize": "Font Size",
+      "fontWeight": "Font Weight",
+      "letterSpacing": "Letter Spacing",
+      "regular": "Regular",
       "bold": "Bold",
-      "italic": "Italic"
+      "savePreset": "Save Preset",
+      "saving": "Saving...",
+      "border": "Border",
+      "shadowBlur": "Shadow Blur",
+      "shadowOffset": "Shadow Offset",
+      "blur": "Blur",
+      "verticalPosition": "Vertical Position",
+      "colors": {
+        "primary": "Primary",
+        "secondary": "Secondary",
+        "outline": "Outline",
+        "shadow": "Shadow",
+        "background": "Background"
+      },
+      "position": {
+        "bottom": "Bottom",
+        "middle": "Middle",
+        "top": "Top"
+      }
     },
-    "position": {
-      "title": "Position",
-      "alignment": "Alignment",
-      "margin": "Margin"
+    "transcript": {
+      "title": "Transcript Editor",
+      "lines": "{{count}} lines",
+      "endsAt": "Ends at {{time}}s",
+      "sortByTime": "Sort by start time",
+      "addLine": "Add new line",
+      "start": "Start",
+      "end": "End",
+      "duration": "Dur. {{time}}s",
+      "seekToStart": "Seek to start",
+      "duplicateLine": "Duplicate line",
+      "deleteLine": "Delete line"
     },
-    "effects": {
-      "title": "Effects",
-      "outline": "Outline",
-      "shadow": "Shadow",
-      "background": "Background"
+    "timeline": {
+      "zoom": "Zoom",
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom Out",
+      "playhead": "Playhead",
+      "skipBack": "5s Back (←)",
+      "skipForward": "5s Forward (→)",
+      "play": "Play (Space)",
+      "pause": "Pause (Space)",
+      "mute": "Mute (M)",
+      "unmute": "Unmute (M)"
+    },
+    "video": {
+      "noVideo": "No video loaded",
+      "audioOnly": "Audio visualization",
+      "play": "Play",
+      "pause": "Pause",
+      "loadProject": "Load a project to preview",
+      "updating": "Updating...",
+      "cached": "Cached"
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "playPause": "Play/Pause",
+      "seekBack": "Seek 5s Back",
+      "seekForward": "Seek 5s Forward",
+      "save": "Save",
+      "export": "Export",
+      "undo": "Undo",
+      "redo": "Redo"
+    },
+    "messages": {
+      "saved": "Changes saved successfully",
+      "exportStarted": "Export started",
+      "exportComplete": "Export complete!",
+      "exportFailed": "Export failed. Please try again.",
+      "noChanges": "No changes to save",
+      "noPreset": "No preset to save.",
+      "presetSaved": "Preset saved.",
+      "saveFailed": "Failed to save preset"
     }
   },
   "export": {
