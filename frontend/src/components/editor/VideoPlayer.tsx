@@ -1,6 +1,6 @@
 import { memo, RefObject, VideoHTMLAttributes, AudioHTMLAttributes } from "react";
-import { Box, Stack, Typography, alpha } from "@mui/material";
-import { Pause, Play } from "lucide-react";
+import { Box, Stack, Typography, alpha, Chip, CircularProgress } from "@mui/material";
+import { Pause, Play, Zap } from "lucide-react";
 import JSOOverlay from "../JSOOverlay";
 
 interface VideoPlayerProps {
@@ -15,6 +15,8 @@ interface VideoPlayerProps {
   assContent: string;
   overlayFonts: string[];
   isPlaying: boolean;
+  assLoading?: boolean;
+  assCacheHit?: boolean;
   onTogglePlay: () => void;
   getVideoProps: () => VideoHTMLAttributes<HTMLVideoElement>;
   getAudioProps: () => AudioHTMLAttributes<HTMLAudioElement>;
@@ -37,6 +39,8 @@ function VideoPlayerComponent({
   assContent,
   overlayFonts,
   isPlaying,
+  assLoading = false,
+  assCacheHit = false,
   onTogglePlay,
   getVideoProps,
   getAudioProps,
@@ -158,6 +162,45 @@ function VideoPlayerComponent({
           </Box>
         </Box>
       )}
+
+      {/* ASS Loading/Cache indicator */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          zIndex: 10,
+          display: "flex",
+          gap: 1,
+        }}
+      >
+        {assLoading && (
+          <Chip
+            size="small"
+            icon={<CircularProgress size={12} sx={{ color: "inherit" }} />}
+            label="Updating..."
+            sx={{
+              bgcolor: alpha("#000", 0.6),
+              color: "#fff",
+              fontSize: "0.7rem",
+              height: 24,
+            }}
+          />
+        )}
+        {assCacheHit && !assLoading && (
+          <Chip
+            size="small"
+            icon={<Zap size={12} />}
+            label="Cached"
+            sx={{
+              bgcolor: alpha("#4caf50", 0.8),
+              color: "#fff",
+              fontSize: "0.7rem",
+              height: 24,
+            }}
+          />
+        )}
+      </Box>
 
       {/* Subtitle overlay - JSOOverlay uses video element */}
       {/* For audio mode, we use bgVideoRef since JASSUB needs a video element */}

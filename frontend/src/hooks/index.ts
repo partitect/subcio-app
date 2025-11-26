@@ -6,3 +6,5 @@ export {
   EDITOR_SHORTCUTS, 
   formatShortcut 
 } from "./useKeyboardShortcuts";
+
+export { useAssPreview } from "./useAssPreview";

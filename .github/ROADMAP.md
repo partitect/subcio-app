@@ -137,10 +137,12 @@
 
 ### Öncelik: Yüksek 🔴
 
-- [ ] **ASS Preview Caching**
-  - Değişmeyen kelimeler için cache
-  - Debounce süresini optimize et (şu an 700ms)
-  - Diff-based render (sadece değişen satırları güncelle)
+- [x] **ASS Preview Caching** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Değişmeyen kelimeler için cache~~ → `assCache.ts` utility
+  - ~~Debounce süresini optimize et~~ → 700ms'den 400ms'e düşürüldü
+  - ~~Diff-based render~~ → `hasWordsChanged`, `hasStyleChanged` fonksiyonları
+  - `useAssPreview` hook'u ile tam entegrasyon
+  - Cache hit/loading göstergesi VideoPlayer'da
 
 - [ ] **Video Streaming Optimizasyonu**
   - Range-based streaming (mevcut)
@@ -450,7 +452,7 @@ backend/
 | Klavye kısayolları | Orta | Düşük | 🟡 P2 | ✅ Tamamlandı |
 | Preset arama/filtreleme | Orta | Düşük | 🟡 P2 | ✅ Tamamlandı |
 | UI Component Library | Orta | Orta | 🟡 P2 | ✅ Tamamlandı |
-| ASS preview caching | Yüksek | Orta | 🔴 P1 | ⏳ Bekliyor |
+| ASS preview caching | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
 | Batch export | Yüksek | Orta | 🔴 P1 | ⏳ Bekliyor |
 | Unit test coverage | Orta | Yüksek | 🟡 P2 | ⏳ Bekliyor |
 | Mobile responsive | Orta | Orta | 🟡 P2 | ⏳ Bekliyor |
@@ -515,23 +517,26 @@ backend/
 frontend/src/
 ├── components/editor/
 │   ├── EditorHeader.tsx     # Header ve navigasyon
-│   ├── VideoPlayer.tsx      # Video/audio player
+│   ├── VideoPlayer.tsx      # Video/audio player (cache indicator ekli)
 │   ├── Timeline.tsx         # Profesyonel timeline
 │   ├── StylePanel.tsx       # Stil düzenleme
 │   ├── TranscriptPanel.tsx  # Transcript düzenleme
 │   ├── PresetGallery.tsx    # Preset galerisi
 │   └── EffectConfig.tsx     # Efekt konfigürasyonu
 ├── hooks/
-│   └── useKeyboardShortcuts.ts
+│   ├── useKeyboardShortcuts.ts
+│   └── useAssPreview.ts     # ASS preview caching hook
+├── utils/
+│   └── assCache.ts          # ASS cache utility
 └── ThemeContext.tsx         # Tema yönetimi
 ```
 
 ### Sonraki Adımlar
 
-1. ⏳ Backend test coverage artırma
-2. ⏳ Mobile responsive tasarım
-3. ⏳ Batch export özelliği
-4. ⏳ ASS preview caching optimizasyonu
+1. ✅ ASS preview caching optimizasyonu (Tamamlandı)
+2. ⏳ Batch export özelliği
+3. ⏳ Backend test coverage artırma
+4. ⏳ Mobile responsive tasarım
 
 ---
 

@@ -21,11 +21,14 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { ProjectMeta, StyleConfig, WordCue } from "../types";
 import useMediaPlayer from "../hooks/useMediaPlayer";
 import { useKeyboardShortcuts, EDITOR_SHORTCUTS } from "../hooks";
+import { useAssPreview } from "../hooks/useAssPreview";
 
 // Import modular components
 import {
@@ -157,7 +160,7 @@ export default function EditorPage() {
     (location.state as any)?.words || defaultWords
   );
   const [style, setStyle] = useState<StyleConfig>(defaultFireStormStyle);
-  const [assContent, setAssContent] = useState<string>("");
+  // assContent is now managed by useAssPreview hook
   const [presets, setPresets] = useState<Preset[]>([]);
   const [fontOptions, setFontOptions] = useState<{ name: string; file: string }[]>([]);
   const [activeTab, setActiveTab] = useState<"presets" | "style" | "transcript">("presets");
@@ -176,6 +179,20 @@ export default function EditorPage() {
     open: false,
     message: "",
     severity: "success",
+  });
+
+  // ASS Preview with caching
+  const { 
+    assContent, 
+    isLoading: assLoading, 
+    cacheHit: assCacheHit,
+    refresh: refreshAss 
+  } = useAssPreview({
+    words,
+    style,
+    projectId,
+    debounceMs: 400,
+    enabled: words.length > 0,
   });
 
   // Media player hook
@@ -542,25 +559,7 @@ export default function EditorPage() {
     }
   }, [presets, presetSynced, style.id, applyPreset]);
 
-  useEffect(() => {
-    if (!words.length) return;
-    const handle = setTimeout(async () => {
-      const styleForBackend = styleToAssColors(style);
-
-      const form = new FormData();
-      form.append("words_json", JSON.stringify(words));
-      form.append("style_json", JSON.stringify(styleForBackend));
-      if (projectId && projectId !== "demo") form.append("project_id", projectId);
-
-      try {
-        const res = await axios.post(`${API_BASE}/preview-ass`, form);
-        setAssContent(res.data);
-      } catch (err) {
-        console.error("ASS preview failed", err);
-      }
-    }, 700);
-    return () => clearTimeout(handle);
-  }, [words, style, projectId]);
+  // ASS Preview is now handled by useAssPreview hook
 
   // Keyboard Shortcuts
   useKeyboardShortcuts({
@@ -731,6 +730,8 @@ export default function EditorPage() {
               assContent={assContent}
               overlayFonts={overlayFonts}
               isPlaying={isPlaying}
+              assLoading={assLoading}
+              assCacheHit={assCacheHit}
               onTogglePlay={mediaControls.toggle}
               getVideoProps={getVideoProps}
               getAudioProps={getAudioProps}
