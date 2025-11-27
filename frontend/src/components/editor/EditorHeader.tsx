@@ -11,7 +11,7 @@ import {
   Typography,
   useTheme as useMuiTheme,
 } from "@mui/material";
-import { ArrowLeft, Download, Settings, Sparkles, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Download, Settings, Sun, Moon } from "lucide-react";
 import { useTheme } from "../../ThemeContext";
 
 interface EditorHeaderProps {
@@ -87,19 +87,15 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
         {/* Logo/Brand */}
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <Box
+            component="img"
+            src="/assets/images/subcio-logo.png"
+            alt="Subcio"
             sx={{
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               borderRadius: 2,
-              background: `linear-gradient(135deg, ${muiTheme.palette.primary.main} 0%, ${muiTheme.palette.secondary.main} 100%)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: `0 4px 12px ${isDark ? "rgba(99, 102, 241, 0.4)" : "rgba(99, 102, 241, 0.25)"}`,
             }}
-          >
-            <Sparkles size={20} color="#fff" />
-          </Box>
+          />
           <Typography
             variant="h6"
             sx={{

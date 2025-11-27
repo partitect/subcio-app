@@ -125,14 +125,33 @@ export default function LoginPage() {
     >
       <Container maxWidth="sm">
         {/* Logo */}
-        <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Box 
+          component={RouterLink}
+          to="/"
+          sx={{ 
+            textAlign: "center", 
+            mb: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textDecoration: "none",
+          }}
+        >
+          <Box
+            component="img"
+            src="/assets/images/subcio-logo.png"
+            alt="Subcio"
+            sx={{
+              width: 64,
+              height: 64,
+              mb: 1.5,
+              borderRadius: 2,
+            }}
+          />
           <Typography
-            component={RouterLink}
-            to="/"
             variant="h4"
             sx={{
               fontWeight: 800,
-              textDecoration: "none",
               background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",

@@ -1,16 +1,15 @@
 /**
- * Upload Page - Professional Redesign
+ * Upload Page - Modern Redesign
  * 
  * Features:
- * - Navbar integration
+ * - Real-time usage stats from API
+ * - Recent projects from API
  * - Professional drop zone with Lottie animations
  * - Supported formats display
- * - Usage limit indicator
- * - Recent uploads list
  * - Step-by-step progress
  */
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
@@ -32,6 +31,9 @@ import {
   Avatar,
   Divider,
   useTheme,
+  Skeleton,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   UploadCloud,
@@ -47,8 +49,14 @@ import {
   Sparkles,
   Zap,
   AlertCircle,
+  TrendingUp,
+  Calendar,
+  PlayCircle,
+  RefreshCw,
 } from "lucide-react";
 import { Navbar } from "../components/landing";
+import { getUsageStats, UsageStats } from "../services/authService";
+import { ProjectMeta } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
@@ -72,7 +80,7 @@ const SUPPORTED_FORMATS = [
   { ext: "M4A", icon: Mic, color: "#f97316" },
 ];
 
-// Processing steps - will be translated in component
+// Processing steps
 const PROCESSING_STEPS = [
   { id: "upload", labelKey: "upload", icon: UploadCloud },
   { id: "extract", labelKey: "transcribe", icon: Music },
@@ -81,32 +89,25 @@ const PROCESSING_STEPS = [
   { id: "complete", labelKey: "complete", icon: CheckCircle },
 ];
 
-// Mock recent uploads (would come from API)
-const MOCK_RECENT_UPLOADS = [
-  { id: "1", name: "interview_final.mp4", date: "2 hours ago", duration: "12:34", status: "completed" },
-  { id: "2", name: "podcast_ep45.mp3", date: "Yesterday", duration: "45:20", status: "completed" },
-  { id: "3", name: "tutorial_v2.mov", date: "3 days ago", duration: "8:15", status: "completed" },
-];
-
-// Mock usage data (would come from API based on user plan)
-const MOCK_USAGE = {
-  used: 45,
-  limit: 100,
-  plan: "Pro",
-};
-
 export default function UploadPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation();
   
+  // File upload state
   const [file, setFile] = useState<File | null>(null);
   const [language, setLanguage] = useState<string>("");
   const [model, setModel] = useState<string>("medium");
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [dragOver, setDragOver] = useState(false);
+  
+  // API data state
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
+  const [recentProjects, setRecentProjects] = useState<ProjectMeta[]>([]);
+  const [loadingUsage, setLoadingUsage] = useState(true);
+  const [loadingProjects, setLoadingProjects] = useState(true);
   
   // Lottie animations
   const [uploadAnimation, setUploadAnimation] = useState<any>(null);
@@ -130,6 +131,40 @@ export default function UploadPage() {
       .then(setSuccessAnimation)
       .catch(console.error);
   }, []);
+
+  // Fetch usage stats from API
+  const fetchUsageStats = useCallback(async () => {
+    setLoadingUsage(true);
+    try {
+      const stats = await getUsageStats();
+      setUsageStats(stats);
+    } catch (err) {
+      console.error("Failed to load usage stats", err);
+    } finally {
+      setLoadingUsage(false);
+    }
+  }, []);
+
+  // Fetch recent projects from API
+  const fetchRecentProjects = useCallback(async () => {
+    setLoadingProjects(true);
+    try {
+      const res = await fetch(`${API_BASE}/projects`);
+      const data = await res.json();
+      // Get last 3 projects
+      const projects = Array.isArray(data) ? data.slice(0, 3) : [];
+      setRecentProjects(projects);
+    } catch (err) {
+      console.error("Failed to load projects", err);
+    } finally {
+      setLoadingProjects(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsageStats();
+    fetchRecentProjects();
+  }, [fetchUsageStats, fetchRecentProjects]);
 
   const dropLabel = useMemo(() => (
     file ? file.name : t('upload.dropzone.title')
@@ -192,7 +227,36 @@ export default function UploadPage() {
     }
   };
 
-  const usagePercentage = (MOCK_USAGE.used / MOCK_USAGE.limit) * 100;
+  // Calculate usage percentages
+  const minutesUsed = usageStats?.usage?.minutes_used ?? 0;
+  const minutesLimit = usageStats?.usage?.minutes_limit ?? 100;
+  const minutesPercentage = minutesLimit > 0 ? (minutesUsed / minutesLimit) * 100 : 0;
+
+  const exportsUsed = usageStats?.usage?.exports_used ?? 0;
+  const exportsLimit = usageStats?.usage?.exports_limit ?? 10;
+
+  // Format project date
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return t('upload.recentUploads.unknown');
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffHours < 1) return t('upload.recentUploads.justNow');
+    if (diffHours < 24) return t('upload.recentUploads.hoursAgo', { count: diffHours });
+    if (diffDays < 7) return t('upload.recentUploads.daysAgo', { count: diffDays });
+    return date.toLocaleDateString();
+  };
+
+  // Format duration
+  const formatDuration = (seconds?: number) => {
+    if (!seconds) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
     <Box
@@ -246,7 +310,6 @@ export default function UploadPage() {
               <Card
                 sx={{
                   borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   bgcolor: alpha(theme.palette.background.paper, 0.6),
                   backdropFilter: "blur(20px)",
                   overflow: "visible",
@@ -374,7 +437,6 @@ export default function UploadPage() {
               <Card
                 sx={{
                   borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   bgcolor: alpha(theme.palette.background.paper, 0.6),
                   backdropFilter: "blur(20px)",
                 }}
@@ -523,64 +585,112 @@ export default function UploadPage() {
           {/* Sidebar */}
           <Grid item xs={12} lg={4}>
             <Stack spacing={3}>
-              {/* Usage Card */}
+              {/* Usage Card - Real Data */}
               <Card
                 sx={{
                   borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   bgcolor: alpha(theme.palette.background.paper, 0.6),
                   backdropFilter: "blur(20px)",
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                    <Typography variant="subtitle1" fontWeight={700}>
-                      {t('upload.usage.title')}
-                    </Typography>
-                    <Chip
-                      label={MOCK_USAGE.plan}
-                      size="small"
-                      color="primary"
-                      sx={{ fontWeight: 700 }}
-                    />
-                  </Stack>
-
-                  <Box sx={{ mb: 2 }}>
-                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {t('upload.usage.minutes', { used: MOCK_USAGE.used, limit: MOCK_USAGE.limit })}
-                      </Typography>
-                      <Typography variant="body2" fontWeight={600}>
-                        {Math.round(usagePercentage)}%
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <TrendingUp size={18} color={theme.palette.primary.main} />
+                      <Typography variant="subtitle1" fontWeight={700}>
+                        {t('upload.usage.title')}
                       </Typography>
                     </Stack>
-                    <LinearProgress
-                      variant="determinate"
-                      value={usagePercentage}
-                      sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      }}
-                    />
-                  </Box>
+                    {loadingUsage ? (
+                      <Skeleton width={60} height={24} />
+                    ) : (
+                      <Chip
+                        label={usageStats?.plan || 'Free'}
+                        size="small"
+                        color="primary"
+                        sx={{ fontWeight: 700 }}
+                      />
+                    )}
+                  </Stack>
 
-                  {usagePercentage >= 80 && (
-                    <Box
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: alpha(theme.palette.warning.main, 0.1),
-                        border: `1px solid ${alpha(theme.palette.warning.main, 0.3)}`,
-                      }}
-                    >
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <AlertCircle size={16} color={theme.palette.warning.main} />
-                        <Typography variant="caption" color="warning.main" fontWeight={600}>
-                          {t('upload.usage.lowWarning')}
-                        </Typography>
-                      </Stack>
-                    </Box>
+                  {loadingUsage ? (
+                    <Stack spacing={2}>
+                      <Skeleton height={40} />
+                      <Skeleton height={8} />
+                      <Skeleton height={40} />
+                    </Stack>
+                  ) : (
+                    <>
+                      {/* Minutes Usage */}
+                      <Box sx={{ mb: 3 }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Clock size={14} />
+                            <Typography variant="body2" color="text.secondary">
+                              {t('upload.usage.minutesLabel')}
+                            </Typography>
+                          </Stack>
+                          <Typography variant="body2" fontWeight={600}>
+                            {minutesUsed} / {minutesLimit}
+                          </Typography>
+                        </Stack>
+                        <LinearProgress
+                          variant="determinate"
+                          value={Math.min(minutesPercentage, 100)}
+                          sx={{
+                            height: 8,
+                            borderRadius: 4,
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                            '& .MuiLinearProgress-bar': {
+                              bgcolor: minutesPercentage >= 90 ? 'error.main' : 
+                                       minutesPercentage >= 70 ? 'warning.main' : 'primary.main',
+                            }
+                          }}
+                        />
+                      </Box>
+
+                      {/* Exports Usage */}
+                      <Box sx={{ mb: 2 }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Film size={14} />
+                            <Typography variant="body2" color="text.secondary">
+                              {t('upload.usage.exportsLabel')}
+                            </Typography>
+                          </Stack>
+                          <Typography variant="body2" fontWeight={600}>
+                            {exportsUsed} / {exportsLimit}
+                          </Typography>
+                        </Stack>
+                        <LinearProgress
+                          variant="determinate"
+                          value={exportsLimit > 0 ? Math.min((exportsUsed / exportsLimit) * 100, 100) : 0}
+                          color="secondary"
+                          sx={{
+                            height: 8,
+                            borderRadius: 4,
+                            bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                          }}
+                        />
+                      </Box>
+
+                      {minutesPercentage >= 80 && (
+                        <Box
+                          sx={{
+                            p: 2,
+                            borderRadius: 2,
+                            bgcolor: alpha(theme.palette.warning.main, 0.1),
+                          }}
+                        >
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <AlertCircle size={16} color={theme.palette.warning.main} />
+                            <Typography variant="caption" color="warning.main" fontWeight={600}>
+                              {t('upload.usage.lowWarning')}
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      )}
+                    </>
                   )}
 
                   <Button
@@ -595,80 +705,144 @@ export default function UploadPage() {
                 </CardContent>
               </Card>
 
-              {/* Recent Uploads Card */}
+              {/* Recent Projects Card - Real Data */}
               <Card
                 sx={{
                   borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   bgcolor: alpha(theme.palette.background.paper, 0.6),
                   backdropFilter: "blur(20px)",
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                    <Typography variant="subtitle1" fontWeight={700}>
-                      {t('upload.recentUploads.title')}
-                    </Typography>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Calendar size={18} color={theme.palette.secondary.main} />
+                      <Typography variant="subtitle1" fontWeight={700}>
+                        {t('upload.recentUploads.title')}
+                      </Typography>
+                    </Stack>
+                    <Tooltip title={t('common.refresh')}>
+                      <IconButton size="small" onClick={fetchRecentProjects} disabled={loadingProjects}>
+                        <RefreshCw size={16} className={loadingProjects ? "animate-spin" : ""} />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+
+                  {loadingProjects ? (
+                    <Stack spacing={2}>
+                      {[1, 2, 3].map((i) => (
+                        <Stack key={i} direction="row" spacing={2} alignItems="center">
+                          <Skeleton variant="circular" width={40} height={40} />
+                          <Box sx={{ flex: 1 }}>
+                            <Skeleton width="80%" height={20} />
+                            <Skeleton width="50%" height={16} />
+                          </Box>
+                        </Stack>
+                      ))}
+                    </Stack>
+                  ) : recentProjects.length === 0 ? (
+                    <Box
+                      sx={{
+                        py: 4,
+                        textAlign: "center",
+                        color: "text.secondary",
+                      }}
+                    >
+                      <FileVideo size={40} style={{ opacity: 0.3, marginBottom: 8 }} />
+                      <Typography variant="body2">
+                        {t('upload.recentUploads.noProjects')}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Stack spacing={2}>
+                      {recentProjects.map((project, index) => (
+                        <Box key={project.id}>
+                          <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="center"
+                            component={RouterLink}
+                            to={`/editor/${project.id}`}
+                            sx={{
+                              textDecoration: "none",
+                              color: "inherit",
+                              p: 1,
+                              mx: -1,
+                              borderRadius: 2,
+                              transition: "background 0.2s",
+                              "&:hover": {
+                                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                              },
+                            }}
+                          >
+                            <Avatar
+                              sx={{
+                                width: 40,
+                                height: 40,
+                                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                color: "primary.main",
+                              }}
+                            >
+                              {project.thumbnail ? (
+                                <Box
+                                  component="img"
+                                  src={project.thumbnail}
+                                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                              ) : (
+                                <PlayCircle size={18} />
+                              )}
+                            </Avatar>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Typography
+                                variant="body2"
+                                fontWeight={600}
+                                noWrap
+                                sx={{ maxWidth: 180 }}
+                              >
+                                {project.name || t('upload.recentUploads.untitled')}
+                              </Typography>
+                              <Stack direction="row" spacing={1} alignItems="center">
+                                <Clock size={12} />
+                                <Typography variant="caption" color="text.secondary">
+                                  {formatDuration(project.duration)}
+                                </Typography>
+                                <Typography variant="caption" color="text.disabled">
+                                  •
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {formatDate(project.createdAt)}
+                                </Typography>
+                              </Stack>
+                            </Box>
+                            <Chip
+                              icon={<CheckCircle size={12} />}
+                              label={t('upload.recentUploads.done')}
+                              size="small"
+                              color="success"
+                              sx={{ height: 24, fontSize: "0.65rem" }}
+                            />
+                          </Stack>
+                          {index < recentProjects.length - 1 && (
+                            <Divider sx={{ mt: 2 }} />
+                          )}
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
+
+                  {recentProjects.length > 0 && (
                     <Button
                       component={RouterLink}
                       to="/dashboard"
                       size="small"
+                      fullWidth
                       endIcon={<ArrowRight size={14} />}
+                      sx={{ mt: 2 }}
                     >
                       {t('upload.recentUploads.viewAll')}
                     </Button>
-                  </Stack>
-
-                  <Stack spacing={2}>
-                    {MOCK_RECENT_UPLOADS.map((upload, index) => (
-                      <Box key={upload.id}>
-                        <Stack direction="row" spacing={2} alignItems="center">
-                          <Avatar
-                            sx={{
-                              width: 40,
-                              height: 40,
-                              bgcolor: alpha(theme.palette.primary.main, 0.1),
-                              color: "primary.main",
-                            }}
-                          >
-                            <FileVideo size={18} />
-                          </Avatar>
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography
-                              variant="body2"
-                              fontWeight={600}
-                              noWrap
-                              sx={{ maxWidth: 180 }}
-                            >
-                              {upload.name}
-                            </Typography>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Clock size={12} />
-                              <Typography variant="caption" color="text.secondary">
-                                {upload.duration}
-                              </Typography>
-                              <Typography variant="caption" color="text.disabled">
-                                •
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {upload.date}
-                              </Typography>
-                            </Stack>
-                          </Box>
-                          <Chip
-                            icon={<CheckCircle size={12} />}
-                            label={t('upload.recentUploads.done')}
-                            size="small"
-                            color="success"
-                            sx={{ height: 24, fontSize: "0.65rem" }}
-                          />
-                        </Stack>
-                        {index < MOCK_RECENT_UPLOADS.length - 1 && (
-                          <Divider sx={{ mt: 2 }} />
-                        )}
-                      </Box>
-                    ))}
-                  </Stack>
+                  )}
                 </CardContent>
               </Card>
 
@@ -676,7 +850,6 @@ export default function UploadPage() {
               <Card
                 sx={{
                   borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
                 }}
               >

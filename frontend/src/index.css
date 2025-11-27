@@ -224,3 +224,14 @@ input[type="range"]::-moz-range-thumb:hover {
 .rounded-2xl {
   border-radius: var(--radius) !important;
 }
+
+/* Remove MUI Card borders that cause overflow issues */
+.MuiCard-root,
+.MuiPaper-root.MuiCard-root {
+  border: none !important;
+}
+
+/* Ensure cards don't have unexpected borders */
+[class*="MuiPaper-root"][class*="MuiCard-root"] {
+  border: none !important;
+}

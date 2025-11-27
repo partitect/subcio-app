@@ -1,6 +1,8 @@
 """
 Database configuration and session management.
+Supports both SQLite (development) and PostgreSQL (production).
 """
+import os
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -8,16 +10,34 @@ from contextlib import contextmanager
 
 from .models import Base
 
-# Database path - in backend folder
-DATABASE_PATH = Path(__file__).resolve().parent.parent / "subcio.db"
-DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+# Get database URL from environment or use SQLite default
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Create engine
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},  # Needed for SQLite
-    echo=False,  # Set to True for SQL logging
-)
+if DATABASE_URL:
+    # Production: PostgreSQL
+    # Railway/Render use postgres:// but SQLAlchemy needs postgresql://
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
+    engine = create_engine(
+        DATABASE_URL,
+        pool_size=5,
+        max_overflow=10,
+        pool_pre_ping=True,  # Check connection health
+        echo=False,
+    )
+    print(f"[INFO] Using PostgreSQL database")
+else:
+    # Development: SQLite
+    DATABASE_PATH = Path(__file__).resolve().parent.parent / "subcio.db"
+    DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+    
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False},  # Needed for SQLite
+        echo=False,
+    )
+    print(f"[INFO] Using SQLite database at {DATABASE_PATH}")
 
 # Session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

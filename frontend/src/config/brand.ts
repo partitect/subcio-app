@@ -84,6 +84,13 @@ export const LOGO_VARIANTS = {
   withTagline: "Subcio - AI-Powered Styled Subtitles",
 } as const;
 
+// Logo Assets
+export const LOGO_ASSETS = {
+  primary: "/assets/images/subcio-logo.png",
+  favicon: "/assets/images/subcio-logo.png",
+  ogImage: "/assets/images/subcio-logo.png",
+} as const;
+
 // SEO Meta Tags
 export const SEO = {
   title: "Subcio - AI-Powered Styled Subtitles",

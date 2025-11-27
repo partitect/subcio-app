@@ -97,7 +97,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   ) || SUPPORTED_LANGUAGES[0]; // Default to English
 
   return (
-    <Box sx={{ width: variant === 'full' ? 72 : 40 }}>
+    <Box sx={{ width: variant === 'full' ? 76 : 44, flexShrink: 0 }}>
       <Tooltip title={t('settings.language.select')}>
         <IconButton
           onClick={handleClick}
@@ -108,7 +108,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             gap: 0.75,
             px: 1.5,
             py: 0.75,
-            minWidth: variant === 'full' ? 68 : 40,
+            width: variant === 'full' ? 76 : 44,
             justifyContent: 'center',
           }}
         >

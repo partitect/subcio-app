@@ -8,7 +8,8 @@ import { logger } from './logService';
 // Re-export types for convenience
 export type { UsageStats } from '../types/auth';
 
-const API_BASE = 'http://localhost:8000/api';
+// API URL from environment or fallback to localhost
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'subcio_access_token';

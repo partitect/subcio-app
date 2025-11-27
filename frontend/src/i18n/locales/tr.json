@@ -269,14 +269,22 @@
     "usage": {
       "title": "Bu Ayki Kullanım",
       "minutes": "{{used}} / {{limit}} dakika",
+      "minutesLabel": "Kullanılan Dakika",
+      "exportsLabel": "Kullanılan Dışa Aktarma",
       "lowWarning": "Dakikalarınız azalıyor. Yükseltmeyi düşünün!",
       "upgrade": "Planı Yükselt"
     },
     "recentUploads": {
-      "title": "Son Yüklemeler",
+      "title": "Son Projeler",
       "viewAll": "Tümünü Gör",
       "done": "Tamamlandı",
-      "empty": "Henüz yükleme yok"
+      "empty": "Henüz yükleme yok",
+      "noProjects": "Henüz proje yok. İlk videonuzu yükleyin!",
+      "untitled": "İsimsiz Proje",
+      "unknown": "Bilinmiyor",
+      "justNow": "Az önce",
+      "hoursAgo": "{{count}} saat önce",
+      "daysAgo": "{{count}} gün önce"
     },
     "tips": {
       "title": "Pro İpuçları",
@@ -481,42 +489,6 @@
       "failed": "Dışa aktarma başarısız. Lütfen tekrar deneyin."
     }
   },
-  "settings": {
-    "title": "Ayarlar",
-    "profile": {
-      "title": "Profil",
-      "name": "Ad Soyad",
-      "email": "E-posta",
-      "save": "Değişiklikleri Kaydet"
-    },
-    "password": {
-      "title": "Şifre Değiştir",
-      "current": "Mevcut Şifre",
-      "new": "Yeni Şifre",
-      "confirm": "Yeni Şifre Tekrar",
-      "change": "Şifreyi Değiştir"
-    },
-    "language": {
-      "title": "Dil",
-      "select": "Dil Seçin"
-    },
-    "theme": {
-      "title": "Tema",
-      "light": "Açık",
-      "dark": "Koyu",
-      "system": "Sistem"
-    },
-    "notifications": {
-      "title": "Bildirimler",
-      "email": "E-posta Bildirimleri",
-      "updates": "Ürün Güncellemeleri"
-    },
-    "danger": {
-      "title": "Tehlikeli Bölge",
-      "deleteAccount": "Hesabı Sil",
-      "deleteWarning": "Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir."
-    }
-  },
   "errors": {
     "404": {
       "title": "Sayfa Bulunamadı",
@@ -609,6 +581,10 @@
       "language": "Dil",
       "notifications": "E-posta Bildirimleri",
       "notificationsDesc": "Projeleriniz ve dışa aktarmalarınız hakkında güncellemeler alın"
+    },
+    "language": {
+      "title": "Dil",
+      "select": "Dil Seçin"
     },
     "billing": {
       "title": "Faturalandırma ve Abonelik",

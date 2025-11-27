@@ -743,7 +743,17 @@ def load_project(project_id: str) -> dict:
 # -----------------------------------------------------------------------------
 # FastAPI app
 # -----------------------------------------------------------------------------
-app = FastAPI(title="Subcio API", version="0.1.0")
+app = FastAPI(title="Subcio API", version="1.0.0")
+
+# Health check endpoint for production monitoring
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for load balancers and monitoring."""
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "service": "subcio-api"
+    }
 
 # Initialize database on startup
 @app.on_event("startup")

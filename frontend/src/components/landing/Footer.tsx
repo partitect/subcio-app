@@ -73,20 +73,17 @@ export function Footer() {
           {/* Brand Column */}
           <Grid item xs={12} md={4}>
             <Stack spacing={3}>
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="row" spacing={1.5} alignItems="center">
                 <Box
+                  component="img"
+                  src="/assets/images/subcio-logo.png"
+                  alt="Subcio"
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: 44,
+                    height: 44,
                     borderRadius: 2,
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
                   }}
-                >
-                  <Sparkles size={20} color="white" />
-                </Box>
+                />
                 <Typography variant="h5" fontWeight={800}>
                   Subcio
                 </Typography>

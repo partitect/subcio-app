@@ -3,15 +3,39 @@ node_modules/
 __pycache__/
 *.py[cod]
 venv/
+.venv/
+
+# Environment (IMPORTANT - never commit)
 .env
+.env.local
+.env.production
+backend/.env
+frontend/.env
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # Build
 dist/
 build/
 *.log
-backend/exports
+
+# Backend data (don't commit user data)
+backend/exports/
 backend/projects/
+backend/logs/
+backend/*.db
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+.coverage
+htmlcov/
+.pytest_cache/

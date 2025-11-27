@@ -39,7 +39,6 @@ import {
   Clock,
   Film,
   Layers,
-  Zap,
   Settings,
   Sun,
   Moon,
@@ -175,18 +174,15 @@ export default function DashboardPage() {
               sx={{ textDecoration: "none", color: "inherit" }}
             >
               <Box
+                component="img"
+                src="/assets/images/subcio-logo.png"
+                alt="Subcio"
                 sx={{
-                  width: 36,
-                  height: 36,
+                  width: 40,
+                  height: 40,
                   borderRadius: 1.5,
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
-              >
-                <Zap size={18} color="white" />
-              </Box>
+              />
               <Typography variant="h6" fontWeight={800}>
                 Subcio
               </Typography>

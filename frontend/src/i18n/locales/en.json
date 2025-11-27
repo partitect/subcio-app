@@ -269,14 +269,22 @@
     "usage": {
       "title": "Usage This Month",
       "minutes": "{{used}} / {{limit}} minutes",
+      "minutesLabel": "Minutes Used",
+      "exportsLabel": "Exports Used",
       "lowWarning": "Running low on minutes. Consider upgrading!",
       "upgrade": "Upgrade Plan"
     },
     "recentUploads": {
-      "title": "Recent Uploads",
+      "title": "Recent Projects",
       "viewAll": "View All",
       "done": "Done",
-      "empty": "No recent uploads"
+      "empty": "No recent uploads",
+      "noProjects": "No projects yet. Upload your first video!",
+      "untitled": "Untitled Project",
+      "unknown": "Unknown",
+      "justNow": "Just now",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
     },
     "tips": {
       "title": "Pro Tips",
@@ -480,42 +488,6 @@
       "failed": "Export failed. Please try again."
     }
   },
-  "settings": {
-    "title": "Settings",
-    "profile": {
-      "title": "Profile",
-      "name": "Name",
-      "email": "Email",
-      "save": "Save Changes"
-    },
-    "password": {
-      "title": "Change Password",
-      "current": "Current Password",
-      "new": "New Password",
-      "confirm": "Confirm New Password",
-      "change": "Change Password"
-    },
-    "language": {
-      "title": "Language",
-      "select": "Select Language"
-    },
-    "theme": {
-      "title": "Theme",
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System"
-    },
-    "notifications": {
-      "title": "Notifications",
-      "email": "Email Notifications",
-      "updates": "Product Updates"
-    },
-    "danger": {
-      "title": "Danger Zone",
-      "deleteAccount": "Delete Account",
-      "deleteWarning": "This action cannot be undone. All your data will be permanently deleted."
-    }
-  },
   "errors": {
     "404": {
       "title": "Page Not Found",
@@ -608,6 +580,10 @@
       "language": "Language",
       "notifications": "Email Notifications",
       "notificationsDesc": "Receive updates about your projects and exports"
+    },
+    "language": {
+      "title": "Language",
+      "select": "Select Language"
     },
     "billing": {
       "title": "Billing & Subscription",
