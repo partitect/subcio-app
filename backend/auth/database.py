@@ -89,14 +89,19 @@ def create_user(db: Session, email: str, password_hash: str, name: str = None):
     
     limits = get_plan_limits(SubscriptionPlan.FREE.value)
     
+    # videos_per_month * max_video_length ile yaklaşık dakika hesaplama
+    videos = limits.get("videos_per_month", 3)
+    video_length = limits.get("max_video_length_minutes", 3)
+    monthly_minutes = videos * video_length if videos != float('inf') else 9999
+    
     user = User(
         email=email,
         password_hash=password_hash,
         name=name,
         plan=SubscriptionPlan.FREE.value,
-        monthly_minutes_limit=limits["monthly_minutes"],
-        monthly_exports_limit=limits["monthly_exports"],
-        storage_limit_mb=limits["storage_mb"],
+        monthly_minutes_limit=monthly_minutes,
+        monthly_exports_limit=limits.get("videos_per_month", 3) if limits.get("videos_per_month", 3) != float('inf') else 9999,
+        storage_limit_mb=limits.get("storage_mb", 1000),
     )
     
     db.add(user)
@@ -170,6 +175,11 @@ def create_or_update_oauth_user(
     # Create new user
     limits = get_plan_limits(SubscriptionPlan.FREE.value)
     
+    # videos_per_month * max_video_length ile yaklaşık dakika hesaplama
+    videos = limits.get("videos_per_month", 3)
+    video_length = limits.get("max_video_length_minutes", 3)
+    monthly_minutes = videos * video_length if videos != float('inf') else 9999
+    
     user = User(
         email=email,
         password_hash=None,  # OAuth users don't have password
@@ -178,9 +188,9 @@ def create_or_update_oauth_user(
         oauth_id=provider_id,
         avatar_url=avatar_url,
         plan=SubscriptionPlan.FREE.value,
-        monthly_minutes_limit=limits["monthly_minutes"],
-        monthly_exports_limit=limits["monthly_exports"],
-        storage_limit_mb=limits["storage_mb"],
+        monthly_minutes_limit=monthly_minutes,
+        monthly_exports_limit=limits.get("videos_per_month", 3) if limits.get("videos_per_month", 3) != float('inf') else 9999,
+        storage_limit_mb=limits.get("storage_mb", 1000),
         is_verified=True,  # OAuth emails are verified
     )
     

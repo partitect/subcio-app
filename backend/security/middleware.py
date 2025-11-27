@@ -143,7 +143,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     
     def _get_limit_type(self, path: str) -> str:
         """Determine rate limit type based on path."""
-        if "/auth/" in path or "/login" in path or "/register" in path:
+        # OAuth providers is a public read-only endpoint, use default limit
+        if "/oauth/providers" in path:
+            return "default"
+        # Login/register should have stricter limits
+        if "/login" in path or "/register" in path:
+            return "login"
+        elif "/auth/" in path:
             return "auth"
         elif "/upload" in path:
             return "upload"

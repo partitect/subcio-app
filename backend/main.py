@@ -23,14 +23,21 @@ from fastapi.staticfiles import StaticFiles
 import mimetypes
 from faster_whisper import WhisperModel
 import uvicorn
-import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger("subcio.main")
+# Import and setup logging system
+try:
+    from .logging_config import (
+        setup_logging, get_logger, RequestLoggingMiddleware,
+        api_logger, auth_logger, transcription_logger, export_logger
+    )
+except ImportError:
+    from logging_config import (
+        setup_logging, get_logger, RequestLoggingMiddleware,
+        api_logger, auth_logger, transcription_logger, export_logger
+    )
+
+# Setup main logger
+logger = setup_logging("subcio")
 
 # Ensure package imports work when run as script (uvicorn main:app)
 if __package__ in (None, ""):
@@ -744,23 +751,47 @@ async def startup_event():
     init_db()
     logger.info("🚀 Subcio API started")
     logger.info("🔐 Security middleware active")
+    logger.info("📋 Request logging enabled")
 
-# Security middleware - runs before CORS
+# Request logging middleware
+from starlette.middleware.base import BaseHTTPMiddleware
+import time as _time
+import uuid as _uuid
+
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        request_id = str(_uuid.uuid4())[:8]
+        method = request.method
+        path = request.url.path
+        client_ip = request.client.host if request.client else "unknown"
+        
+        # Skip static and health endpoints
+        if path in ["/health", "/favicon.ico", "/docs", "/openapi.json"]:
+            return await call_next(request)
+        
+        start_time = _time.time()
+        logger.info(f"📥 [{request_id}] {method} {path} | IP: {client_ip}")
+        
+        try:
+            response = await call_next(request)
+            duration = (_time.time() - start_time) * 1000
+            
+            status = response.status_code
+            emoji = "✅" if status < 300 else "↩️" if status < 400 else "⚠️" if status < 500 else "❌"
+            logger.info(f"📤 [{request_id}] {method} {path} | {emoji} {status} | {duration:.1f}ms")
+            
+            return response
+        except Exception as e:
+            duration = (_time.time() - start_time) * 1000
+            logger.error(f"📛 [{request_id}] {method} {path} | ❌ Error: {str(e)[:100]} | {duration:.1f}ms")
+            raise
+
+app.add_middleware(LoggingMiddleware)
+
+# Security middleware - runs after CORS (middleware order is reversed in starlette)
 @app.middleware("http")
 async def security_middleware(request: Request, call_next):
-    """Global security middleware for rate limiting and headers."""
-    client_ip = request.client.host if request.client else "unknown"
-    
-    # Check global rate limit
-    if not rate_limiter.check(f"global:{client_ip}", "default"):
-        retry_after = rate_limiter.get_retry_after(f"global:{client_ip}", "default")
-        logger.warning(f"Rate limit exceeded for {client_ip}")
-        return JSONResponse(
-            status_code=429,
-            content={"detail": f"Too many requests. Try again in {retry_after} seconds."},
-            headers={"Retry-After": str(retry_after)}
-        )
-    
+    """Global security middleware for headers."""
     response = await call_next(request)
     
     # Add security headers

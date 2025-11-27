@@ -20,7 +20,6 @@ import {
   FormControlLabel,
   InputAdornment,
   IconButton,
-  Alert,
   Chip,
   alpha,
   useTheme,
@@ -35,12 +34,14 @@ import {
 } from "@mui/icons-material";
 import { PRICING_PLANS } from "../config/pricing";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 
 export default function RegisterPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { register } = useAuth();
   const { t } = useTranslation();
+  const { showError, showSuccess } = useToast();
   const [searchParams] = useSearchParams();
   const selectedPlanId = searchParams.get("plan") || "free";
   
@@ -55,7 +56,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const selectedPlan = PRICING_PLANS.find(p => p.id === selectedPlanId) || PRICING_PLANS[0];
 
@@ -64,39 +64,37 @@ export default function RegisterPage() {
       ...prev,
       [field]: e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
-    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.fullName.trim()) {
-      setError(t('auth.register.errors.nameRequired'));
+      showError(t('auth.register.errors.nameRequired'));
       return;
     }
     if (!formData.email.trim()) {
-      setError(t('auth.register.errors.emailRequired'));
+      showError(t('auth.register.errors.emailRequired'));
       return;
     }
     if (!formData.password) {
-      setError(t('auth.register.errors.passwordRequired'));
+      showError(t('auth.register.errors.passwordRequired'));
       return;
     }
     if (formData.password.length < 8) {
-      setError(t('auth.register.errors.passwordLength'));
+      showError(t('auth.register.errors.passwordLength'));
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError(t('auth.register.errors.passwordMismatch'));
+      showError(t('auth.register.errors.passwordMismatch'));
       return;
     }
     if (!formData.agreeTerms) {
-      setError(t('auth.register.errors.termsRequired'));
+      showError(t('auth.register.errors.termsRequired'));
       return;
     }
 
     setLoading(true);
-    setError("");
     
     try {
       await register({
@@ -105,6 +103,8 @@ export default function RegisterPage() {
         name: formData.fullName,
       });
       
+      showSuccess(t('auth.register.success') || 'Kayıt başarılı! Yönlendiriliyorsunuz...');
+      
       // If paid plan, redirect to checkout
       if (selectedPlan.price.monthly > 0) {
         navigate(`/checkout?plan=${selectedPlanId}`);
@@ -112,7 +112,7 @@ export default function RegisterPage() {
         navigate("/dashboard");
       }
     } catch (err: any) {
-      setError(err.message || t('auth.register.errors.emailExists'));
+      showError(err.message || t('auth.register.errors.emailExists'));
     } finally {
       setLoading(false);
     }
@@ -203,12 +203,6 @@ export default function RegisterPage() {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             {t('auth.register.subtitle')}
           </Typography>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
 
           {/* Social Login Buttons */}
           <Box sx={{ display: "flex", gap: 2, mb: 3 }}>

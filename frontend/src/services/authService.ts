@@ -3,6 +3,7 @@
  */
 
 import { AuthTokens, LoginCredentials, RegisterCredentials, User, UsageStats } from '../types/auth';
+import { logger } from './logService';
 
 // Re-export types for convenience
 export type { UsageStats } from '../types/auth';
@@ -12,6 +13,21 @@ const API_BASE = 'http://localhost:8000/api';
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'subcio_access_token';
 const REFRESH_TOKEN_KEY = 'subcio_refresh_token';
+
+// Error types
+export class ConnectionError extends Error {
+  constructor(message: string = 'Sunucuya bağlanılamadı') {
+    super(message);
+    this.name = 'ConnectionError';
+  }
+}
+
+export class AuthError extends Error {
+  constructor(message: string, public statusCode?: number) {
+    super(message);
+    this.name = 'AuthError';
+  }
+}
 
 // OAuth providers interface
 export interface OAuthProviders {
@@ -80,16 +96,50 @@ function authHeaders(): HeadersInit {
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-    throw new Error(error.detail || 'An error occurred');
+    throw new AuthError(error.detail || 'An error occurred', response.status);
   }
   return response.json();
+}
+
+/**
+ * Fetch wrapper with connection error handling
+ */
+async function safeFetch(url: string, options?: RequestInit): Promise<Response> {
+  const method = options?.method || 'GET';
+  const requestId = Math.random().toString(36).substring(7);
+  
+  logger.debug(`[${requestId}] API Request: ${method} ${url}`);
+  const startTime = performance.now();
+  
+  try {
+    const response = await fetch(url, options);
+    const duration = Math.round(performance.now() - startTime);
+    
+    logger.requestLog(method, url, response.status, duration);
+    
+    if (!response.ok) {
+      logger.warn(`[${requestId}] API Error: ${method} ${url} -> ${response.status}`);
+    }
+    
+    return response;
+  } catch (error) {
+    const duration = Math.round(performance.now() - startTime);
+    logger.requestLog(method, url, 0, duration);
+    
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      logger.error(`[${requestId}] Connection failed: ${url}`, error);
+      throw new ConnectionError('Sunucuya bağlanılamadı. Backend çalışıyor mu?');
+    }
+    logger.error(`[${requestId}] Network error: ${url}`, error);
+    throw new ConnectionError('Ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edin.');
+  }
 }
 
 /**
  * Register new user
  */
 export async function register(credentials: RegisterCredentials): Promise<AuthTokens> {
-  const response = await fetch(`${API_BASE}/auth/register`, {
+  const response = await safeFetch(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
@@ -104,7 +154,7 @@ export async function register(credentials: RegisterCredentials): Promise<AuthTo
  * Login user
  */
 export async function login(credentials: LoginCredentials): Promise<AuthTokens> {
-  const response = await fetch(`${API_BASE}/auth/login`, {
+  const response = await safeFetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
@@ -122,10 +172,10 @@ export async function refreshTokens(): Promise<AuthTokens> {
   const refreshToken = getRefreshToken();
   
   if (!refreshToken) {
-    throw new Error('No refresh token available');
+    throw new AuthError('No refresh token available');
   }
   
-  const response = await fetch(`${API_BASE}/auth/refresh?refresh_token=${encodeURIComponent(refreshToken)}`, {
+  const response = await safeFetch(`${API_BASE}/auth/refresh?refresh_token=${encodeURIComponent(refreshToken)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -139,7 +189,7 @@ export async function refreshTokens(): Promise<AuthTokens> {
  * Get current user info
  */
 export async function getCurrentUser(): Promise<User> {
-  const response = await fetch(`${API_BASE}/auth/me`, {
+  const response = await safeFetch(`${API_BASE}/auth/me`, {
     method: 'GET',
     headers: authHeaders(),
   });
@@ -151,7 +201,7 @@ export async function getCurrentUser(): Promise<User> {
  * Update user profile
  */
 export async function updateProfile(data: { name?: string; email?: string }): Promise<User> {
-  const response = await fetch(`${API_BASE}/auth/me`, {
+  const response = await safeFetch(`${API_BASE}/auth/me`, {
     method: 'PUT',
     headers: authHeaders(),
     body: JSON.stringify(data),
@@ -164,7 +214,7 @@ export async function updateProfile(data: { name?: string; email?: string }): Pr
  * Change password
  */
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/auth/change-password`, {
+  const response = await safeFetch(`${API_BASE}/auth/change-password`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify({
@@ -180,7 +230,7 @@ export async function changePassword(currentPassword: string, newPassword: strin
  * Request password reset
  */
 export async function forgotPassword(email: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+  const response = await safeFetch(`${API_BASE}/auth/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
@@ -193,7 +243,7 @@ export async function forgotPassword(email: string): Promise<void> {
  * Reset password with token
  */
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/auth/reset-password`, {
+  const response = await safeFetch(`${API_BASE}/auth/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token, new_password: newPassword }),
@@ -206,7 +256,7 @@ export async function resetPassword(token: string, newPassword: string): Promise
  * Get usage statistics
  */
 export async function getUsageStats(): Promise<UsageStats> {
-  const response = await fetch(`${API_BASE}/auth/usage`, {
+  const response = await safeFetch(`${API_BASE}/auth/usage`, {
     method: 'GET',
     headers: authHeaders(),
   });
@@ -236,7 +286,7 @@ export async function logout(): Promise<void> {
  * Get available OAuth providers
  */
 export async function getOAuthProviders(): Promise<OAuthProviders> {
-  const response = await fetch(`${API_BASE}/auth/oauth/providers`, {
+  const response = await safeFetch(`${API_BASE}/auth/oauth/providers`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });

@@ -2,6 +2,8 @@
 Payment Routes - Stripe API endpoints with security features
 """
 import logging
+import sys
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -9,9 +11,16 @@ from typing import Optional
 from datetime import datetime
 import stripe
 
-from ..auth.database import get_db
-from ..auth.models import User
-from ..auth.utils import get_current_user
+# Handle imports for both package and direct execution
+try:
+    from auth.database import get_db
+    from auth.models import User
+    from auth.utils import get_current_user
+except ImportError:
+    from ..auth.database import get_db
+    from ..auth.models import User
+    from ..auth.utils import get_current_user
+
 from .config import (
     STRIPE_PRICE_IDS,
     StripePlan,
@@ -23,12 +32,18 @@ from .stripe_service import StripeService
 
 # Import security module
 try:
-    from ..security import (
+    from security import (
         rate_limiter, WebhookVerifier, AuditLogger, CreditManager
     )
     SECURITY_ENABLED = True
 except ImportError:
-    SECURITY_ENABLED = False
+    try:
+        from ..security import (
+            rate_limiter, WebhookVerifier, AuditLogger, CreditManager
+        )
+        SECURITY_ENABLED = True
+    except ImportError:
+        SECURITY_ENABLED = False
 
 # Configure logging
 logger = logging.getLogger("subcio.payments")

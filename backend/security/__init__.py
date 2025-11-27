@@ -40,6 +40,61 @@ Base = declarative_base()
 
 
 # ============================================================
+# CONFIGURATION
+# ============================================================
+
+class SecurityConfig:
+    """Central security configuration."""
+    
+    # Rate limits (requests per minute)
+    DEFAULT_RATE_LIMIT = 120
+    RATE_LIMITS = {
+        "default": 120,
+        "auth": 30,
+        "login": 10,
+        "upload": 20,
+        "export": 10,
+        "api": 200,
+        "webhook": 100,
+    }
+    
+    # Session settings
+    SESSION_TIMEOUT_MINUTES = 60
+    MAX_SESSIONS_PER_USER = 5
+    
+    # Security thresholds
+    MAX_LOGIN_ATTEMPTS = 5
+    LOCKOUT_DURATION_MINUTES = 15
+
+
+# ============================================================
+# AUDIT ACTION ENUM
+# ============================================================
+
+from enum import Enum
+
+class AuditAction(Enum):
+    """Enumeration of auditable actions."""
+    LOGIN = "login"
+    LOGOUT = "logout"
+    REGISTER = "register"
+    PASSWORD_CHANGE = "password_change"
+    PASSWORD_RESET = "password_reset"
+    API_ACCESS = "api_access"
+    UPLOAD = "upload"
+    EXPORT = "export"
+    DELETE = "delete"
+    SUBSCRIPTION_CREATE = "subscription_create"
+    SUBSCRIPTION_CANCEL = "subscription_cancel"
+    WEBHOOK_RECEIVED = "webhook_received"
+    CREDITS_USE = "credits_use"
+    CREDITS_ADD = "credits_add"
+    RATE_LIMIT = "rate_limit"
+    ERROR = "error"
+    SECURITY_VIOLATION = "security_violation"
+
+
+# ============================================================
 # 1️⃣ API KEY PROTECTION
 # ============================================================
 
@@ -104,14 +159,15 @@ class RateLimiter:
         })
         self._lock = Lock()
         
-        # Rate limit configurations
+        # Rate limit configurations (requests per window)
         self.limits = {
-            "default": {"requests": 60, "window": 60},      # 60 req/min
-            "auth": {"requests": 5, "window": 60},          # 5 auth attempts/min
-            "upload": {"requests": 10, "window": 60},       # 10 uploads/min
-            "export": {"requests": 5, "window": 60},        # 5 exports/min
-            "api": {"requests": 100, "window": 60},         # 100 API calls/min
-            "webhook": {"requests": 50, "window": 60},      # 50 webhooks/min
+            "default": {"requests": 300, "window": 60},     # 300 req/min (5 per sec)
+            "auth": {"requests": 60, "window": 60},         # 60 auth attempts/min
+            "login": {"requests": 20, "window": 60},        # 20 login attempts/min
+            "upload": {"requests": 30, "window": 60},       # 30 uploads/min
+            "export": {"requests": 20, "window": 60},       # 20 exports/min
+            "api": {"requests": 300, "window": 60},         # 300 API calls/min
+            "webhook": {"requests": 100, "window": 60},     # 100 webhooks/min
         }
     
     def check(self, key: str, limit_type: str = "default") -> bool:
@@ -904,6 +960,10 @@ async def security_middleware(request: Request, call_next):
 # ============================================================
 
 __all__ = [
+    # Config
+    "SecurityConfig",
+    "AuditAction",
+    
     # API Key
     "APIKeyManager",
     

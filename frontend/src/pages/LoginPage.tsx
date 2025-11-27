@@ -20,7 +20,6 @@ import {
   FormControlLabel,
   InputAdornment,
   IconButton,
-  Alert,
   alpha,
   useTheme,
   CircularProgress,
@@ -32,6 +31,7 @@ import {
   GitHub as GitHubIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 import { initiateGoogleOAuth, initiateGitHubOAuth, getOAuthProviders, OAuthProviders } from "../services/authService";
 
 export default function LoginPage() {
@@ -39,6 +39,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { t } = useTranslation();
+  const { showError, showSuccess, showWarning } = useToast();
   
   const [formData, setFormData] = useState({
     email: "",
@@ -47,7 +48,6 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [oauthProviders, setOAuthProviders] = useState<OAuthProviders | null>(null);
   const [oauthLoading, setOAuthLoading] = useState<string | null>(null);
 
@@ -55,7 +55,11 @@ export default function LoginPage() {
   useEffect(() => {
     getOAuthProviders()
       .then(setOAuthProviders)
-      .catch(() => {
+      .catch((err) => {
+        // Check if it's a connection error
+        if (err.message?.includes('bağlanılamıyor') || err.message?.includes('Connection')) {
+          showWarning(t('auth.login.errors.serverOffline') || 'Sunucu şu anda erişilemiyor. Lütfen daha sonra tekrar deneyin.');
+        }
         // OAuth not available, continue with email/password only
       });
   }, []);
@@ -65,32 +69,32 @@ export default function LoginPage() {
       ...prev,
       [field]: e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
-    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.email.trim()) {
-      setError(t('auth.login.errors.emailRequired'));
+      showError(t('auth.login.errors.emailRequired'));
       return;
     }
     if (!formData.password) {
-      setError(t('auth.login.errors.passwordRequired'));
+      showError(t('auth.login.errors.passwordRequired'));
       return;
     }
 
     setLoading(true);
-    setError("");
     
     try {
       await login({
         email: formData.email,
         password: formData.password,
       });
+      showSuccess(t('auth.login.success') || 'Giriş başarılı! Yönlendiriliyorsunuz...');
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || t('auth.login.errors.invalidCredentials'));
+      const errorMessage = err.message || t('auth.login.errors.invalidCredentials');
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -98,7 +102,6 @@ export default function LoginPage() {
 
   const handleSocialLogin = (provider: "google" | "github") => {
     setOAuthLoading(provider);
-    setError("");
     
     if (provider === "google") {
       initiateGoogleOAuth();
@@ -155,12 +158,6 @@ export default function LoginPage() {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             {t('auth.login.subtitle')}
           </Typography>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
 
           {/* Social Login Buttons */}
           <Box sx={{ display: "flex", gap: 2, mb: 3 }}>

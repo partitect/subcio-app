@@ -9,6 +9,14 @@ import "./index.css";
 // i18n initialization
 import "./i18n";
 
+// Initialize logging
+import { logger } from "./services/logService";
+logger.info("🚀 Subcio uygulaması başlatılıyor...");
+logger.debug("Environment:", { 
+  mode: import.meta.env.MODE,
+  isDev: import.meta.env.DEV 
+});
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ThemeProvider>
