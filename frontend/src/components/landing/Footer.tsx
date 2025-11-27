@@ -47,10 +47,10 @@ const FOOTER_LINKS = {
 };
 
 const SOCIAL_LINKS = [
-  { icon: Twitter, href: "https://twitter.com/pycaps", label: "Twitter" },
-  { icon: Youtube, href: "https://youtube.com/@pycaps", label: "YouTube" },
-  { icon: Github, href: "https://github.com/pycaps", label: "GitHub" },
-  { icon: Linkedin, href: "https://linkedin.com/company/pycaps", label: "LinkedIn" },
+  { icon: Twitter, href: "https://twitter.com/subcio_app", label: "Twitter" },
+  { icon: Youtube, href: "https://youtube.com/@subcio", label: "YouTube" },
+  { icon: Github, href: "https://github.com/subcio", label: "GitHub" },
+  { icon: Linkedin, href: "https://linkedin.com/company/subcio", label: "LinkedIn" },
 ];
 
 export function Footer() {
@@ -88,7 +88,7 @@ export function Footer() {
                   <Sparkles size={20} color="white" />
                 </Box>
                 <Typography variant="h5" fontWeight={800}>
-                  PyCaps
+                  Subcio
                 </Typography>
               </Stack>
               <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 280 }}>
@@ -232,7 +232,7 @@ export function Footer() {
             <Stack direction="row" spacing={1} alignItems="center">
               <Mail size={14} />
               <Typography variant="caption" color="text.secondary">
-                support@pycaps.com
+                support@subcio.io
               </Typography>
             </Stack>
           </Stack>

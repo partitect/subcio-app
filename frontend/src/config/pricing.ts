@@ -1,7 +1,7 @@
 /**
  * Subscription Plans Configuration
  * 
- * PyCaps - AI-Powered Styled Subtitle Generator
+ * Subcio - AI-Powered Styled Subtitle Generator
  * 
  * Pricing Strategy: Simple video count + duration limits
  * Target: Content creators, YouTubers, TikTokers, Podcasters
@@ -38,7 +38,7 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     id: "free",
     name: "Free",
-    description: "Try PyCaps with basic features",
+    description: "Try Subcio with basic features",
     price: {
       monthly: 0,
       yearly: 0,
@@ -50,7 +50,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "720p export quality",
       "10 basic presets",
       "500MB storage",
-      "PyCaps watermark",
+      "Subcio watermark",
       "Community support",
     ],
     limitations: {
@@ -186,8 +186,8 @@ export const FEATURES_COMPARISON = [
 
 export const FAQ_ITEMS = [
   {
-    question: "What is PyCaps?",
-    answer: "PyCaps is an AI-powered subtitle generator that creates beautifully styled captions for your videos. Using advanced PyonFX effects, you can create professional-looking subtitles with animations, colors, and custom fonts.",
+    question: "What is Subcio?",
+    answer: "Subcio is an AI-powered subtitle generator that creates beautifully styled captions for your videos. Using advanced PyonFX effects, you can create professional-looking subtitles with animations, colors, and custom fonts.",
   },
   {
     question: "How does the free trial work?",
@@ -203,7 +203,7 @@ export const FAQ_ITEMS = [
   },
   {
     question: "What video formats are supported?",
-    answer: "PyCaps supports all major video formats including MP4, MOV, AVI, MKV, and WebM. Audio files (MP3, WAV, M4A) are also supported for audio-only projects.",
+    answer: "Subcio supports all major video formats including MP4, MOV, AVI, MKV, and WebM. Audio files (MP3, WAV, M4A) are also supported for audio-only projects.",
   },
   {
     question: "How accurate is the AI transcription?",
@@ -228,14 +228,14 @@ export const TESTIMONIALS = [
     name: "Sarah Chen",
     role: "YouTuber • 2.5M subscribers",
     avatar: "https://i.pravatar.cc/150?img=1",
-    content: "PyCaps saved me hours every week. The animated subtitles look incredible and my viewers love them!",
+    content: "Subcio saved me hours every week. The animated subtitles look incredible and my viewers love them!",
     rating: 5,
   },
   {
     name: "Marcus Johnson",
     role: "Video Editor, Creative Agency",
     avatar: "https://i.pravatar.cc/150?img=3",
-    content: "The preset library is amazing. We use PyCaps for all our client projects now. The quality is unmatched.",
+    content: "The preset library is amazing. We use Subcio for all our client projects now. The quality is unmatched.",
     rating: 5,
   },
   {

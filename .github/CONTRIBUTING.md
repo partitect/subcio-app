@@ -1,6 +1,6 @@
 # Katkıda Bulunma Rehberi
 
-PyCaps projesine katkıda bulunmak istediğiniz için teşekkürler! 🎉
+Subcio projesine katkıda bulunmak istediğiniz için teşekkürler! 🎉
 
 ## 🚀 Başlangıç
 
@@ -15,8 +15,8 @@ PyCaps projesine katkıda bulunmak istediğiniz için teşekkürler! 🎉
 
 ```bash
 # Repository'yi klonla
-git clone https://github.com/username/pycaps.git
-cd pycaps
+git clone https://github.com/subcio/subcio.git
+cd subcio
 
 # Backend kurulumu
 cd backend
@@ -153,7 +153,7 @@ def process_subtitle(text: str, effect: str) -> dict:
 ## 📁 Proje Yapısı
 
 ```
-pycaps/
+subcio/
 ├── backend/
 │   ├── main.py           # FastAPI app
 │   ├── styles/           # PyonFX efektleri

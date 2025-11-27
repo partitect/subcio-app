@@ -2,7 +2,7 @@ import { createTheme, alpha, ThemeOptions } from "@mui/material";
 import { Components, Theme } from "@mui/material/styles";
 
 // ============================================================
-// PyCaps Design System - Theme Configuration
+// Subcio Design System - Theme Configuration
 // ============================================================
 
 // Color Palette

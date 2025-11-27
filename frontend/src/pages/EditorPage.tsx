@@ -169,7 +169,7 @@ export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<"presets" | "style" | "transcript">("presets");
   const [exporting, setExporting] = useState(false);
   const [showRenderModal, setShowRenderModal] = useState(false);
-  const [exportName, setExportName] = useState("pycaps_export");
+  const [exportName, setExportName] = useState("subcio_export");
   const [exportQuality, setExportQuality] = useState("1080p");
   const [savingPreset, setSavingPreset] = useState(false);
   const [presetSynced, setPresetSynced] = useState(false);

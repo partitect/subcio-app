@@ -718,7 +718,7 @@ def load_project(project_id: str) -> dict:
 # -----------------------------------------------------------------------------
 # FastAPI app
 # -----------------------------------------------------------------------------
-app = FastAPI(title="PyCaps API", version="0.1.0")
+app = FastAPI(title="Subcio API", version="0.1.0")
 
 # Initialize database on startup
 @app.on_event("startup")
@@ -994,9 +994,9 @@ async def export_subtitled_video(
     return FileResponse(
         path=out_path,
         media_type="video/mp4",
-        filename="pycaps_export.mp4",
+        filename="subcio_export.mp4",
         headers={
-            "Content-Disposition": "attachment; filename=pycaps_export.mp4"
+            "Content-Disposition": "attachment; filename=subcio_export.mp4"
         },
         background=background_tasks,
     )
@@ -1215,7 +1215,7 @@ async def list_aaspresets():
 @app.post("/api/aaspresets/extract-style")
 async def extract_aas_style(request: Request):
     """
-    Extract style from an AAS file and convert to PyCaps preset format
+    Extract style from an AAS file and convert to Subcio preset format
     """
     try:
         data = await request.json()
@@ -1267,7 +1267,7 @@ async def extract_aas_style(request: Request):
             # For now assume standard ASS format
             style_map = dict(zip(format_cols, style_values[:len(format_cols)]))
             
-        # Convert to PyCaps preset format
+        # Convert to Subcio preset format
         preset = {
             "font": style_map.get("Fontname", "Arial"),
             "font_size": float(style_map.get("Fontsize", 64)),
@@ -1289,7 +1289,7 @@ async def extract_aas_style(request: Request):
             "margin_l": int(style_map.get("MarginL", 10)),
             "margin_r": int(style_map.get("MarginR", 10)),
             "margin_v": int(style_map.get("MarginV", 10)),
-            # Default values for properties not in standard ASS Style but supported by PyCaps
+            # Default values for properties not in standard ASS Style but supported by Subcio
             "blur": 0,
             "rotation_x": 0,
             "rotation_y": 0,

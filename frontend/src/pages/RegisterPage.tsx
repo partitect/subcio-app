@@ -148,7 +148,7 @@ export default function RegisterPage() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            SubGen AI
+            Subcio
           </Typography>
         </Box>
 

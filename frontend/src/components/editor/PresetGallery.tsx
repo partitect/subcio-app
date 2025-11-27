@@ -36,8 +36,8 @@ interface PresetGalleryProps {
 const PRESET_CATEGORY_KEYS = ["all", "favorites", "tiktok", "karaoke", "fire", "neon", "glitch", "nature", "cinema", "horror", "bounce", "text"] as const;
 
 // Storage key for favorites
-const FAVORITES_STORAGE_KEY = "pycaps_preset_favorites";
-const VIEW_MODE_STORAGE_KEY = "pycaps_preset_view_mode";
+const FAVORITES_STORAGE_KEY = "subcio_preset_favorites";
+const VIEW_MODE_STORAGE_KEY = "subcio_preset_view_mode";
 
 // Load favorites from localStorage
 const loadFavorites = (): Set<string> => {

@@ -80,7 +80,7 @@
     "testimonials": {
       "title": "İçerik Üreticilerin",
       "titleHighlight": "Tercihi",
-      "subtitle": "PyCaps'e güvenen binlerce içerik üreticisine katılın"
+      "subtitle": "Subcio'ya güvenen binlerce içerik üreticisine katılın"
     },
     "cta": {
       "title": "Harika Altyazılar Oluşturmaya Hazır mısınız?",
@@ -147,7 +147,7 @@
     },
     "register": {
       "title": "Hesap Oluştur",
-      "subtitle": "SubGen AI ile profesyonel altyazılar oluşturmaya başlayın",
+      "subtitle": "Subcio ile profesyonel altyazılar oluşturmaya başlayın",
       "name": "Ad Soyad",
       "email": "E-posta",
       "password": "Şifre",
@@ -692,7 +692,7 @@
     "terms": "Kullanım Koşulları",
     "privacy": "Gizlilik Politikası",
     "cookies": "Çerez Politikası",
-    "copyright": "© {{year}} PyCaps. Tüm hakları saklıdır.",
+    "copyright": "© {{year}} Subcio. Tüm hakları saklıdır.",
     "madeWith": "İçerik üreticileri için ❤️ ile yapıldı"
   }
 }

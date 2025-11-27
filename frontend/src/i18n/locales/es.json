@@ -80,7 +80,7 @@
     "testimonials": {
       "title": "La Elección de los",
       "titleHighlight": "Creadores de Contenido",
-      "subtitle": "Únete a miles de creadores de contenido que confían en PyCaps"
+      "subtitle": "Únete a miles de creadores de contenido que confían en Subcio"
     },
     "cta": {
       "title": "¿Listo para Crear Subtítulos Increíbles?",
@@ -147,7 +147,7 @@
     },
     "register": {
       "title": "Crear Cuenta",
-      "subtitle": "Comienza a crear subtítulos profesionales con SubGen AI",
+      "subtitle": "Comienza a crear subtítulos profesionales con Subcio",
       "name": "Nombre Completo",
       "email": "Correo electrónico",
       "password": "Contraseña",
@@ -687,7 +687,7 @@
     "terms": "Términos de Servicio",
     "privacy": "Política de Privacidad",
     "cookies": "Política de Cookies",
-    "copyright": "© {{year}} PyCaps. Todos los derechos reservados.",
+    "copyright": "© {{year}} Subcio. Todos los derechos reservados.",
     "madeWith": "Hecho con ❤️ para creadores de contenido"
   }
 }

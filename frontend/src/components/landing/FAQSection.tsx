@@ -55,7 +55,7 @@ export function FAQSection() {
             color="text.secondary"
             sx={{ maxWidth: 500, fontWeight: 500 }}
           >
-            Everything you need to know about PyCaps. Can't find the answer
+            Everything you need to know about Subcio. Can't find the answer
             you're looking for? Contact our support team.
           </Typography>
         </Stack>

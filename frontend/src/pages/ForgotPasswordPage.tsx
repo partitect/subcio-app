@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            SubGen AI
+            Subcio
           </Typography>
         </Box>
 

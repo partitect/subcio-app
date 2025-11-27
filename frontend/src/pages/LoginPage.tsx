@@ -135,7 +135,7 @@ export default function LoginPage() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            SubGen AI
+            Subcio
           </Typography>
         </Box>
 

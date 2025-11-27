@@ -17,7 +17,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 // Storage key
-const THEME_STORAGE_KEY = 'pycaps-theme-mode';
+const THEME_STORAGE_KEY = 'subcio-theme-mode';
 
 // Get initial theme from localStorage or system preference
 const getInitialTheme = (): ThemeMode => {

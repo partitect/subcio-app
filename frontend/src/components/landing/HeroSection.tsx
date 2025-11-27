@@ -271,7 +271,7 @@ export function HeroSection() {
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
-                    app.pycaps.com/editor
+                    app.subcio.io/editor
                   </Typography>
                 </Box>
               </Box>

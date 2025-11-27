@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from .models import Base
 
 # Database path - in backend folder
-DATABASE_PATH = Path(__file__).resolve().parent.parent / "pycaps.db"
+DATABASE_PATH = Path(__file__).resolve().parent.parent / "subcio.db"
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 
 # Create engine

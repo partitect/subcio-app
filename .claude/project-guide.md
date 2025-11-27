@@ -1,6 +1,6 @@
-# PyCaps - Sub Gen AI Project Guide
+# Subcio Project Guide
 
-Bu doküman, **Sub Gen AI (PyCaps)** projesinin kapsamlı bir teknik rehberidir. Proje, video içerikleri için otomatik altyazı oluşturma, düzenleme ve animasyonlu efektler uygulama yeteneğine sahip bir web uygulamasıdır.
+Bu doküman, **Subcio** projesinin kapsamlı bir teknik rehberidir. Proje, video içerikleri için otomatik altyazı oluşturma, düzenleme ve animasyonlu efektler uygulama yeteneğine sahip bir web uygulamasıdır.
 
 ---
 
@@ -21,7 +21,7 @@ Bu doküman, **Sub Gen AI (PyCaps)** projesinin kapsamlı bir teknik rehberidir.
 ## Proje Genel Bakış
 
 ### Amaç
-PyCaps, kullanıcıların video içeriklerine profesyonel görünümlü, animasyonlu altyazılar eklemesini sağlayan bir araçtır. Temel özellikleri:
+Subcio, kullanıcıların video içeriklerine profesyonel görünümlü, animasyonlu altyazılar eklemesini sağlayan bir araçtır. Temel özellikleri:
 
 - **Otomatik Transkripsiyon**: Faster-Whisper AI modeli ile video/ses dosyalarından kelime düzeyinde zamanlama bilgisi çıkarma
 - **Görsel Altyazı Düzenleyici**: Real-time önizleme ile stil ve zamanlama düzenleme
@@ -45,7 +45,7 @@ PyCaps, kullanıcıların video içeriklerine profesyonel görünümlü, animasy
 ## Mimari Yapı
 
 ```
-pycaps-main/
+subcio/
 ├── backend/                     # FastAPI Backend
 │   ├── main.py                  # Ana API endpoint'leri
 │   ├── data_store.py            # JSON veri yönetimi

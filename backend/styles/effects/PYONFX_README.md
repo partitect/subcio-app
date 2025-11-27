@@ -1,6 +1,6 @@
 # PyonFX Effects Integration
 
-Bu modül, **PyonFX** kütüphanesinden ilham alarak geliştirilmiş subtitle efektleri PyCaps uygulamasına entegre eder.
+Bu modül, **PyonFX** kütüphanesinden ilham alarak geliştirilmiş subtitle efektleri Subcio uygulamasına entegre eder.
 
 ## PyonFX Nedir?
 

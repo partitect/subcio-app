@@ -188,7 +188,7 @@ export default function DashboardPage() {
                 <Zap size={18} color="white" />
               </Box>
               <Typography variant="h6" fontWeight={800}>
-                PyCaps
+                Subcio
               </Typography>
             </Stack>
 

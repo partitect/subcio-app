@@ -1,5 +1,5 @@
 // ============================================================
-// PyCaps UI Components Library
+// Subcio UI Components Library
 // Reusable, standardized UI components for consistent design
 // ============================================================
 

@@ -1,6 +1,6 @@
-# 📈 PyCaps Marketing & Growth Strategy
+# 📈 Subcio Marketing & Growth Strategy
 
-> **PyCaps** - AI-Powered Styled Subtitle Generator  
+> **Subcio** - AI-Powered Styled Subtitle Generator  
 > Hedef: Content creators, YouTubers, TikTokers, Podcasters
 
 ---
@@ -113,7 +113,7 @@
 | karaoke subtitle maker | 1,900 | Düşük |
 
 #### İçerik Planı
-- Comparison articles: "PyCaps vs Kapwing"
+- Comparison articles: "Subcio vs Kapwing"
 - How-to guides: "How to add animated subtitles"
 - Use case articles: "Best subtitle styles for TikTok"
 
@@ -123,7 +123,7 @@
 - Tutorial videolar (5-10 dk)
 - Before/after showcase
 - Preset tanıtımları
-- "Made with PyCaps" compilations
+- "Made with Subcio" compilations
 
 #### Influencer Sponsorlukları
 | Influencer Tipi | Takipçi | Maliyet | ROI Beklentisi |
@@ -185,7 +185,7 @@
 |-------|------|---------------------|
 | 1 | How to Add Animated Subtitles | animated subtitles |
 | 2 | Best Subtitle Styles for TikTok | tiktok captions |
-| 3 | PyCaps vs Kapwing Comparison | kapwing alternative |
+| 3 | Subcio vs Kapwing Comparison | kapwing alternative |
 | 4 | Auto Caption Your YouTube Videos | youtube auto caption |
 | 5 | Create Karaoke-Style Subtitles | karaoke subtitles |
 | 6 | Subtitle Best Practices for Engagement | video subtitles |
@@ -206,7 +206,7 @@
 
 ### Video Tutorial Serisi
 
-1. Getting Started with PyCaps (5 dk)
+1. Getting Started with Subcio (5 dk)
 2. Choosing the Perfect Preset (7 dk)
 3. Customizing Fonts & Colors (8 dk)
 4. Advanced: Creating Custom Presets (10 dk)
@@ -361,11 +361,12 @@ Maksimum: 12 ay (1 yıl bedava!)
 
 ## 📞 Önemli Linkler (Placeholder)
 
-- **Product Hunt**: [producthunt.com/posts/pycaps](placeholder)
-- **Twitter**: [@pycaps_app](placeholder)
-- **Discord**: [discord.gg/pycaps](placeholder)
-- **Blog**: [blog.pycaps.com](placeholder)
-- **Help Center**: [help.pycaps.com](placeholder)
+- **Website**: [subcio.io](placeholder)
+- **Product Hunt**: [producthunt.com/posts/subcio](placeholder)
+- **Twitter**: [@subcio_app](placeholder)
+- **Discord**: [discord.gg/subcio](placeholder)
+- **Blog**: [blog.subcio.io](placeholder)
+- **Help Center**: [help.subcio.io](placeholder)
 
 ---
 

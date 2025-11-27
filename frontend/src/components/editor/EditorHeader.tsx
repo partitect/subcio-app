@@ -113,7 +113,7 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
               fontSize: "1.1rem",
             }}
           >
-            PyCaps
+            Subcio
           </Typography>
         </Stack>
       </Stack>

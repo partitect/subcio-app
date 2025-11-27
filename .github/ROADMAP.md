@@ -1,6 +1,6 @@
-# 🚀 PyCaps Development Roadmap
+# 🚀 Subcio Development Roadmap
 
-> **Sub Gen AI** - PyonFX Subtitle Studio  
+> **Subcio** - AI-Powered Styled Subtitle Generator  
 > Son Güncelleme: 27 Kasım 2025
 
 ---

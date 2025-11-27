@@ -52,7 +52,7 @@ const styleThemes = {
     active: { x: [0, -2, 2, -1, 0], skewX: [0, 10, -10, 0] },
     passive: { opacity: 0.6 },
   },
-  // Imported from original pycaps presets (CSS + animation approximations)
+  // Imported from original subcio presets (CSS + animation approximations)
   default: {
     className:
       "text-white font-black drop-shadow-[1px_1px_0px_#000,-1px_1px_0px_#000,2px_2px_3px_rgba(0,0,0,0.7)] px-1",

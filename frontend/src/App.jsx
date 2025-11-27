@@ -134,7 +134,7 @@ export default function App() {
 
       // Extract filename from Content-Disposition header if available
       const contentDisposition = res.headers['content-disposition'];
-      let filename = "pycaps_export.mp4";
+      let filename = "subcio_export.mp4";
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
         if (filenameMatch && filenameMatch[1]) {
@@ -196,7 +196,7 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              PyCaps Studio
+              Subcio Studio
             </h1>
             <p className="text-xs text-white/50 flex items-center gap-2 mt-1">
               <span className="px-2 py-0.5 bg-emerald-500/20 rounded-full text-emerald-400 border border-emerald-500/30">

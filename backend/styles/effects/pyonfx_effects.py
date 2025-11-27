@@ -2,7 +2,7 @@
 PyonFX Effects Integration
 
 This module provides an example of how to integrate PyonFX effects
-into the PyCaps subtitle generation engine.
+into the Subcio subtitle generation engine.
 
 PyonFX is a Python library built on top of Aegisub for advanced subtitle animation.
 """

@@ -163,7 +163,7 @@ export default function ExportPage() {
                 <GradientButton
                   component="a"
                   href={videoUrl}
-                  download={`pycaps-${projectId || "export"}.mp4`}
+                  download={`subcio-${projectId || "export"}.mp4`}
                   size="large"
                   startIcon={<Download size={18} />}
                   sx={{ minWidth: 160 }}
@@ -214,7 +214,7 @@ export default function ExportPage() {
             >
               <Sparkles size={16} />
               <Typography variant="body2">
-                Powered by PyCaps Subtitle Studio
+                Powered by Subcio Subtitle Studio
               </Typography>
             </Box>
           </GlassCard>

@@ -41,7 +41,7 @@ i18n
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
-      lookupLocalStorage: 'pycaps_language',
+      lookupLocalStorage: 'subcio_language',
     },
     
     interpolation: {

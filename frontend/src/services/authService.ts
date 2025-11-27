@@ -10,8 +10,8 @@ export type { UsageStats } from '../types/auth';
 const API_BASE = 'http://localhost:8000/api';
 
 // Token storage keys
-const ACCESS_TOKEN_KEY = 'pycaps_access_token';
-const REFRESH_TOKEN_KEY = 'pycaps_refresh_token';
+const ACCESS_TOKEN_KEY = 'subcio_access_token';
+const REFRESH_TOKEN_KEY = 'subcio_refresh_token';
 
 // OAuth providers interface
 export interface OAuthProviders {

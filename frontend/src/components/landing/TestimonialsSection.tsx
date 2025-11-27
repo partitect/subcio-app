@@ -49,7 +49,7 @@ export function TestimonialsSection() {
             color="text.secondary"
             sx={{ maxWidth: 500, fontWeight: 500 }}
           >
-            Join thousands of content creators who trust PyCaps for their subtitles.
+            Join thousands of content creators who trust Subcio for their subtitles.
           </Typography>
         </Stack>
 

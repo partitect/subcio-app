@@ -1,5 +1,5 @@
 /**
- * Landing Page - PyCaps SaaS
+ * Landing Page - Subcio SaaS
  * 
  * Professional landing page with pricing, features, testimonials
  */

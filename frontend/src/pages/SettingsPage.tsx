@@ -263,7 +263,7 @@ export default function SettingsPage() {
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);
-    localStorage.setItem('pycaps_language', lang);
+    localStorage.setItem('subcio_language', lang);
   };
 
   const languages = [
