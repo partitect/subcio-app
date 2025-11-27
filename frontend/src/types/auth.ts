@@ -2,13 +2,16 @@
  * Authentication types
  */
 
+export type UserRole = 'user' | 'moderator' | 'admin' | 'super_admin';
+export type SubscriptionPlan = 'free' | 'starter' | 'pro' | 'unlimited';
+
 export interface User {
   id: number;
   email: string;
   name: string | null;
   avatar_url: string | null;
   oauth_provider: 'google' | 'github' | null;
-  plan: 'free' | 'starter' | 'creator' | 'pro';
+  plan: SubscriptionPlan;
   monthly_minutes_used: number;
   monthly_exports_used: number;
   storage_used_mb: number;
@@ -17,6 +20,7 @@ export interface User {
   storage_limit_mb: number;
   is_active: boolean;
   is_verified: boolean;
+  role: UserRole;
   created_at: string | null;
   last_login: string | null;
   // Stripe fields

@@ -19,6 +19,14 @@ class SubscriptionPlan(str, Enum):
     UNLIMITED = "unlimited"
 
 
+class UserRole(str, Enum):
+    """User roles for access control"""
+    USER = "user"
+    MODERATOR = "moderator"
+    ADMIN = "admin"
+    SUPER_ADMIN = "super_admin"
+
+
 class User(Base):
     """SQLAlchemy User model"""
     __tablename__ = "users"
@@ -47,6 +55,9 @@ class User(Base):
     # Account status
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+    
+    # Role-based access control
+    role = Column(String(20), default=UserRole.USER.value)
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -80,9 +91,18 @@ class User(Base):
             "storage_limit_mb": self.storage_limit_mb,
             "is_active": self.is_active,
             "is_verified": self.is_verified,
+            "role": self.role,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_login": self.last_login.isoformat() if self.last_login else None,
         }
+    
+    def is_admin(self) -> bool:
+        """Check if user has admin privileges"""
+        return self.role in [UserRole.ADMIN.value, UserRole.SUPER_ADMIN.value]
+    
+    def is_super_admin(self) -> bool:
+        """Check if user is super admin"""
+        return self.role == UserRole.SUPER_ADMIN.value
 
 
 # Pydantic Schemas
@@ -115,11 +135,34 @@ class UserResponse(BaseModel):
     storage_limit_mb: float
     is_active: bool
     is_verified: bool
+    role: str = "user"
     created_at: Optional[datetime]
     last_login: Optional[datetime]
     
     class Config:
         from_attributes = True
+
+
+class AdminUserResponse(UserResponse):
+    """Extended user response for admin panel"""
+    updated_at: Optional[datetime]
+    subscription_started_at: Optional[datetime]
+    subscription_ends_at: Optional[datetime]
+    stripe_customer_id: Optional[str]
+    stripe_subscription_id: Optional[str]
+
+
+class AdminUserUpdate(BaseModel):
+    """Schema for admin updating user"""
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    plan: Optional[str] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+    is_verified: Optional[bool] = None
+    monthly_minutes_limit: Optional[float] = None
+    monthly_exports_limit: Optional[int] = None
+    storage_limit_mb: Optional[float] = None
 
 
 class OAuthUserInfo(BaseModel):

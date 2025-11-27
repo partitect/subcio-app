@@ -49,6 +49,7 @@ try:
     from .styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from .data_store import load_presets, save_presets, load_effects
     from .auth.routes import router as auth_router
+    from .auth.admin_routes import router as admin_router
     from .auth.database import init_db
     from .payments.routes import router as payment_router
     from .security import (
@@ -60,6 +61,7 @@ except ImportError:
     from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from data_store import load_presets, save_presets, load_effects
     from auth.routes import router as auth_router
+    from auth.admin_routes import router as admin_router
     from auth.database import init_db
     from payments.routes import router as payment_router
     from security import (
@@ -832,6 +834,9 @@ app.mount("/projects", projects_cors, name="projects")
 
 # Include Auth Router
 app.include_router(auth_router, prefix="/api")
+
+# Include Admin Router
+app.include_router(admin_router)
 
 # Include Payment Router
 app.include_router(payment_router)

@@ -669,5 +669,87 @@
     "cookies": "Cookie Policy",
     "copyright": "© {{year}} Subcio. All rights reserved.",
     "madeWith": "Made with ❤️ for creators"
+  },
+  "admin": {
+    "nav": {
+      "overview": "Overview",
+      "users": "Users",
+      "projects": "Projects",
+      "subscriptions": "Subscriptions",
+      "analytics": "Analytics",
+      "settings": "Settings"
+    },
+    "menu": {
+      "backToDashboard": "Back to Dashboard",
+      "settings": "Settings"
+    },
+    "overview": {
+      "title": "Dashboard Overview",
+      "subtitle": "Welcome back! Here's what's happening with your platform."
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "mrr": "Monthly Revenue",
+      "totalProjects": "Total Projects",
+      "storageUsed": "Storage Used",
+      "newUsersMonth": "New Users This Month",
+      "recentActivity": "Recent Activity"
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage and monitor all user accounts",
+      "searchPlaceholder": "Search by email or name...",
+      "user": "User",
+      "plan": "Plan",
+      "role": "Role",
+      "status": "Status",
+      "usage": "Usage",
+      "lastLogin": "Last Login",
+      "actions": "Actions",
+      "noUsers": "No users found",
+      "editUser": "Edit User",
+      "name": "Name",
+      "email": "Email",
+      "active": "Active",
+      "verified": "Verified",
+      "edit": "Edit",
+      "ban": "Ban User",
+      "unban": "Unban User",
+      "resetUsage": "Reset Usage",
+      "delete": "Delete"
+    },
+    "projects": {
+      "title": "Project Management",
+      "subtitle": "View and manage all user projects",
+      "searchPlaceholder": "Search by project name or user..."
+    },
+    "subscriptions": {
+      "title": "Subscription Management",
+      "subtitle": "Monitor and manage user subscriptions"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Platform usage and growth statistics",
+      "userGrowth": "User Growth",
+      "revenue": "Revenue Trend",
+      "projects": "Projects Created",
+      "conversionFunnel": "Conversion Funnel"
+    },
+    "settings": {
+      "title": "System Settings",
+      "subtitle": "Configure system-wide settings and preferences",
+      "general": "General Settings",
+      "maintenanceMode": "Maintenance Mode",
+      "registration": "User Registration",
+      "emailVerification": "Email Verification",
+      "uploads": "Upload Settings",
+      "maxFileSize": "Maximum File Size",
+      "allowedFormats": "Allowed File Formats",
+      "plans": "Subscription Plans",
+      "apiKeys": "API Keys",
+      "dangerZone": "Danger Zone",
+      "resetAllUsage": "Reset All User Usage",
+      "clearCache": "Clear System Cache"
+    }
   }
 }

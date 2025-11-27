@@ -13,6 +13,15 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import SettingsPage from "./pages/SettingsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AdminRoute } from "./components/admin";
+import {
+  AdminOverview,
+  AdminUsers,
+  AdminProjects,
+  AdminSubscriptions,
+  AdminAnalytics,
+  AdminSettings,
+} from "./pages/admin";
 
 export default function App() {
   return (
@@ -54,6 +63,38 @@ export default function App() {
           <ProtectedRoute>
             <ExportPage />
           </ProtectedRoute>
+        } />
+        
+        {/* Admin Routes */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminOverview />
+          </AdminRoute>
+        } />
+        <Route path="/admin/users" element={
+          <AdminRoute>
+            <AdminUsers />
+          </AdminRoute>
+        } />
+        <Route path="/admin/projects" element={
+          <AdminRoute>
+            <AdminProjects />
+          </AdminRoute>
+        } />
+        <Route path="/admin/subscriptions" element={
+          <AdminRoute>
+            <AdminSubscriptions />
+          </AdminRoute>
+        } />
+        <Route path="/admin/analytics" element={
+          <AdminRoute>
+            <AdminAnalytics />
+          </AdminRoute>
+        } />
+        <Route path="/admin/settings" element={
+          <AdminRoute>
+            <AdminSettings />
+          </AdminRoute>
         } />
         
         {/* Fallback */}

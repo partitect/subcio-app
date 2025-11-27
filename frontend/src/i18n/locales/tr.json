@@ -670,5 +670,87 @@
     "cookies": "Çerez Politikası",
     "copyright": "© {{year}} Subcio. Tüm hakları saklıdır.",
     "madeWith": "İçerik üreticileri için ❤️ ile yapıldı"
+  },
+  "admin": {
+    "nav": {
+      "overview": "Genel Bakış",
+      "users": "Kullanıcılar",
+      "projects": "Projeler",
+      "subscriptions": "Abonelikler",
+      "analytics": "Analitik",
+      "settings": "Ayarlar"
+    },
+    "menu": {
+      "backToDashboard": "Panele Dön",
+      "settings": "Ayarlar"
+    },
+    "overview": {
+      "title": "Genel Bakış",
+      "subtitle": "Hoş geldiniz! Platformunuzda neler oluyor."
+    },
+    "stats": {
+      "totalUsers": "Toplam Kullanıcı",
+      "mrr": "Aylık Gelir",
+      "totalProjects": "Toplam Proje",
+      "storageUsed": "Kullanılan Depolama",
+      "newUsersMonth": "Bu Ay Yeni Kullanıcılar",
+      "recentActivity": "Son Aktiviteler"
+    },
+    "users": {
+      "title": "Kullanıcı Yönetimi",
+      "subtitle": "Tüm kullanıcı hesaplarını yönetin ve izleyin",
+      "searchPlaceholder": "E-posta veya isimle ara...",
+      "user": "Kullanıcı",
+      "plan": "Plan",
+      "role": "Rol",
+      "status": "Durum",
+      "usage": "Kullanım",
+      "lastLogin": "Son Giriş",
+      "actions": "İşlemler",
+      "noUsers": "Kullanıcı bulunamadı",
+      "editUser": "Kullanıcıyı Düzenle",
+      "name": "İsim",
+      "email": "E-posta",
+      "active": "Aktif",
+      "verified": "Doğrulanmış",
+      "edit": "Düzenle",
+      "ban": "Engelle",
+      "unban": "Engeli Kaldır",
+      "resetUsage": "Kullanımı Sıfırla",
+      "delete": "Sil"
+    },
+    "projects": {
+      "title": "Proje Yönetimi",
+      "subtitle": "Tüm kullanıcı projelerini görüntüle ve yönet",
+      "searchPlaceholder": "Proje adı veya kullanıcı ile ara..."
+    },
+    "subscriptions": {
+      "title": "Abonelik Yönetimi",
+      "subtitle": "Kullanıcı aboneliklerini izle ve yönet"
+    },
+    "analytics": {
+      "title": "Analitik",
+      "subtitle": "Platform kullanımı ve büyüme istatistikleri",
+      "userGrowth": "Kullanıcı Büyümesi",
+      "revenue": "Gelir Trendi",
+      "projects": "Oluşturulan Projeler",
+      "conversionFunnel": "Dönüşüm Hunisi"
+    },
+    "settings": {
+      "title": "Sistem Ayarları",
+      "subtitle": "Sistem genelinde ayarları ve tercihleri yapılandırın",
+      "general": "Genel Ayarlar",
+      "maintenanceMode": "Bakım Modu",
+      "registration": "Kullanıcı Kaydı",
+      "emailVerification": "E-posta Doğrulama",
+      "uploads": "Yükleme Ayarları",
+      "maxFileSize": "Maksimum Dosya Boyutu",
+      "allowedFormats": "İzin Verilen Formatlar",
+      "plans": "Abonelik Planları",
+      "apiKeys": "API Anahtarları",
+      "dangerZone": "Tehlikeli Bölge",
+      "resetAllUsage": "Tüm Kullanımı Sıfırla",
+      "clearCache": "Sistem Önbelleğini Temizle"
+    }
   }
 }
