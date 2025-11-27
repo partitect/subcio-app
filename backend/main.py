@@ -35,11 +35,13 @@ try:
     from .data_store import load_presets, save_presets, load_effects
     from .auth.routes import router as auth_router
     from .auth.database import init_db
+    from .payments.routes import router as payment_router
 except ImportError:
     from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from data_store import load_presets, save_presets, load_effects
     from auth.routes import router as auth_router
     from auth.database import init_db
+    from payments.routes import router as payment_router
 PYONFX_EFFECT_TYPES = set(PyonFXRenderer.EFFECTS.keys())
 
 def ms_to_ass_timestamp(ms: int) -> str:
@@ -742,6 +744,9 @@ app.mount("/projects", projects_cors, name="projects")
 
 # Include Auth Router
 app.include_router(auth_router, prefix="/api")
+
+# Include Payment Router
+app.include_router(payment_router)
 
 # -----------------------------------------------------------------------------
 # Byte-range video streaming endpoint (enables seeking)

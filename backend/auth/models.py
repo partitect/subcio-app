@@ -15,8 +15,8 @@ class SubscriptionPlan(str, Enum):
     """Available subscription plans"""
     FREE = "free"
     STARTER = "starter"
-    CREATOR = "creator"
     PRO = "pro"
+    UNLIMITED = "unlimited"
 
 
 class User(Base):
@@ -168,39 +168,47 @@ class PasswordResetConfirm(BaseModel):
     new_password: str = Field(..., min_length=8, max_length=100)
 
 
-# Plan limits configuration
+# Plan limits configuration - Simplified video-count based model
 PLAN_LIMITS = {
     SubscriptionPlan.FREE: {
-        "monthly_minutes": 30,
-        "monthly_exports": 5,
-        "storage_mb": 500,
-        "max_video_length_minutes": 5,
+        "videos_per_month": 3,
+        "max_video_length_minutes": 3,
+        "storage_mb": 1000,  # 1 GB
+        "resolution": "720p",
         "watermark": True,
         "priority_processing": False,
+        "custom_presets": False,
+        "api_access": False,
     },
     SubscriptionPlan.STARTER: {
-        "monthly_minutes": 120,
-        "monthly_exports": 30,
-        "storage_mb": 5000,
-        "max_video_length_minutes": 30,
+        "videos_per_month": 15,
+        "max_video_length_minutes": 10,
+        "storage_mb": 10000,  # 10 GB
+        "resolution": "1080p",
         "watermark": False,
         "priority_processing": False,
-    },
-    SubscriptionPlan.CREATOR: {
-        "monthly_minutes": 500,
-        "monthly_exports": 100,
-        "storage_mb": 25000,
-        "max_video_length_minutes": 120,
-        "watermark": False,
-        "priority_processing": True,
+        "custom_presets": False,
+        "api_access": False,
     },
     SubscriptionPlan.PRO: {
-        "monthly_minutes": float('inf'),  # Unlimited
-        "monthly_exports": float('inf'),
-        "storage_mb": 100000,
-        "max_video_length_minutes": float('inf'),
+        "videos_per_month": 50,
+        "max_video_length_minutes": 30,
+        "storage_mb": 50000,  # 50 GB
+        "resolution": "4K",
         "watermark": False,
         "priority_processing": True,
+        "custom_presets": True,
+        "api_access": True,
+    },
+    SubscriptionPlan.UNLIMITED: {
+        "videos_per_month": float('inf'),  # Unlimited
+        "max_video_length_minutes": float('inf'),  # Unlimited
+        "storage_mb": 200000,  # 200 GB
+        "resolution": "4K",
+        "watermark": False,
+        "priority_processing": True,
+        "custom_presets": True,
+        "api_access": True,
     },
 }
 

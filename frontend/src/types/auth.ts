@@ -19,6 +19,11 @@ export interface User {
   is_verified: boolean;
   created_at: string | null;
   last_login: string | null;
+  // Stripe fields
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_started_at: string | null;
+  subscription_ends_at: string | null;
 }
 
 export interface AuthTokens {

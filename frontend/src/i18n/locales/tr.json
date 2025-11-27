@@ -615,9 +615,21 @@
       "description": "Aboneliğinizi ve ödeme yöntemlerinizi yönetin",
       "currentPlan": "Mevcut Plan",
       "upgrade": "Planı Yükselt",
+      "changePlan": "Plan Değiştir",
       "features": "Plan Özellikleri",
       "minutesPerMonth": "dakika/ay",
-      "exportsPerMonth": "dışa aktarma/ay"
+      "exportsPerMonth": "dışa aktarma/ay",
+      "manageBilling": "Faturalandırmayı Yönet",
+      "cancel": "Aboneliği İptal Et",
+      "reactivate": "Yeniden Etkinleştir",
+      "cancelScheduled": "{{date}} tarihinde iptal edilecek",
+      "trialEnds": "Deneme {{date}} tarihinde bitiyor",
+      "invoiceHistory": "Fatura Geçmişi",
+      "cancelSuccess": "Abonelik dönem sonunda iptal edilecek",
+      "cancelError": "Abonelik iptal edilemedi",
+      "reactivateSuccess": "Abonelik başarıyla yeniden etkinleştirildi",
+      "reactivateError": "Abonelik yeniden etkinleştirilemedi",
+      "portalError": "Faturalandırma portalı açılamadı"
     },
     "usage": {
       "title": "Kullanım İstatistikleri",

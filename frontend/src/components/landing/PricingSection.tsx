@@ -2,10 +2,11 @@
  * PricingSection Component
  * 
  * Displays subscription plans with pricing toggle (monthly/yearly)
+ * Integrates with Stripe for payment processing
  */
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Box,
@@ -13,6 +14,7 @@ import {
   Card,
   CardContent,
   Chip,
+  CircularProgress,
   Grid,
   Stack,
   Switch,
@@ -22,6 +24,8 @@ import {
 } from "@mui/material";
 import { Check, Sparkles, Zap } from "lucide-react";
 import { PRICING_PLANS, PricingPlan } from "../../config/pricing";
+import { redirectToCheckout } from "../../services/paymentService";
+import { isAuthenticated } from "../../services/authService";
 
 interface PricingSectionProps {
   onSelectPlan?: (planId: string) => void;
@@ -29,9 +33,48 @@ interface PricingSectionProps {
 
 export function PricingSection({ onSelectPlan }: PricingSectionProps) {
   const [isYearly, setIsYearly] = useState(true);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleSelectPlan = async (plan: PricingPlan) => {
+    // Call optional callback
+    onSelectPlan?.(plan.id);
+    
+    // Free plan - just go to signup
+    if (plan.id === "free") {
+      navigate("/signup");
+      return;
+    }
+    
+    // Enterprise - go to contact
+    if (plan.id === "enterprise") {
+      navigate("/contact");
+      return;
+    }
+    
+    // If not authenticated, redirect to signup with plan info
+    if (!isAuthenticated()) {
+      navigate(`/signup?plan=${plan.id}&interval=${isYearly ? 'yearly' : 'monthly'}`);
+      return;
+    }
+    
+    // Authenticated user - redirect to Stripe checkout
+    try {
+      setLoadingPlan(plan.id);
+      await redirectToCheckout(
+        plan.id as 'creator' | 'pro' | 'enterprise',
+        isYearly ? 'yearly' : 'monthly'
+      );
+    } catch (error) {
+      console.error('Checkout error:', error);
+      // Could show a snackbar here
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   const formatPrice = (plan: PricingPlan) => {
     const price = isYearly ? plan.price.yearly / 12 : plan.price.monthly;
@@ -210,12 +253,11 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
 
                   {/* CTA Button */}
                   <Button
-                    component={Link}
-                    to={plan.id === "enterprise" ? "/contact" : "/signup"}
                     variant={plan.ctaVariant}
                     color="primary"
                     size="large"
                     fullWidth
+                    disabled={loadingPlan !== null}
                     sx={{
                       mb: 3,
                       py: 1.5,
@@ -228,9 +270,13 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
                         },
                       }),
                     }}
-                    onClick={() => onSelectPlan?.(plan.id)}
+                    onClick={() => handleSelectPlan(plan)}
                   >
-                    {plan.cta}
+                    {loadingPlan === plan.id ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      plan.cta
+                    )}
                   </Button>
 
                   {/* Features */}

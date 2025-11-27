@@ -2,6 +2,9 @@
  * Subscription Plans Configuration
  * 
  * PyCaps - AI-Powered Styled Subtitle Generator
+ * 
+ * Pricing Strategy: Simple video count + duration limits
+ * Target: Content creators, YouTubers, TikTokers, Podcasters
  */
 
 export interface PricingPlan {
@@ -34,8 +37,8 @@ export interface PricingPlan {
 export const PRICING_PLANS: PricingPlan[] = [
   {
     id: "free",
-    name: "Starter",
-    description: "Perfect for trying out PyCaps",
+    name: "Free",
+    description: "Try PyCaps with basic features",
     price: {
       monthly: 0,
       yearly: 0,
@@ -43,17 +46,18 @@ export const PRICING_PLANS: PricingPlan[] = [
     currency: "USD",
     features: [
       "3 videos per month",
-      "Up to 5 min video length",
+      "Up to 3 min per video",
       "720p export quality",
       "10 basic presets",
-      "1GB storage",
+      "500MB storage",
       "PyCaps watermark",
+      "Community support",
     ],
     limitations: {
       videosPerMonth: 3,
-      maxVideoLength: 5,
+      maxVideoLength: 3,
       maxResolution: "720p",
-      storageGB: 1,
+      storageGB: 0.5,
       presets: "basic",
       watermark: true,
       prioritySupport: false,
@@ -64,47 +68,79 @@ export const PRICING_PLANS: PricingPlan[] = [
     ctaVariant: "outlined",
   },
   {
-    id: "creator",
-    name: "Creator",
-    description: "For content creators & YouTubers",
+    id: "starter",
+    name: "Starter",
+    description: "Perfect for TikTok & Reels creators",
     price: {
-      monthly: 19,
-      yearly: 190, // ~17% discount
+      monthly: 9,
+      yearly: 81, // 25% off (3 months free)
     },
     currency: "USD",
     features: [
-      "30 videos per month",
-      "Up to 30 min video length",
+      "15 videos per month",
+      "Up to 10 min per video",
       "1080p export quality",
       "All 50+ presets",
-      "25GB storage",
+      "5GB storage",
       "No watermark",
-      "Custom fonts upload",
       "Email support",
     ],
     limitations: {
-      videosPerMonth: 30,
-      maxVideoLength: 30,
+      videosPerMonth: 15,
+      maxVideoLength: 10,
       maxResolution: "1080p",
-      storageGB: 25,
+      storageGB: 5,
       presets: "all",
       watermark: false,
       prioritySupport: false,
       apiAccess: false,
       teamMembers: 1,
     },
-    popular: true,
-    badge: "Most Popular",
-    cta: "Start Free Trial",
+    cta: "Start 7-Day Free Trial",
     ctaVariant: "contained",
   },
   {
     id: "pro",
-    name: "Professional",
+    name: "Pro",
+    description: "For YouTubers & serious creators",
+    price: {
+      monthly: 29,
+      yearly: 261, // 25% off (3 months free)
+    },
+    currency: "USD",
+    features: [
+      "50 videos per month",
+      "Up to 30 min per video",
+      "4K export quality",
+      "All presets + custom fonts",
+      "25GB storage",
+      "No watermark",
+      "Priority rendering",
+      "Priority support",
+    ],
+    limitations: {
+      videosPerMonth: 50,
+      maxVideoLength: 30,
+      maxResolution: "4K",
+      storageGB: 25,
+      presets: "all",
+      watermark: false,
+      prioritySupport: true,
+      apiAccess: false,
+      teamMembers: 1,
+    },
+    popular: true,
+    badge: "Most Popular",
+    cta: "Start 7-Day Free Trial",
+    ctaVariant: "contained",
+  },
+  {
+    id: "unlimited",
+    name: "Unlimited",
     description: "For agencies & power users",
     price: {
-      monthly: 49,
-      yearly: 470, // ~20% discount
+      monthly: 79,
+      yearly: 711, // 25% off (3 months free)
     },
     currency: "USD",
     features: [
@@ -114,9 +150,9 @@ export const PRICING_PLANS: PricingPlan[] = [
       "All presets + custom creation",
       "100GB storage",
       "No watermark",
-      "Priority rendering queue",
+      "Priority rendering",
       "API access",
-      "Priority support",
+      "Dedicated support",
     ],
     limitations: {
       videosPerMonth: "unlimited",
@@ -130,56 +166,22 @@ export const PRICING_PLANS: PricingPlan[] = [
       teamMembers: 3,
     },
     badge: "Best Value",
-    cta: "Start Free Trial",
+    cta: "Start 7-Day Free Trial",
     ctaVariant: "contained",
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    description: "For teams & organizations",
-    price: {
-      monthly: 149,
-      yearly: 1428, // ~20% discount
-    },
-    currency: "USD",
-    features: [
-      "Everything in Professional",
-      "Unlimited team members",
-      "500GB storage",
-      "White-label exports",
-      "Custom branding",
-      "Dedicated account manager",
-      "SLA guarantee",
-      "SSO integration",
-      "Custom API limits",
-    ],
-    limitations: {
-      videosPerMonth: "unlimited",
-      maxVideoLength: 999,
-      maxResolution: "4K",
-      storageGB: 500,
-      presets: "all+custom",
-      watermark: false,
-      prioritySupport: true,
-      apiAccess: true,
-      teamMembers: 999,
-    },
-    cta: "Contact Sales",
-    ctaVariant: "outlined",
   },
 ];
 
 export const FEATURES_COMPARISON = [
-  { name: "Videos per month", free: "3", creator: "30", pro: "Unlimited", enterprise: "Unlimited" },
-  { name: "Max video length", free: "5 min", creator: "30 min", pro: "Unlimited", enterprise: "Unlimited" },
-  { name: "Export quality", free: "720p", creator: "1080p", pro: "4K", enterprise: "4K" },
-  { name: "Storage", free: "1GB", creator: "25GB", pro: "100GB", enterprise: "500GB" },
-  { name: "Presets", free: "10 basic", creator: "50+", pro: "50+ & custom", enterprise: "50+ & custom" },
-  { name: "Watermark", free: "Yes", creator: "No", pro: "No", enterprise: "No" },
-  { name: "Custom fonts", free: "No", creator: "Yes", pro: "Yes", enterprise: "Yes" },
-  { name: "API access", free: "No", creator: "No", pro: "Yes", enterprise: "Yes" },
-  { name: "Team members", free: "1", creator: "1", pro: "3", enterprise: "Unlimited" },
-  { name: "Support", free: "Community", creator: "Email", pro: "Priority", enterprise: "Dedicated" },
+  { name: "Videos per month", free: "3", starter: "15", pro: "50", unlimited: "Unlimited" },
+  { name: "Max video length", free: "3 min", starter: "10 min", pro: "30 min", unlimited: "Unlimited" },
+  { name: "Export quality", free: "720p", starter: "1080p", pro: "4K", unlimited: "4K" },
+  { name: "Storage", free: "500MB", starter: "5GB", pro: "25GB", unlimited: "100GB" },
+  { name: "Presets", free: "10 basic", starter: "50+", pro: "50+ & fonts", unlimited: "50+ & custom" },
+  { name: "Watermark", free: "Yes", starter: "No", pro: "No", unlimited: "No" },
+  { name: "Custom fonts", free: "No", starter: "No", pro: "Yes", unlimited: "Yes" },
+  { name: "Priority rendering", free: "No", starter: "No", pro: "Yes", unlimited: "Yes" },
+  { name: "API access", free: "No", starter: "No", pro: "No", unlimited: "Yes" },
+  { name: "Support", free: "Community", starter: "Email", pro: "Priority", unlimited: "Dedicated" },
 ];
 
 export const FAQ_ITEMS = [
@@ -192,8 +194,12 @@ export const FAQ_ITEMS = [
     answer: "All paid plans come with a 7-day free trial. No credit card required to start. You can cancel anytime during the trial period without being charged.",
   },
   {
+    question: "What happens when I reach my video limit?",
+    answer: "When you reach your monthly video limit, you can either wait for next month's reset or upgrade to a higher plan. Your existing projects remain accessible.",
+  },
+  {
     question: "Can I change my plan later?",
-    answer: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll be charged the prorated difference. When downgrading, the new rate applies from your next billing cycle.",
+    answer: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you get immediate access to new features. When downgrading, changes apply from your next billing cycle.",
   },
   {
     question: "What video formats are supported?",
@@ -205,15 +211,15 @@ export const FAQ_ITEMS = [
   },
   {
     question: "Can I use my own fonts?",
-    answer: "Creator plan and above allows you to upload custom fonts (TTF, OTF). Your fonts are stored securely and can be used across all your projects.",
-  },
-  {
-    question: "What's included in the API access?",
-    answer: "Professional and Enterprise plans include REST API access for automated workflows. You can programmatically upload videos, generate subtitles, apply styles, and export - perfect for batch processing.",
+    answer: "Pro plan and above allows you to upload custom fonts (TTF, OTF). Your fonts are stored securely and can be used across all your projects.",
   },
   {
     question: "Do you offer refunds?",
     answer: "Yes, we offer a 30-day money-back guarantee on all paid plans. If you're not satisfied, contact our support team for a full refund.",
+  },
+  {
+    question: "Is there a yearly discount?",
+    answer: "Yes! Pay yearly and get 25% off - that's 3 months free. The discount is automatically applied when you select annual billing.",
   },
 ];
 
@@ -254,3 +260,22 @@ export const STATS = [
   { value: "50+", label: "Style Presets" },
   { value: "99.9%", label: "Uptime" },
 ];
+
+// ==================== Launch Configuration ====================
+
+// Early Bird Pricing (for launch)
+export const EARLY_BIRD_CONFIG = {
+  enabled: true,           // Toggle for launch
+  discount: 0.5,           // 50% off
+  totalSlots: 100,         // First 100 users
+  remainingSlots: 100,     // Update as users sign up
+  endDate: "2026-01-31",   // Early bird end date
+};
+
+// Lifetime Deal (optional - for AppSumo, etc.)
+export const LIFETIME_DEAL_CONFIG = {
+  enabled: false,
+  price: 149,              // One-time payment
+  equivalentPlan: "pro",   // Which plan features they get
+  totalCodes: 500,
+};

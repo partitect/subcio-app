@@ -215,10 +215,22 @@
   - ~~Step-by-step progress~~ → 5 adımlı ilerleme göstergesi
   - ~~Pro Tips~~ → Kullanıcı ipuçları kartı
 
-- [x] **Pricing Configuration** ✅ *Tamamlandı - Kasım 2025*
+- [x] **Pricing Configuration** ✅ *Güncellendi - Kasım 2025*
   - ~~Plan tanımları~~ → `config/pricing.ts`
-  - 4 plan: Starter ($0), Creator ($19/mo), Professional ($49/mo), Enterprise ($149/mo)
-  - Video limitleri, storage, özellik setleri
+  - 4 plan: Free ($0), Starter ($9/mo), Pro ($29/mo), Unlimited ($79/mo)
+  - Video limitleri: 3/15/50/∞ video/ay
+  - Max süre: 3/10/30/∞ dakika
+  - Çözünürlük: 720p/1080p/4K/4K
+  - Yıllık %20 indirim
+
+- [x] **Marketing Strategy** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Fiyatlandırma stratejisi~~ → `.github/MARKETING.md`
+  - Early bird kampanyası planı
+  - Launch stratejisi (Product Hunt, Reddit, HN)
+  - Growth kanalları (SEO, YouTube, Social)
+  - Referral program tasarımı
+  - KPI ve metrikleri
+  - 90 günlük aksiyon planı
 
 - [x] **Authentication Pages** ✅ *Tamamlandı - Kasım 2025*
   - ~~Login sayfası~~ → `LoginPage.tsx`
@@ -242,12 +254,13 @@
   - OAuth callback page → `OAuthCallbackPage.tsx`
   - Environment config → `.env.example` oluşturuldu
 
-- [ ] **Payment Integration**
-  - Stripe veya Paddle entegrasyonu
-  - Subscription management
-  - Usage-based billing
-  - Invoice generation
-  - Webhook handling
+- [x] **Payment Integration** ✅ *Tamamlandı - Kasım 2025*
+  - ~~Stripe entegrasyonu~~ → `backend/payments/` modülü
+  - ~~Subscription management~~ → checkout sessions, billing portal
+  - ~~Webhook handling~~ → subscription events işleme
+  - ~~Usage-based billing~~ → plan limitleri ve kullanım takibi
+  - ~~Invoice history~~ → SettingsPage billing tab
+  - 4 dil desteği (EN, TR, ES, DE)
 
 - [x] **User Management** ✅ *Tamamlandı - Kasım 2025*
   - ~~Profile settings~~ → `SettingsPage.tsx` tam kapsamlı sayfa
@@ -658,8 +671,8 @@ backend/
 | **Pricing Config** | Orta | Düşük | 🔴 P1 | ✅ Tamamlandı |
 | **i18n (4 Dil)** | Yüksek | Orta | 🔴 P1 | ✅ Tamamlandı |
 | Backend Auth | Yüksek | Yüksek | 🔴 P1 | ✅ Tamamlandı |
-| Payment Integration | Yüksek | Yüksek | 🔴 P1 | ⏳ Bekliyor |
-| Editor Page i18n | Orta | Orta | 🟡 P2 | ⏳ Bekliyor |
+| Payment Integration | Yüksek | Yüksek | 🔴 P1 | ✅ Tamamlandı |
+| Editor Page i18n | Orta | Orta | 🟡 P2 | ✅ Tamamlandı |
 | Unit test coverage | Orta | Yüksek | 🟡 P2 | ✅ Tamamlandı |
 | Mobile responsive | Orta | Orta | 🟡 P2 | ✅ Kısmen |
 | Plugin sistemi | Yüksek | Çok Yüksek | 🟢 P3 | ⏳ Bekliyor |
@@ -739,6 +752,7 @@ backend/
 | 🎬 Export | Video Kalite Seçenekleri | Codec (H.264/H.265/VP9/ProRes), Bitrate, Resolution |
 | 📱 Touch | Responsive Touch Controls | TouchSlider, TouchButton, haptic feedback |
 | ♿ A11y | Accessibility | ARIA labels, keyboard nav, screen reader support |
+| 💳 Payment | Stripe Integration | Checkout, subscriptions, billing portal, webhooks |
 | 🌐 Landing | Landing Page Redesign | 8 profesyonel SaaS bileşeni |
 | 📤 Upload | Upload Page Redesign | Lottie, progress steps, usage |
 | 🔐 Auth | Auth Pages UI | Login, Register, Forgot Password |
@@ -808,10 +822,59 @@ frontend/public/lottie/          # YENİ - Lottie animasyonları
 
 ### Sonraki Adımlar
 
-1. ⏳ Backend Authentication (JWT, user model, OAuth)
-2. ⏳ Payment Integration (Stripe/Paddle)
-3. ⏳ User profile & settings
-4. ⏳ Usage tracking & billing
+1. ✅ Backend Authentication (JWT, user model, OAuth)
+2. ✅ Payment Integration (Stripe)
+3. ✅ User profile & settings
+4. ⏳ Usage tracking & billing (production'da test edilecek)
+
+---
+
+## 🔐 Environment Variables
+
+OAuth ve Stripe entegrasyonu için aşağıdaki environment değişkenlerini `.env` dosyasına eklemeniz gerekiyor:
+
+```bash
+# ==================== OAuth ====================
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# ==================== Stripe ====================
+# Stripe API Keys (Dashboard > Developers > API keys)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# Stripe Webhook Secret (Dashboard > Developers > Webhooks)
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Stripe Price IDs (Dashboard > Products > Prices)
+STRIPE_PRICE_CREATOR_MONTHLY=price_...
+STRIPE_PRICE_CREATOR_YEARLY=price_...
+STRIPE_PRICE_PRO_MONTHLY=price_...
+STRIPE_PRICE_PRO_YEARLY=price_...
+STRIPE_PRICE_ENTERPRISE_MONTHLY=price_...
+STRIPE_PRICE_ENTERPRISE_YEARLY=price_...
+
+# ==================== General ====================
+FRONTEND_URL=http://localhost:5173
+JWT_SECRET_KEY=your-super-secret-jwt-key-min-32-chars
+```
+
+### Stripe Webhook Setup
+
+Production'da Stripe webhooks için:
+1. Stripe Dashboard > Developers > Webhooks
+2. "Add endpoint" ile URL ekle: `https://your-domain.com/api/payments/webhook`
+3. Events seç:
+   - `checkout.session.completed`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+   - `invoice.payment_succeeded`
+   - `invoice.payment_failed`
 
 ---
 

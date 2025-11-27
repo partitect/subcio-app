@@ -610,9 +610,21 @@
       "description": "Administra tu suscripción y métodos de pago",
       "currentPlan": "Plan Actual",
       "upgrade": "Mejorar Plan",
+      "changePlan": "Cambiar Plan",
       "features": "Características del Plan",
       "minutesPerMonth": "minutos por mes",
-      "exportsPerMonth": "exportaciones por mes"
+      "exportsPerMonth": "exportaciones por mes",
+      "manageBilling": "Gestionar Facturación",
+      "cancel": "Cancelar Suscripción",
+      "reactivate": "Reactivar",
+      "cancelScheduled": "Se cancelará el {{date}}",
+      "trialEnds": "La prueba termina el {{date}}",
+      "invoiceHistory": "Historial de Facturas",
+      "cancelSuccess": "La suscripción se cancelará al final del período",
+      "cancelError": "Error al cancelar la suscripción",
+      "reactivateSuccess": "Suscripción reactivada exitosamente",
+      "reactivateError": "Error al reactivar la suscripción",
+      "portalError": "Error al abrir el portal de facturación"
     },
     "usage": {
       "title": "Estadísticas de Uso",

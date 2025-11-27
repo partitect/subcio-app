@@ -610,9 +610,21 @@
       "description": "Verwalte dein Abonnement und Zahlungsmethoden",
       "currentPlan": "Aktueller Plan",
       "upgrade": "Plan upgraden",
+      "changePlan": "Plan ändern",
       "features": "Plan-Features",
       "minutesPerMonth": "Minuten pro Monat",
-      "exportsPerMonth": "Exporte pro Monat"
+      "exportsPerMonth": "Exporte pro Monat",
+      "manageBilling": "Abrechnung verwalten",
+      "cancel": "Abonnement kündigen",
+      "reactivate": "Reaktivieren",
+      "cancelScheduled": "Wird am {{date}} gekündigt",
+      "trialEnds": "Testphase endet am {{date}}",
+      "invoiceHistory": "Rechnungsverlauf",
+      "cancelSuccess": "Abonnement wird zum Periodenende gekündigt",
+      "cancelError": "Fehler beim Kündigen des Abonnements",
+      "reactivateSuccess": "Abonnement erfolgreich reaktiviert",
+      "reactivateError": "Fehler beim Reaktivieren des Abonnements",
+      "portalError": "Fehler beim Öffnen des Abrechnungsportals"
     },
     "usage": {
       "title": "Nutzungsstatistiken",

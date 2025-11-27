@@ -614,9 +614,21 @@
       "description": "Manage your subscription and payment methods",
       "currentPlan": "Current Plan",
       "upgrade": "Upgrade Plan",
+      "changePlan": "Change Plan",
       "features": "Plan Features",
       "minutesPerMonth": "minutes per month",
-      "exportsPerMonth": "exports per month"
+      "exportsPerMonth": "exports per month",
+      "manageBilling": "Manage Billing",
+      "cancel": "Cancel Subscription",
+      "reactivate": "Reactivate",
+      "cancelScheduled": "Will be canceled on {{date}}",
+      "trialEnds": "Trial ends on {{date}}",
+      "invoiceHistory": "Invoice History",
+      "cancelSuccess": "Subscription will be canceled at period end",
+      "cancelError": "Failed to cancel subscription",
+      "reactivateSuccess": "Subscription reactivated successfully",
+      "reactivateError": "Failed to reactivate subscription",
+      "portalError": "Failed to open billing portal"
     },
     "usage": {
       "title": "Usage Statistics",

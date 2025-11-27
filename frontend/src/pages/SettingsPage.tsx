@@ -63,6 +63,15 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme as useAppTheme } from "../ThemeContext";
 import { changePassword, getUsageStats, UsageStats } from "../services/authService";
+import { 
+  getSubscription, 
+  getInvoices, 
+  cancelSubscription, 
+  reactivateSubscription,
+  redirectToBillingPortal,
+  Subscription,
+  Invoice
+} from "../services/paymentService";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -114,6 +123,12 @@ export default function SettingsPage() {
 
   // Usage stats
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
+  
+  // Subscription & Billing
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   // Delete account dialog
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -128,6 +143,7 @@ export default function SettingsPage() {
       setEmail(user.email || "");
     }
     fetchUsageStats();
+    fetchBillingData();
   }, [user]);
 
   const fetchUsageStats = async () => {
@@ -136,6 +152,57 @@ export default function SettingsPage() {
       setUsageStats(stats);
     } catch (err) {
       console.error("Failed to load usage stats", err);
+    }
+  };
+
+  const fetchBillingData = async () => {
+    try {
+      const [sub, invs] = await Promise.all([
+        getSubscription(),
+        getInvoices(5),
+      ]);
+      setSubscription(sub);
+      setInvoices(invs);
+    } catch (err) {
+      console.error("Failed to load billing data", err);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    setBillingLoading(true);
+    try {
+      await redirectToBillingPortal();
+    } catch (err) {
+      console.error("Failed to open billing portal", err);
+      setSnackbar({ open: true, message: t('settings.billing.portalError'), severity: "error" });
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setCancelLoading(true);
+    try {
+      await cancelSubscription();
+      await fetchBillingData();
+      setSnackbar({ open: true, message: t('settings.billing.cancelSuccess'), severity: "success" });
+    } catch (err: any) {
+      setSnackbar({ open: true, message: err.message || t('settings.billing.cancelError'), severity: "error" });
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const handleReactivateSubscription = async () => {
+    setCancelLoading(true);
+    try {
+      await reactivateSubscription();
+      await fetchBillingData();
+      setSnackbar({ open: true, message: t('settings.billing.reactivateSuccess'), severity: "success" });
+    } catch (err: any) {
+      setSnackbar({ open: true, message: err.message || t('settings.billing.reactivateError'), severity: "error" });
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -665,24 +732,74 @@ export default function SettingsPage() {
                   border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                 }}
               >
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
                   <Box>
                     <Typography variant="overline" color="text.secondary">
                       {t('settings.billing.currentPlan')}
                     </Typography>
                     <Typography variant="h4" fontWeight={700}>
-                      {user?.plan?.toUpperCase() || "FREE"}
+                      {(subscription?.plan || user?.plan || "free").toUpperCase()}
                     </Typography>
+                    {subscription?.status && (
+                      <Chip 
+                        label={subscription.status.toUpperCase()} 
+                        size="small" 
+                        color={subscription.status === 'active' ? 'success' : subscription.status === 'trialing' ? 'info' : 'warning'}
+                        sx={{ mt: 1 }}
+                      />
+                    )}
+                    {subscription?.cancel_at_period_end && (
+                      <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>
+                        {t('settings.billing.cancelScheduled', { date: new Date(subscription.current_period_end).toLocaleDateString() })}
+                      </Typography>
+                    )}
+                    {subscription?.trial_end && new Date(subscription.trial_end) > new Date() && (
+                      <Typography variant="body2" color="info.main" sx={{ mt: 1 }}>
+                        {t('settings.billing.trialEnds', { date: new Date(subscription.trial_end).toLocaleDateString() })}
+                      </Typography>
+                    )}
                   </Box>
-                  <Button
-                    variant="contained"
-                    onClick={() => navigate("/pricing")}
-                    sx={{
-                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                    }}
-                  >
-                    {t('settings.billing.upgrade')}
-                  </Button>
+                  <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                    {subscription?.cancel_at_period_end ? (
+                      <Button
+                        variant="outlined"
+                        onClick={handleReactivateSubscription}
+                        disabled={cancelLoading}
+                        startIcon={cancelLoading ? <CircularProgress size={18} /> : undefined}
+                      >
+                        {t('settings.billing.reactivate')}
+                      </Button>
+                    ) : subscription && (
+                      <Button
+                        variant="outlined"
+                        color="warning"
+                        onClick={handleCancelSubscription}
+                        disabled={cancelLoading}
+                        startIcon={cancelLoading ? <CircularProgress size={18} /> : undefined}
+                      >
+                        {t('settings.billing.cancel')}
+                      </Button>
+                    )}
+                    {user?.stripe_customer_id && (
+                      <Button
+                        variant="outlined"
+                        onClick={handleManageBilling}
+                        disabled={billingLoading}
+                        startIcon={billingLoading ? <CircularProgress size={18} /> : <CreditCard size={18} />}
+                      >
+                        {t('settings.billing.manageBilling')}
+                      </Button>
+                    )}
+                    <Button
+                      variant="contained"
+                      onClick={() => navigate("/pricing")}
+                      sx={{
+                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                      }}
+                    >
+                      {subscription ? t('settings.billing.changePlan') : t('settings.billing.upgrade')}
+                    </Button>
+                  </Box>
                 </Box>
               </Paper>
 
@@ -704,6 +821,49 @@ export default function SettingsPage() {
                   />
                 </ListItem>
               </List>
+
+              {/* Invoice History */}
+              {invoices.length > 0 && (
+                <>
+                  <Divider sx={{ my: 3 }} />
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    {t('settings.billing.invoiceHistory')}
+                  </Typography>
+                  <List>
+                    {invoices.map((invoice) => (
+                      <ListItem
+                        key={invoice.id}
+                        sx={{
+                          bgcolor: alpha(theme.palette.background.paper, 0.5),
+                          borderRadius: 2,
+                          mb: 1,
+                        }}
+                      >
+                        <ListItemText
+                          primary={`${invoice.number || invoice.id} - ${invoice.currency} ${invoice.amount_paid.toFixed(2)}`}
+                          secondary={new Date(invoice.created).toLocaleDateString()}
+                        />
+                        <Chip
+                          label={invoice.status.toUpperCase()}
+                          size="small"
+                          color={invoice.status === 'paid' ? 'success' : 'default'}
+                        />
+                        {invoice.invoice_pdf && (
+                          <IconButton
+                            href={invoice.invoice_pdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            size="small"
+                            sx={{ ml: 1 }}
+                          >
+                            <Download size={18} />
+                          </IconButton>
+                        )}
+                      </ListItem>
+                    ))}
+                  </List>
+                </>
+              )}
             </TabPanel>
 
             {/* Usage Tab */}
