@@ -245,7 +245,7 @@ const styleThemes = {
     passive: { opacity: 0.8 },
   },
   "comic-book": {
-    className: "font-['Komika_Axis'] text-white drop-shadow-[2px_2px_0_#000,-2px_-2px_0_#000,2px_-2px_0_#000,-2px_2px_0_#000] px-2",
+    className: "font-['Bangers-Regular'] text-white drop-shadow-[2px_2px_0_#000,-2px_-2px_0_#000,2px_-2px_0_#000,-2px_2px_0_#000] px-2",
     active: { scale: 1.15, rotate: -2, color: "#FFFF00" },
     passive: { opacity: 0.8 },
   },

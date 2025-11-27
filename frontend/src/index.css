@@ -1,101 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap");
 
-@font-face {
-  font-family: "Press Start 2P";
-  src: url("/fonts/PressStart2P.ttf") format("truetype");
-  font-display: swap;
-}
+/* 
+ * Custom Fonts from /public/fonts/
+ * All 89 fonts are auto-loaded via fonts.css (linked in index.html)
+ * This file only contains Google Fonts and global styles
+ */
 
-@font-face {
-  font-family: "Komika Axis";
-  src: url("/fonts/komika.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "BlackCaps";
-  src: url("/fonts/black.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Brown Beige";
-  src: url("/subfonts/brown-beige/Brown Beige.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Thoge";
-  src: url("/subfonts/brown-beige/Thoge.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "OverHeat Regular";
-  src: url("/subfonts/overheat/OverHeat-Regular.ttf") format("truetype");
-  font-display: swap;
-}
-
-/* New Fonts */
-@font-face {
-  font-family: "Brume";
-  src: url("/subfonts/brume-font-2023-11-27-05-09-31-utc/TTF/Brume-Regular.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Chunko Bold";
-  src: url("/subfonts/chunko-bold-sans-serif-font-2025-03-05-02-17-04-utc/ChunkoBold/TTF/Chunko Bold.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Folkies Vantage";
-  src: url("/subfonts/folkies-vantage-vintage-font-duo-2025-05-09-17-50-49-utc/Folkies Vantage/FolkiesVantageSans/OpenType-TT/Folkies Vantage Sans.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Might Night";
-  src: url("/subfonts/halloween-might-night-2025-08-08-18-28-24-utc/Might Night/Might Night/Might Night.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Marble";
-  src: url("/subfonts/marble-modern-logo-font-2025-05-14-21-44-25-utc/TTF/Marble Regular.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Monigue";
-  src: url("/subfonts/monigue-condensed-sans-font-2023-11-27-05-05-53-utc/Monigue.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Oslla";
-  src: url("/subfonts/oslla-font-2024-11-28-19-24-47-utc/Oslla.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "RoseMask";
-  src: url("/subfonts/rose-mask-2024-12-02-18-31-15-utc/RoseMask.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sink";
-  src: url("/subfonts/sink-retro-sans-serif-2024-07-17-22-36-20-utc/Sink.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Tallica";
-  src: url("/subfonts/tallica-variable-typeface-2024-05-24-18-56-58-utc/OpenType-TT/Tallica-Regular.ttf") format("truetype");
-  font-display: swap;
-}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
