@@ -356,18 +356,38 @@ export default function UploadPage() {
                   >
                     <Stack spacing={3} alignItems="center">
                       {/* Lottie Animation */}
-                      <Box sx={{ width: 120, height: 120 }}>
+                      <Box 
+                        sx={{ 
+                          width: 160, 
+                          height: 160,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
                         {loading && processingAnimation ? (
-                          <Lottie animationData={processingAnimation} loop />
+                          <Lottie 
+                            animationData={processingAnimation} 
+                            loop 
+                            style={{ width: 140, height: 140 }}
+                          />
                         ) : file && successAnimation ? (
-                          <Lottie animationData={successAnimation} loop={false} />
+                          <Lottie 
+                            animationData={successAnimation} 
+                            loop={false} 
+                            style={{ width: 140, height: 140 }}
+                          />
                         ) : uploadAnimation ? (
-                          <Lottie animationData={uploadAnimation} loop />
+                          <Lottie 
+                            animationData={uploadAnimation} 
+                            loop 
+                            style={{ width: 160, height: 160 }}
+                          />
                         ) : (
                           <Box
                             sx={{
-                              width: "100%",
-                              height: "100%",
+                              width: 120,
+                              height: 120,
                               borderRadius: "50%",
                               bgcolor: alpha(theme.palette.primary.main, 0.1),
                               display: "flex",
