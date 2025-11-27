@@ -676,6 +676,7 @@
       "overview": "Genel Bakış",
       "users": "Kullanıcılar",
       "projects": "Projeler",
+      "presets": "Presetler",
       "subscriptions": "Abonelikler",
       "analytics": "Analitik",
       "settings": "Ayarlar"
@@ -751,6 +752,33 @@
       "dangerZone": "Tehlikeli Bölge",
       "resetAllUsage": "Tüm Kullanımı Sıfırla",
       "clearCache": "Sistem Önbelleğini Temizle"
+    },
+    "presets": {
+      "title": "Preset Yönetimi",
+      "subtitle": "Altyazı presetlerini oluşturun, düzenleyin ve yönetin",
+      "addNew": "Preset Ekle",
+      "searchPlaceholder": "Preset ara...",
+      "found": "{{count}} preset bulundu",
+      "noPresets": "Preset bulunamadı",
+      "loadError": "Presetler yüklenemedi",
+      "editPreset": "Preset Düzenle",
+      "createPreset": "Preset Oluştur",
+      "deletePreset": "Preset Sil",
+      "deleteConfirm": "\"{{name}}\" presetini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      "saved": "Preset başarıyla kaydedildi",
+      "saveError": "Preset kaydedilemedi",
+      "deleted": "Preset başarıyla silindi",
+      "deleteError": "Preset silinemedi",
+      "duplicated": "Preset başarıyla kopyalandı",
+      "duplicateError": "Preset kopyalanamadı",
+      "screenshotTaken": "Ekran görüntüsü başarıyla alındı",
+      "screenshotError": "Ekran görüntüsü alınamadı",
+      "presetId": "Preset ID",
+      "presetLabel": "Görünen Ad",
+      "category": "Kategori",
+      "colors": "Renkler",
+      "preview": "Önizleme",
+      "duplicate": "Kopyala"
     }
   }
 }

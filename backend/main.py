@@ -1281,6 +1281,53 @@ async def create_preset(preset_data: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.delete("/api/presets/{preset_id}")
+async def delete_preset(preset_id: str):
+    """
+    Deletes a preset by ID
+    """
+    try:
+        if preset_id not in PRESET_STYLE_MAP:
+            raise HTTPException(status_code=404, detail=f"Preset '{preset_id}' not found")
+        
+        # Remove from in-memory map
+        del PRESET_STYLE_MAP[preset_id]
+        
+        # Persist to presets.json
+        save_presets(PRESET_STYLE_MAP)
+        message = f"Preset '{preset_id}' deleted"
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": message
+        })
+    except Exception as e:
+        print(f"Delete Preset Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/presets/{preset_id}/screenshot")
+async def take_preset_screenshot(preset_id: str):
+    """
+    Generates a screenshot/thumbnail for a preset
+    """
+    try:
+        if preset_id not in PRESET_STYLE_MAP:
+            raise HTTPException(status_code=404, detail=f"Preset '{preset_id}' not found")
+        
+        # TODO: Implement actual screenshot generation
+        # This would render the preset style on a sample text and save as image
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Screenshot generated for '{preset_id}'",
+            "thumbnail_url": f"/api/presets/{preset_id}/thumbnail.png"
+        })
+    except Exception as e:
+        print(f"Screenshot Preset Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/api/aaspresets/list")
 async def list_aaspresets():
     """

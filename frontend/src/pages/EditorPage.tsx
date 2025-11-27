@@ -171,7 +171,6 @@ export default function EditorPage() {
   const [showRenderModal, setShowRenderModal] = useState(false);
   const [exportName, setExportName] = useState("subcio_export");
   const [exportQuality, setExportQuality] = useState("1080p");
-  const [savingPreset, setSavingPreset] = useState(false);
   const [presetSynced, setPresetSynced] = useState(false);
   const [showBgSelector, setShowBgSelector] = useState(false);
   const [toast, setToast] = useState<{
@@ -403,36 +402,6 @@ export default function EditorPage() {
     [fontOptions]
   );
 
-  const savePreset = useCallback(async () => {
-    if (!style.id) {
-      setToast({ open: true, message: t('editor.messages.noPreset'), severity: "error" });
-      return;
-    }
-
-    const basePreset = presets.find((p) => p.id === style.id) || {};
-    const payload: any = {
-      ...basePreset,
-      ...style,
-      id: style.id,
-    };
-    Object.assign(payload, styleToAssColors(payload));
-
-    if (payload.shadow == null && payload.shadow_blur != null) payload.shadow = payload.shadow_blur;
-    if (payload.blur == null && payload.shadow_blur != null) payload.blur = payload.shadow_blur;
-
-    setSavingPreset(true);
-    try {
-      await axios.post(`${API_BASE}/presets/update`, payload);
-      setToast({ open: true, message: t('editor.messages.presetSaved'), severity: "success" });
-    } catch (err: any) {
-      console.error("Preset save failed", err);
-      const msg = err?.response?.data?.detail || t('editor.messages.saveFailed');
-      setToast({ open: true, message: msg, severity: "error" });
-    } finally {
-      setSavingPreset(false);
-    }
-  }, [style, presets, t]);
-
   const handleExport = useCallback(async () => {
     setShowRenderModal(false);
     setExporting(true);
@@ -595,11 +564,7 @@ export default function EditorPage() {
         ...EDITOR_SHORTCUTS.VOLUME_DOWN,
         handler: () => mediaControls.setVolume(Math.max(0, mediaState.volume - 0.1)),
       },
-      // Save & Export
-      {
-        ...EDITOR_SHORTCUTS.SAVE,
-        handler: () => savePreset(),
-      },
+      // Export
       {
         ...EDITOR_SHORTCUTS.EXPORT,
         handler: () => setShowRenderModal(true),
@@ -675,9 +640,7 @@ export default function EditorPage() {
               <StylePanel
                 style={style}
                 fontOptions={fontOptions}
-                savingPreset={savingPreset}
                 onStyleChange={setStyle}
-                onSavePreset={savePreset}
               />
             )}
 

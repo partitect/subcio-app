@@ -691,6 +691,15 @@
     "madeWith": "Mit ❤️ für Content-Creator gemacht"
   },
   "admin": {
+    "nav": {
+      "overview": "Übersicht",
+      "users": "Benutzer",
+      "projects": "Projekte",
+      "presets": "Vorlagen",
+      "subscriptions": "Abonnements",
+      "analytics": "Analysen",
+      "settings": "Einstellungen"
+    },
     "sidebar": {
       "title": "Admin-Panel",
       "overview": "Übersicht",

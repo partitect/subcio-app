@@ -691,6 +691,15 @@
     "madeWith": "Hecho con ❤️ para creadores de contenido"
   },
   "admin": {
+    "nav": {
+      "overview": "Vista General",
+      "users": "Usuarios",
+      "projects": "Proyectos",
+      "presets": "Preajustes",
+      "subscriptions": "Suscripciones",
+      "analytics": "Analíticas",
+      "settings": "Configuración"
+    },
     "sidebar": {
       "title": "Panel de Admin",
       "overview": "Vista General",

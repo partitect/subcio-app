@@ -21,6 +21,7 @@ import {
   AdminSubscriptions,
   AdminAnalytics,
   AdminSettings,
+  AdminPresets,
 } from "./pages/admin";
 
 export default function App() {
@@ -94,6 +95,11 @@ export default function App() {
         <Route path="/admin/settings" element={
           <AdminRoute>
             <AdminSettings />
+          </AdminRoute>
+        } />
+        <Route path="/admin/presets" element={
+          <AdminRoute>
+            <AdminPresets />
           </AdminRoute>
         } />
         

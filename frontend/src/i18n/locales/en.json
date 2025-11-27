@@ -675,6 +675,7 @@
       "overview": "Overview",
       "users": "Users",
       "projects": "Projects",
+      "presets": "Presets",
       "subscriptions": "Subscriptions",
       "analytics": "Analytics",
       "settings": "Settings"
@@ -750,6 +751,33 @@
       "dangerZone": "Danger Zone",
       "resetAllUsage": "Reset All User Usage",
       "clearCache": "Clear System Cache"
+    },
+    "presets": {
+      "title": "Preset Management",
+      "subtitle": "Create, edit and manage subtitle presets",
+      "addNew": "Add Preset",
+      "searchPlaceholder": "Search presets...",
+      "found": "{{count}} presets found",
+      "noPresets": "No presets found",
+      "loadError": "Failed to load presets",
+      "editPreset": "Edit Preset",
+      "createPreset": "Create Preset",
+      "deletePreset": "Delete Preset",
+      "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+      "saved": "Preset saved successfully",
+      "saveError": "Failed to save preset",
+      "deleted": "Preset deleted successfully",
+      "deleteError": "Failed to delete preset",
+      "duplicated": "Preset duplicated successfully",
+      "duplicateError": "Failed to duplicate preset",
+      "screenshotTaken": "Screenshot captured successfully",
+      "screenshotError": "Failed to capture screenshot",
+      "presetId": "Preset ID",
+      "presetLabel": "Display Name",
+      "category": "Category",
+      "colors": "Colors",
+      "preview": "Preview",
+      "duplicate": "Duplicate"
     }
   }
 }

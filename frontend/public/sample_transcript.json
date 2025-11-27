@@ -1,0 +1,7 @@
+[
+  { "start": 0, "end": 0.8, "text": "Grouped" },
+  { "start": 0.8, "end": 1.6, "text": "preview" },
+  { "start": 1.6, "end": 2.4, "text": "now" },
+  { "start": 2.4, "end": 3.2, "text": "matches" },
+  { "start": 3.2, "end": 4.0, "text": "export" }
+]

@@ -39,6 +39,7 @@ import {
   Shield,
   Moon,
   Sun,
+  Palette,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme as useAppTheme } from '../../ThemeContext';
@@ -74,6 +75,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { id: 'overview', label: t('admin.nav.overview', 'Overview'), icon: <LayoutDashboard size={20} />, path: '/admin' },
     { id: 'users', label: t('admin.nav.users', 'Users'), icon: <Users size={20} />, path: '/admin/users' },
     { id: 'projects', label: t('admin.nav.projects', 'Projects'), icon: <FolderKanban size={20} />, path: '/admin/projects' },
+    { id: 'presets', label: t('admin.nav.presets', 'Presets'), icon: <Palette size={20} />, path: '/admin/presets' },
     { id: 'subscriptions', label: t('admin.nav.subscriptions', 'Subscriptions'), icon: <CreditCard size={20} />, path: '/admin/subscriptions' },
     { id: 'analytics', label: t('admin.nav.analytics', 'Analytics'), icon: <BarChart3 size={20} />, path: '/admin/analytics' },
     { id: 'settings', label: t('admin.nav.settings', 'Settings'), icon: <Settings size={20} />, path: '/admin/settings' },

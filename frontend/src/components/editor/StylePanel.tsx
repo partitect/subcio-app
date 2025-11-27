@@ -15,9 +15,7 @@ import { TouchSlider } from "../ui/TouchSlider";
 interface StylePanelProps {
   style: StyleConfig;
   fontOptions: { name: string; file: string }[];
-  savingPreset: boolean;
   onStyleChange: (style: StyleConfig) => void;
-  onSavePreset: () => void;
 }
 
 /**
@@ -27,9 +25,7 @@ interface StylePanelProps {
 function StylePanelComponent({
   style,
   fontOptions,
-  savingPreset,
   onStyleChange,
-  onSavePreset,
 }: StylePanelProps) {
   const { t } = useTranslation();
 
@@ -52,18 +48,6 @@ function StylePanelComponent({
         pr: { xs: 2.5, md: 6 },
       }}
     >
-      {/* Save Preset Button */}
-      <Stack direction="row" spacing={1} justifyContent="flex-end">
-        <Button
-          variant="contained"
-          size="small"
-          onClick={onSavePreset}
-          disabled={savingPreset}
-        >
-          {savingPreset ? t('editor.style.saving') : t('editor.style.savePreset')}
-        </Button>
-      </Stack>
-
       {/* Font Settings */}
       <Grid container spacing={2}>
         <Grid item xs={12}>
