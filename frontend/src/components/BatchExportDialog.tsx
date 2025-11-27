@@ -3,6 +3,7 @@
  * 
  * Allows users to select multiple projects and export them in a queue.
  * Shows real-time progress for each export job.
+ * Supports video quality options: resolution, codec, and bitrate.
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -29,6 +30,10 @@ import {
   IconButton,
   Divider,
   alpha,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Tooltip,
 } from "@mui/material";
 import {
   Download,
@@ -41,8 +46,11 @@ import {
   Square,
   Trash2,
   RefreshCw,
+  ChevronDown,
+  Settings2,
 } from "lucide-react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
@@ -75,19 +83,48 @@ interface BatchExport {
   created_at: string;
 }
 
+interface ExportOptions {
+  codecs: Array<{ id: string; name: string; description: string; ext: string }>;
+  resolutions: Array<{ id: string; name: string; width: number; height: number }>;
+  bitrates: Array<{ id: string; name: string; value: string; description: string }>;
+  defaults: { codec: string; resolution: string; bitrate: string };
+}
+
 interface BatchExportDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
 export function BatchExportDialog({ open, onClose }: BatchExportDialogProps) {
+  const { t } = useTranslation();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [resolution, setResolution] = useState("1080p");
+  const [codec, setCodec] = useState("h264");
+  const [bitrate, setBitrate] = useState("medium");
+  const [exportOptions, setExportOptions] = useState<ExportOptions | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeBatch, setActiveBatch] = useState<BatchExport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<"select" | "progress">("select");
+
+  // Load export options
+  useEffect(() => {
+    if (open) {
+      axios
+        .get(`${API_BASE}/export-options`)
+        .then((res) => {
+          setExportOptions(res.data);
+          // Set defaults if available
+          if (res.data.defaults) {
+            setResolution(res.data.defaults.resolution);
+            setCodec(res.data.defaults.codec);
+            setBitrate(res.data.defaults.bitrate);
+          }
+        })
+        .catch((err) => console.error("Failed to load export options", err));
+    }
+  }, [open]);
 
   // Load projects
   useEffect(() => {
@@ -157,6 +194,8 @@ export function BatchExportDialog({ open, onClose }: BatchExportDialogProps) {
       const res = await axios.post(`${API_BASE}/batch-export`, {
         project_ids: Array.from(selectedIds),
         resolution,
+        codec,
+        bitrate,
       });
 
       // Fetch full batch details
@@ -332,17 +371,91 @@ export function BatchExportDialog({ open, onClose }: BatchExportDialogProps) {
 
               <TextField
                 select
-                label="Resolution"
+                label={t("export.resolution", "Resolution")}
                 value={resolution}
                 onChange={(e) => setResolution(e.target.value)}
                 size="small"
                 fullWidth
               >
-                <MenuItem value="720p">720p (HD)</MenuItem>
-                <MenuItem value="1080p">1080p (Full HD)</MenuItem>
-                <MenuItem value="1440p">1440p (2K)</MenuItem>
-                <MenuItem value="2160p">2160p (4K)</MenuItem>
+                {exportOptions?.resolutions.map((res) => (
+                  <MenuItem key={res.id} value={res.id}>
+                    {res.name} ({res.width}x{res.height})
+                  </MenuItem>
+                )) || [
+                  <MenuItem key="720p" value="720p">720p (HD)</MenuItem>,
+                  <MenuItem key="1080p" value="1080p">1080p (Full HD)</MenuItem>,
+                  <MenuItem key="1440p" value="1440p">1440p (2K)</MenuItem>,
+                  <MenuItem key="4k" value="4k">4K (Ultra HD)</MenuItem>,
+                ]}
               </TextField>
+
+              <Accordion 
+                sx={{ 
+                  bgcolor: "transparent", 
+                  boxShadow: "none",
+                  "&:before": { display: "none" },
+                  border: 1,
+                  borderColor: "divider",
+                  borderRadius: 2,
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ChevronDown size={18} />}
+                  sx={{ minHeight: 48, "& .MuiAccordionSummary-content": { m: 0 } }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Settings2 size={18} />
+                    <Typography variant="body2">
+                      {t("export.advancedOptions", "Advanced Options")}
+                    </Typography>
+                  </Stack>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Stack spacing={2}>
+                    <TextField
+                      select
+                      label={t("export.codec", "Video Codec")}
+                      value={codec}
+                      onChange={(e) => setCodec(e.target.value)}
+                      size="small"
+                      fullWidth
+                    >
+                      {exportOptions?.codecs.map((c) => (
+                        <MenuItem key={c.id} value={c.id}>
+                          <Tooltip title={c.description} placement="right">
+                            <Box sx={{ width: "100%" }}>{c.name}</Box>
+                          </Tooltip>
+                        </MenuItem>
+                      )) || [
+                        <MenuItem key="h264" value="h264">H.264 (MP4)</MenuItem>,
+                        <MenuItem key="h265" value="h265">H.265/HEVC (MP4)</MenuItem>,
+                        <MenuItem key="vp9" value="vp9">VP9 (WebM)</MenuItem>,
+                        <MenuItem key="prores" value="prores">ProRes (MOV)</MenuItem>,
+                      ]}
+                    </TextField>
+
+                    <TextField
+                      select
+                      label={t("export.bitrate", "Quality / Bitrate")}
+                      value={bitrate}
+                      onChange={(e) => setBitrate(e.target.value)}
+                      size="small"
+                      fullWidth
+                    >
+                      {exportOptions?.bitrates.map((b) => (
+                        <MenuItem key={b.id} value={b.id}>
+                          {b.name} ({b.value}) - {b.description}
+                        </MenuItem>
+                      )) || [
+                        <MenuItem key="low" value="low">Low (2M) - Smaller file</MenuItem>,
+                        <MenuItem key="medium" value="medium">Medium (5M) - Balanced</MenuItem>,
+                        <MenuItem key="high" value="high">High (10M) - High quality</MenuItem>,
+                        <MenuItem key="ultra" value="ultra">Ultra (20M) - Maximum quality</MenuItem>,
+                      ]}
+                    </TextField>
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
             </Stack>
           </>
         )}

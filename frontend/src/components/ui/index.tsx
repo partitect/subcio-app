@@ -660,6 +660,13 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   );
 };
 
+// ============================================================
+// Touch Controls (Re-exports)
+// ============================================================
+
+export { TouchSlider } from "./TouchSlider";
+export { TouchButton, SwipeableArea, TouchProgressBar } from "./TouchControls";
+
 // Export all components
 export default {
   GlassCard,

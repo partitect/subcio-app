@@ -74,6 +74,46 @@ class ExportStatus(str, Enum):
     FAILED = "failed"
     CANCELLED = "cancelled"
 
+# Video export codecs and their settings
+VIDEO_CODECS = {
+    "h264": {
+        "encoder": "libx264",
+        "preset": "veryfast",
+        "profile": "high",
+        "format": "mp4",
+    },
+    "h265": {
+        "encoder": "libx265",
+        "preset": "medium",
+        "profile": "main",
+        "format": "mp4",
+    },
+    "vp9": {
+        "encoder": "libvpx-vp9",
+        "preset": None,
+        "profile": None,
+        "format": "webm",
+    },
+}
+
+# Resolution presets
+RESOLUTION_PRESETS = {
+    "original": {"width": None, "height": None, "label": "Original"},
+    "720p": {"width": 1280, "height": 720, "label": "HD 720p"},
+    "1080p": {"width": 1920, "height": 1080, "label": "Full HD 1080p"},
+    "1440p": {"width": 2560, "height": 1440, "label": "QHD 1440p"},
+    "4k": {"width": 3840, "height": 2160, "label": "4K UHD"},
+}
+
+# Bitrate presets (in kbps)
+BITRATE_PRESETS = {
+    "low": {"video": 2500, "audio": 128, "label": "Low (2.5 Mbps)"},
+    "medium": {"video": 5000, "audio": 192, "label": "Medium (5 Mbps)"},
+    "high": {"video": 10000, "audio": 256, "label": "High (10 Mbps)"},
+    "ultra": {"video": 20000, "audio": 320, "label": "Ultra (20 Mbps)"},
+    "custom": {"video": None, "audio": None, "label": "Custom"},
+}
+
 @dataclass
 class ExportJob:
     id: str
@@ -87,6 +127,9 @@ class ExportJob:
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
     resolution: str = "1080p"
+    codec: str = "h264"
+    bitrate: str = "medium"
+    custom_bitrate: Optional[int] = None
 
 @dataclass
 class BatchExportQueue:
@@ -370,40 +413,109 @@ def get_animation_tags(style_id: str) -> str:
     return animations.get(style_id, "")
 
 
-def run_ffmpeg_burn(video_path: Path, ass_path: Path, output_path: Path, resolution: str):
-    scale_filter = {
-        "original": "scale=iw:ih",
-        "1080p": "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(1920-iw)/2:(1080-ih)/2",
-        "4k": "scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:(3840-iw)/2:(2160-ih)/2",
-    }.get(resolution, "scale=iw:ih")
+def run_ffmpeg_burn(
+    video_path: Path, 
+    ass_path: Path, 
+    output_path: Path, 
+    resolution: str = "1080p",
+    codec: str = "h264",
+    bitrate: str = "medium",
+    custom_bitrate: Optional[int] = None
+):
+    """
+    Burn subtitles into video with configurable quality settings.
+    
+    Args:
+        video_path: Input video file path
+        ass_path: ASS subtitle file path
+        output_path: Output video file path
+        resolution: Resolution preset (original, 720p, 1080p, 1440p, 4k)
+        codec: Video codec (h264, h265, vp9)
+        bitrate: Bitrate preset (low, medium, high, ultra, custom)
+        custom_bitrate: Custom video bitrate in kbps (when bitrate="custom")
+    """
+    # Get resolution settings
+    res_config = RESOLUTION_PRESETS.get(resolution, RESOLUTION_PRESETS["1080p"])
+    if res_config["width"] and res_config["height"]:
+        w, h = res_config["width"], res_config["height"]
+        scale_filter = f"scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:({w}-iw)/2:({h}-ih)/2"
+    else:
+        scale_filter = "scale=iw:ih"
+    
+    # Get codec settings
+    codec_config = VIDEO_CODECS.get(codec, VIDEO_CODECS["h264"])
+    encoder = codec_config["encoder"]
+    
+    # Get bitrate settings
+    bitrate_config = BITRATE_PRESETS.get(bitrate, BITRATE_PRESETS["medium"])
+    video_bitrate = custom_bitrate if bitrate == "custom" and custom_bitrate else bitrate_config["video"]
+    audio_bitrate = bitrate_config["audio"] or 192
 
     # Escape Windows drive colon for ffmpeg ass filter (expects \: in path)
     ass_path_str = ass_path.as_posix().replace(":", r"\:")
     fonts_dir_str = FONTS_DIR.as_posix().replace(":", r"\:")
     vf = f"ass=filename='{ass_path_str}':fontsdir='{fonts_dir_str}',{scale_filter}"
+    
+    # Build FFmpeg command
     cmd = [
         "ffmpeg",
         "-y",
-        "-i",
-        str(video_path),
-        "-vf",
-        vf,
-        "-c:v",
-        "libx264",
-        "-preset",
-        "veryfast",
-        "-crf",
-        "18",
-        "-c:a",
-        "copy",
-        str(output_path),
+        "-i", str(video_path),
+        "-vf", vf,
+        "-c:v", encoder,
     ]
+    
+    # Add codec-specific options
+    if codec == "h264":
+        cmd.extend([
+            "-preset", "veryfast",
+            "-profile:v", "high",
+            "-level", "4.1",
+        ])
+    elif codec == "h265":
+        cmd.extend([
+            "-preset", "medium",
+            "-tag:v", "hvc1",  # Better compatibility
+        ])
+    elif codec == "vp9":
+        cmd.extend([
+            "-deadline", "good",
+            "-cpu-used", "2",
+        ])
+    
+    # Add bitrate settings
+    if video_bitrate:
+        cmd.extend(["-b:v", f"{video_bitrate}k"])
+    else:
+        # Use CRF for quality-based encoding (default)
+        if codec == "h264":
+            cmd.extend(["-crf", "18"])
+        elif codec == "h265":
+            cmd.extend(["-crf", "23"])
+        elif codec == "vp9":
+            cmd.extend(["-crf", "30", "-b:v", "0"])
+    
+    # Audio settings
+    if codec == "vp9":
+        cmd.extend(["-c:a", "libopus", "-b:a", f"{audio_bitrate}k"])
+    else:
+        cmd.extend(["-c:a", "aac", "-b:a", f"{audio_bitrate}k"])
+    
+    # Output path - adjust extension based on codec
+    output_ext = codec_config["format"]
+    if output_path.suffix.lower() != f".{output_ext}":
+        output_path = output_path.with_suffix(f".{output_ext}")
+    
+    cmd.append(str(output_path))
+    
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         raise HTTPException(
             status_code=500,
             detail=f"FFmpeg failed: {result.stderr}",
         )
+    
+    return output_path
 
 
 def generate_thumbnail(video_path: Path, thumb_path: Path):
@@ -1347,8 +1459,10 @@ def process_batch_export(batch_id: str):
                 job.progress = 30.0
             
             # Run FFmpeg
-            out_path = OUTPUT_DIR / f"batch_{batch_id}_{job.project_id}.mp4"
-            run_ffmpeg_burn(video_path, ass_path, out_path, job.resolution)
+            codec_info = VIDEO_CODECS.get(job.codec, VIDEO_CODECS["h264"])
+            out_ext = codec_info["ext"]
+            out_path = OUTPUT_DIR / f"batch_{batch_id}_{job.project_id}{out_ext}"
+            run_ffmpeg_burn(video_path, ass_path, out_path, job.resolution, job.codec, job.bitrate)
             
             with BATCH_EXPORT_LOCK:
                 job.progress = 90.0
@@ -1391,13 +1505,25 @@ async def create_batch_export(request: Request, background_tasks: BackgroundTask
     Request body:
     {
         "project_ids": ["id1", "id2", ...],
-        "resolution": "1080p"  // optional
+        "resolution": "1080p",  // optional: 720p, 1080p, 1440p, 4k
+        "codec": "h264",        // optional: h264, h265, vp9, prores
+        "bitrate": "medium"     // optional: low, medium, high, ultra
     }
     """
     try:
         data = await request.json()
         project_ids = data.get("project_ids", [])
         resolution = data.get("resolution", "1080p")
+        codec = data.get("codec", "h264")
+        bitrate = data.get("bitrate", "medium")
+        
+        # Validate options
+        if resolution not in RESOLUTION_PRESETS:
+            resolution = "1080p"
+        if codec not in VIDEO_CODECS:
+            codec = "h264"
+        if bitrate not in BITRATE_PRESETS:
+            bitrate = "medium"
         
         if not project_ids:
             raise HTTPException(status_code=400, detail="project_ids is required")
@@ -1419,6 +1545,8 @@ async def create_batch_export(request: Request, background_tasks: BackgroundTask
                 project_id=pid,
                 project_name=project_data.get("name", pid),
                 resolution=resolution,
+                codec=codec,
+                bitrate=bitrate,
             )
             jobs.append(job)
         
@@ -1557,6 +1685,36 @@ async def list_batch_exports():
             }
             for b in BATCH_EXPORTS.values()
         ])
+
+
+@app.get("/api/export-options")
+async def get_export_options():
+    """Get available video export options (codecs, resolutions, bitrates)."""
+    return JSONResponse({
+        "codecs": [
+            {"id": "h264", "name": "H.264 (MP4)", "description": "Most compatible, good quality", "ext": ".mp4"},
+            {"id": "h265", "name": "H.265/HEVC (MP4)", "description": "Better compression, smaller files", "ext": ".mp4"},
+            {"id": "vp9", "name": "VP9 (WebM)", "description": "Open format, web optimized", "ext": ".webm"},
+            {"id": "prores", "name": "ProRes (MOV)", "description": "Professional editing, lossless", "ext": ".mov"},
+        ],
+        "resolutions": [
+            {"id": "720p", "name": "720p HD", "width": 1280, "height": 720},
+            {"id": "1080p", "name": "1080p Full HD", "width": 1920, "height": 1080},
+            {"id": "1440p", "name": "1440p QHD", "width": 2560, "height": 1440},
+            {"id": "4k", "name": "4K Ultra HD", "width": 3840, "height": 2160},
+        ],
+        "bitrates": [
+            {"id": "low", "name": "Low", "value": "2M", "description": "Smaller file size"},
+            {"id": "medium", "name": "Medium", "value": "5M", "description": "Balanced quality"},
+            {"id": "high", "name": "High", "value": "10M", "description": "High quality"},
+            {"id": "ultra", "name": "Ultra", "value": "20M", "description": "Maximum quality"},
+        ],
+        "defaults": {
+            "codec": "h264",
+            "resolution": "1080p",
+            "bitrate": "medium"
+        }
+    })
 
 
 if __name__ == "__main__":

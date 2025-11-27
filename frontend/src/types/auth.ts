@@ -6,6 +6,8 @@ export interface User {
   id: number;
   email: string;
   name: string | null;
+  avatar_url: string | null;
+  oauth_provider: 'google' | 'github' | null;
   plan: 'free' | 'starter' | 'creator' | 'pro';
   monthly_minutes_used: number;
   monthly_exports_used: number;

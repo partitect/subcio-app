@@ -13,6 +13,14 @@ const API_BASE = 'http://localhost:8000/api';
 const ACCESS_TOKEN_KEY = 'pycaps_access_token';
 const REFRESH_TOKEN_KEY = 'pycaps_refresh_token';
 
+// OAuth providers interface
+export interface OAuthProviders {
+  providers: {
+    google: { enabled: boolean; name: string };
+    github: { enabled: boolean; name: string };
+  };
+}
+
 /**
  * Get stored access token
  */
@@ -220,6 +228,48 @@ export async function logout(): Promise<void> {
   } finally {
     clearTokens();
   }
+}
+
+// ==================== OAuth Functions ====================
+
+/**
+ * Get available OAuth providers
+ */
+export async function getOAuthProviders(): Promise<OAuthProviders> {
+  const response = await fetch(`${API_BASE}/auth/oauth/providers`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  
+  return handleResponse<OAuthProviders>(response);
+}
+
+/**
+ * Initiate Google OAuth login
+ */
+export function initiateGoogleOAuth(): void {
+  window.location.href = `${API_BASE}/auth/oauth/google`;
+}
+
+/**
+ * Initiate GitHub OAuth login
+ */
+export function initiateGitHubOAuth(): void {
+  window.location.href = `${API_BASE}/auth/oauth/github`;
+}
+
+/**
+ * Handle OAuth callback - exchange code for tokens
+ */
+export async function handleOAuthCallback(provider: 'google' | 'github', code: string): Promise<AuthTokens> {
+  const response = await fetch(`${API_BASE}/auth/oauth/${provider}/callback?code=${encodeURIComponent(code)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  
+  const tokens = await handleResponse<AuthTokens>(response);
+  storeTokens(tokens);
+  return tokens;
 }
 
 /**

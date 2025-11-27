@@ -53,7 +53,7 @@ function TimelineComponent({
   const { isDark } = useTheme();
 
   /**
-   * Handle timeline click/drag for seeking
+   * Handle timeline click/drag for seeking (mouse)
    */
   const handleTimelineMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -78,6 +78,46 @@ function TimelineComponent({
 
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
+    },
+    [totalDuration, onSeek]
+  );
+
+  /**
+   * Handle timeline touch for seeking (mobile)
+   */
+  const handleTimelineTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      const percentage = x / rect.width;
+      const seekTime = percentage * totalDuration;
+      onSeek(Math.max(0, Math.min(totalDuration, seekTime)));
+      
+      // Haptic feedback
+      if ("vibrate" in navigator) {
+        navigator.vibrate(5);
+      }
+
+      // Store rect for move handler
+      const handleTouchMove = (moveEvent: TouchEvent) => {
+        const moveTouch = moveEvent.touches[0];
+        const moveX = moveTouch.clientX - rect.left;
+        const movePercentage = moveX / rect.width;
+        const moveSeekTime = movePercentage * totalDuration;
+        onSeek(Math.max(0, Math.min(totalDuration, moveSeekTime)));
+      };
+
+      const handleTouchEnd = () => {
+        if ("vibrate" in navigator) {
+          navigator.vibrate(10);
+        }
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+      };
+
+      document.addEventListener("touchmove", handleTouchMove, { passive: true });
+      document.addEventListener("touchend", handleTouchEnd);
     },
     [totalDuration, onSeek]
   );
@@ -113,23 +153,93 @@ function TimelineComponent({
     >
       {/* Timeline Header */}
       <Stack
-        direction="row"
-        alignItems="center"
+        direction={{ xs: "column", sm: "row" }}
+        alignItems={{ xs: "stretch", sm: "center" }}
         justifyContent="space-between"
-        spacing={2}
+        spacing={{ xs: 1.5, sm: 2 }}
         mb={2}
       >
+        {/* Mobile: Playback Controls on top */}
+        <Stack 
+          direction="row" 
+          spacing={1.5} 
+          alignItems="center" 
+          justifyContent="center"
+          sx={{ display: { xs: "flex", sm: "none" }, order: 0 }}
+        >
+          <IconButton
+            size="medium"
+            onClick={() => onSkipBackward(5)}
+            sx={{
+              color: "text.secondary",
+              borderRadius: 2,
+              minWidth: 48,
+              minHeight: 48,
+              "&:hover, &:active": {
+                color: "text.primary",
+                bgcolor: isDark ? "rgba(99, 102, 241, 0.15)" : "rgba(99, 102, 241, 0.1)",
+              },
+              "&:active": {
+                transform: "scale(0.95)",
+              },
+            }}
+          >
+            <SkipBack size={22} />
+          </IconButton>
+
+          <IconButton
+            size="large"
+            onClick={onTogglePlay}
+            sx={{
+              color: "#fff",
+              bgcolor: "primary.main",
+              "&:hover, &:active": { bgcolor: "secondary.main" },
+              width: 56,
+              height: 56,
+              borderRadius: 3,
+              boxShadow: `0 4px 12px ${isDark ? "rgba(99, 102, 241, 0.4)" : "rgba(99, 102, 241, 0.3)"}`,
+              transition: "all 0.2s ease",
+              "&:active": {
+                transform: "scale(0.95)",
+              },
+            }}
+          >
+            {isPlaying ? <Pause size={28} /> : <Play size={28} style={{ marginLeft: 3 }} />}
+          </IconButton>
+
+          <IconButton
+            size="medium"
+            onClick={() => onSkipForward(5)}
+            sx={{
+              color: "text.secondary",
+              borderRadius: 2,
+              minWidth: 48,
+              minHeight: 48,
+              "&:hover, &:active": {
+                color: "text.primary",
+                bgcolor: isDark ? "rgba(99, 102, 241, 0.15)" : "rgba(99, 102, 241, 0.1)",
+              },
+              "&:active": {
+                transform: "scale(0.95)",
+              },
+            }}
+          >
+            <SkipForward size={22} />
+          </IconButton>
+        </Stack>
+
         {/* Left: Time Display */}
         <Box
           sx={{
-            px: 2,
+            px: { xs: 1.5, sm: 2 },
             py: 0.75,
             borderRadius: 2,
             bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
             border: 1,
             borderColor: "divider",
-            minWidth: 150,
+            minWidth: { xs: "auto", sm: 150 },
             textAlign: "center",
+            order: { xs: 1, sm: 0 },
           }}
         >
           <Typography
@@ -159,8 +269,8 @@ function TimelineComponent({
           </Typography>
         </Box>
 
-        {/* Center: Playback Controls */}
-        <Stack direction="row" spacing={1} alignItems="center">
+        {/* Center: Playback Controls (Desktop only) */}
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ display: { xs: "none", sm: "flex" } }}>
           <Tooltip title={t('editor.timeline.skipBack')} arrow>
             <IconButton
               size="small"
@@ -215,8 +325,17 @@ function TimelineComponent({
           </Tooltip>
         </Stack>
 
-        {/* Right: Volume Control */}
-        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 130 }}>
+        {/* Right: Volume Control (hidden on mobile) */}
+        <Stack 
+          direction="row" 
+          spacing={1.5} 
+          alignItems="center" 
+          sx={{ 
+            minWidth: { xs: "auto", sm: 130 },
+            display: { xs: "none", sm: "flex" },
+            order: { xs: 2, sm: 0 },
+          }}
+        >
           <Tooltip title={muted ? t('editor.timeline.unmute') : t('editor.timeline.mute')} arrow>
             <IconButton
               size="small"
@@ -312,9 +431,10 @@ function TimelineComponent({
         {/* Main Timeline Track */}
         <Box
           onMouseDown={handleTimelineMouseDown}
+          onTouchStart={handleTimelineTouchStart}
           sx={{
             position: "relative",
-            height: 64,
+            height: { xs: 80, sm: 64 },
             borderRadius: 2,
             bgcolor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
             overflow: "hidden",
@@ -322,9 +442,19 @@ function TimelineComponent({
             borderColor: "divider",
             cursor: "pointer",
             userSelect: "none",
+            touchAction: "none",
             transition: "border-color 0.15s ease",
             "&:hover": {
               borderColor: "primary.main",
+            },
+            // Larger touch target on mobile
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: { xs: -12, sm: 0 },
+              bottom: { xs: -12, sm: 0 },
+              left: 0,
+              right: 0,
             },
           }}
         >

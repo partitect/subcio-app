@@ -4,7 +4,7 @@
  * User login/authentication page
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,6 +23,7 @@ import {
   Alert,
   alpha,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 import {
   Visibility,
@@ -31,6 +32,7 @@ import {
   GitHub as GitHubIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
+import { initiateGoogleOAuth, initiateGitHubOAuth, getOAuthProviders, OAuthProviders } from "../services/authService";
 
 export default function LoginPage() {
   const theme = useTheme();
@@ -46,6 +48,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [oauthProviders, setOAuthProviders] = useState<OAuthProviders | null>(null);
+  const [oauthLoading, setOAuthLoading] = useState<string | null>(null);
+
+  // Fetch OAuth providers on mount
+  useEffect(() => {
+    getOAuthProviders()
+      .then(setOAuthProviders)
+      .catch(() => {
+        // OAuth not available, continue with email/password only
+      });
+  }, []);
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -83,10 +96,19 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // TODO: Implement OAuth
-    console.log(`Login with ${provider}`);
+  const handleSocialLogin = (provider: "google" | "github") => {
+    setOAuthLoading(provider);
+    setError("");
+    
+    if (provider === "google") {
+      initiateGoogleOAuth();
+    } else if (provider === "github") {
+      initiateGitHubOAuth();
+    }
   };
+
+  const isGoogleEnabled = oauthProviders?.providers?.google?.enabled ?? false;
+  const isGitHubEnabled = oauthProviders?.providers?.github?.enabled ?? false;
 
   return (
     <Box
@@ -145,14 +167,18 @@ export default function LoginPage() {
             <Button
               fullWidth
               variant="outlined"
-              startIcon={<GoogleIcon />}
+              startIcon={oauthLoading === "google" ? <CircularProgress size={20} /> : <GoogleIcon />}
               onClick={() => handleSocialLogin("google")}
+              disabled={!isGoogleEnabled || oauthLoading !== null}
               sx={{
                 borderColor: alpha(theme.palette.divider, 0.3),
                 color: "text.primary",
                 "&:hover": {
                   borderColor: theme.palette.divider,
                   bgcolor: alpha(theme.palette.action.hover, 0.1),
+                },
+                "&.Mui-disabled": {
+                  borderColor: alpha(theme.palette.divider, 0.1),
                 },
               }}
             >
@@ -161,14 +187,18 @@ export default function LoginPage() {
             <Button
               fullWidth
               variant="outlined"
-              startIcon={<GitHubIcon />}
+              startIcon={oauthLoading === "github" ? <CircularProgress size={20} /> : <GitHubIcon />}
               onClick={() => handleSocialLogin("github")}
+              disabled={!isGitHubEnabled || oauthLoading !== null}
               sx={{
                 borderColor: alpha(theme.palette.divider, 0.3),
                 color: "text.primary",
                 "&:hover": {
                   borderColor: theme.palette.divider,
                   bgcolor: alpha(theme.palette.action.hover, 0.1),
+                },
+                "&.Mui-disabled": {
+                  borderColor: alpha(theme.palette.divider, 0.1),
                 },
               }}
             >

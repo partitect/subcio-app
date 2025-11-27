@@ -48,6 +48,8 @@ function TranscriptPanelComponent({
   return (
     <Stack
       spacing={1.5}
+      role="region"
+      aria-label={t('a11y.transcriptEditor')}
       sx={{
         overflowY: { md: "auto" },
         maxHeight: { xs: "none", md: "75vh" },
@@ -86,12 +88,17 @@ function TranscriptPanelComponent({
       <Divider />
 
       {/* Word List */}
+      <Box role="list" aria-label={t('a11y.subtitleLines')}>
       {words.map((w, idx) => (
         <Paper
           key={`word-${idx}`}
           variant="outlined"
+          role="listitem"
+          aria-current={idx === activeIndex ? "true" : undefined}
+          aria-label={t('a11y.subtitleLine', { number: idx + 1, text: w.text.substring(0, 30) })}
           sx={{
             p: 1.5,
+            mb: 1.5,
             borderColor: idx === activeIndex ? "primary.main" : "divider",
             bgcolor: idx === activeIndex ? "action.selected" : "background.paper",
           }}
@@ -156,10 +163,12 @@ function TranscriptPanelComponent({
             minRows={2}
             value={w.text}
             onChange={(e) => onWordChange(idx, e.target.value)}
+            aria-label={t('a11y.subtitleText', { number: idx + 1 })}
             InputProps={{ sx: { px: 1, py: 1 } }}
           />
         </Paper>
       ))}
+      </Box>
     </Stack>
   );
 }

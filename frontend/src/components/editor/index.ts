@@ -4,6 +4,7 @@
  */
 
 export { EditorHeader } from './EditorHeader';
+export { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
 export { PresetGallery } from './PresetGallery';
 export { StylePanel } from './StylePanel';
 export { Timeline } from './Timeline';

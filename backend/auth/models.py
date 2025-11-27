@@ -25,8 +25,13 @@ class User(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
+    password_hash = Column(String(255), nullable=True)  # Nullable for OAuth users
     name = Column(String(100), nullable=True)
+    avatar_url = Column(String(500), nullable=True)  # Profile picture from OAuth
+    
+    # OAuth provider info
+    oauth_provider = Column(String(50), nullable=True)  # 'google', 'github', or None
+    oauth_id = Column(String(255), nullable=True)  # Provider's user ID
     
     # Subscription & Usage
     plan = Column(String(20), default=SubscriptionPlan.FREE.value)
@@ -64,6 +69,8 @@ class User(Base):
             "id": self.id,
             "email": self.email,
             "name": self.name,
+            "avatar_url": self.avatar_url,
+            "oauth_provider": self.oauth_provider,
             "plan": self.plan,
             "monthly_minutes_used": self.monthly_minutes_used,
             "monthly_exports_used": self.monthly_exports_used,
@@ -97,6 +104,8 @@ class UserResponse(BaseModel):
     id: int
     email: str
     name: Optional[str]
+    avatar_url: Optional[str]
+    oauth_provider: Optional[str]
     plan: str
     monthly_minutes_used: float
     monthly_exports_used: int
@@ -111,6 +120,15 @@ class UserResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class OAuthUserInfo(BaseModel):
+    """OAuth user info from provider"""
+    provider: str  # 'google' or 'github'
+    provider_id: str
+    email: EmailStr
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 
 class UserUpdate(BaseModel):

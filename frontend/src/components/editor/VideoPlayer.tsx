@@ -52,6 +52,8 @@ function VideoPlayerComponent({
   return (
     <Box
       ref={overlayRef}
+      role="region"
+      aria-label={t('a11y.videoPlayer')}
       sx={{
         position: "relative",
         width: "100%",
@@ -128,6 +130,15 @@ function VideoPlayerComponent({
       {(resolvedVideoUrl || resolvedAudioUrl) && (
         <Box
           onClick={onTogglePlay}
+          role="button"
+          tabIndex={0}
+          aria-label={isPlaying ? t('a11y.pauseVideo') : t('a11y.playVideo')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onTogglePlay();
+            }
+          }}
           sx={{
             position: "absolute",
             inset: 0,
@@ -143,6 +154,11 @@ function VideoPlayerComponent({
             },
             "&:hover .play-indicator": {
               opacity: 1,
+            },
+            "&:focus-visible": {
+              outline: "2px solid",
+              outlineColor: "primary.main",
+              outlineOffset: -2,
             },
           }}
         >

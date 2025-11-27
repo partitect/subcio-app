@@ -39,6 +39,7 @@ import {
   Timeline,
   TranscriptPanel,
   VideoPlayer,
+  KeyboardShortcutsDialog,
 } from "../components/editor";
 
 // Import utility functions
@@ -182,6 +183,9 @@ export default function EditorPage() {
     message: "",
     severity: "success",
   });
+
+  // Keyboard shortcuts dialog state
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   // ASS Preview with caching
   const { 
@@ -606,8 +610,14 @@ export default function EditorPage() {
         handler: () => {
           setShowRenderModal(false);
           setShowBgSelector(false);
+          setShowShortcuts(false);
         },
         preventDefault: false,
+      },
+      // Help - Show keyboard shortcuts
+      {
+        ...EDITOR_SHORTCUTS.HELP,
+        handler: () => setShowShortcuts(true),
       },
     ],
   });
@@ -627,13 +637,14 @@ export default function EditorPage() {
       {/* Header */}
       <EditorHeader exporting={exporting} onExportClick={() => setShowRenderModal(true)} />
 
-      <Grid container spacing={2} sx={{ flex: 1, px: { xs: 1.5, md: 3 }, py: { xs: 2, md: 3 } }}>
+      <Grid container spacing={{ xs: 1.5, md: 2 }} sx={{ flex: 1, px: { xs: 1, sm: 1.5, md: 3 }, py: { xs: 1.5, md: 3 } }}>
         {/* Left Panel - Presets/Style/Transcript */}
-        <Grid item xs={12} lg={5}>
+        <Grid item xs={12} md={5} lg={5} order={{ xs: 2, md: 1 }}>
           <Paper
             sx={{
               p: { xs: 1.5, md: 2.5 },
-              height: "100%",
+              height: { xs: "auto", md: "100%" },
+              minHeight: { xs: 300, md: "auto" },
               display: "flex",
               flexDirection: "column",
               gap: 2,
@@ -688,14 +699,14 @@ export default function EditorPage() {
         </Grid>
 
         {/* Right Panel - Video & Timeline */}
-        <Grid item xs={12} lg={7}>
+        <Grid item xs={12} md={7} lg={7} order={{ xs: 1, md: 2 }}>
           <Paper
             sx={{
-              p: { xs: 1.5, md: 2 },
-              height: "100%",
+              p: { xs: 1, sm: 1.5, md: 2 },
+              height: { xs: "auto", md: "100%" },
               display: "flex",
               flexDirection: "column",
-              gap: 2,
+              gap: { xs: 1.5, md: 2 },
               borderRadius: 2,
             }}
           >
@@ -890,6 +901,12 @@ export default function EditorPage() {
           {toast.message}
         </Alert>
       </Snackbar>
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog 
+        open={showShortcuts} 
+        onClose={() => setShowShortcuts(false)} 
+      />
     </Box>
   );
 }

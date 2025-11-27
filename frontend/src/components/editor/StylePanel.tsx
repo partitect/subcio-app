@@ -5,12 +5,12 @@ import {
   Button,
   Grid,
   MenuItem,
-  Slider,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { StyleConfig } from "../../types";
+import { TouchSlider } from "../ui/TouchSlider";
 
 interface StylePanelProps {
   style: StyleConfig;
@@ -84,21 +84,15 @@ function StylePanelComponent({
         </Grid>
 
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              {t('editor.style.fontSize')}
-            </Typography>
-            <Slider
-              min={12}
-              max={300}
-              value={style.font_size || 56}
-              onChange={(_, val) => updateStyle({ font_size: val as number })}
-              sx={{ flex: 1 }}
-            />
-            <Typography variant="body2" width={42} textAlign="right">
-              {style.font_size || 56}px
-            </Typography>
-          </Stack>
+          <TouchSlider
+            label={t('editor.style.fontSize')}
+            min={12}
+            max={300}
+            value={style.font_size || 56}
+            onChange={(val) => updateStyle({ font_size: val })}
+            valueSuffix="px"
+            ariaLabel={t('editor.style.fontSize')}
+          />
         </Grid>
 
         <Grid item xs={12} sm={6}>
@@ -153,75 +147,47 @@ function StylePanelComponent({
       {/* Border & Shadow Settings */}
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              {t('editor.style.border')}
-            </Typography>
-            <Slider
-              min={0}
-              max={8}
-              value={style.border || 0}
-              onChange={(_, val) => updateStyle({ border: val as number })}
-              sx={{ flex: 1 }}
-            />
-            <Typography variant="body2" width={30} textAlign="right">
-              {style.border || 0}
-            </Typography>
-          </Stack>
+          <TouchSlider
+            label={t('editor.style.border')}
+            min={0}
+            max={8}
+            value={style.border || 0}
+            onChange={(val) => updateStyle({ border: val })}
+            ariaLabel={t('editor.style.border')}
+          />
         </Grid>
 
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              {t('editor.style.shadowBlur')}
-            </Typography>
-            <Slider
-              min={0}
-              max={20}
-              value={style.shadow_blur || 0}
-              onChange={(_, val) => updateStyle({ shadow_blur: val as number })}
-              sx={{ flex: 1 }}
-            />
-            <Typography variant="body2" width={30} textAlign="right">
-              {style.shadow_blur || 0}
-            </Typography>
-          </Stack>
+          <TouchSlider
+            label={t('editor.style.shadowBlur')}
+            min={0}
+            max={20}
+            value={style.shadow_blur || 0}
+            onChange={(val) => updateStyle({ shadow_blur: val })}
+            ariaLabel={t('editor.style.shadowBlur')}
+          />
         </Grid>
 
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              {t('editor.style.shadowOffset')}
-            </Typography>
-            <Slider
-              min={0}
-              max={40}
-              value={style.shadow ?? 0}
-              onChange={(_, val) => updateStyle({ shadow: val as number })}
-              sx={{ flex: 1 }}
-            />
-            <Typography variant="body2" width={40} textAlign="right">
-              {style.shadow ?? 0}
-            </Typography>
-          </Stack>
+          <TouchSlider
+            label={t('editor.style.shadowOffset')}
+            min={0}
+            max={40}
+            value={style.shadow ?? 0}
+            onChange={(val) => updateStyle({ shadow: val })}
+            ariaLabel={t('editor.style.shadowOffset')}
+          />
         </Grid>
 
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 90 }}>
-              {t('editor.style.blur')}
-            </Typography>
-            <Slider
-              min={0}
-              max={40}
-              value={style.blur ?? 0}
-              onChange={(_, val) => updateStyle({ blur: val as number })}
-              sx={{ flex: 1 }}
-            />
-            <Typography variant="body2" width={40} textAlign="right">
-              {style.blur ?? 0}
-            </Typography>
-          </Stack>
+          <TouchSlider
+            label={t('editor.style.blur')}
+            min={0}
+            max={40}
+            value={style.blur ?? 0}
+            onChange={(val) => updateStyle({ blur: val })}
+            ariaLabel={t('editor.style.blur')}
+          />
         </Grid>
       </Grid>
 
@@ -251,28 +217,21 @@ function StylePanelComponent({
       </Grid>
 
       {/* Vertical Position Slider */}
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1.5 }}>
-        <Slider
+      <Box sx={{ mt: 1.5 }}>
+        <TouchSlider
+          label={t('editor.style.verticalPosition')}
           min={-100}
           max={100}
           value={marginValue}
-          onChange={(_, val) => updateStyle({ margin_v: val as number })}
-          sx={{
-            flex: 1,
-            "& .MuiSlider-track": {
-              background: "linear-gradient(90deg, rgba(99,102,241,0.8) 0%, rgba(139,92,246,0.8) 100%)",
-            },
-            "& .MuiSlider-thumb": {
-              transition: "left 0.1s ease",
-            },
+          onChange={(val) => updateStyle({ margin_v: val })}
+          ariaLabel={t('editor.style.verticalPosition')}
+          formatValue={(val) => {
+            if (val <= -34) return t('editor.style.position.bottom');
+            if (val >= 34) return t('editor.style.position.top');
+            return t('editor.style.position.middle');
           }}
-          marks={[
-            { value: -100, label: t('editor.style.position.bottom') },
-            { value: 0, label: t('editor.style.position.middle') },
-            { value: 100, label: t('editor.style.position.top') },
-          ]}
         />
-      </Stack>
+      </Box>
     </Stack>
   );
 }

@@ -99,3 +99,79 @@ def update_user_login(db: Session, user):
     db.commit()
     db.refresh(user)
     return user
+
+
+def get_user_by_oauth(db: Session, provider: str, provider_id: str):
+    """Get user by OAuth provider and provider ID"""
+    from .models import User
+    return db.query(User).filter(
+        User.oauth_provider == provider,
+        User.oauth_id == provider_id
+    ).first()
+
+
+def create_or_update_oauth_user(
+    db: Session,
+    provider: str,
+    provider_id: str,
+    email: str,
+    name: str = None,
+    avatar_url: str = None
+):
+    """
+    Create a new OAuth user or update existing one.
+    If email already exists, link the OAuth provider.
+    """
+    from datetime import datetime
+    from .models import User, SubscriptionPlan, get_plan_limits
+    
+    # First check if user exists by OAuth
+    user = get_user_by_oauth(db, provider, provider_id)
+    
+    if user:
+        # Update existing OAuth user
+        user.last_login = datetime.utcnow()
+        if name and not user.name:
+            user.name = name
+        if avatar_url:
+            user.avatar_url = avatar_url
+        db.commit()
+        db.refresh(user)
+        return user, False  # False = existing user
+    
+    # Check if email already exists (maybe registered with password)
+    existing_user = get_user_by_email(db, email)
+    
+    if existing_user:
+        # Link OAuth to existing account
+        existing_user.oauth_provider = provider
+        existing_user.oauth_id = provider_id
+        if avatar_url:
+            existing_user.avatar_url = avatar_url
+        existing_user.last_login = datetime.utcnow()
+        existing_user.is_verified = True  # OAuth emails are verified
+        db.commit()
+        db.refresh(existing_user)
+        return existing_user, False
+    
+    # Create new user
+    limits = get_plan_limits(SubscriptionPlan.FREE.value)
+    
+    user = User(
+        email=email,
+        password_hash=None,  # OAuth users don't have password
+        name=name,
+        oauth_provider=provider,
+        oauth_id=provider_id,
+        avatar_url=avatar_url,
+        plan=SubscriptionPlan.FREE.value,
+        monthly_minutes_limit=limits["monthly_minutes"],
+        monthly_exports_limit=limits["monthly_exports"],
+        storage_limit_mb=limits["storage_mb"],
+        is_verified=True,  # OAuth emails are verified
+    )
+    
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user, True  # True = new user
