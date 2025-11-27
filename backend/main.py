@@ -23,6 +23,14 @@ from fastapi.staticfiles import StaticFiles
 import mimetypes
 from faster_whisper import WhisperModel
 import uvicorn
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("subcio.main")
 
 # Ensure package imports work when run as script (uvicorn main:app)
 if __package__ in (None, ""):
@@ -36,12 +44,22 @@ try:
     from .auth.routes import router as auth_router
     from .auth.database import init_db
     from .payments.routes import router as payment_router
+    from .security import (
+        rate_limiter, rate_limit, InputValidator, AuditLogger,
+        WebhookVerifier, CreditManager, ServiceBlacklist, DeviceManager,
+        AuditLog, DeviceMapping
+    )
 except ImportError:
     from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from data_store import load_presets, save_presets, load_effects
     from auth.routes import router as auth_router
     from auth.database import init_db
     from payments.routes import router as payment_router
+    from security import (
+        rate_limiter, rate_limit, InputValidator, AuditLogger,
+        WebhookVerifier, CreditManager, ServiceBlacklist, DeviceManager,
+        AuditLog, DeviceMapping
+    )
 PYONFX_EFFECT_TYPES = set(PyonFXRenderer.EFFECTS.keys())
 
 def ms_to_ass_timestamp(ms: int) -> str:
@@ -724,6 +742,35 @@ app = FastAPI(title="Subcio API", version="0.1.0")
 @app.on_event("startup")
 async def startup_event():
     init_db()
+    logger.info("🚀 Subcio API started")
+    logger.info("🔐 Security middleware active")
+
+# Security middleware - runs before CORS
+@app.middleware("http")
+async def security_middleware(request: Request, call_next):
+    """Global security middleware for rate limiting and headers."""
+    client_ip = request.client.host if request.client else "unknown"
+    
+    # Check global rate limit
+    if not rate_limiter.check(f"global:{client_ip}", "default"):
+        retry_after = rate_limiter.get_retry_after(f"global:{client_ip}", "default")
+        logger.warning(f"Rate limit exceeded for {client_ip}")
+        return JSONResponse(
+            status_code=429,
+            content={"detail": f"Too many requests. Try again in {retry_after} seconds."},
+            headers={"Retry-After": str(retry_after)}
+        )
+    
+    response = await call_next(request)
+    
+    # Add security headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    
+    return response
 
 app.add_middleware(
     CORSMiddleware,

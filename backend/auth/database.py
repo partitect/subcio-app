@@ -24,9 +24,22 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def init_db():
-    """Initialize database tables"""
+    """Initialize database tables including security tables"""
+    # Import security models to register them with Base.metadata
+    try:
+        from ..security import AuditLog, DeviceMapping
+        from ..security import Base as SecurityBase
+        
+        # Create security tables
+        SecurityBase.metadata.create_all(bind=engine)
+    except ImportError:
+        # In case security module is not available yet
+        pass
+    
+    # Create auth tables
     Base.metadata.create_all(bind=engine)
     print(f"[INFO] Database initialized at {DATABASE_PATH}")
+    print(f"[INFO] Security tables created (audit_logs, device_mappings)")
 
 
 def get_db():

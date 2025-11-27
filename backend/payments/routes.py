@@ -1,6 +1,7 @@
 """
-Payment Routes - Stripe API endpoints
+Payment Routes - Stripe API endpoints with security features
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -19,6 +20,18 @@ from .config import (
     STRIPE_SECRET_KEY,
 )
 from .stripe_service import StripeService
+
+# Import security module
+try:
+    from ..security import (
+        rate_limiter, WebhookVerifier, AuditLogger, CreditManager
+    )
+    SECURITY_ENABLED = True
+except ImportError:
+    SECURITY_ENABLED = False
+
+# Configure logging
+logger = logging.getLogger("subcio.payments")
 
 router = APIRouter(prefix="/api/payments", tags=["Payments"])
 
@@ -293,12 +306,13 @@ async def stripe_webhook(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Handle Stripe webhook events"""
+    """Handle Stripe webhook events with security verification"""
     
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
     
     if not sig_header:
+        logger.warning("Webhook received without signature header")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Missing signature header",
@@ -307,19 +321,41 @@ async def stripe_webhook(
     try:
         event = StripeService.construct_webhook_event(payload, sig_header)
     except ValueError:
+        logger.warning("Webhook received with invalid payload")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid payload",
         )
     except stripe.error.SignatureVerificationError:
+        logger.warning("Webhook signature verification failed")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid signature",
         )
     
+    # Get event ID for duplicate protection
+    event_id = event.get("id", "")
+    
+    # Check for duplicate event (replay attack prevention)
+    if SECURITY_ENABLED and WebhookVerifier.is_duplicate_event(event_id):
+        logger.info(f"Duplicate webhook event skipped: {event_id}")
+        return {"status": "already_processed", "event_id": event_id}
+    
     # Handle the event
     event_type = event["type"]
     data = event["data"]["object"]
+    
+    # Log webhook received
+    if SECURITY_ENABLED:
+        AuditLogger.log(
+            db=db,
+            action="WEBHOOK_RECEIVED",
+            resource_type="stripe",
+            resource_id=event_id,
+            details={"event_type": event_type}
+        )
+    
+    logger.info(f"Processing webhook: {event_type} ({event_id})")
     
     if event_type == "checkout.session.completed":
         # Payment successful, activate subscription
@@ -341,12 +377,16 @@ async def stripe_webhook(
         # Payment failed
         await handle_payment_failed(data, db)
     
-    return {"status": "success"}
+    # Mark event as processed (prevent replay)
+    if SECURITY_ENABLED:
+        WebhookVerifier.mark_event_processed(event_id)
+    
+    return {"status": "success", "event_id": event_id}
 
 
 # Webhook handlers
 async def handle_checkout_completed(session: dict, db: Session):
-    """Handle successful checkout"""
+    """Handle successful checkout with audit logging"""
     customer_id = session.get("customer")
     subscription_id = session.get("subscription")
     
@@ -356,12 +396,15 @@ async def handle_checkout_completed(session: dict, db: Session):
     # Find user by Stripe customer ID
     user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
     if not user:
+        logger.warning(f"No user found for customer_id: {customer_id}")
         return
     
     # Get subscription details
     subscription = StripeService.get_subscription(subscription_id)
     price_id = subscription["items"]["data"][0]["price"]["id"] if subscription["items"]["data"] else None
     plan = StripeService.get_plan_from_price_id(price_id) if price_id else None
+    
+    old_plan = user.plan
     
     # Update user
     user.stripe_subscription_id = subscription_id
@@ -376,10 +419,27 @@ async def handle_checkout_completed(session: dict, db: Session):
     user.subscription_ends_at = datetime.fromtimestamp(subscription["current_period_end"])
     
     db.commit()
+    
+    # Audit log
+    if SECURITY_ENABLED:
+        AuditLogger.log(
+            db=db,
+            action="SUBSCRIPTION_CREATE",
+            user_id=user.id,
+            resource_type="subscription",
+            resource_id=subscription_id,
+            details={
+                "old_plan": old_plan,
+                "new_plan": plan,
+                "price_id": price_id,
+            }
+        )
+    
+    logger.info(f"Subscription created for user {user.id}: {old_plan} -> {plan}")
 
 
 async def handle_subscription_updated(subscription: dict, db: Session):
-    """Handle subscription update"""
+    """Handle subscription update with audit logging"""
     customer_id = subscription.get("customer")
     subscription_id = subscription.get("id")
     
@@ -388,7 +448,10 @@ async def handle_subscription_updated(subscription: dict, db: Session):
     
     user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
     if not user:
+        logger.warning(f"No user found for customer_id: {customer_id}")
         return
+    
+    old_plan = user.plan
     
     # Get new plan
     price_id = subscription["items"]["data"][0]["price"]["id"] if subscription["items"]["data"] else None
@@ -405,18 +468,39 @@ async def handle_subscription_updated(subscription: dict, db: Session):
     user.stripe_subscription_id = subscription_id
     
     db.commit()
+    
+    # Audit log
+    if SECURITY_ENABLED:
+        AuditLogger.log(
+            db=db,
+            action="SUBSCRIPTION_UPDATE",
+            user_id=user.id,
+            resource_type="subscription",
+            resource_id=subscription_id,
+            details={
+                "old_plan": old_plan,
+                "new_plan": plan,
+                "price_id": price_id,
+            }
+        )
+    
+    logger.info(f"Subscription updated for user {user.id}: {old_plan} -> {plan}")
 
 
 async def handle_subscription_deleted(subscription: dict, db: Session):
-    """Handle subscription cancellation/deletion"""
+    """Handle subscription cancellation/deletion with audit logging"""
     customer_id = subscription.get("customer")
+    subscription_id = subscription.get("id")
     
     if not customer_id:
         return
     
     user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
     if not user:
+        logger.warning(f"No user found for customer_id: {customer_id}")
         return
+    
+    old_plan = user.plan
     
     # Downgrade to free plan
     user.plan = StripePlan.FREE
@@ -430,17 +514,36 @@ async def handle_subscription_deleted(subscription: dict, db: Session):
     user.storage_limit_mb = features.get("storage_gb", 1) * 1024
     
     db.commit()
+    
+    # Audit log
+    if SECURITY_ENABLED:
+        AuditLogger.log(
+            db=db,
+            action="SUBSCRIPTION_CANCEL",
+            user_id=user.id,
+            resource_type="subscription",
+            resource_id=subscription_id,
+            details={
+                "old_plan": old_plan,
+                "new_plan": StripePlan.FREE,
+            }
+        )
+    
+    logger.info(f"Subscription cancelled for user {user.id}: {old_plan} -> free")
 
 
 async def handle_payment_succeeded(invoice: dict, db: Session):
-    """Handle successful payment (for recurring billing)"""
+    """Handle successful payment (for recurring billing) with audit logging"""
     customer_id = invoice.get("customer")
+    invoice_id = invoice.get("id")
+    amount_paid = invoice.get("amount_paid", 0) / 100  # Convert from cents
     
     if not customer_id:
         return
     
     user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
     if not user:
+        logger.warning(f"No user found for customer_id: {customer_id}")
         return
     
     # Reset monthly usage on new billing cycle
@@ -448,12 +551,56 @@ async def handle_payment_succeeded(invoice: dict, db: Session):
     user.monthly_exports_used = 0
     
     db.commit()
+    
+    # Audit log
+    if SECURITY_ENABLED:
+        AuditLogger.log(
+            db=db,
+            action="PAYMENT_SUCCESS",
+            user_id=user.id,
+            resource_type="invoice",
+            resource_id=invoice_id,
+            details={
+                "amount": amount_paid,
+                "plan": user.plan,
+            }
+        )
+    
+    logger.info(f"Payment succeeded for user {user.id}: ${amount_paid}")
 
 
 async def handle_payment_failed(invoice: dict, db: Session):
-    """Handle failed payment"""
+    """Handle failed payment with audit logging"""
+    customer_id = invoice.get("customer")
+    invoice_id = invoice.get("id")
+    amount_due = invoice.get("amount_due", 0) / 100  # Convert from cents
+    
+    if not customer_id:
+        return
+    
+    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    if not user:
+        logger.warning(f"No user found for customer_id: {customer_id}")
+        return
+    
+    # Audit log
+    if SECURITY_ENABLED:
+        AuditLogger.log(
+            db=db,
+            action="PAYMENT_FAILED",
+            user_id=user.id,
+            resource_type="invoice",
+            resource_id=invoice_id,
+            status="failure",
+            details={
+                "amount": amount_due,
+                "plan": user.plan,
+            }
+        )
+    
+    logger.warning(f"Payment failed for user {user.id}: ${amount_due}")
+    
     # In production, you might want to:
     # - Send an email to the user
     # - Add a grace period
-    # - Log the failure
-    pass
+    # - Downgrade after multiple failures
