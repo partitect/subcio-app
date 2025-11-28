@@ -24,9 +24,14 @@ interface PresetPreviewProps {
 
 function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const jassubRef = useRef<JASSUB | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const createdFontBlobUrls = useRef<string[]>([]);
+  const layoutRef = useRef<{ displayWidth: number; displayHeight: number }>({
+    displayWidth: 0,
+    displayHeight: 0,
+  });
   const [assContent, setAssContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -146,15 +151,72 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
   }, []);
 
   // Handle video ready
+  const syncLayout = useCallback(() => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    if (!container || !canvas || !video) return;
+
+    const cw = container.clientWidth || 0;
+    const ch = container.clientHeight || 0;
+    if (!cw || !ch) return;
+
+    const vw = video.videoWidth || cw;
+    const vh = video.videoHeight || ch;
+    const scale = Math.min(cw / vw, ch / vh);
+    const displayWidth = vw * scale;
+    const displayHeight = vh * scale;
+    layoutRef.current = { displayWidth, displayHeight };
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = displayWidth * dpr;
+    canvas.height = displayHeight * dpr;
+    canvas.style.width = `${displayWidth}px`;
+    canvas.style.height = `${displayHeight}px`;
+    canvas.style.left = '0';
+    canvas.style.right = '0';
+    canvas.style.top = '0';
+    canvas.style.bottom = '0';
+    canvas.style.margin = 'auto';
+    canvas.style.transform = 'none';
+
+    video.style.width = `${displayWidth}px`;
+    video.style.height = `${displayHeight}px`;
+    video.style.left = '0';
+    video.style.right = '0';
+    video.style.top = '0';
+    video.style.bottom = '0';
+    video.style.margin = 'auto';
+    video.style.transform = 'none';
+
+    if (jassubRef.current && typeof (jassubRef.current as any).resize === 'function') {
+      try {
+        (jassubRef.current as any).resize(displayWidth * dpr, displayHeight * dpr);
+      } catch (e) {
+        console.warn('JASSUB resize failed', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new ResizeObserver(() => syncLayout());
+    observer.observe(container);
+    syncLayout();
+    return () => observer.disconnect();
+  }, [syncLayout]);
+
   const handleVideoLoaded = useCallback(() => {
     console.log('Video loaded');
     setVideoReady(true);
-  }, []);
+    syncLayout();
+  }, [syncLayout]);
 
   // Initialize JASSUB when video and ASS content are ready
   useEffect(() => {
-    if (!videoRef.current || !assContent || !videoReady) {
-      console.log('Not ready:', { video: !!videoRef.current, assContent: !!assContent, videoReady });
+    if (!videoRef.current || !assContent || !videoReady || !canvasRef.current || !containerRef.current) {
+      console.log('Not ready:', { video: !!videoRef.current, assContent: !!assContent, videoReady, canvas: !!canvasRef.current });
       return;
     }
 
@@ -167,6 +229,8 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
     }
 
     const videoElement = videoRef.current;
+    const canvasElement = canvasRef.current;
+    const containerElement = containerRef.current;
 
     // Get font for this preset
     // Use backend-provided font list when possible to map display name -> filename
@@ -278,6 +342,7 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
         const fonts = await resolveFonts();
         jassubRef.current = new JASSUB({
           video: videoElement,
+          canvas: canvasElement,
           subContent: assContent,
           fonts,
           workerUrl: '/jassub/jassub-worker.js',
@@ -287,6 +352,38 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
 
         console.log('JASSUB instance created');
         setJassubReady(true);
+
+        // Force initial canvas sizing for the overlay
+        try {
+          const dpr = window.devicePixelRatio || 1;
+          const { displayWidth, displayHeight } = layoutRef.current;
+          const targetW = displayWidth || containerElement.clientWidth;
+          const targetH = displayHeight || containerElement.clientHeight;
+          canvasElement.width = targetW * dpr;
+          canvasElement.height = targetH * dpr;
+          canvasElement.style.width = `${targetW}px`;
+          canvasElement.style.height = `${targetH}px`;
+          canvasElement.style.left = '0';
+          canvasElement.style.right = '0';
+          canvasElement.style.top = '0';
+          canvasElement.style.bottom = '0';
+          canvasElement.style.margin = 'auto';
+          canvasElement.style.transform = 'none';
+          videoElement.style.width = `${targetW}px`;
+          videoElement.style.height = `${targetH}px`;
+          videoElement.style.left = '0';
+          videoElement.style.right = '0';
+          videoElement.style.top = '0';
+          videoElement.style.bottom = '0';
+          videoElement.style.margin = 'auto';
+          videoElement.style.transform = 'none';
+          if (typeof (jassubRef.current as any).resize === 'function' && targetW && targetH) {
+            (jassubRef.current as any).resize(targetW * dpr, targetH * dpr);
+          }
+        } catch (e) {
+          console.warn('Initial canvas size sync failed', e);
+        }
+
         // Try to highlight the libass canvas if present for debugging
         setTimeout(() => {
           try {
@@ -356,9 +453,6 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
         width: '100%',
         height: height,
         bgcolor: 'grey.900',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -396,13 +490,29 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
         playsInline
         autoPlay
         onLoadedData={handleVideoLoaded}
+        onLoadedMetadata={handleVideoLoaded}
         onCanPlay={handleVideoLoaded}
         sx={{
-          width: '100%',
-          height: '100%',
+          position: 'absolute',
+          left: 0,
+          top: 0,
           objectFit: 'contain',
           opacity: (loading || error) ? 0.3 : 1,
           transition: 'opacity 0.2s',
+          zIndex: 1,
+        }}
+      />
+
+      {/* Canvas overlay for subtitles (kept on top of the video) */}
+      <Box
+        component="canvas"
+        ref={canvasRef}
+        sx={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          pointerEvents: 'none',
+          zIndex: 2,
         }}
       />
     </Box>
