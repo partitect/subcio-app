@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -13,7 +13,6 @@ import {
   DialogActions,
   Grid,
   Card,
-  CardMedia,
   CardContent,
   CardActions,
   Chip,
@@ -24,6 +23,7 @@ import {
   Tooltip,
   CircularProgress,
   InputAdornment,
+  Slider,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -34,14 +34,16 @@ import {
   Save as SaveIcon,
   Refresh as RefreshIcon,
   ContentCopy as DuplicateIcon,
-  Visibility as PreviewIcon,
+  FileDownload as ExportIcon,
+  FileUpload as ImportIcon,
+  KeyboardArrowUp as MoveUpIcon,
+  KeyboardArrowDown as MoveDownIcon,
 } from '@mui/icons-material';
 import axios from 'axios';
 import { StyleConfig } from '../../types';
-import { TouchSlider } from '../../components/ui/TouchSlider';
 import { assToHex, styleToAssColors } from '../../utils/colorConvert';
 import AdminLayout from '../../components/admin/AdminLayout';
-import PresetPreview from '../../components/admin/PresetPreview';
+import StaticPresetPreview, { StaticPresetPreviewRef } from '../../components/admin/StaticPresetPreview';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api';
 
@@ -51,51 +53,98 @@ interface Preset extends StyleConfig {
   thumbnail?: string;
   created_at?: string;
   updated_at?: string;
+  sort_order?: number;
+  usage_count?: number;
 }
 
-const PRESET_CATEGORIES = [
-  'all',
-  'tiktok',
-  'karaoke',
-  'fire',
-  'neon',
-  'glitch',
-  'nature',
-  'cinema',
-  'horror',
-  'bounce',
-  'text',
-];
+interface PresetCategory {
+  id: string;
+  label: string;
+  order?: number;
+}
 
 export default function AdminPresets() {
   const { t } = useTranslation();
   
   // State
   const [presets, setPresets] = useState<Preset[]>([]);
+  const [presetCategories, setPresetCategories] = useState<PresetCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedEffectType, setSelectedEffectType] = useState('all');
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
   const [editingPreset, setEditingPreset] = useState<Preset | null>(null);
   const [saving, setSaving] = useState(false);
   const [screenshotting, setScreenshotting] = useState<string | null>(null);
   const [fontOptions, setFontOptions] = useState<{ name: string; file: string }[]>([]);
+  const [effectTypes, setEffectTypes] = useState<{ 
+    id: string; 
+    name: string; 
+    category: string;
+    description?: string;
+    config_schema?: Record<string, {
+      type: string;
+      min?: number;
+      max?: number;
+      default?: any;
+      description?: string;
+    }>;
+  }[]>([]);
+  const [effectCategories, setEffectCategories] = useState<string[]>([]);
   const [toast, setToast] = useState<{
     open: boolean;
     message: string;
     severity: 'success' | 'error' | 'warning';
   }>({ open: false, message: '', severity: 'success' });
 
-  const previewRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<StaticPresetPreviewRef>(null);
 
-  // Load presets and fonts
+  // Load presets, fonts, and effect types
   useEffect(() => {
     loadPresets();
     loadFonts();
+    loadEffectTypes();
+    loadPresetCategories();
   }, []);
+
+  const loadEffectTypes = async () => {
+    try {
+      const { data } = await axios.get(`${API_BASE}/effect-types`);
+      if (data?.effects) {
+        setEffectTypes(data.effects);
+        setEffectCategories(data.categories || []);
+      }
+    } catch (err) {
+      console.error('Failed to load effect types', err);
+    }
+  };
+
+  const loadPresetCategories = async () => {
+    try {
+      const { data } = await axios.get(`${API_BASE}/preset-categories`);
+      if (Array.isArray(data)) {
+        setPresetCategories(data);
+      }
+    } catch (err) {
+      console.error('Failed to load preset categories', err);
+      // Fallback to default categories
+      setPresetCategories([
+        { id: 'tiktok', label: 'TikTok' },
+        { id: 'karaoke', label: 'Karaoke' },
+        { id: 'fire', label: 'Fire' },
+        { id: 'neon', label: 'Neon' },
+        { id: 'glitch', label: 'Glitch' },
+        { id: 'nature', label: 'Nature' },
+        { id: 'cinema', label: 'Cinema' },
+        { id: 'horror', label: 'Horror' },
+        { id: 'bounce', label: 'Bounce' },
+        { id: 'text', label: 'Text' },
+      ]);
+    }
+  };
 
   const loadPresets = async () => {
     setLoading(true);
@@ -132,7 +181,9 @@ export default function AdminPresets() {
       preset.label?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
       selectedCategory === 'all' || preset.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesEffectType =
+      selectedEffectType === 'all' || (preset as any).effect_type === selectedEffectType;
+    return matchesSearch && matchesCategory && matchesEffectType;
   });
 
   // Handlers
@@ -153,11 +204,6 @@ export default function AdminPresets() {
     setDeleteDialogOpen(true);
   };
 
-  const handlePreview = (preset: Preset) => {
-    setSelectedPreset(preset);
-    setPreviewDialogOpen(true);
-  };
-
   const handleDuplicate = async (preset: Preset) => {
     const newPreset: Preset = {
       ...preset,
@@ -172,6 +218,34 @@ export default function AdminPresets() {
     } catch (err) {
       console.error('Failed to duplicate preset', err);
       setToast({ open: true, message: t('admin.presets.duplicateError'), severity: 'error' });
+    }
+  };
+
+  const handleMovePreset = async (presetId: string, direction: 'up' | 'down') => {
+    const currentIndex = filteredPresets.findIndex(p => p.id === presetId);
+    if (currentIndex === -1) return;
+    
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= filteredPresets.length) return;
+    
+    // Swap sort_order values
+    const currentPreset = filteredPresets[currentIndex];
+    const targetPreset = filteredPresets[targetIndex];
+    
+    const currentOrder = currentPreset.sort_order ?? currentIndex;
+    const targetOrder = targetPreset.sort_order ?? targetIndex;
+    
+    try {
+      await axios.post(`${API_BASE}/presets/reorder`, {
+        orders: [
+          { id: currentPreset.id, sort_order: targetOrder },
+          { id: targetPreset.id, sort_order: currentOrder },
+        ]
+      });
+      loadPresets();
+    } catch (err) {
+      console.error('Failed to reorder preset', err);
+      setToast({ open: true, message: t('admin.presets.reorderError') || 'Failed to reorder', severity: 'error' });
     }
   };
 
@@ -217,8 +291,23 @@ export default function AdminPresets() {
   const handleTakeScreenshot = async (presetId: string) => {
     setScreenshotting(presetId);
     try {
-      // Call backend to generate screenshot
-      await axios.post(`${API_BASE}/presets/${presetId}/screenshot`);
+      // Use StaticPresetPreview's captureAsImage method
+      if (!previewRef.current) {
+        throw new Error('Preview component not ready');
+      }
+      
+      const imageData = await previewRef.current.captureAsImage();
+      
+      if (!imageData) {
+        throw new Error('Failed to capture preview');
+      }
+      
+      // Send to backend
+      await axios.post(`${API_BASE}/presets/screenshot`, {
+        id: presetId,
+        image: imageData,
+      });
+      
       setToast({ open: true, message: t('admin.presets.screenshotTaken'), severity: 'success' });
       loadPresets();
     } catch (err) {
@@ -227,6 +316,57 @@ export default function AdminPresets() {
     } finally {
       setScreenshotting(null);
     }
+  };
+
+  const handleExportPresets = async () => {
+    try {
+      const { data } = await axios.get(`${API_BASE}/presets/export`);
+      
+      // Create download link
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `presets_export_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      setToast({ open: true, message: t('admin.presets.exportSuccess') || 'Presets exported successfully', severity: 'success' });
+    } catch (err) {
+      console.error('Failed to export presets', err);
+      setToast({ open: true, message: t('admin.presets.exportError') || 'Failed to export presets', severity: 'error' });
+    }
+  };
+
+  const handleImportPresets = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      
+      const { data: result } = await axios.post(`${API_BASE}/presets/import`, {
+        ...data,
+        overwrite: false, // Don't overwrite existing presets by default
+      });
+      
+      setToast({ 
+        open: true, 
+        message: t('admin.presets.importSuccess', { imported: result.imported, skipped: result.skipped }) || 
+                 `Imported ${result.imported} presets, skipped ${result.skipped} existing`, 
+        severity: 'success' 
+      });
+      loadPresets();
+    } catch (err) {
+      console.error('Failed to import presets', err);
+      setToast({ open: true, message: t('admin.presets.importError') || 'Failed to import presets', severity: 'error' });
+    }
+    
+    // Reset file input
+    event.target.value = '';
   };
 
   const handleCreateNew = () => {
@@ -254,10 +394,20 @@ export default function AdminPresets() {
     setEditDialogOpen(true);
   };
 
-  const updateEditingPreset = (updates: Partial<Preset>) => {
-    if (!editingPreset) return;
-    setEditingPreset({ ...editingPreset, ...updates });
-  };
+  const updateEditingPreset = useCallback((updates: Partial<Preset>) => {
+    setEditingPreset(prev => prev ? { ...prev, ...updates } : null);
+  }, []);
+
+  // Format preset ID to readable name (e.g., "tiktok_bounce" -> "Tiktok Bounce")
+  const formatPresetName = useCallback((id: string | undefined) => {
+    if (!id) return 'Preview';
+    return id
+      .replace(/_/g, ' ')
+      .replace(/-/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }, []);
 
   return (
     <AdminLayout>
@@ -272,6 +422,28 @@ export default function AdminPresets() {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
+          {/* Import Button */}
+          <Button
+            variant="outlined"
+            startIcon={<ImportIcon />}
+            component="label"
+          >
+            {t('admin.presets.import') || 'Import'}
+            <input
+              type="file"
+              accept=".json"
+              hidden
+              onChange={handleImportPresets}
+            />
+          </Button>
+          {/* Export Button */}
+          <Button
+            variant="outlined"
+            startIcon={<ExportIcon />}
+            onClick={handleExportPresets}
+          >
+            {t('admin.presets.export') || 'Export'}
+          </Button>
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
@@ -293,7 +465,7 @@ export default function AdminPresets() {
       {/* Filters */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -309,15 +481,40 @@ export default function AdminPresets() {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={3}>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              label={t('admin.presets.filterByEffect') || 'Effect Type'}
+              value={selectedEffectType}
+              onChange={(e) => setSelectedEffectType(e.target.value)}
+            >
+              <MenuItem value="all">{t('common.all') || 'All Effects'}</MenuItem>
+              {effectTypes.map((effect) => (
+                <MenuItem key={effect.id} value={effect.id}>
+                  {effect.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} md={5}>
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              {PRESET_CATEGORIES.map((cat) => (
+              <Chip
+                key="all"
+                label={t('common.all') || 'All'}
+                onClick={() => setSelectedCategory('all')}
+                color={selectedCategory === 'all' ? 'primary' : 'default'}
+                variant={selectedCategory === 'all' ? 'filled' : 'outlined'}
+                size="small"
+              />
+              {presetCategories.map((cat) => (
                 <Chip
-                  key={cat}
-                  label={t(`editor.preset.category.${cat}`)}
-                  onClick={() => setSelectedCategory(cat)}
-                  color={selectedCategory === cat ? 'primary' : 'default'}
-                  variant={selectedCategory === cat ? 'filled' : 'outlined'}
+                  key={cat.id}
+                  label={cat.label || t(`editor.preset.category.${cat.id}`)}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  color={selectedCategory === cat.id ? 'primary' : 'default'}
+                  variant={selectedCategory === cat.id ? 'filled' : 'outlined'}
                   size="small"
                 />
               ))}
@@ -349,63 +546,40 @@ export default function AdminPresets() {
           {filteredPresets.map((preset) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={preset.id}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardMedia
-                  component="div"
+                <Box
+                  data-preset-id={preset.id}
                   sx={{
-                    height: 140,
-                    bgcolor: 'grey.900',
+                    height: 80,
+                    bgcolor: '#1a1a2e',
                     position: 'relative',
                     overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                   }}
                 >
-                  {/* CSS Preview */}
-                  <Typography
-                    sx={{
-                      fontFamily: preset.font || 'Arial',
-                      fontSize: Math.min((preset.font_size || 56) * 0.5, 36),
-                      color: assToHex(preset.primary_color as string) || '#fff',
-                      textShadow: `${(preset.shadow || 0) * 0.5}px ${(preset.shadow || 0) * 0.5}px ${(preset.shadow_blur || 0) * 0.5}px ${assToHex(preset.shadow_color as string) || '#000'}`,
-                      WebkitTextStroke: `${Math.min((preset.border || 0), 3)}px ${assToHex(preset.outline_color as string) || '#000'}`,
-                      fontWeight: preset.bold ? 'bold' : 'normal',
-                      fontStyle: preset.italic ? 'italic' : 'normal',
-                      textAlign: 'center',
-                      px: 1,
-                    }}
-                  >
-                    Subcio
-                  </Typography>
-                  
-                  {/* Screenshot button overlay */}
-                  <IconButton
-                    size="small"
-                    onClick={() => handleTakeScreenshot(preset.id!)}
-                    disabled={screenshotting === preset.id}
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      bgcolor: 'rgba(0,0,0,0.6)',
-                      '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },
-                      zIndex: 10,
-                    }}
-                  >
-                    {screenshotting === preset.id ? (
-                      <CircularProgress size={16} color="inherit" />
-                    ) : (
-                      <ScreenshotIcon fontSize="small" />
-                    )}
-                  </IconButton>
-                </CardMedia>
+                  {/* Static CSS-based preview like ClipMagic */}
+                  <StaticPresetPreview 
+                    preset={preset} 
+                    height={80} 
+                    sampleText={preset.label || formatPresetName(preset.id)} 
+                    showMultipleWords={false}
+                  />
+                </Box>
                 <CardContent sx={{ flexGrow: 1, pb: 1 }}>
                   <Typography variant="subtitle1" fontWeight="medium" noWrap>
                     {preset.label || preset.id}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-                    ID: {preset.id}
-                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      ID: {preset.id}
+                    </Typography>
+                    {(preset.usage_count ?? 0) > 0 && (
+                      <Chip 
+                        label={`${preset.usage_count} ${t('admin.presets.uses') || 'uses'}`} 
+                        size="small" 
+                        color="info"
+                        sx={{ height: 18, fontSize: '0.65rem' }}
+                      />
+                    )}
+                  </Stack>
                   
                   {/* Style Info */}
                   <Stack spacing={0.5} sx={{ mb: 1 }}>
@@ -506,14 +680,27 @@ export default function AdminPresets() {
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
                   <Stack direction="row" spacing={0.5}>
-                    <Tooltip title={t('admin.presets.preview')}>
-                      <IconButton size="small" onClick={() => handlePreview(preset)}>
-                        <PreviewIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
                     <Tooltip title={t('admin.presets.duplicate')}>
                       <IconButton size="small" onClick={() => handleDuplicate(preset)}>
                         <DuplicateIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('admin.presets.moveUp') || 'Move Up'}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleMovePreset(preset.id!, 'up')}
+                        disabled={filteredPresets.findIndex(p => p.id === preset.id) === 0}
+                      >
+                        <MoveUpIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('admin.presets.moveDown') || 'Move Down'}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleMovePreset(preset.id!, 'down')}
+                        disabled={filteredPresets.findIndex(p => p.id === preset.id) === filteredPresets.length - 1}
+                      >
+                        <MoveDownIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                   </Stack>
@@ -554,15 +741,40 @@ export default function AdminPresets() {
                   {/* Left: Live Preview (8) */}
                   <Grid item xs={12} md={8}>
                     <Box
+                      ref={previewRef}
                       sx={{
-                        height: 320,
+                        height: 120,
                         bgcolor: 'grey.900',
                         borderRadius: 2,
                         overflow: 'hidden',
                         mb: 1,
+                        position: 'relative',
                       }}
                     >
-                      <PresetPreview preset={editingPreset} height={320} />
+                      <StaticPresetPreview ref={previewRef} preset={editingPreset} height={120} sampleText={editingPreset.label || formatPresetName(editingPreset.id)} />
+                      {/* Screenshot button on preview */}
+                      <Tooltip title={t('admin.presets.takeScreenshot') || 'Take Screenshot'}>
+                        <IconButton
+                          size="small"
+                          onClick={() => editingPreset && handleTakeScreenshot(editingPreset.id!)}
+                          disabled={screenshotting === editingPreset?.id}
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            bgcolor: 'rgba(0,0,0,0.6)',
+                            color: 'white',
+                            '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },
+                            zIndex: 10,
+                          }}
+                        >
+                          {screenshotting === editingPreset?.id ? (
+                            <CircularProgress size={18} color="inherit" />
+                          ) : (
+                            <ScreenshotIcon fontSize="small" />
+                          )}
+                        </IconButton>
+                      </Tooltip>
                     </Box>
                   </Grid>
 
@@ -592,9 +804,28 @@ export default function AdminPresets() {
                         value={editingPreset.category || 'text'}
                         onChange={(e) => updateEditingPreset({ category: e.target.value })}
                       >
-                        {PRESET_CATEGORIES.filter(c => c !== 'all').map((cat) => (
-                          <MenuItem key={cat} value={cat}>
-                            {t(`editor.preset.category.${cat}`)}
+                        {presetCategories.map((cat) => (
+                          <MenuItem key={cat.id} value={cat.id}>
+                            {cat.label || t(`editor.preset.category.${cat.id}`)}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+
+                      {/* Effect Type Dropdown */}
+                      <TextField
+                        select
+                        label={t('admin.presets.effectType') || 'Effect Type'}
+                        fullWidth
+                        size="small"
+                        value={editingPreset.effect_type || ''}
+                        onChange={(e) => updateEditingPreset({ effect_type: e.target.value })}
+                      >
+                        <MenuItem value="">
+                          <em>{t('admin.presets.noEffect') || 'No Effect (Static)'}</em>
+                        </MenuItem>
+                        {effectTypes.map((effect) => (
+                          <MenuItem key={effect.id} value={effect.id}>
+                            {effect.name} <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>({effect.category})</Typography>
                           </MenuItem>
                         ))}
                       </TextField>
@@ -613,14 +844,19 @@ export default function AdminPresets() {
                           </MenuItem>
                         ))}
                       </TextField>
-                      <TouchSlider
-                        label={t('editor.style.fontSize')}
-                        min={12}
-                        max={300}
-                        value={editingPreset.font_size || 56}
-                        onChange={(val) => updateEditingPreset({ font_size: val })}
-                        valueSuffix="px"
-                      />
+                      <Box>
+                        <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                          <Typography variant="caption" color="text.secondary">{t('editor.style.fontSize')}</Typography>
+                          <Typography variant="body2" fontWeight={500}>{editingPreset.font_size || 56}px</Typography>
+                        </Stack>
+                        <Slider
+                          min={12}
+                          max={300}
+                          value={editingPreset.font_size || 56}
+                          onChange={(_, val) => updateEditingPreset({ font_size: val as number })}
+                          size="small"
+                        />
+                      </Box>
                       <TextField
                         select
                         label={t('editor.style.fontWeight')}
@@ -632,6 +868,21 @@ export default function AdminPresets() {
                         <MenuItem value={0}>{t('editor.style.regular')}</MenuItem>
                         <MenuItem value={1}>{t('editor.style.bold')}</MenuItem>
                       </TextField>
+
+                      {/* Letter Spacing */}
+                      <Box>
+                        <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                          <Typography variant="caption" color="text.secondary">{t('admin.presets.letterSpacing') || 'Letter Spacing'}</Typography>
+                          <Typography variant="body2" fontWeight={500}>{(editingPreset as any).letter_spacing || 0}px</Typography>
+                        </Stack>
+                        <Slider
+                          min={0}
+                          max={50}
+                          value={(editingPreset as any).letter_spacing || 0}
+                          onChange={(_, val) => updateEditingPreset({ letter_spacing: val } as any)}
+                          size="small"
+                        />
+                      </Box>
                     </Stack>
                   </Grid>
 
@@ -666,39 +917,63 @@ export default function AdminPresets() {
               {/* Effects */}
               <Grid item xs={12} md={6}>
                 <Stack spacing={2}>
-                  <TouchSlider
-                    label={t('editor.style.border')}
-                    min={0}
-                    max={8}
-                    value={editingPreset.border || 0}
-                    onChange={(val) => updateEditingPreset({ border: val })}
-                  />
-                  <TouchSlider
-                    label={t('editor.style.shadowOffset')}
-                    min={0}
-                    max={40}
-                    value={editingPreset.shadow ?? 0}
-                    onChange={(val) => updateEditingPreset({ shadow: val })}
-                  />
+                  <Box>
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary">{t('editor.style.border')}</Typography>
+                      <Typography variant="body2" fontWeight={500}>{editingPreset.border || 0}</Typography>
+                    </Stack>
+                    <Slider
+                      min={0}
+                      max={8}
+                      value={editingPreset.border || 0}
+                      onChange={(_, val) => updateEditingPreset({ border: val as number })}
+                      size="small"
+                    />
+                  </Box>
+                  <Box>
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary">{t('editor.style.shadowOffset')}</Typography>
+                      <Typography variant="body2" fontWeight={500}>{editingPreset.shadow ?? 0}</Typography>
+                    </Stack>
+                    <Slider
+                      min={0}
+                      max={40}
+                      value={editingPreset.shadow ?? 0}
+                      onChange={(_, val) => updateEditingPreset({ shadow: val as number })}
+                      size="small"
+                    />
+                  </Box>
                 </Stack>
               </Grid>
 
               <Grid item xs={12} md={6}>
                 <Stack spacing={2}>
-                  <TouchSlider
-                    label={t('editor.style.shadowBlur')}
-                    min={0}
-                    max={20}
-                    value={editingPreset.shadow_blur || 0}
-                    onChange={(val) => updateEditingPreset({ shadow_blur: val })}
-                  />
-                  <TouchSlider
-                    label={t('editor.style.blur')}
-                    min={0}
-                    max={40}
-                    value={editingPreset.blur ?? 0}
-                    onChange={(val) => updateEditingPreset({ blur: val })}
-                  />
+                  <Box>
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary">{t('editor.style.shadowBlur')}</Typography>
+                      <Typography variant="body2" fontWeight={500}>{editingPreset.shadow_blur || 0}</Typography>
+                    </Stack>
+                    <Slider
+                      min={0}
+                      max={20}
+                      value={editingPreset.shadow_blur || 0}
+                      onChange={(_, val) => updateEditingPreset({ shadow_blur: val as number })}
+                      size="small"
+                    />
+                  </Box>
+                  <Box>
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary">{t('editor.style.blur')}</Typography>
+                      <Typography variant="body2" fontWeight={500}>{editingPreset.blur ?? 0}</Typography>
+                    </Stack>
+                    <Slider
+                      min={0}
+                      max={40}
+                      value={editingPreset.blur ?? 0}
+                      onChange={(_, val) => updateEditingPreset({ blur: val as number })}
+                      size="small"
+                    />
+                  </Box>
                 </Stack>
               </Grid>
 
@@ -707,19 +982,286 @@ export default function AdminPresets() {
                 <Typography variant="subtitle2" sx={{ mb: 2 }}>
                   {t('editor.style.verticalPosition')}
                 </Typography>
-                <TouchSlider
-                  label=""
-                  min={-100}
-                  max={100}
-                  value={editingPreset.margin_v ?? 0}
-                  onChange={(val) => updateEditingPreset({ margin_v: val })}
-                  formatValue={(val) => {
-                    if (val <= -34) return t('editor.style.position.bottom');
-                    if (val >= 34) return t('editor.style.position.top');
-                    return t('editor.style.position.middle');
-                  }}
-                />
+                <Box>
+                  <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary">{t('editor.style.verticalPosition')}</Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {(editingPreset.margin_v ?? 0) <= -34 
+                        ? t('editor.style.position.bottom') 
+                        : (editingPreset.margin_v ?? 0) >= 34 
+                          ? t('editor.style.position.top') 
+                          : t('editor.style.position.middle')}
+                    </Typography>
+                  </Stack>
+                  <Slider
+                    min={-100}
+                    max={100}
+                    value={editingPreset.margin_v ?? 0}
+                    onChange={(_, val) => updateEditingPreset({ margin_v: val as number })}
+                    size="small"
+                  />
+                </Box>
               </Grid>
+
+              {/* Advanced: Opacity, Rotation, Scale */}
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                  {t('admin.presets.advanced') || 'Advanced Settings'}
+                </Typography>
+                <Grid container spacing={2}>
+                  {/* Opacity */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Box>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary">{t('admin.presets.opacity') || 'Opacity'}</Typography>
+                        <Typography variant="body2" fontWeight={500}>{(editingPreset as any).opacity ?? 100}%</Typography>
+                      </Stack>
+                      <Slider
+                        min={0}
+                        max={100}
+                        value={(editingPreset as any).opacity ?? 100}
+                        onChange={(_, val) => updateEditingPreset({ opacity: val } as any)}
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+                  {/* Rotation */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Box>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary">{t('admin.presets.rotation') || 'Rotation'}</Typography>
+                        <Typography variant="body2" fontWeight={500}>{(editingPreset as any).rotation ?? 0}°</Typography>
+                      </Stack>
+                      <Slider
+                        min={-180}
+                        max={180}
+                        value={(editingPreset as any).rotation ?? 0}
+                        onChange={(_, val) => updateEditingPreset({ rotation: val } as any)}
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+                  {/* Scale X */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Box>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary">{t('admin.presets.scaleX') || 'Scale X'}</Typography>
+                        <Typography variant="body2" fontWeight={500}>{(editingPreset as any).scale_x ?? 100}%</Typography>
+                      </Stack>
+                      <Slider
+                        min={50}
+                        max={200}
+                        value={(editingPreset as any).scale_x ?? 100}
+                        onChange={(_, val) => updateEditingPreset({ scale_x: val } as any)}
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+                  {/* Scale Y */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Box>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary">{t('admin.presets.scaleY') || 'Scale Y'}</Typography>
+                        <Typography variant="body2" fontWeight={500}>{(editingPreset as any).scale_y ?? 100}%</Typography>
+                      </Stack>
+                      <Slider
+                        min={50}
+                        max={200}
+                        value={(editingPreset as any).scale_y ?? 100}
+                        onChange={(_, val) => updateEditingPreset({ scale_y: val } as any)}
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+                  {/* Shear */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Box>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary">{t('admin.presets.shear') || 'Shear'}</Typography>
+                        <Typography variant="body2" fontWeight={500}>{(editingPreset as any).shear ?? 0}</Typography>
+                      </Stack>
+                      <Slider
+                        min={-50}
+                        max={50}
+                        value={(editingPreset as any).shear ?? 0}
+                        onChange={(_, val) => updateEditingPreset({ shear: val } as any)}
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              {/* Text Decorations */}
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                  {t('admin.presets.textDecorations') || 'Text Decorations'}
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  <TextField
+                    select
+                    label={t('admin.presets.italic') || 'Italic'}
+                    size="small"
+                    value={(editingPreset as any).italic ?? 0}
+                    onChange={(e) => updateEditingPreset({ italic: Number(e.target.value) } as any)}
+                    sx={{ minWidth: 120 }}
+                  >
+                    <MenuItem value={0}>{t('common.no') || 'No'}</MenuItem>
+                    <MenuItem value={1}>{t('common.yes') || 'Yes'}</MenuItem>
+                  </TextField>
+                  <TextField
+                    select
+                    label={t('admin.presets.underline') || 'Underline'}
+                    size="small"
+                    value={(editingPreset as any).underline ?? 0}
+                    onChange={(e) => updateEditingPreset({ underline: Number(e.target.value) } as any)}
+                    sx={{ minWidth: 120 }}
+                  >
+                    <MenuItem value={0}>{t('common.no') || 'No'}</MenuItem>
+                    <MenuItem value={1}>{t('common.yes') || 'Yes'}</MenuItem>
+                  </TextField>
+                  <TextField
+                    select
+                    label={t('admin.presets.strikeout') || 'Strikeout'}
+                    size="small"
+                    value={(editingPreset as any).strikeout ?? 0}
+                    onChange={(e) => updateEditingPreset({ strikeout: Number(e.target.value) } as any)}
+                    sx={{ minWidth: 120 }}
+                  >
+                    <MenuItem value={0}>{t('common.no') || 'No'}</MenuItem>
+                    <MenuItem value={1}>{t('common.yes') || 'Yes'}</MenuItem>
+                  </TextField>
+                </Stack>
+              </Grid>
+
+              {/* Dynamic Effect Config Editor */}
+              {editingPreset.effect_type && (() => {
+                const selectedEffect = effectTypes.find(e => e.id === editingPreset.effect_type);
+                const configSchema = selectedEffect?.config_schema || {};
+                const hasConfigFields = Object.keys(configSchema).length > 0;
+                const effectConfig = (editingPreset as any).effect_config || {};
+                
+                const updateEffectConfig = (key: string, value: any) => {
+                  updateEditingPreset({ 
+                    effect_config: { 
+                      ...effectConfig, 
+                      [key]: value 
+                    } 
+                  } as any);
+                };
+                
+                return (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                      {t('admin.presets.effectConfig') || 'Effect Configuration'}
+                      {selectedEffect?.description && (
+                        <Typography variant="caption" display="block" color="text.secondary">
+                          {selectedEffect.description}
+                        </Typography>
+                      )}
+                    </Typography>
+                    
+                    {hasConfigFields ? (
+                      <Grid container spacing={2}>
+                        {Object.entries(configSchema).map(([key, schema]) => {
+                          const currentValue = effectConfig[key] ?? schema.default;
+                          
+                          if (schema.type === 'number') {
+                            return (
+                              <Grid item xs={12} sm={6} md={4} key={key}>
+                                <Box>
+                                  <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                                    <Typography variant="caption" color="text.secondary">
+                                      {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight={500}>{currentValue ?? schema.default ?? 0}</Typography>
+                                  </Stack>
+                                  <Slider
+                                    min={schema.min ?? 0}
+                                    max={schema.max ?? 100}
+                                    step={schema.max && schema.max <= 5 ? 0.1 : 1}
+                                    value={currentValue ?? schema.default ?? 0}
+                                    onChange={(_, val) => updateEffectConfig(key, val)}
+                                    size="small"
+                                  />
+                                </Box>
+                                {schema.description && (
+                                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                                    {schema.description}
+                                  </Typography>
+                                )}
+                              </Grid>
+                            );
+                          }
+                          
+                          if (schema.type === 'array') {
+                            // Color array - show as comma-separated text field
+                            const arrayValue = Array.isArray(currentValue) ? currentValue : (schema.default || []);
+                            return (
+                              <Grid item xs={12} sm={6} key={key}>
+                                <TextField
+                                  label={key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  fullWidth
+                                  size="small"
+                                  value={arrayValue.join(', ')}
+                                  onChange={(e) => {
+                                    const values = e.target.value.split(',').map(v => v.trim()).filter(Boolean);
+                                    updateEffectConfig(key, values);
+                                  }}
+                                  helperText={schema.description || 'Comma-separated values (e.g., &H00FF00&, &H0000FF&)'}
+                                />
+                              </Grid>
+                            );
+                          }
+                          
+                          // Default: text field
+                          return (
+                            <Grid item xs={12} sm={6} key={key}>
+                              <TextField
+                                label={key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                fullWidth
+                                size="small"
+                                value={currentValue ?? ''}
+                                onChange={(e) => updateEffectConfig(key, e.target.value)}
+                                helperText={schema.description}
+                              />
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    ) : (
+                      <Alert severity="info" sx={{ mt: 1 }}>
+                        {t('admin.presets.noConfigParams') || 'This effect has no configurable parameters.'}
+                      </Alert>
+                    )}
+                    
+                    {/* Advanced: JSON Editor (collapsible) */}
+                    <Box sx={{ mt: 2 }}>
+                      <TextField
+                        label={t('admin.presets.effectConfigJson') || 'Advanced: Raw JSON Config'}
+                        fullWidth
+                        multiline
+                        rows={3}
+                        size="small"
+                        value={JSON.stringify(effectConfig, null, 2)}
+                        onChange={(e) => {
+                          try {
+                            const parsed = JSON.parse(e.target.value);
+                            updateEditingPreset({ effect_config: parsed } as any);
+                          } catch {
+                            // Invalid JSON, don't update
+                          }
+                        }}
+                        helperText={t('admin.presets.effectConfigJsonHelp') || 'Edit raw JSON for advanced configuration'}
+                        sx={{ 
+                          fontFamily: 'monospace',
+                          '& .MuiInputBase-input': { fontFamily: 'monospace', fontSize: '0.8rem' }
+                        }}
+                      />
+                    </Box>
+                  </Grid>
+                );
+              })()}
             </Grid>
           )}
         </DialogContent>
@@ -755,66 +1297,6 @@ export default function AdminPresets() {
           </Button>
           <Button variant="contained" color="error" onClick={handleConfirmDelete}>
             {t('common.delete')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Preview Dialog */}
-      <Dialog
-        open={previewDialogOpen}
-        onClose={() => setPreviewDialogOpen(false)}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogTitle>{selectedPreset?.label || selectedPreset?.id}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={8}>
-              <Box
-                ref={previewRef}
-                sx={{
-                  height: 420,
-                  bgcolor: 'grey.900',
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                }}
-              >
-                {selectedPreset && (
-                  <PresetPreview preset={selectedPreset} height={420} />
-                )}
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Box sx={{ p: 1 }}>
-                <Typography variant="h6">{selectedPreset?.label}</Typography>
-                <Typography variant="caption" color="text.secondary">ID: {selectedPreset?.id}</Typography>
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2">Font</Typography>
-                  <Typography sx={{ fontFamily: selectedPreset?.font || 'Arial' }}>{selectedPreset?.font}</Typography>
-                </Box>
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2">Preview Controls</Typography>
-                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                    <Button size="small" onClick={() => { if (selectedPreset) handleEdit(selectedPreset); }} startIcon={<EditIcon />}>Edit</Button>
-                  </Stack>
-                </Box>
-              </Box>
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPreviewDialogOpen(false)}>
-            {t('common.close')}
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<EditIcon />}
-            onClick={() => {
-              setPreviewDialogOpen(false);
-              if (selectedPreset) handleEdit(selectedPreset);
-            }}
-          >
-            {t('common.edit')}
           </Button>
         </DialogActions>
       </Dialog>

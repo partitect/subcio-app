@@ -6,7 +6,6 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  CardMedia,
   Typography, 
   TextField, 
   InputAdornment,
@@ -19,10 +18,11 @@ import {
   ToggleButton,
   useTheme as useMuiTheme,
 } from "@mui/material";
-import { Search, Filter, X, ChevronDown, ChevronUp, ImageOff, Heart, Grid3X3, List } from "lucide-react";
+import { Search, Filter, X, ChevronDown, ChevronUp, Heart, Grid3X3, List } from "lucide-react";
 import { StyleConfig } from "../../types";
 import { useTheme } from "../../ThemeContext";
 import { announce, VisuallyHidden } from "../../utils/a11y";
+import StaticPresetPreview from "../admin/StaticPresetPreview";
 
 type Preset = StyleConfig & { label?: string };
 
@@ -91,7 +91,6 @@ function PresetGalleryComponent({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
-  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [favorites, setFavorites] = useState<Set<string>>(loadFavorites);
   const [viewMode, setViewMode] = useState<"grid" | "list">(loadViewMode);
   
@@ -188,10 +187,6 @@ function PresetGalleryComponent({
     
     return counts;
   }, [presets, favorites.size]);
-
-  const handleImageError = (presetId: string) => {
-    setImageErrors(prev => new Set(prev).add(presetId));
-  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -338,7 +333,6 @@ function PresetGalleryComponent({
         >
           {filteredPresets.map((preset, index) => {
             const selected = selectedPresetId === preset.id;
-            const hasImageError = imageErrors.has(preset.id);
             const isFavorite = favorites.has(preset.id);
             const presetName = preset.label || formatPresetName(preset.id);
 
@@ -424,33 +418,20 @@ function PresetGalleryComponent({
                       />
                     </IconButton>
 
-                    {/* Preset Preview Image */}
+                    {/* Static CSS-based Preset Preview */}
                     <Box
                       sx={{
-                        height: 60,
-                        bgcolor: isDark ? "grey.900" : "grey.100",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        height: 50,
                         overflow: "hidden",
                         borderRadius: "8px 8px 0 0",
                       }}
                     >
-                      {hasImageError ? (
-                        <ImageOff size={24} style={{ opacity: 0.3 }} />
-                      ) : (
-                        <CardMedia
-                          component="img"
-                          src={`/sspresets/${preset.id}.png`}
-                          alt={preset.id}
-                          sx={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                          onError={() => handleImageError(preset.id)}
-                        />
-                      )}
+                      <StaticPresetPreview 
+                        preset={preset} 
+                        height={50} 
+                        sampleText={preset.label || formatPresetName(preset.id)}
+                        showMultipleWords={false}
+                      />
                     </Box>
 
                     {/* Preset Name */}
@@ -488,7 +469,6 @@ function PresetGalleryComponent({
         >
           {filteredPresets.map((preset) => {
             const selected = selectedPresetId === preset.id;
-            const hasImageError = imageErrors.has(preset.id);
             const isFavorite = favorites.has(preset.id);
 
             return (
@@ -514,35 +494,22 @@ function PresetGalleryComponent({
                 }}
               >
                 <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: 1 }}>
-                  {/* Thumbnail */}
+                  {/* Static CSS Thumbnail */}
                   <Box
                     sx={{
-                      width: 48,
+                      width: 80,
                       height: 36,
-                      bgcolor: isDark ? "grey.900" : "grey.100",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
                       overflow: "hidden",
                       borderRadius: 1,
                       flexShrink: 0,
                     }}
                   >
-                    {hasImageError ? (
-                      <ImageOff size={16} style={{ opacity: 0.3 }} />
-                    ) : (
-                      <CardMedia
-                        component="img"
-                        src={`/sspresets/${preset.id}.png`}
-                        alt={preset.id}
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                        onError={() => handleImageError(preset.id)}
-                      />
-                    )}
+                    <StaticPresetPreview 
+                      preset={preset} 
+                      height={36} 
+                      sampleText={preset.label || formatPresetName(preset.id)}
+                      showMultipleWords={false}
+                    />
                   </Box>
 
                   {/* Name & Category */}

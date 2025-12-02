@@ -1,10 +1,11 @@
 /**
- * PresetPreview Component
- * Renders a real ASS preview using JASSUB for admin preset management
+ * PresetPreview Component - Optimized Version
+ * Uses setTrack() for fast updates instead of recreating JASSUB
  */
 
-import { useEffect, useRef, useState, memo, useMemo, useCallback } from 'react';
-import { Box, CircularProgress, Button } from '@mui/material';
+import { useEffect, useRef, useState, memo, useMemo, useCallback, useImperativeHandle, forwardRef } from 'react';
+import { Box, CircularProgress, Tooltip } from '@mui/material';
+import { Zap } from 'lucide-react';
 import JASSUB from 'jassub';
 import axios from 'axios';
 import { StyleConfig } from '../../types';
@@ -12,9 +13,14 @@ import { styleToAssColors } from '../../utils/colorConvert';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api';
 
-// Demo words (loaded from a fixed public file) and demo video
-const SAMPLE_TRANSCRIPT_PATH = '/sample_transcript.json';
+// Demo video
 const DEMO_VIDEO = '/test-video/export_7ea10b8f2a224be0953d0792b13f7605.mp4';
+
+// Global caches - persist across component mounts
+let cachedSampleWords: Array<{ start: number; end: number; text: string }> | null = null;
+let cachedFonts: { name: string; file: string }[] | null = null;
+let cachedFontMap: Record<string, string> | null = null;
+const assCache = new Map<string, string>();
 
 interface PresetPreviewProps {
   preset: StyleConfig;
@@ -22,12 +28,17 @@ interface PresetPreviewProps {
   height?: number;
 }
 
-function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
+// Expose methods to parent component
+export interface PresetPreviewRef {
+  captureSubtitleOnly: () => Promise<string | null>;
+}
+
+const PresetPreviewComponent = forwardRef<PresetPreviewRef, PresetPreviewProps>(({ preset, height = 180 }, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const jassubRef = useRef<JASSUB | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const createdFontBlobUrls = useRef<string[]>([]);
+  const jassubInitialized = useRef(false);
   const layoutRef = useRef<{ displayWidth: number; displayHeight: number }>({
     displayWidth: 0,
     displayHeight: 0,
@@ -36,11 +47,52 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [jassubReady, setJassubReady] = useState(false);
-  const [fontMap, setFontMap] = useState<Record<string, string>>({});
-  const [fontOptions, setFontOptions] = useState<{ name: string; file: string }[]>([]);
-  const [showAss, setShowAss] = useState(false);
-  const [sampleWords, setSampleWords] = useState<Array<{ start: number; end: number; text: string }>>([]);
+  const [cacheHit, setCacheHit] = useState(false);
+  const [fontOptions, setFontOptions] = useState<{ name: string; file: string }[]>(cachedFonts || []);
+  const [sampleWords, setSampleWords] = useState<Array<{ start: number; end: number; text: string }>>(cachedSampleWords || []);
+
+  // Expose captureSubtitleOnly method to parent
+  useImperativeHandle(ref, () => ({
+    captureSubtitleOnly: async (): Promise<string | null> => {
+      const canvas = canvasRef.current;
+      if (!canvas) return null;
+      
+      try {
+        // Create a new canvas with transparent background for subtitle only
+        const outputCanvas = document.createElement('canvas');
+        const { displayWidth, displayHeight } = layoutRef.current;
+        const dpr = window.devicePixelRatio || 1;
+        
+        // Use layout dimensions or fallback
+        const w = displayWidth || canvas.width / dpr;
+        const h = displayHeight || canvas.height / dpr;
+        
+        outputCanvas.width = w * 2; // High resolution
+        outputCanvas.height = h * 2;
+        
+        const ctx = outputCanvas.getContext('2d');
+        if (!ctx) return null;
+        
+        // Draw transparent background (for preset thumbnails)
+        ctx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+        
+        // Optional: Add a subtle dark gradient background for better visibility
+        const gradient = ctx.createLinearGradient(0, 0, 0, outputCanvas.height);
+        gradient.addColorStop(0, 'rgba(26, 26, 46, 0.9)');
+        gradient.addColorStop(1, 'rgba(26, 26, 46, 0.95)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+        
+        // Draw the JASSUB canvas (subtitle only) scaled up
+        ctx.drawImage(canvas, 0, 0, outputCanvas.width, outputCanvas.height);
+        
+        return outputCanvas.toDataURL('image/png');
+      } catch (e) {
+        console.error('Failed to capture subtitle:', e);
+        return null;
+      }
+    }
+  }), []);
 
   // Memoize style JSON to prevent unnecessary API calls
   const styleJson = useMemo(() => {
@@ -53,8 +105,13 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
     preset.effect_type, preset.effect_name
   ]);
 
-  // Load backend font list once and create a normalized token -> filename map
+  // Load backend font list once (use global cache)
   useEffect(() => {
+    if (cachedFonts && cachedFontMap) {
+      setFontOptions(cachedFonts);
+      return;
+    }
+    
     let cancelled = false;
     (async () => {
       try {
@@ -68,9 +125,9 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
           }
         }
         if (!cancelled) {
-          setFontMap(map);
-          // also set fontOptions similar to EditorPage
           const parsed = list.map((f: any) => (typeof f === 'string' ? { name: f, file: `${f}.ttf` } : { name: f.name, file: f.file }));
+          cachedFonts = parsed;
+          cachedFontMap = map;
           setFontOptions(parsed);
         }
       } catch (e) {
@@ -80,6 +137,29 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
     return () => { cancelled = true; };
   }, []);
 
+  // Load sample transcript once (use global cache)
+  useEffect(() => {
+    if (cachedSampleWords) {
+      setSampleWords(cachedSampleWords);
+      return;
+    }
+    
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await axios.get('/sample_transcript.json');
+        if (!cancelled && Array.isArray(resp.data)) {
+          cachedSampleWords = resp.data;
+          setSampleWords(resp.data);
+        }
+      } catch (e) {
+        console.warn('Failed to load sample transcript', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Compute overlay fonts
   const overlayFonts = useMemo(() => {
     const encodeName = (name: string) => encodeURIComponent(name.trim());
     const currentFile =
@@ -99,17 +179,30 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
       .map((fname) => `/fonts/${encodeName(fname)}`);
   }, [fontOptions, preset.font]);
 
-  // Fetch ASS content for this preset with debounce
+  // Fetch ASS content with cache and reduced debounce (150ms instead of 300ms)
   useEffect(() => {
+    if (!sampleWords.length) return;
+    
+    // Create cache key from style
+    const cacheKey = styleJson;
+    
+    // Check cache first
+    if (assCache.has(cacheKey)) {
+      setAssContent(assCache.get(cacheKey)!);
+      setCacheHit(true);
+      setLoading(false);
+      return;
+    }
+    
+    setCacheHit(false);
     let cancelled = false;
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
         setError(false);
-        // Use fixed sample transcript
-        const wordsForPreview = (sampleWords && sampleWords.length) ? sampleWords : [];
+        
         const form = new FormData();
-        form.append('words_json', JSON.stringify(wordsForPreview));
+        form.append('words_json', JSON.stringify(sampleWords));
         form.append('style_json', styleJson);
 
         const response = await axios.post(`${API_BASE}/preview-ass`, form, {
@@ -117,7 +210,13 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
         });
 
         if (!cancelled && response.data) {
-          console.log('ASS Content received:', response.data.substring(0, 200));
+          // Store in cache
+          assCache.set(cacheKey, response.data);
+          // Limit cache size
+          if (assCache.size > 100) {
+            const firstKey = assCache.keys().next().value;
+            if (firstKey) assCache.delete(firstKey);
+          }
           setAssContent(response.data);
         }
       } catch (err) {
@@ -126,29 +225,13 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
       } finally {
         if (!cancelled) setLoading(false);
       }
-    }, 300); // 300ms debounce
+    }, 150); // Reduced from 300ms to 150ms
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
   }, [styleJson, sampleWords]);
-
-  // Load the fixed sample transcript from public folder
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const resp = await axios.get(SAMPLE_TRANSCRIPT_PATH);
-        if (!cancelled && Array.isArray(resp.data)) {
-          setSampleWords(resp.data);
-        }
-      } catch (e) {
-        console.warn('Failed to load sample transcript, using empty words', e);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
 
   // Handle video ready
   const syncLayout = useCallback(() => {
@@ -208,32 +291,20 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
   }, [syncLayout]);
 
   const handleVideoLoaded = useCallback(() => {
-    console.log('Video loaded');
     setVideoReady(true);
     syncLayout();
   }, [syncLayout]);
 
-  // Initialize JASSUB when video and ASS content are ready
+  // Initialize JASSUB once when video is ready
   useEffect(() => {
-    if (!videoRef.current || !assContent || !videoReady || !canvasRef.current || !containerRef.current) {
-      console.log('Not ready:', { video: !!videoRef.current, assContent: !!assContent, videoReady, canvas: !!canvasRef.current });
+    if (!videoRef.current || !videoReady || !canvasRef.current || jassubInitialized.current) {
       return;
-    }
-
-    console.log('Initializing JASSUB...');
-
-    // Destroy previous instance
-    if (jassubRef.current) {
-      jassubRef.current.destroy();
-      jassubRef.current = null;
     }
 
     const videoElement = videoRef.current;
     const canvasElement = canvasRef.current;
-    const containerElement = containerRef.current;
 
-    // Get font for this preset
-    // Use backend-provided font list when possible to map display name -> filename
+    // Default fonts
     const defaultFonts = overlayFonts.length ? overlayFonts : [
       '/fonts/Bungee-Regular.ttf',
       '/fonts/RubikSprayPaint-Regular.ttf',
@@ -242,211 +313,65 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
       '/fonts/Nunito-ExtraBold.ttf',
     ];
 
-    const resolveFonts = async () => {
-      try {
-        // If we have a backend-supplied map from display name -> filename, prefer it
-        const candidates: string[] = [];
-        if (preset.font) {
-          const normalize = (s: string) => (s || '').toString().replace(/[\s_-]+/g, '').toLowerCase();
-          const token = normalize(preset.font);
-          if (fontMap && fontMap[token]) {
-            candidates.push(`/fonts/${fontMap[token]}`);
-          } else {
-            // Fallback heuristics when backend mapping not available
-            const raw = preset.font;
-            const cleaned = raw.replace(/\s+/g, '');
-            const encoded = encodeURIComponent(raw);
+    // Minimal valid ASS content to initialize JASSUB (empty string causes errors)
+    const minimalAss = `[Script Info]
+Title: Init
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
 
-            candidates.push(`/fonts/${cleaned}-Regular.ttf`);
-            candidates.push(`/fonts/${cleaned}-ExtraBold.ttf`);
-            candidates.push(`/fonts/${cleaned}-Bold.ttf`);
-            candidates.push(`/fonts/${cleaned}.ttf`);
-            candidates.push(`/fonts/${encoded}.ttf`);
-            candidates.push(`/fonts/${raw}.ttf`);
-            candidates.push(`/fonts/${cleaned}-Regular.otf`);
-          }
-        }
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,48,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,1,2,10,10,10,1
 
-        // Verify first candidate is fetchable/binary
-        const found: string[] = [];
-        for (const url of candidates) {
-          try {
-            const r = await fetch(url);
-            if (r.ok) {
-              const buf = await r.arrayBuffer();
-              console.log('Probed font', url, 'bytes=', buf ? buf.byteLength : 0);
-              if (buf && buf.byteLength > 100) {
-                // Create a blob URL for the font so the worker can fetch it reliably
-                try {
-                  const ext = url.split('.').pop() || 'ttf';
-                  const mime = ext.toLowerCase().includes('otf') ? 'font/otf' : 'font/ttf';
-                  const blob = new Blob([buf], { type: mime });
-                  const blobUrl = URL.createObjectURL(blob);
-                  createdFontBlobUrls.current.push(blobUrl);
-                  found.push(blobUrl);
-                  break;
-                } catch (be) {
-                  console.warn('Failed to create blob URL for font', url, be);
-                  found.push(url);
-                  break;
-                }
-              }
-            } else {
-              console.log('Font probe failed status', r.status, url);
-            }
-          } catch (e) {
-            console.log('Font probe error for', url, e);
-          }
-        }
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+`;
 
-        // If nothing found, try overlayFonts (they are paths returned from backend)
-        if (!found.length && overlayFonts && overlayFonts.length) {
-          for (const url of overlayFonts) {
-            try {
-              const r = await fetch(url);
-              if (r.ok) {
-                const buf = await r.arrayBuffer();
-                console.log('Probed overlay font', url, 'bytes=', buf ? buf.byteLength : 0);
-                if (buf && buf.byteLength > 100) {
-                  try {
-                    const ext = url.split('.').pop() || 'ttf';
-                    const mime = ext.toLowerCase().includes('otf') ? 'font/otf' : 'font/ttf';
-                    const blob = new Blob([buf], { type: mime });
-                    const blobUrl = URL.createObjectURL(blob);
-                    createdFontBlobUrls.current.push(blobUrl);
-                    found.push(blobUrl);
-                    break;
-                  } catch (be) {
-                    found.push(url);
-                    break;
-                  }
-                }
-              }
-            } catch (e) {
-              // ignore
-            }
-          }
-        }
-
-        const fonts = (found.length ? found : []).concat(defaultFonts);
-        console.log('Using fonts for JASSUB:', fonts);
-        return fonts;
-      } catch (err) {
-        console.warn('Failed resolving fonts, falling back to defaults', err);
-        return defaultFonts;
-      }
-    };
-
-    const initJassub = async () => {
-      try {
-        const fonts = await resolveFonts();
-        jassubRef.current = new JASSUB({
-          video: videoElement,
-          canvas: canvasElement,
-          subContent: assContent,
-          fonts,
-          workerUrl: '/jassub/jassub-worker.js',
-          wasmUrl: '/jassub/jassub-worker.wasm',
-          legacyWasmUrl: '/jassub/jassub-worker.wasm.js',
-        });
-
-        console.log('JASSUB instance created');
-        setJassubReady(true);
-
-        // Force initial canvas sizing for the overlay
-        try {
-          const dpr = window.devicePixelRatio || 1;
-          const { displayWidth, displayHeight } = layoutRef.current;
-          const targetW = displayWidth || containerElement.clientWidth;
-          const targetH = displayHeight || containerElement.clientHeight;
-          canvasElement.width = targetW * dpr;
-          canvasElement.height = targetH * dpr;
-          canvasElement.style.width = `${targetW}px`;
-          canvasElement.style.height = `${targetH}px`;
-          canvasElement.style.left = '0';
-          canvasElement.style.right = '0';
-          canvasElement.style.top = '0';
-          canvasElement.style.bottom = '0';
-          canvasElement.style.margin = 'auto';
-          canvasElement.style.transform = 'none';
-          videoElement.style.width = `${targetW}px`;
-          videoElement.style.height = `${targetH}px`;
-          videoElement.style.left = '0';
-          videoElement.style.right = '0';
-          videoElement.style.top = '0';
-          videoElement.style.bottom = '0';
-          videoElement.style.margin = 'auto';
-          videoElement.style.transform = 'none';
-          if (typeof (jassubRef.current as any).resize === 'function' && targetW && targetH) {
-            (jassubRef.current as any).resize(targetW * dpr, targetH * dpr);
-          }
-        } catch (e) {
-          console.warn('Initial canvas size sync failed', e);
-        }
-
-        // Try to highlight the libass canvas if present for debugging
-        setTimeout(() => {
-          try {
-            const container = containerRef.current;
-            if (container) {
-              const canvas = container.querySelector('canvas');
-              if (canvas) {
-                (canvas as HTMLCanvasElement).style.outline = '2px solid rgba(255,0,0,0.6)';
-                console.log('Highlighted JASSUB canvas');
-              } else {
-                console.log('No JASSUB canvas found in container');
-              }
-            }
-          } catch (e) {
-            console.warn('Canvas highlight error', e);
-          }
-        }, 200);
-        // Try to force rendering: play briefly, pause, and seek so libass draws
-        try {
-          const playRes = await videoElement.play();
-          console.log('Video play() succeeded after JASSUB init', playRes);
-        } catch (playErr) {
-          console.log('Video play() rejected (likely autoplay policy):', playErr);
-        }
-
-          // Ensure the video will continue (loop) so subtitles remain visible
-          try {
-            if (videoElement) {
-              videoElement.loop = true;
-              // Seek to a point where subtitle is visible
-              videoElement.currentTime = 0.5;
-              console.log('Set loop=true and seeked to 0.5s');
-            }
-          } catch (e) {
-            console.warn('Seek/loop error', e);
-          }
-      } catch (e) {
-        console.error('JASSUB Init Error:', e);
-        setError(true);
-      }
-    };
-
-    initJassub();
+    try {
+      jassubRef.current = new JASSUB({
+        video: videoElement,
+        canvas: canvasElement,
+        subContent: minimalAss, // Use minimal valid ASS instead of empty string
+        fonts: defaultFonts,
+        workerUrl: '/jassub/jassub-worker.js',
+        wasmUrl: '/jassub/jassub-worker.wasm',
+        legacyWasmUrl: '/jassub/jassub-worker.wasm.js',
+      });
+      
+      jassubInitialized.current = true;
+      
+      // Set loop and play
+      videoElement.loop = true;
+      videoElement.currentTime = 0.5;
+      videoElement.play().catch(() => {});
+      
+    } catch (e) {
+      console.error('JASSUB Init Error:', e);
+      setError(true);
+    }
 
     return () => {
       if (jassubRef.current) {
         jassubRef.current.destroy();
         jassubRef.current = null;
-      }
-      // Revoke any created blob URLs
-      try {
-        for (const u of createdFontBlobUrls.current) {
-          try { URL.revokeObjectURL(u); } catch (e) { /* ignore */ }
-        }
-        createdFontBlobUrls.current = [];
-      } catch (e) {
-        console.warn('Error revoking font blob URLs', e);
+        jassubInitialized.current = false;
       }
     };
-  }, [assContent, preset.font, videoReady]);
+  }, [videoReady, overlayFonts]);
+
+  // Use setTrack() to update content without recreating JASSUB
+  useEffect(() => {
+    if (jassubRef.current && assContent) {
+      try {
+        jassubRef.current.setTrack(assContent);
+      } catch (e) {
+        console.warn('setTrack failed:', e);
+      }
+    }
+  }, [assContent]);
 
   return (
-    <>
     <Box
       ref={containerRef}
       sx={{
@@ -457,14 +382,18 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
         overflow: 'hidden',
       }}
     >
-      {/* Toggle to show raw ASS for debugging */}
-      <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 20 }}>
-        <Button size="small" variant="outlined" onClick={() => setShowAss((s) => !s)}>{showAss ? 'Hide ASS' : 'Show ASS'}</Button>
-      </Box>
       {loading && (
-        <Box sx={{ position: 'absolute', zIndex: 10 }}>
+        <Box sx={{ position: 'absolute', zIndex: 10, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
           <CircularProgress size={24} sx={{ color: 'grey.500' }} />
         </Box>
+      )}
+      
+      {cacheHit && !loading && (
+        <Tooltip title="Cache hit - instant load">
+          <Box sx={{ position: 'absolute', top: 4, right: 4, zIndex: 10 }}>
+            <Zap size={14} color="#4ade80" />
+          </Box>
+        </Tooltip>
       )}
       
       {error && !loading && (
@@ -475,6 +404,9 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
             color: 'grey.500',
             fontSize: 12,
             textAlign: 'center',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
           }}
         >
           Preview unavailable
@@ -503,7 +435,7 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
         }}
       />
 
-      {/* Canvas overlay for subtitles (kept on top of the video) */}
+      {/* Canvas overlay for subtitles */}
       <Box
         component="canvas"
         ref={canvasRef}
@@ -516,14 +448,8 @@ function PresetPreviewComponent({ preset, height = 180 }: PresetPreviewProps) {
         }}
       />
     </Box>
-    {showAss && (
-      <Box sx={{ mt: 1, bgcolor: 'grey.800', color: 'grey.100', p: 1, borderRadius: 1, fontSize: 12, overflow: 'auto', maxHeight: 240 }}>
-        <Box component="pre" sx={{ whiteSpace: 'pre-wrap', m: 0 }}>{assContent || 'ASS not loaded'}</Box>
-      </Box>
-    )}
-    </>
   );
-}
+});
 
 export const PresetPreview = memo(PresetPreviewComponent);
 export default PresetPreview;

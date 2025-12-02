@@ -1195,6 +1195,88 @@ async def create_project(
     )
 
 
+@app.get("/api/effect-types")
+async def get_effect_types():
+    """
+    Returns all available PyonFX effect types with metadata.
+    """
+    try:
+        # Group effects by category for better organization
+        effect_categories = {
+            "basic": ["bulge", "shake", "wave", "chromatic", "fade_in_out", "slide_up", "zoom_burst", "bounce_in"],
+            "fire": ["fire_storm", "phoenix_flames", "trending_fire"],
+            "glitch": ["cyber_glitch", "pixel_glitch", "glitch_teleport", "horror_flicker"],
+            "neon": ["neon_pulse", "neon_sign", "neon_flicker"],
+            "nature": ["bubble_floral", "ocean_wave", "butterfly_dance", "sakura_dream", "tornado_spin", "underwater", "sand_storm"],
+            "weather": ["thunder_strike", "thunder_storm", "ice_crystal", "freeze_crack", "lava_melt"],
+            "cosmic": ["cosmic_stars", "matrix_rain", "ghost_star"],
+            "electric": ["electric_shock", "rainbow_wave"],
+            "smoke": ["smoke_trail"],
+            "horror": ["horror_creepy", "earthquake_shake"],
+            "luxury": ["luxury_gold"],
+            "comic": ["comic_book"],
+            "pulse": ["pulse", "colorful"],
+            "tiktok": ["tiktok_yellow_box", "tiktok_group", "tiktok_box_group"],
+            "karaoke": ["karaoke_classic", "karaoke_pro", "karaoke_sentence", "karaoke_sentence_box", "dynamic_highlight"],
+            "kinetic": ["kinetic_bounce", "word_pop", "spin_3d", "shear_force"],
+            "cinematic": ["cinematic_blur", "movie_credits", "old_film", "action_impact", "dramatic_reveal"],
+            "text": ["typewriter_pro", "news_ticker", "double_shadow", "retro_arcade"],
+            "heart": ["falling_heart", "like_burst"],
+            "magic": ["magic_spell", "portal_warp", "invisibility_cloak", "summon_appear", "fairy_dust"],
+            "optical": ["hypnotic_spiral", "mirror_reflect", "shadow_clone", "echo_trail", "double_vision"],
+            "action": ["slam_ground", "speed_lines", "power_up", "punch_hit", "explosion_entry"],
+            "artistic": ["paint_brush", "graffiti_spray", "watercolor_bleed", "chalk_write"],
+            "gaming": ["pixelate_form", "game_damage", "level_up", "coin_collect"],
+            "social": ["story_swipe", "notification_pop", "viral_shake"],
+            "party": ["disco_ball", "fireworks", "balloon_pop", "jackpot_spin", "party_mode"],
+            "special": ["welcome_my_life", "mademyday"],
+        }
+        
+        # Load effect configs from pyonfx_effects.json
+        effect_configs = {}
+        effects_json_path = Path(__file__).parent / "pyonfx_effects.json"
+        if effects_json_path.exists():
+            with open(effects_json_path, 'r', encoding='utf-8') as f:
+                effect_configs = json.load(f)
+        
+        # Build effect list with metadata
+        effects_list = []
+        all_effect_keys = list(PYONFX_EFFECT_TYPES)
+        
+        for effect_key in sorted(all_effect_keys):
+            # Find category
+            category = "other"
+            for cat, effects in effect_categories.items():
+                if effect_key in effects:
+                    category = cat
+                    break
+            
+            # Get config schema from pyonfx_effects.json
+            effect_info = effect_configs.get(effect_key, {})
+            config_schema = effect_info.get("config", {})
+            
+            # Format display name
+            display_name = effect_info.get("name", effect_key.replace("_", " ").title())
+            description = effect_info.get("description", "")
+            
+            effects_list.append({
+                "id": effect_key,
+                "name": display_name,
+                "category": category,
+                "description": description,
+                "config_schema": config_schema,
+            })
+        
+        return JSONResponse(content={
+            "effects": effects_list,
+            "categories": list(effect_categories.keys()) + ["other"],
+            "total": len(effects_list)
+        })
+    except Exception as e:
+        print(f"Get Effect Types Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/api/presets")
 async def get_presets():
     """
@@ -1215,11 +1297,30 @@ async def get_presets():
             "italic": 0
         }
         
+        # Check for screenshot thumbnails
+        frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
+        screenshots_dir = frontend_dir / "public" / "sspresets"
+        
+        # Load usage statistics
+        usage_stats = load_preset_usage()
+        
         for preset_id, preset_data in PRESET_STYLE_MAP.items():
             # Merge defaults with preset data (preset data takes precedence)
             complete_preset = {**defaults, **preset_data}
             complete_preset["font"] = pick_font_for_preset(preset_id)
+            
+            # Check if thumbnail exists
+            thumbnail_path = screenshots_dir / f"{preset_id}.png"
+            if thumbnail_path.exists():
+                complete_preset["thumbnail"] = f"/sspresets/{preset_id}.png"
+            
+            # Add usage count
+            complete_preset["usage_count"] = usage_stats.get(preset_id, 0)
+            
             presets_list.append(complete_preset)
+        
+        # Sort by sort_order if present, then by id
+        presets_list.sort(key=lambda p: (p.get("sort_order", 9999), p.get("id", "")))
         return JSONResponse(content=presets_list)
     except Exception as e:
         print(f"Get Presets Error: {e}")
@@ -1303,6 +1404,99 @@ async def delete_preset(preset_id: str):
         })
     except Exception as e:
         print(f"Delete Preset Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/presets/reorder")
+async def reorder_presets(request: Request):
+    """
+    Update sort_order for multiple presets at once
+    """
+    try:
+        data = await request.json()
+        orders = data.get("orders", [])  # List of {id: preset_id, sort_order: number}
+        
+        if not orders:
+            raise HTTPException(status_code=400, detail="Orders list required")
+        
+        updated_count = 0
+        for item in orders:
+            preset_id = item.get("id")
+            sort_order = item.get("sort_order", 0)
+            
+            if preset_id in PRESET_STYLE_MAP:
+                PRESET_STYLE_MAP[preset_id]["sort_order"] = sort_order
+                updated_count += 1
+        
+        if updated_count > 0:
+            save_presets(PRESET_STYLE_MAP)
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Updated order for {updated_count} presets"
+        })
+    except Exception as e:
+        print(f"Reorder Presets Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Preset Usage Statistics
+PRESET_USAGE_FILE = Path(__file__).parent / "preset_usage.json"
+
+def load_preset_usage() -> dict:
+    """Load usage statistics from file"""
+    if PRESET_USAGE_FILE.exists():
+        try:
+            with open(PRESET_USAGE_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return {}
+
+def save_preset_usage(usage: dict):
+    """Save usage statistics to file"""
+    with open(PRESET_USAGE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(usage, f, indent=2)
+
+
+@app.post("/api/presets/{preset_id}/track-usage")
+async def track_preset_usage(preset_id: str):
+    """
+    Increment usage count for a preset
+    """
+    try:
+        usage = load_preset_usage()
+        usage[preset_id] = usage.get(preset_id, 0) + 1
+        save_preset_usage(usage)
+        
+        return JSONResponse(content={
+            "success": True,
+            "preset_id": preset_id,
+            "usage_count": usage[preset_id]
+        })
+    except Exception as e:
+        print(f"Track Usage Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/presets/usage-stats")
+async def get_preset_usage_stats():
+    """
+    Get usage statistics for all presets
+    """
+    try:
+        usage = load_preset_usage()
+        
+        # Sort by usage count descending
+        sorted_usage = sorted(usage.items(), key=lambda x: x[1], reverse=True)
+        
+        return JSONResponse(content={
+            "stats": dict(sorted_usage),
+            "total_uses": sum(usage.values()),
+            "most_popular": sorted_usage[0] if sorted_usage else None
+        })
+    except Exception as e:
+        print(f"Get Usage Stats Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -1507,6 +1701,198 @@ async def delete_preset(preset_id: str):
         
     except Exception as e:
         print(f"Delete Preset Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/presets/export")
+async def export_presets():
+    """
+    Export all presets as JSON for backup/sharing
+    """
+    try:
+        export_data = {
+            "version": "1.0",
+            "exported_at": datetime.datetime.now().isoformat(),
+            "presets": dict(PRESET_STYLE_MAP)
+        }
+        
+        return JSONResponse(
+            content=export_data,
+            headers={
+                "Content-Disposition": "attachment; filename=presets_export.json"
+            }
+        )
+    except Exception as e:
+        print(f"Export Presets Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/presets/import")
+async def import_presets(request: Request):
+    """
+    Import presets from JSON backup
+    """
+    try:
+        data = await request.json()
+        
+        # Validate structure
+        presets_data = data.get("presets", data)  # Support both wrapped and unwrapped format
+        
+        if not isinstance(presets_data, dict):
+            raise HTTPException(status_code=400, detail="Invalid presets format. Expected object with preset IDs as keys.")
+        
+        imported_count = 0
+        skipped_count = 0
+        overwrite = data.get("overwrite", False)
+        
+        for preset_id, preset_config in presets_data.items():
+            if not isinstance(preset_config, dict):
+                continue
+                
+            # Check if preset already exists
+            if preset_id in PRESET_STYLE_MAP and not overwrite:
+                skipped_count += 1
+                continue
+            
+            # Ensure preset has required fields
+            preset_config["id"] = preset_id
+            PRESET_STYLE_MAP[preset_id] = preset_config
+            imported_count += 1
+        
+        # Save to file
+        if imported_count > 0:
+            save_presets(PRESET_STYLE_MAP)
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Imported {imported_count} presets, skipped {skipped_count} existing",
+            "imported": imported_count,
+            "skipped": skipped_count
+        })
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON format")
+    except Exception as e:
+        print(f"Import Presets Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Preset Categories Management
+PRESET_CATEGORIES_FILE = Path(__file__).parent / "preset_categories.json"
+DEFAULT_PRESET_CATEGORIES = [
+    {"id": "tiktok", "label": "TikTok", "order": 1},
+    {"id": "karaoke", "label": "Karaoke", "order": 2},
+    {"id": "fire", "label": "Fire", "order": 3},
+    {"id": "neon", "label": "Neon", "order": 4},
+    {"id": "glitch", "label": "Glitch", "order": 5},
+    {"id": "nature", "label": "Nature", "order": 6},
+    {"id": "cinema", "label": "Cinema", "order": 7},
+    {"id": "horror", "label": "Horror", "order": 8},
+    {"id": "bounce", "label": "Bounce", "order": 9},
+    {"id": "text", "label": "Text", "order": 10},
+    {"id": "cosmic", "label": "Cosmic", "order": 11},
+    {"id": "party", "label": "Party", "order": 12},
+]
+
+def load_preset_categories():
+    """Load categories from file or return defaults"""
+    if PRESET_CATEGORIES_FILE.exists():
+        try:
+            with open(PRESET_CATEGORIES_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return DEFAULT_PRESET_CATEGORIES
+
+def save_preset_categories(categories):
+    """Save categories to file"""
+    with open(PRESET_CATEGORIES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(categories, f, indent=2)
+
+
+@app.get("/api/preset-categories")
+async def get_preset_categories():
+    """Get all preset categories"""
+    try:
+        categories = load_preset_categories()
+        return JSONResponse(content=sorted(categories, key=lambda x: x.get("order", 999)))
+    except Exception as e:
+        print(f"Get Categories Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/preset-categories")
+async def create_preset_category(request: Request):
+    """Create a new category"""
+    try:
+        data = await request.json()
+        cat_id = data.get("id")
+        label = data.get("label", cat_id)
+        
+        if not cat_id:
+            raise HTTPException(status_code=400, detail="Category ID required")
+        
+        categories = load_preset_categories()
+        
+        # Check if exists
+        if any(c["id"] == cat_id for c in categories):
+            raise HTTPException(status_code=409, detail=f"Category '{cat_id}' already exists")
+        
+        # Add new category
+        max_order = max((c.get("order", 0) for c in categories), default=0)
+        categories.append({
+            "id": cat_id,
+            "label": label,
+            "order": max_order + 1
+        })
+        
+        save_preset_categories(categories)
+        return JSONResponse(content={"success": True, "message": f"Category '{cat_id}' created"})
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Create Category Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.put("/api/preset-categories/{cat_id}")
+async def update_preset_category(cat_id: str, request: Request):
+    """Update a category"""
+    try:
+        data = await request.json()
+        categories = load_preset_categories()
+        
+        for cat in categories:
+            if cat["id"] == cat_id:
+                cat["label"] = data.get("label", cat["label"])
+                cat["order"] = data.get("order", cat.get("order", 0))
+                save_preset_categories(categories)
+                return JSONResponse(content={"success": True, "message": f"Category '{cat_id}' updated"})
+        
+        raise HTTPException(status_code=404, detail=f"Category '{cat_id}' not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Update Category Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/preset-categories/{cat_id}")
+async def delete_preset_category(cat_id: str):
+    """Delete a category"""
+    try:
+        categories = load_preset_categories()
+        original_count = len(categories)
+        categories = [c for c in categories if c["id"] != cat_id]
+        
+        if len(categories) == original_count:
+            raise HTTPException(status_code=404, detail=f"Category '{cat_id}' not found")
+        
+        save_preset_categories(categories)
+        return JSONResponse(content={"success": True, "message": f"Category '{cat_id}' deleted"})
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Delete Category Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/presets/screenshot")
