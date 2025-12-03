@@ -21,6 +21,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     libcairo2-dev \
     libgirepository1.0-dev \
+    gobject-introspection \
+    libglib2.0-dev \
     pkg-config \
     python3-dev \
     gir1.2-pango-1.0 \
