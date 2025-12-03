@@ -1,7 +1,8 @@
 from typing import Any, List
 import math
 import random
-from ..utils import hex_to_ass
+import os
+from ..utils import hex_to_ass, get_text_width, get_text_metrics, get_font_path, estimate_text_width_heuristic
 
 def _render_fire_storm(self) -> str:
     """Port of FireStormRenderer using PyonFX pipeline."""
@@ -1567,6 +1568,269 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             lines.append(
                 f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
                 f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_karaoke_sentence_fill(self) -> str:
+    """Dynamic word grouping with karaoke fill effect - active word fills with color from left to right."""
+    cx, cy = self._get_center_coordinates()
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 1.5))
+    shadow = float(self.style.get("shadow", 0))
+    scale_x = int(self.style.get("scale_x", 100))
+    scale_y = int(self.style.get("scale_y", 100))
+    margin_l = int(self.style.get("margin_l", 10))
+    margin_r = int(self.style.get("margin_r", 10))
+    margin_v = int(self.style.get("margin_v", 10))
+    
+    # Colors using hex_to_ass for proper conversion
+    # For ASS karaoke fill (\kf):
+    # - PrimaryColour = unfilled/before text color (what user sees before karaoke reaches that part)
+    # - SecondaryColour = filled/after color (what fills from left to right as karaoke progresses)
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
+    back_color = hex_to_ass(self.style.get("back_color", "&H00000000"))
+    
+    # Header with karaoke style
+    # PrimaryColour = unfilled text (primary_color from style)
+    # SecondaryColour = fill color (secondary_color from style)
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},{back_color},{bold},{italic},0,0,{scale_x},{scale_y},{letter_spacing},0,1,{border},{shadow},5,{margin_l},{margin_r},{margin_v},0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    # Use shared helper for dynamic grouping
+    groups = self._create_word_groups()
+    
+    # Generate dialogue lines for each group
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # Build karaoke text with \kf tags for fill effect
+        # \kf = karaoke fill: PrimaryColour shows first, then SecondaryColour fills from left to right
+        karaoke_parts = []
+        
+        for idx, word in enumerate(group):
+            word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            word_start_ms = int(word.get("start", 0) * 1000)
+            word_end_ms = int(word.get("end", word_start_ms / 1000) * 1000)
+            
+            # Calculate duration for this word in centiseconds (ASS uses centiseconds for \k)
+            word_duration_cs = max(1, (word_end_ms - word_start_ms) // 10)
+            
+            # \kf = karaoke fill (smooth left-to-right fill)
+            # Text starts as PrimaryColour, fills with SecondaryColour over duration
+            karaoke_parts.append(f"{{\\kf{word_duration_cs}}}{word_text}")
+            
+            # Add space between words (with 0 duration)
+            if idx < len(group) - 1:
+                karaoke_parts.append(" ")
+        
+        full_text = "".join(karaoke_parts)
+        
+        # Add shadow color override if specified
+        shadow_tag = f"\\4c{shadow_color}" if shadow > 0 else ""
+        
+        lines.append(
+            f"Dialogue: 0,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy}){shadow_tag}}}{full_text}"
+        )
+    
+    return "\n".join(lines)
+
+def _render_underline_sweep(self) -> str:
+    """Dynamic word grouping with underline under active word.
+    Uses inline styling for perfect word-level alignment."""
+    cx, cy = self._get_center_coordinates()
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 1.5))
+    shadow = float(self.style.get("shadow", 0))
+    scale_x = int(self.style.get("scale_x", 100))
+    scale_y = int(self.style.get("scale_y", 100))
+    margin_l = int(self.style.get("margin_l", 10))
+    margin_r = int(self.style.get("margin_r", 10))
+    margin_v = int(self.style.get("margin_v", 10))
+    
+    # Colors
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
+    back_color = hex_to_ass(self.style.get("back_color", "&H00000000"))
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},{back_color},{bold},{italic},0,0,{scale_x},{scale_y},{letter_spacing},0,1,{border},{shadow},5,{margin_l},{margin_r},{margin_v},0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    groups = self._create_word_groups()
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # Layer 0: Full sentence (always visible, no underline)
+        text_parts = []
+        for word in group:
+            word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            text_parts.append(word_text)
+        full_text = " ".join(text_parts)
+        
+        lines.append(
+            f"Dialogue: 0,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+        )
+        
+        # Layer 1: Each word timing with underline on active word only
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            # Build text with inline underline for active word
+            styled_parts = []
+            for idx, word in enumerate(group):
+                word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: underline with secondary color
+                    # ASS underline uses primary color, so we change primary for underlined text
+                    styled_parts.append(f"{{\\u1\\1c{secondary_color}}}{word_text}{{\\u0\\r}}")
+                else:
+                    # Inactive word: normal (same as Layer 0)
+                    styled_parts.append(word_text)
+            
+            styled_text = " ".join(styled_parts)
+            
+            lines.append(
+                f"Dialogue: 1,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(word_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{styled_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_box_slide(self) -> str:
+    """Dynamic word grouping with box highlight using BorderStyle=3.
+    Uses ASS native box feature for perfect alignment."""
+    cx, cy = self._get_center_coordinates()
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 1.5))
+    shadow = float(self.style.get("shadow", 0))
+    scale_x = int(self.style.get("scale_x", 100))
+    scale_y = int(self.style.get("scale_y", 100))
+    margin_l = int(self.style.get("margin_l", 10))
+    margin_r = int(self.style.get("margin_r", 10))
+    margin_v = int(self.style.get("margin_v", 10))
+    
+    # Colors
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H00000000"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
+    back_color = hex_to_ass(self.style.get("back_color", "&H0000FFFF"))  # Box color
+    
+    # Box padding via outline size
+    box_padding = int(font_size * 0.12)
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},{back_color},{bold},{italic},0,0,{scale_x},{scale_y},{letter_spacing},0,1,{border},{shadow},5,{margin_l},{margin_r},{margin_v},0
+Style: BoxedWord,{font},{font_size},{secondary_color},{secondary_color},{back_color},{back_color},{bold},{italic},0,0,{scale_x},{scale_y},{letter_spacing},0,3,{box_padding},0,5,{margin_l},{margin_r},{margin_v},0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    groups = self._create_word_groups()
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # Build full text parts
+        text_parts = []
+        for word in group:
+            word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            text_parts.append(word_text)
+        
+        # Each word timing: all words visible, only active word has box
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            # Build the text with inline overrides
+            # All words visible, only active word has box and different color
+            styled_parts = []
+            for idx, word in enumerate(group):
+                word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: secondary color text with box (BorderStyle=3)
+                    styled_parts.append(f"{{\\bord{box_padding}\\3c{back_color}\\1c{secondary_color}}}{word_text}{{\\r}}")
+                else:
+                    # Inactive word: primary color, no box
+                    styled_parts.append(f"{{\\bord0\\1c{primary_color}}}{word_text}{{\\r}}")
+            
+            styled_text = " ".join(styled_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(word_end_ms)},BoxedWord,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{styled_text}"
             )
     
     return "\n".join(lines)
@@ -3762,6 +4026,9 @@ RENDER_DISPATCH = {
     "karaoke_classic": _render_karaoke_classic,
     "karaoke_pro": _render_karaoke_pro,
     "karaoke_sentence": _render_karaoke_sentence,
+    "karaoke_sentence_fill": _render_karaoke_sentence_fill,
+    "underline_sweep": _render_underline_sweep,
+    "box_slide": _render_box_slide,
     "karaoke_sentence_box": _render_karaoke_sentence_box,
     "dynamic_highlight": _render_dynamic_highlight,
     "tiktok_box_group": _render_tiktok_box_group,

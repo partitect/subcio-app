@@ -576,6 +576,24 @@ class KaraokeSentenceEffect:
         pass
 
 
+class KaraokeSentenceFillEffect:
+    """Sentence-group karaoke with fill effect - word fills with color from left to right."""
+    def __init__(self):
+        pass
+
+
+class UnderlineSweepEffect:
+    """Underline sweeps under active word from left to right."""
+    def __init__(self):
+        pass
+
+
+class BoxSlideEffect:
+    """Box slides smoothly between words."""
+    def __init__(self):
+        pass
+
+
 class KaraokeSentenceBoxEffect:
     """Sentence-group karaoke with box highlight on active word."""
     def __init__(self):
@@ -907,6 +925,9 @@ class PyonFXRenderer(PyonFXRenderMixin):
         "karaoke_classic": KaraokeClassicEffect,
         "karaoke_pro": KaraokeProEffect,
         "karaoke_sentence": KaraokeSentenceEffect,
+        "karaoke_sentence_fill": KaraokeSentenceFillEffect,
+        "underline_sweep": UnderlineSweepEffect,
+        "box_slide": BoxSlideEffect,
         "karaoke_sentence_box": KaraokeSentenceBoxEffect,
         "dynamic_highlight": DynamicHighlightEffect,
         "tiktok_box_group": TikTokBoxGroupEffect,

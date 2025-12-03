@@ -1,0 +1,52 @@
+🎤 Karaoke Efektleri
+1. Karaoke Outline Fill (karaoke_outline_fill)
+Kelime dolmak yerine, sadece outline (kenar çizgisi) soldan sağa dolar
+İç kısım boş kalır, sadece kenar renklenir
+2. Karaoke Glow (karaoke_glow)
+Aktif kelime parlarken (glow efekti) dolar
+Blur + renk değişimi kombinasyonu
+3. Karaoke Wave Fill (karaoke_wave_fill)
+Kelime dolarken dalgalı hareket eder
+\kf + \t(\frz) kombinasyonu
+4. Karaoke Bounce Fill (karaoke_bounce_fill)
+Her kelime dolarken hafif zıplar
+Fill + scale animasyonu
+5. Karaoke Color Cycle (karaoke_color_cycle)
+Dolmuş kelimeler gökkuşağı gibi renk değiştirir
+\t(\1c) ile renk geçişleri
+✨ Highlight/Vurgu Efektleri
+6. Pulse Highlight (pulse_highlight)
+Aktif kelime nabız gibi büyüyüp küçülür
+Scale animasyonu (100% → 120% → 100%)
+7. Underline Sweep (underline_sweep)
+Kelimenin altında çizgi soldan sağa kayar
+Drawing ile alt çizgi animasyonu
+8. Box Slide (box_slide)
+Kutu kelimeler arasında kayarak geçer
+Mevcut karaoke_sentence_box gibi ama daha smooth
+9. Spotlight (spotlight)
+Aktif kelime parlak, diğerleri karanlık/blur
+Alpha + blur kombinasyonu
+10. 3D Flip (flip_3d)
+Kelime 3D dönerek aktif olur
+\frx, \fry rotasyon animasyonları
+🌈 Renk Efektleri
+11. Rainbow Text (rainbow_karaoke)
+Her harf farklı renkte, dolarken gökkuşağı efekti
+Harf bazlı renklendirme
+12. Neon Pulse (neon_pulse)
+Neon ışık gibi yanıp sönen efekt
+Blur + parlak renk + alpha animasyonu
+13. Gradient Fill (gradient_fill)
+Kelime tek renkle değil, gradient ile dolar
+Birden fazla \1c geçişi
+🎬 Giriş/Çıkış Efektleri
+14. Typewriter Karaoke (typewriter_karaoke)
+Harfler tek tek yazılır (typewriter) + karaoke fill
+Karakter bazlı timing
+15. Fade Word (fade_word)
+Her kelime fade in ile gelir, fade out ile gider
+\fad + pozisyon animasyonu
+16. Slide In (slide_in_karaoke)
+Aktif kelime aşağıdan/yukarıdan kayarak gelir
+\move + karaoke

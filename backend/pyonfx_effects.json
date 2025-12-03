@@ -485,6 +485,21 @@
     "description": "Sentence-group karaoke fade",
     "config": {}
   },
+  "karaoke_sentence_fill": {
+    "name": "Karaoke Sentence Fill",
+    "description": "Sentence-group karaoke with smooth fill effect - word fills with color from left to right",
+    "config": {}
+  },
+  "underline_sweep": {
+    "name": "Underline Sweep",
+    "description": "Animated underline sweeps under each word from left to right",
+    "config": {}
+  },
+  "box_slide": {
+    "name": "Box Slide",
+    "description": "Colored box smoothly slides between words highlighting the active one",
+    "config": {}
+  },
   "karaoke_sentence_box": {
     "name": "Karaoke Sentence Box",
     "description": "Sentence-group karaoke with TikTok-style box highlight on active word",

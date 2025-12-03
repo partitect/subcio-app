@@ -1217,7 +1217,7 @@ async def get_effect_types():
             "comic": ["comic_book"],
             "pulse": ["pulse", "colorful"],
             "tiktok": ["tiktok_yellow_box", "tiktok_group", "tiktok_box_group"],
-            "karaoke": ["karaoke_classic", "karaoke_pro", "karaoke_sentence", "karaoke_sentence_box", "dynamic_highlight"],
+            "karaoke": ["karaoke_classic", "karaoke_pro", "karaoke_sentence", "karaoke_sentence_fill", "underline_sweep", "box_slide", "karaoke_sentence_box", "dynamic_highlight"],
             "kinetic": ["kinetic_bounce", "word_pop", "spin_3d", "shear_force"],
             "cinematic": ["cinematic_blur", "movie_credits", "old_film", "action_impact", "dramatic_reveal"],
             "text": ["typewriter_pro", "news_ticker", "double_shadow", "retro_arcade"],

@@ -32,8 +32,8 @@ const GROUP_BOX_EFFECT_TYPES = [
 
 // Effect types that are group presets (show 3 words with active in middle)
 const GROUP_EFFECT_TYPES = [
-  'karaoke_sentence', 'karaoke_sentence_box', 'karaoke_classic', 'karaoke_pro',
-  'tiktok_group', 'tiktok_box_group', 'dynamic_highlight'
+  'karaoke_sentence', 'karaoke_sentence_fill', 'karaoke_sentence_box', 'karaoke_classic', 'karaoke_pro',
+  'tiktok_group', 'tiktok_box_group', 'dynamic_highlight', 'underline_sweep', 'box_slide'
 ];
 
 // Effect types that use box on ALL words
