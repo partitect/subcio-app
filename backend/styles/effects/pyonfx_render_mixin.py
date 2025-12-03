@@ -43,6 +43,49 @@ class PyonFXRenderMixin:
         
         return cx, cy
 
+    def _create_word_groups(self, max_words: int = 3, min_words: int = 2) -> List[List[dict]]:
+        """Helper: Create dynamic word groups (2-3 words per group) respecting screen width."""
+        font_size = int(self.style.get("font_size", 72))
+        letter_spacing = int(self.style.get("letter_spacing", 0))
+        screen_width = 1920
+        max_text_width = screen_width * 0.85
+        char_width = font_size * 0.55 + letter_spacing
+        
+        groups = []
+        i = 0
+        words_list = self.words
+        
+        while i < len(words_list):
+            group = []
+            group_text_len = 0
+            
+            while i < len(words_list) and len(group) < max_words:
+                word_text = words_list[i].get("text", "") or ""
+                word_len = len(word_text) * char_width
+                space_width = char_width if group else 0
+                
+                if group_text_len + space_width + word_len > max_text_width and len(group) >= min_words:
+                    break
+                
+                group.append(words_list[i])
+                group_text_len += space_width + word_len
+                i += 1
+                
+                if len(group) >= min_words and i < len(words_list):
+                    next_word_text = words_list[i].get("text", "") or ""
+                    next_word_len = len(next_word_text) * char_width
+                    if group_text_len + char_width + next_word_len > max_text_width:
+                        break
+            
+            if len(group) == 1 and i < len(words_list):
+                group.append(words_list[i])
+                i += 1
+            
+            if group:
+                groups.append(group)
+        
+        return groups
+
     def render_ass_header(self) -> str:
         """Generate ASS file header"""
         primary = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))

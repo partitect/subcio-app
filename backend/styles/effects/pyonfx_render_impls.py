@@ -1217,27 +1217,70 @@ def _render_news_ticker(self) -> str:
     return "\n".join(lines)
 
 def _render_tiktok_group(self) -> str:
-    """Previous/current/next grouped emphasis."""
-    lines = [self.render_ass_header()]
+    """Dynamic word grouping with current word emphasis (yellow, larger)."""
     cx, cy = self._get_center_coordinates()
-    words = self.words
-    for i, word in enumerate(words):
-        start_ms = int(word.get("start", 0) * 1000)
-        end_ms = int(word.get("end", start_ms / 1000) * 1000)
-        parts = []
-        if i > 0:
-            prev = (words[i - 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
-            parts.append(f"{{\\alpha&H80&\\fscx90\\fscy90}}{prev}")
-        curr = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
-        parts.append(f"{{\\alpha&H00&\\fscx120\\fscy120\\1c&HFFFF00&\\blur3}}{curr}")
-        if i < len(words) - 1:
-            nxt = (words[i + 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
-            parts.append(f"{{\\alpha&H80&\\fscx90\\fscy90}}{nxt}")
-        full = " ".join(parts)
-        lines.append(
-            f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\fad(100,100)}}{full}"
-        )
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    groups = self._create_word_groups()
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: yellow, larger, with blur
+                    text_parts.append(
+                        f"{{\\1c&HFFFF00&\\alpha&H00&\\fscx120\\fscy120\\blur3}}{word_text}{{\\fscx100\\fscy100\\blur0\\1c{primary_color}}}"
+                    )
+                else:
+                    # Inactive word: dimmed
+                    text_parts.append(f"{{\\alpha&H80&\\fscx90\\fscy90}}{word_text}{{\\alpha&H00&\\fscx100\\fscy100}}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(80,80)}}{full_text}"
+            )
+    
     return "\n".join(lines)
 
 def _render_spin_3d(self) -> str:
@@ -1293,58 +1336,144 @@ def _render_double_shadow(self) -> str:
     return "\n".join(lines)
 
 def _render_karaoke_classic(self) -> str:
-    """Current word bright, neighbors dimmed."""
-    lines = [self.render_ass_header()]
+    """Dynamic word grouping with current word bright (yellow, larger), neighbors dimmed."""
     cx, cy = self._get_center_coordinates()
-    words = self.words
-    for i, word in enumerate(words):
-        start_ms = int(word.get("start", 0) * 1000)
-        end_ms = int(word.get("end", start_ms / 1000) * 1000)
-        parts = []
-        if i > 0:
-            prev = (words[i - 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
-            parts.append(f"{{\\alpha&HA0&\\fscx85\\fscy85}}{prev}")
-        curr = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
-        parts.append(f"{{\\alpha&H00&\\fscx130\\fscy130\\1c&HFFFF00&\\blur4}}{curr}")
-        if i < len(words) - 1:
-            nxt = (words[i + 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
-            parts.append(f"{{\\alpha&HA0&\\fscx85\\fscy85}}{nxt}")
-        full = " ".join(parts)
-        lines.append(
-            f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\fad(80,80)}}{full}"
-        )
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    groups = self._create_word_groups()
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: yellow, larger, with blur
+                    text_parts.append(
+                        f"{{\\1c&HFFFF00&\\alpha&H00&\\fscx130\\fscy130\\blur4}}{word_text}{{\\fscx100\\fscy100\\blur0\\1c{primary_color}}}"
+                    )
+                else:
+                    # Inactive word: dimmed
+                    text_parts.append(f"{{\\alpha&HA0&\\fscx85\\fscy85}}{word_text}{{\\alpha&H00&\\fscx100\\fscy100}}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(80,80)}}{full_text}"
+            )
+    
     return "\n".join(lines)
 
 def _render_karaoke_pro(self) -> str:
-    """Past/future colorization with scale bump on current."""
-    lines = [self.render_ass_header()]
+    """Dynamic word grouping with past/current/future colors and scale animation on current word."""
     cx, cy = self._get_center_coordinates()
-    words = self.words
-    color_past = self.style.get("color_past", "&H00808080")
-    color_future = self.style.get("color_future", "&H00808080")
-    outline_past = self.style.get("outline_past", "&H00000000")
-    outline_future = self.style.get("outline_future", "&H00000000")
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    color_past = hex_to_ass(self.style.get("color_past", "&H00808080"))
+    color_future = hex_to_ass(self.style.get("color_future", "&H00808080"))
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
 
-    for i, word in enumerate(words):
-        start_ms = int(word.get("start", 0) * 1000)
-        end_ms = int(word.get("end", start_ms / 1000) * 1000)
-        dur = max(1, end_ms - start_ms)
-        line_parts = []
-        for w_idx, w in enumerate(words):
-            txt = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
-            if w_idx < i:
-                style = f"\\1c{hex_to_ass(color_past)}\\3c{hex_to_ass(outline_past)}"
-            elif w_idx == i:
-                style = f"\\1c{hex_to_ass(self.style.get('primary_color', '&H00FFFFFF'))}\\3c{hex_to_ass(self.style.get('outline_color', '&H00000000'))}\\t(0,100,\\fscx115\\fscy115)\\t(100,{dur},\\fscx100\\fscy100)"
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    groups = self._create_word_groups()
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            dur = max(1, word_end_ms - word_start_ms)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
             else:
-                style = f"\\1c{hex_to_ass(color_future)}\\3c{hex_to_ass(outline_future)}"
-            line_parts.append(f"{{{style}}}{txt}")
-        full = " ".join(line_parts)
-        lines.append(
-            f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})}}{full}"
-        )
+                line_end_ms = word_end_ms
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx < word_idx:
+                    # Past word: past color, dimmed
+                    text_parts.append(f"{{\\1c{color_past}\\alpha&H60&\\fscx90\\fscy90}}{word_text}{{\\alpha&H00&\\fscx100\\fscy100}}")
+                elif idx == word_idx:
+                    # Current word: primary color with scale animation
+                    text_parts.append(
+                        f"{{\\1c{primary_color}\\3c{outline_color}\\alpha&H00&\\t(0,100,\\fscx115\\fscy115)\\t(100,{dur},\\fscx100\\fscy100)}}{word_text}"
+                    )
+                else:
+                    # Future word: future color, dimmed
+                    text_parts.append(f"{{\\1c{color_future}\\alpha&H60&\\fscx90\\fscy90}}{word_text}{{\\alpha&H00&\\fscx100\\fscy100}}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(80,80)}}{full_text}"
+            )
+    
     return "\n".join(lines)
 
 def _render_karaoke_sentence(self) -> str:
@@ -1377,13 +1506,6 @@ def _render_karaoke_sentence(self) -> str:
     outline_color = outline_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
     outline_color = f"&H{outline_color.upper()}&"
     
-    # Screen width for dynamic grouping (1920 default)
-    screen_width = 1920
-    max_text_width = screen_width * 0.85  # Use 85% of screen width
-    
-    # Estimate character width for grouping calculation
-    char_width = font_size * 0.55 + letter_spacing
-    
     # Header
     header = f"""[Script Info]
 ScriptType: v4.00+
@@ -1400,47 +1522,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     
     lines: List[str] = [header]
     
-    # Dynamic grouping: min 2, max 3 words per group, respecting screen width
-    def create_groups(words_list):
-        groups = []
-        i = 0
-        while i < len(words_list):
-            group = []
-            group_text_len = 0
-            
-            # Try to add 2-3 words to group
-            while i < len(words_list) and len(group) < 3:
-                word_text = words_list[i].get("text", "") or ""
-                word_len = len(word_text) * char_width
-                
-                # Check if adding this word exceeds max width
-                space_width = char_width if group else 0
-                if group_text_len + space_width + word_len > max_text_width and len(group) >= 2:
-                    break
-                
-                group.append(words_list[i])
-                group_text_len += space_width + word_len
-                i += 1
-                
-                # If we have 2 words and next would exceed, stop
-                if len(group) >= 2:
-                    if i < len(words_list):
-                        next_word_text = words_list[i].get("text", "") or ""
-                        next_word_len = len(next_word_text) * char_width
-                        if group_text_len + char_width + next_word_len > max_text_width:
-                            break
-            
-            # Ensure minimum 2 words if possible
-            if len(group) == 1 and i < len(words_list):
-                group.append(words_list[i])
-                i += 1
-            
-            if group:
-                groups.append(group)
-        
-        return groups
-    
-    groups = create_groups(self.words)
+    # Use shared helper for dynamic grouping
+    groups = self._create_word_groups()
     
     # Generate dialogue lines for each group
     for group in groups:
@@ -1454,7 +1537,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         # but highlighting only the active word
         for word_idx, active_word in enumerate(group):
             word_start_ms = int(active_word.get("start", 0) * 1000)
-            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            # Calculate end time: next word's start or group end for last word
+            if word_idx < len(group) - 1:
+                # Not last word: end when next word starts
+                next_word_start_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+                line_end_ms = next_word_start_ms
+            else:
+                # Last word: end when the word (and group) ends
+                line_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
             
             # Build the text with inline style overrides
             text_parts = []
@@ -1474,7 +1565,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             full_text = " ".join(text_parts)
             
             lines.append(
-                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(word_end_ms)},Default,,0,0,0,,"
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
                 f"{{\\an5\\pos({cx},{cy})}}{full_text}"
             )
     
@@ -1523,13 +1614,6 @@ def _render_karaoke_sentence_box(self) -> str:
     # Transition duration in ms
     transition_ms = 150
     
-    # Screen width for dynamic grouping (1920 default)
-    screen_width = 1920
-    max_text_width = screen_width * 0.85
-    
-    # Estimate character width for grouping calculation only
-    char_width = font_size * 0.55 + letter_spacing
-    
     # Header with styles
     header = f"""[Script Info]
 ScriptType: v4.00+
@@ -1546,43 +1630,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     
     lines: List[str] = [header]
     
-    # Dynamic grouping: min 2, max 3 words per group
-    def create_groups(words_list):
-        groups = []
-        i = 0
-        while i < len(words_list):
-            group = []
-            group_text_len = 0
-            
-            while i < len(words_list) and len(group) < 3:
-                word_text = words_list[i].get("text", "") or ""
-                word_len = len(word_text) * char_width
-                
-                space_width = char_width if group else 0
-                if group_text_len + space_width + word_len > max_text_width and len(group) >= 2:
-                    break
-                
-                group.append(words_list[i])
-                group_text_len += space_width + word_len
-                i += 1
-                
-                if len(group) >= 2:
-                    if i < len(words_list):
-                        next_word_text = words_list[i].get("text", "") or ""
-                        next_word_len = len(next_word_text) * char_width
-                        if group_text_len + char_width + next_word_len > max_text_width:
-                            break
-            
-            if len(group) == 1 and i < len(words_list):
-                group.append(words_list[i])
-                i += 1
-            
-            if group:
-                groups.append(group)
-        
-        return groups
-    
-    groups = create_groups(self.words)
+    # Use shared helper for dynamic grouping
+    groups = self._create_word_groups()
     
     # Generate dialogue lines for each group
     for group in groups:
@@ -1597,6 +1646,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             word_start_ms = int(active_word.get("start", 0) * 1000)
             word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
             word_dur = max(1, word_end_ms - word_start_ms)
+            
+            # Calculate end time: next word's start or group end for last word
+            if word_idx < len(group) - 1:
+                # Not last word: end when next word starts
+                next_word_start_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+                line_end_ms = next_word_start_ms
+            else:
+                # Last word: end when the word (and group) ends
+                line_end_ms = word_end_ms
             
             # Build text with inline styles - all words in one line
             # Inactive words: normal style
@@ -1634,38 +1692,79 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             full_text = " ".join(text_parts)
             
             lines.append(
-                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(word_end_ms)},Default,,0,0,0,,"
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
                 f"{{\\an5\\pos({cx},{cy})}}{full_text}"
             )
     
     return "\n".join(lines)
 
 def _render_dynamic_highlight(self) -> str:
-    """Highlight current word using secondary color, neighbors normal."""
-    lines = [self.render_ass_header()]
+    """Dynamic word grouping with highlight transition (primary to secondary) on current word."""
     cx, cy = self._get_center_coordinates()
-    words = self.words
-    primary = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
-    secondary = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
-    for i, word in enumerate(words):
-        start_ms = int(word.get("start", 0) * 1000)
-        end_ms = int(word.get("end", start_ms / 1000) * 1000)
-        parts = []
-        if i > 0:
-            prev_txt = (words[i - 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
-            parts.append(f"{{\\1c{primary}}}{prev_txt}")
-        current = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
-        parts.append(
-            f"{{\\1c{primary}\\t(0,150,\\1c{secondary})\\t({max(end_ms-start_ms-150,0)},{end_ms-start_ms},\\1c{primary})}}{current}"
-        )
-        if i < len(words) - 1:
-            next_txt = (words[i + 1].get("text") or "").replace("{", r"\{").replace("}", r"\}")
-            parts.append(f"{{\\1c{primary}}}{next_txt}")
-        full = " ".join(parts)
-        lines.append(
-            f"Dialogue: 1,{self._ms_to_timestamp(start_ms)},{self._ms_to_timestamp(end_ms)},Default,,0,0,0,,"
-            f"{{\\an5\\pos({cx},{cy})\\fad(100,100)}}{full}"
-        )
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = self.style.get("bold", 1)
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    groups = self._create_word_groups()
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: animate color from primary to secondary and back
+                    text_parts.append(
+                        f"{{\\1c{primary_color}\\t(0,150,\\1c{secondary_color})\\t({max(word_dur-150,0)},{word_dur},\\1c{primary_color})}}{word_text}"
+                    )
+                else:
+                    # Other words: primary color
+                    text_parts.append(f"{{\\1c{primary_color}}}{word_text}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})\\fad(100,100)}}{full_text}"
+            )
+    
     return "\n".join(lines)
 
 def _render_tiktok_box_group(self) -> str:

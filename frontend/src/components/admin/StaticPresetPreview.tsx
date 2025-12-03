@@ -22,11 +22,22 @@ export interface StaticPresetPreviewRef {
   captureAsImage: () => Promise<string | null>;
 }
 
-// Sample words for preview - mix of styles like ClipMagic
-const SAMPLE_WORDS = ['Sample', 'Text'];
+// Sample words for preview - 3 words to show prev/current/next
+const SAMPLE_WORDS = ['ses', 'yok', 'Peki'];
 
-// Effect types that use box/highlight style
-const BOX_EFFECT_TYPES = ['box', 'highlight', 'karaoke', 'word_box', 'sentence_box', 'group_box'];
+// Effect types that use box/highlight style on active word (group presets with box)
+const GROUP_BOX_EFFECT_TYPES = [
+  'karaoke_sentence_box', 'tiktok_box_group'
+];
+
+// Effect types that are group presets (show 3 words with active in middle)
+const GROUP_EFFECT_TYPES = [
+  'karaoke_sentence', 'karaoke_sentence_box', 'karaoke_classic', 'karaoke_pro',
+  'tiktok_group', 'tiktok_box_group', 'dynamic_highlight'
+];
+
+// Effect types that use box on ALL words
+const BOX_EFFECT_TYPES = ['box', 'highlight', 'word_box', 'tiktok_yellow_box', 'tiktok_box'];
 
 // Effect type to icon mapping
 const EFFECT_ICONS: Record<string, React.ElementType> = {
@@ -61,11 +72,25 @@ function getEffectIcon(effectType: string | undefined): React.ElementType | null
   return null;
 }
 
-// Check if effect uses box style
+// Check if effect uses box style on all words
 function usesBoxStyle(effectType: string | undefined): boolean {
   if (!effectType) return false;
   const lower = effectType.toLowerCase();
   return BOX_EFFECT_TYPES.some(t => lower.includes(t));
+}
+
+// Check if effect is a group preset (shows 3 words)
+function isGroupPreset(effectType: string | undefined): boolean {
+  if (!effectType) return false;
+  const lower = effectType.toLowerCase();
+  return GROUP_EFFECT_TYPES.some(t => lower.includes(t));
+}
+
+// Check if effect is a group preset with box on active word
+function isGroupBoxPreset(effectType: string | undefined): boolean {
+  if (!effectType) return false;
+  const lower = effectType.toLowerCase();
+  return GROUP_BOX_EFFECT_TYPES.some(t => lower.includes(t));
 }
 
 // Check if effect uses gradient
@@ -73,6 +98,11 @@ function usesGradient(effectType: string | undefined): boolean {
   if (!effectType) return false;
   const lower = effectType.toLowerCase();
   return lower.includes('gradient') || lower.includes('rainbow') || lower.includes('neon');
+}
+
+// Check if preset has past/future colors (karaoke_pro style)
+function hasKaraokeColors(preset: StyleConfig): boolean {
+  return !!(preset.color_past || preset.color_future);
 }
 
 // Convert ASS color to CSS rgba - memoized outside component
@@ -254,9 +284,32 @@ const StaticPresetPreviewComponent = forwardRef<StaticPresetPreviewRef, StaticPr
       ? [sampleText] 
       : (showMultipleWords ? SAMPLE_WORDS : [SAMPLE_WORDS[0]]);
     
-    // Check for box/highlight style
+    // Check for box/highlight style (all words)
     const hasBoxStyle = usesBoxStyle(preset.effect_type);
-    const boxColor = assColorToCss(preset.secondary_color || preset.back_color, 0.85);
+    
+    // Check for group preset types
+    const isGroupBox = isGroupBoxPreset(preset.effect_type);
+    const isGroup = isGroupPreset(preset.effect_type);
+    
+    // Colors for inactive words in karaoke-style presets
+    const colorPast = preset.color_past as string | undefined;
+    const colorFuture = preset.color_future as string | undefined;
+    const inactiveColor = colorPast || colorFuture 
+      ? assColorToCss(colorPast || colorFuture || '')
+      : null;
+    
+    // Box color - use back_color for group presets (usually yellow), secondary for others
+    const boxColor = isGroupBox
+      ? assColorToCss(preset.back_color || preset.secondary_color || '&H0000FFFF', 1)
+      : assColorToCss(preset.secondary_color || preset.back_color, 0.85);
+    
+    // Text color inside box for group presets (usually dark/black)
+    const boxTextColor = isGroupBox 
+      ? assColorToCss(preset.secondary_color || '&H00000000', 1) 
+      : primaryColor;
+    
+    // Active word index for group presets (middle word)
+    const activeWordIndex = Math.floor(words.length / 2);
     
     // Check for gradient style
     const hasGradient = usesGradient(preset.effect_type);
@@ -329,49 +382,100 @@ const StaticPresetPreviewComponent = forwardRef<StaticPresetPreviewRef, StaticPr
           </Tooltip>
         )}
         
-        {words.map((word, index) => (
-          <Typography
-            key={index}
-            component="span"
-            sx={{
-              fontFamily: fontReady && fontName ? `"${fontName}", sans-serif` : 'sans-serif',
-              fontSize: `${scaledFontSize}px`,
-              fontWeight: preset.bold ? 700 : 400,
-              fontStyle: preset.italic ? 'italic' : 'normal',
-              // Gradient text or solid color
-              ...(hasGradient ? {
-                background: gradientColors,
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                color: 'transparent',
-              } : {
-                // Word highlighting: second word uses secondary color
-                color: index === 1 && showMultipleWords ? secondaryColor : primaryColor,
-              }),
-              textShadow: hasGradient ? 'none' : (textShadow || 'none'),
-              letterSpacing: '0.02em',
-              whiteSpace: 'nowrap',
-              // Box/Highlight effect
-              ...(hasBoxStyle && {
-                bgcolor: boxColor,
-                px: 1,
-                py: 0.25,
-                borderRadius: 0.5,
-              }),
-              // Add slight blur effect if specified
-              filter: preset.blur ? `blur(${Math.min(preset.blur, 2)}px)` : 'none',
-              // Prevent text selection
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
-              // Smooth appearance - no opacity toggle on re-renders
-              opacity: showSkeleton ? 0 : 1,
-              transition: showSkeleton ? 'opacity 0.2s ease-in-out' : 'none',
-            }}
-          >
-            {word}
-          </Typography>
-        ))}
+        {words.map((word, index) => {
+          // For group presets: active word (middle) gets special treatment
+          const isActiveWord = isGroup && index === activeWordIndex;
+          const isInactiveGroupWord = isGroup && index !== activeWordIndex;
+          
+          // Determine text color based on preset type and word position
+          const getWordColor = () => {
+            // Gradient presets
+            if (hasGradient) return undefined; // Will use gradient background
+            
+            // Group preset with box on active word
+            if (isActiveWord && isGroupBox) {
+              return boxTextColor; // Dark text on colored box
+            }
+            
+            // Active word in group (not box)
+            if (isActiveWord) {
+              // For karaoke_pro: active word uses primary_color (white), inactive uses color_past/future (gray)
+              if (inactiveColor) {
+                return primaryColor;
+              }
+              // For karaoke_classic/sentence: active word uses secondary_color (yellow)
+              return secondaryColor;
+            }
+            
+            // Inactive word in group preset
+            if (isInactiveGroupWord) {
+              // If preset has color_past/color_future (like karaoke_pro), use those
+              if (inactiveColor) {
+                return inactiveColor;
+              }
+              // For karaoke_sentence/classic etc, inactive words use primary color (white)
+              return primaryColor;
+            }
+            
+            // Regular presets (non-group): highlight second word with secondary color
+            if (index === 1 && showMultipleWords && !isGroup) {
+              return secondaryColor;
+            }
+            
+            return primaryColor;
+          };
+          
+          return (
+            <Typography
+              key={index}
+              component="span"
+              sx={{
+                fontFamily: fontReady && fontName ? `"${fontName}", sans-serif` : 'sans-serif',
+                fontSize: `${scaledFontSize}px`,
+                fontWeight: preset.bold ? 700 : 400,
+                fontStyle: preset.italic ? 'italic' : 'normal',
+                // Color logic
+                ...(hasGradient ? {
+                  background: gradientColors,
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  color: 'transparent',
+                } : {
+                  color: getWordColor(),
+                }),
+                // Text shadow (not for active word with box - it has background)
+                textShadow: hasGradient || (isActiveWord && isGroupBox) ? 'none' : (textShadow || 'none'),
+                letterSpacing: '0.02em',
+                whiteSpace: 'nowrap',
+                // Box styling - only for group box presets on active word
+                ...(isActiveWord && isGroupBox ? {
+                  bgcolor: boxColor,
+                  px: 1.5,
+                  py: 0.3,
+                  borderRadius: '6px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                } : hasBoxStyle ? {
+                  // Regular box effect: all words get box
+                  bgcolor: boxColor,
+                  px: 1,
+                  py: 0.25,
+                  borderRadius: 0.5,
+                } : {}),
+                // Add slight blur effect if specified
+                filter: preset.blur ? `blur(${Math.min(preset.blur, 2)}px)` : 'none',
+                // Prevent text selection
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                // Smooth appearance - no opacity toggle on re-renders
+                opacity: showSkeleton ? 0 : 1,
+                transition: showSkeleton ? 'opacity 0.2s ease-in-out' : 'none',
+              }}
+            >
+              {word}
+            </Typography>
+          );
+        })}
       </Box>
     );
   }
