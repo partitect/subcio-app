@@ -48,7 +48,7 @@ import {
   styleToAssColors,
 } from "../utils/colorConvert";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 // Types
 type Preset = StyleConfig & { label?: string };
@@ -263,7 +263,7 @@ export default function EditorPage() {
   const resolvedVideoUrl = useMemo(() => {
     if (!videoUrl) return "";
     if (videoUrl.startsWith("http")) return videoUrl;
-    const apiBase = (import.meta.env.VITE_API_BASE || "http://localhost:8000/api").replace(/\/api$/, "");
+    const apiBase = (import.meta.env.VITE_API_URL || "http://localhost:8000/api").replace(/\/api$/, "");
     if (videoUrl.startsWith("/projects/")) {
       const streamPath = videoUrl.replace("/projects/", "/stream/");
       return `${apiBase}${streamPath}`;
@@ -274,7 +274,7 @@ export default function EditorPage() {
   const resolvedAudioUrl = useMemo(() => {
     if (!audioUrl) return "";
     if (audioUrl.startsWith("http")) return audioUrl;
-    const apiBase = (import.meta.env.VITE_API_BASE || "http://localhost:8000/api").replace(/\/api$/, "");
+    const apiBase = (import.meta.env.VITE_API_URL || "http://localhost:8000/api").replace(/\/api$/, "");
     if (audioUrl.startsWith("/projects/")) {
       const streamPath = audioUrl.replace("/projects/", "/stream/");
       return `${apiBase}${streamPath}`;

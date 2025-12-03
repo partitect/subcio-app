@@ -52,7 +52,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getUsageStats, UsageStats } from "../services/authService";
 import BatchExportDialog from "../components/BatchExportDialog";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<ProjectMeta[]>([]);

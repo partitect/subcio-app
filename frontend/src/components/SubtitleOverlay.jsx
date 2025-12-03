@@ -270,7 +270,8 @@ export let stylePool = [];
 // Load stylePool from backend
 export const loadStylePool = async () => {
   try {
-    const response = await fetch('http://localhost:8000/api/presets');
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const response = await fetch(`${API_BASE}/presets`);
     if (response.ok) {
       const presets = await response.json();
       stylePool = presets.map(preset => ({

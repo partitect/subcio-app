@@ -4,7 +4,7 @@ import axios from "axios";
 import JASSUB from 'jassub';
 import { StyleConfig } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const assToCssColor = (val?: string, fallback = "#ffffff") => {
     if (!val) return fallback;

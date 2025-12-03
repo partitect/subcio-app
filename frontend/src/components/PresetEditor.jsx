@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import html2canvas from "html2canvas";
 import { Link } from "react-router-dom";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const colorPalettes = [
   { name: "Fire", primary: "#ff7a2b", outline: "#1f0a00", shadow: "#0c0505" },

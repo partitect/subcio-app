@@ -58,7 +58,7 @@ import { Navbar } from "../components/landing";
 import { getUsageStats, UsageStats } from "../services/authService";
 import { ProjectMeta } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const WHISPER_MODELS = [
   { id: "tiny", name: "Tiny", speed: "Fastest", accuracy: "Basic", recommended: false },

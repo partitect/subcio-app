@@ -11,7 +11,7 @@ import axios from 'axios';
 import { StyleConfig } from '../../types';
 import { styleToAssColors } from '../../utils/colorConvert';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Demo video
 const DEMO_VIDEO = '/test-video/export_7ea10b8f2a224be0953d0792b13f7605.mp4';
