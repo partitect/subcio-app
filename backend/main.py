@@ -747,6 +747,21 @@ def load_project(project_id: str) -> dict:
 # -----------------------------------------------------------------------------
 app = FastAPI(title="Subcio API", version="1.0.0")
 
+# CORS Configuration - Must be added early, before other middleware
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+# Strip whitespace from origins
+ALLOWED_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS]
+print(f"[INFO] CORS enabled for origins: {ALLOWED_ORIGINS}")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["*"],
+    allow_credentials=True,
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
+
 # Health check endpoint for production monitoring
 @app.get("/health")
 async def health_check():
@@ -815,16 +830,7 @@ async def security_middleware(request: Request, call_next):
     
     return response
 
-# CORS Configuration from environment
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_methods=["*"],
-    allow_credentials=True,
-    allow_headers=["*"],
-)
+# Projects static files with CORS
 projects_static = StaticFiles(directory=PROJECTS_DIR)
 projects_cors = CORSMiddleware(
     app=projects_static,
