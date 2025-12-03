@@ -74,7 +74,7 @@ railway login
 ### Adım 3: GitHub Repo Bağla
 1. Railway Dashboard → "New Project"
 2. "Deploy from GitHub repo"
-3. `partitect/sub-gen-ai` seç
+3. `partitect/subcio-app` seç
 
 ### Adım 4: PostgreSQL Ekle
 1. Proje içinde "New" → "Database" → "PostgreSQL"
@@ -131,7 +131,7 @@ curl https://subcio-api-production.up.railway.app/health
 
 ### Adım 2: Yeni Site Oluştur
 1. "Add new site" → "Import an existing project"
-2. GitHub → `partitect/sub-gen-ai` seç
+2. GitHub → `partitect/subcio-app` seç
 
 ### Adım 3: Build Ayarları
 ```
