@@ -13,10 +13,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies
+# Install system dependencies (including PyonFX/Cairo dependencies and FFmpeg)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    g++ \
+    make \
     libpq-dev \
+    libcairo2-dev \
+    libgirepository1.0-dev \
+    pkg-config \
+    python3-dev \
+    gir1.2-pango-1.0 \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
