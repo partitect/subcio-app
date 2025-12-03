@@ -12,6 +12,11 @@ import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import SettingsPage from "./pages/SettingsPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
+import CookiePolicyPage from "./pages/CookiePolicyPage";
+import ContactPage from "./pages/ContactPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/admin";
 import {
@@ -35,6 +40,12 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        
+        {/* Legal & Info Pages */}
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/cookies" element={<CookiePolicyPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         
         {/* OAuth Callback Routes */}
         <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
@@ -103,8 +114,8 @@ export default function App() {
           </AdminRoute>
         } />
         
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Fallback - 404 Page */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AuthProvider>
     </ToastProvider>
