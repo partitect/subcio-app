@@ -490,6 +490,19 @@
     "description": "Sentence-group karaoke with smooth fill effect - word fills with color from left to right",
     "config": {}
   },
+  "karaoke_outline_fill": {
+    "name": "Karaoke Outline Fill",
+    "description": "Karaoke effect where only the outline fills from left to right - text interior stays hollow",
+    "config": {}
+  },
+  "karaoke_wave_fill": {
+    "name": "Karaoke Wave Fill",
+    "description": "Karaoke fill effect with wave/rotation animation - text sways while filling",
+    "config": {
+      "wave_angle": 3,
+      "wave_cycles": 2
+    }
+  },
   "underline_sweep": {
     "name": "Underline Sweep",
     "description": "Animated underline sweeps under each word from left to right",
@@ -767,6 +780,62 @@
   "party_mode": {
     "name": "Party Mode",
     "description": "Ultimate party with confetti, emojis, and rainbow colors",
+    "config": {}
+  },
+  
+  "karaoke_glow": {
+    "name": "Karaoke Glow",
+    "description": "Karaoke with glow effect while filling - blur + color change",
+    "config": {}
+  },
+  "karaoke_bounce_fill": {
+    "name": "Karaoke Bounce Fill",
+    "description": "Karaoke where each word bounces while filling - fill + scale animation",
+    "config": {}
+  },
+  "karaoke_color_cycle": {
+    "name": "Karaoke Color Cycle",
+    "description": "Karaoke where filled words cycle through rainbow colors",
+    "config": {}
+  },
+  "pulse_highlight": {
+    "name": "Pulse Highlight",
+    "description": "Active word pulses like a heartbeat - scale 100% to 120% to 100%",
+    "config": {}
+  },
+  "spotlight": {
+    "name": "Spotlight",
+    "description": "Active word is bright while others are dark/blurred - spotlight effect",
+    "config": {}
+  },
+  "flip_3d": {
+    "name": "Flip 3D",
+    "description": "Word flips in 3D to become active - frx, fry rotation animations",
+    "config": {}
+  },
+  "rainbow_karaoke": {
+    "name": "Rainbow Karaoke",
+    "description": "Each character has different color - rainbow effect per character",
+    "config": {}
+  },
+  "gradient_fill": {
+    "name": "Gradient Fill",
+    "description": "Word fills with gradient colors instead of single color",
+    "config": {}
+  },
+  "typewriter_karaoke": {
+    "name": "Typewriter Karaoke",
+    "description": "Characters appear one by one (typewriter) + karaoke fill",
+    "config": {}
+  },
+  "fade_word": {
+    "name": "Fade Word",
+    "description": "Each word fades in and out - fade + position animation",
+    "config": {}
+  },
+  "slide_in_karaoke": {
+    "name": "Slide In Karaoke",
+    "description": "Active word slides in from below/above - move + karaoke",
     "config": {}
   }
 }

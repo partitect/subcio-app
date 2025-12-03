@@ -582,6 +582,19 @@ class KaraokeSentenceFillEffect:
         pass
 
 
+class KaraokeOutlineFillEffect:
+    """Karaoke effect where only the outline fills from left to right - text interior stays hollow."""
+    def __init__(self):
+        pass
+
+
+class KaraokeWaveFillEffect:
+    """Karaoke fill effect with wave/rotation animation - text sways while filling."""
+    def __init__(self, wave_angle: float = 3, wave_cycles: int = 2):
+        self.wave_angle = wave_angle
+        self.wave_cycles = wave_cycles
+
+
 class UnderlineSweepEffect:
     """Underline sweeps under active word from left to right."""
     def __init__(self):
@@ -873,6 +886,63 @@ class PartyModeEffect:
         pass
 
 
+# New Karaoke Effects
+class KaraokeGlowEffect:
+    """Karaoke with glow effect while filling - blur + color change."""
+    def __init__(self):
+        pass
+
+class KaraokeBounceFillEffect:
+    """Karaoke where each word bounces while filling - fill + scale animation."""
+    def __init__(self):
+        pass
+
+class KaraokeColorCycleEffect:
+    """Karaoke where filled words cycle through rainbow colors."""
+    def __init__(self):
+        pass
+
+class PulseHighlightEffect:
+    """Active word pulses like a heartbeat - scale 100% -> 120% -> 100%."""
+    def __init__(self):
+        pass
+
+class SpotlightEffect:
+    """Active word is bright while others are dark/blurred - spotlight effect."""
+    def __init__(self):
+        pass
+
+class Flip3DEffect:
+    """Word flips in 3D to become active - frx, fry rotation animations."""
+    def __init__(self):
+        pass
+
+class RainbowKaraokeEffect:
+    """Each character has different color - rainbow effect per character."""
+    def __init__(self):
+        pass
+
+class GradientFillEffect:
+    """Word fills with gradient colors instead of single color."""
+    def __init__(self):
+        pass
+
+class TypewriterKaraokeEffect:
+    """Characters appear one by one (typewriter) + karaoke fill."""
+    def __init__(self):
+        pass
+
+class FadeWordEffect:
+    """Each word fades in and out - fade + position animation."""
+    def __init__(self):
+        pass
+
+class SlideInKaraokeEffect:
+    """Active word slides in from below/above - move + karaoke."""
+    def __init__(self):
+        pass
+
+
 class PyonFXRenderer(PyonFXRenderMixin):
     """
     Renderer for PyonFX effects within ASS subtitle format
@@ -926,6 +996,8 @@ class PyonFXRenderer(PyonFXRenderMixin):
         "karaoke_pro": KaraokeProEffect,
         "karaoke_sentence": KaraokeSentenceEffect,
         "karaoke_sentence_fill": KaraokeSentenceFillEffect,
+        "karaoke_outline_fill": KaraokeOutlineFillEffect,
+        "karaoke_wave_fill": KaraokeWaveFillEffect,
         "underline_sweep": UnderlineSweepEffect,
         "box_slide": BoxSlideEffect,
         "karaoke_sentence_box": KaraokeSentenceBoxEffect,
@@ -981,6 +1053,18 @@ class PyonFXRenderer(PyonFXRenderMixin):
         "balloon_pop": BalloonPopEffect,
         "jackpot_spin": JackpotSpinEffect,
         "party_mode": PartyModeEffect,
+        # New Karaoke Effects
+        "karaoke_glow": KaraokeGlowEffect,
+        "karaoke_bounce_fill": KaraokeBounceFillEffect,
+        "karaoke_color_cycle": KaraokeColorCycleEffect,
+        "pulse_highlight": PulseHighlightEffect,
+        "spotlight": SpotlightEffect,
+        "flip_3d": Flip3DEffect,
+        "rainbow_karaoke": RainbowKaraokeEffect,
+        "gradient_fill": GradientFillEffect,
+        "typewriter_karaoke": TypewriterKaraokeEffect,
+        "fade_word": FadeWordEffect,
+        "slide_in_karaoke": SlideInKaraokeEffect,
     }
     
     def __init__(self, words: List[Dict[str, Any]], style: Dict[str, Any]):

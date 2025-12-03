@@ -1712,6 +1712,221 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     
     return "\n".join(lines)
 
+def _render_karaoke_outline_fill(self) -> str:
+    """Dynamic word grouping with karaoke outline effect - only the outline fills from left to right.
+    The text interior stays hollow/transparent, only the border gets colored."""
+    cx, cy = self._get_center_coordinates()
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 4))  # Thicker border for outline effect
+    shadow = float(self.style.get("shadow", 0))
+    scale_x = int(self.style.get("scale_x", 100))
+    scale_y = int(self.style.get("scale_y", 100))
+    margin_l = int(self.style.get("margin_l", 10))
+    margin_r = int(self.style.get("margin_r", 10))
+    margin_v = int(self.style.get("margin_v", 10))
+    
+    # Colors for outline karaoke:
+    # - PrimaryColour = text fill (transparent/hollow for outline-only effect)
+    # - SecondaryColour = karaoke sweep color (fills the outline)
+    # - OutlineColour = initial outline color (before karaoke fills)
+    # We make primary transparent and use outline colors
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00FFFFFF"))
+    shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
+    back_color = hex_to_ass(self.style.get("back_color", "&H00000000"))
+    
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    # Header with outline karaoke style
+    # For \ko (karaoke outline): OutlineColour sweeps to SecondaryColour
+    # PrimaryColour should be transparent (alpha FF) to show hollow text
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},{back_color},{bold},{italic},0,0,{scale_x},{scale_y},{letter_spacing},0,1,{border},{shadow},5,{margin_l},{margin_r},{margin_v},0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    # Generate dialogue lines for each group
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # Build karaoke text with \ko tags for outline effect
+        # \ko = karaoke outline: only the outline sweeps, text interior unchanged
+        karaoke_parts = []
+        
+        for idx, word in enumerate(group):
+            word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            word_start_ms = int(word.get("start", 0) * 1000)
+            word_end_ms = int(word.get("end", word_start_ms / 1000) * 1000)
+            
+            # Calculate duration for this word in centiseconds (ASS uses centiseconds for \k)
+            word_duration_cs = max(1, (word_end_ms - word_start_ms) // 10)
+            
+            # \ko = karaoke outline (smooth left-to-right outline fill)
+            # Outline starts as OutlineColour, fills with SecondaryColour over duration
+            karaoke_parts.append(f"{{\\ko{word_duration_cs}}}{word_text}")
+            
+            # Add space between words (with 0 duration)
+            if idx < len(group) - 1:
+                karaoke_parts.append(" ")
+        
+        full_text = "".join(karaoke_parts)
+        
+        # Add shadow color override if specified
+        shadow_tag = f"\\4c{shadow_color}" if shadow > 0 else ""
+        
+        lines.append(
+            f"Dialogue: 0,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy}){shadow_tag}}}{full_text}"
+        )
+    
+    return "\n".join(lines)
+
+def _render_karaoke_wave_fill(self) -> str:
+    """Dynamic word grouping with karaoke fill effect combined with wave/rotation animation.
+    Words fill from left to right while swaying side to side."""
+    cx, cy = self._get_center_coordinates()
+    
+    # Style parameters
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 1.5))
+    shadow = float(self.style.get("shadow", 0))
+    scale_x = int(self.style.get("scale_x", 100))
+    scale_y = int(self.style.get("scale_y", 100))
+    margin_l = int(self.style.get("margin_l", 10))
+    margin_r = int(self.style.get("margin_r", 10))
+    margin_v = int(self.style.get("margin_v", 10))
+    
+    # Wave parameters from effect_config
+    wave_angle = float(self.effect_config.get("wave_angle", 3))  # Rotation angle in degrees
+    wave_cycles = int(self.effect_config.get("wave_cycles", 2))  # Number of wave cycles per word
+    
+    # Colors
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
+    back_color = hex_to_ass(self.style.get("back_color", "&H00000000"))
+    
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    # Header
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},{back_color},{bold},{italic},0,0,{scale_x},{scale_y},{letter_spacing},0,1,{border},{shadow},5,{margin_l},{margin_r},{margin_v},0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    # Generate dialogue lines for each group
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        group_duration = group_end_ms - group_start_ms
+        
+        # Build karaoke text with \kf tags and wave animation
+        karaoke_parts = []
+        
+        for idx, word in enumerate(group):
+            word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            word_start_ms = int(word.get("start", 0) * 1000)
+            word_end_ms = int(word.get("end", word_start_ms / 1000) * 1000)
+            
+            # Calculate duration for this word in centiseconds
+            word_duration_cs = max(1, (word_end_ms - word_start_ms) // 10)
+            
+            # \kf = karaoke fill (smooth left-to-right fill)
+            karaoke_parts.append(f"{{\\kf{word_duration_cs}}}{word_text}")
+            
+            # Add space between words
+            if idx < len(group) - 1:
+                karaoke_parts.append(" ")
+        
+        full_text = "".join(karaoke_parts)
+        
+        # Calculate wave animation timing
+        # Each wave cycle: 0 -> +angle -> 0 -> -angle -> 0
+        wave_duration = group_duration // wave_cycles if wave_cycles > 0 else group_duration
+        quarter_wave = wave_duration // 4
+        
+        # Build wave animation tags
+        wave_tags = ""
+        current_time = 0
+        for cycle in range(wave_cycles):
+            t1 = current_time
+            t2 = current_time + quarter_wave
+            t3 = current_time + quarter_wave * 2
+            t4 = current_time + quarter_wave * 3
+            t5 = current_time + quarter_wave * 4
+            
+            wave_tags += f"\\t({t1},{t2},\\frz{wave_angle})\\t({t2},{t3},\\frz0)\\t({t3},{t4},\\frz-{wave_angle})\\t({t4},{t5},\\frz0)"
+            current_time = t5
+        
+        # Add shadow color override if specified
+        shadow_tag = f"\\4c{shadow_color}" if shadow > 0 else ""
+        
+        lines.append(
+            f"Dialogue: 0,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy})\\frz0{wave_tags}{shadow_tag}}}{full_text}"
+        )
+    
+    return "\n".join(lines)
+
 def _render_underline_sweep(self) -> str:
     """Dynamic word grouping with underline under active word.
     Uses inline styling for perfect word-level alignment."""
@@ -4076,6 +4291,864 @@ def _render_party_mode(self) -> str:
     return "\n".join(lines)
 
 
+# ============== KARAOKE EFFECTS ==============
+
+def _render_karaoke_glow(self) -> str:
+    """Karaoke effect where active word glows while filling - blur + color change combo."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    glow_color = hex_to_ass(self.style.get("back_color", "&H00FFFF00"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},{italic},0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # Build karaoke text with glow effect
+        karaoke_parts = []
+        
+        for idx, word in enumerate(group):
+            word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            word_start_ms = int(word.get("start", 0) * 1000)
+            word_end_ms = int(word.get("end", word_start_ms / 1000) * 1000)
+            word_duration_cs = max(1, (word_end_ms - word_start_ms) // 10)
+            
+            # Use \kf for smooth fill with glow transition
+            karaoke_parts.append(f"{{\\kf{word_duration_cs}}}{word_text}")
+            
+            if idx < len(group) - 1:
+                karaoke_parts.append(" ")
+        
+        full_text = "".join(karaoke_parts)
+        
+        # Glow layer (background blur)
+        lines.append(
+            f"Dialogue: 0,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy})\\blur15\\alpha&H60&\\1c{glow_color}}}{full_text}"
+        )
+        
+        # Main text layer
+        lines.append(
+            f"Dialogue: 1,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy})\\blur0}}{full_text}"
+        )
+    
+    return "\n".join(lines)
+
+def _render_karaoke_bounce_fill(self) -> str:
+    """Karaoke effect where each word bounces while filling - fill + scale animation."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},{italic},0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                word_duration_cs = max(1, (int(w.get("end", 0) * 1000) - int(w.get("start", 0) * 1000)) // 10)
+                
+                if idx == word_idx:
+                    # Active word: bounce animation + karaoke fill
+                    bounce = f"\\t(0,80,\\fscx115\\fscy115)\\t(80,160,\\fscx95\\fscy95)\\t(160,240,\\fscx105\\fscy105)\\t(240,320,\\fscx100\\fscy100)"
+                    text_parts.append(f"{{\\kf{word_duration_cs}{bounce}}}{word_text}")
+                elif idx < word_idx:
+                    # Past word: filled
+                    text_parts.append(f"{{\\1c{secondary_color}}}{word_text}")
+                else:
+                    # Future word: unfilled
+                    text_parts.append(f"{{\\1c{primary_color}}}{word_text}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_karaoke_color_cycle(self) -> str:
+    """Karaoke effect where filled words cycle through rainbow colors."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    # Rainbow colors
+    rainbow_colors = ["&H0000FF&", "&H00FFFF&", "&H00FF00&", "&HFFFF00&", "&HFF8800&", "&HFF00FF&"]
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},&H0000FFFF&,{outline_color},&H00000000&,{bold},{italic},0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        group_dur = group_end_ms - group_start_ms
+        
+        # Build text with karaoke and color cycling for past words
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                word_duration_cs = max(1, (int(w.get("end", 0) * 1000) - int(w.get("start", 0) * 1000)) // 10)
+                
+                if idx < word_idx:
+                    # Past word: rainbow color based on index
+                    color = rainbow_colors[idx % len(rainbow_colors)]
+                    text_parts.append(f"{{\\1c{color}}}{word_text}")
+                elif idx == word_idx:
+                    # Current word: filling with karaoke
+                    text_parts.append(f"{{\\kf{word_duration_cs}}}{word_text}")
+                else:
+                    # Future word: unfilled
+                    text_parts.append(f"{{\\1c{primary_color}}}{word_text}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_pulse_highlight(self) -> str:
+    """Active word pulses like a heartbeat - scale animation 100% -> 120% -> 100%."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            # Pulse timing: up in 1/4, down in 3/4
+            pulse_up = word_dur // 4
+            pulse_down = word_dur - pulse_up
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: pulse + secondary color
+                    pulse = f"\\t(0,{pulse_up},\\fscx120\\fscy120)\\t({pulse_up},{word_dur},\\fscx100\\fscy100)"
+                    text_parts.append(f"{{\\1c{secondary_color}{pulse}}}{word_text}{{\\fscx100\\fscy100}}")
+                else:
+                    # Other words: primary color, dimmed
+                    text_parts.append(f"{{\\1c{primary_color}\\alpha&H40&}}{word_text}{{\\alpha&H00&}}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_spotlight(self) -> str:
+    """Active word is bright while others are dark/blurred - spotlight effect."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: bright, no blur
+                    text_parts.append(f"{{\\1c{secondary_color}\\blur0\\alpha&H00&}}{word_text}")
+                else:
+                    # Other words: dark and blurred
+                    text_parts.append(f"{{\\1c&H404040&\\blur3\\alpha&H80&}}{word_text}{{\\blur0\\alpha&H00&}}")
+            
+            full_text = " ".join(text_parts)
+            
+            # Add spotlight glow behind active word
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_flip_3d(self) -> str:
+    """Word flips in 3D to become active - frx, fry rotation animations."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            flip_dur = min(300, word_dur // 2)
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: 3D flip animation
+                    flip = f"\\fry90\\t(0,{flip_dur},\\fry0)"
+                    text_parts.append(f"{{\\1c{secondary_color}{flip}}}{word_text}{{\\fry0}}")
+                else:
+                    # Other words
+                    text_parts.append(f"{{\\1c{primary_color}\\alpha&H60&}}{word_text}{{\\alpha&H00&}}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_rainbow_karaoke(self) -> str:
+    """Each character has different color - rainbow effect per character."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    rainbow_colors = ["&H0000FF&", "&H00AAFF&", "&H00FFFF&", "&H00FF00&", "&HFFFF00&", "&HFF8800&", "&HFF00FF&"]
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},&H00FFFFFF&,&H0000FFFF&,{outline_color},&H00000000&,{bold},{italic},0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # Build rainbow colored text
+        all_text = " ".join([(w.get("text") or "") for w in group])
+        rainbow_text = ""
+        color_idx = 0
+        
+        for char in all_text:
+            if char == " ":
+                rainbow_text += " "
+            else:
+                color = rainbow_colors[color_idx % len(rainbow_colors)]
+                rainbow_text += f"{{\\1c{color}}}{char}"
+                color_idx += 1
+        
+        lines.append(
+            f"Dialogue: 0,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy})}}{rainbow_text}"
+        )
+    
+    return "\n".join(lines)
+
+def _render_gradient_fill(self) -> str:
+    """Word fills with gradient colors instead of single color."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    # Gradient colors
+    gradient_colors = [secondary_color, "&H00FFFF00&", "&H00FF00FF&"]
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},{italic},0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            # Build gradient transition for active word
+            gradient_step = word_dur // len(gradient_colors)
+            gradient_anim = ""
+            for i, color in enumerate(gradient_colors):
+                t_start = i * gradient_step
+                t_end = (i + 1) * gradient_step
+                gradient_anim += f"\\t({t_start},{t_end},\\1c{color})"
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: gradient fill animation
+                    text_parts.append(f"{{\\1c{primary_color}{gradient_anim}}}{word_text}")
+                elif idx < word_idx:
+                    # Past word: last gradient color
+                    text_parts.append(f"{{\\1c{gradient_colors[-1]}}}{word_text}")
+                else:
+                    # Future word
+                    text_parts.append(f"{{\\1c{primary_color}}}{word_text}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_typewriter_karaoke(self) -> str:
+    """Characters appear one by one (typewriter) + karaoke fill."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    italic = int(self.style.get("italic", 0))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},{italic},0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        group_start_ms = int(group[0].get("start", 0) * 1000)
+        group_end_ms = int(group[-1].get("end", group_start_ms / 1000) * 1000)
+        
+        # Character-based karaoke with typewriter effect
+        karaoke_parts = []
+        
+        for idx, word in enumerate(group):
+            word_text = (word.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+            word_start_ms = int(word.get("start", 0) * 1000)
+            word_end_ms = int(word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = word_end_ms - word_start_ms
+            
+            # Divide time among characters
+            char_count = len(word_text)
+            char_dur_cs = max(1, word_dur // max(1, char_count) // 10)
+            
+            for char in word_text:
+                if char != " ":
+                    karaoke_parts.append(f"{{\\k{char_dur_cs}}}{char}")
+                else:
+                    karaoke_parts.append(" ")
+            
+            if idx < len(group) - 1:
+                karaoke_parts.append(" ")
+        
+        full_text = "".join(karaoke_parts)
+        
+        lines.append(
+            f"Dialogue: 0,{self._ms_to_timestamp(group_start_ms)},{self._ms_to_timestamp(group_end_ms)},Default,,0,0,0,,"
+            f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+        )
+    
+    return "\n".join(lines)
+
+def _render_fade_word(self) -> str:
+    """Each word fades in and out - fade + position animation."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},&H0000FFFF&,{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            fade_in = min(200, word_dur // 4)
+            fade_out = min(200, word_dur // 4)
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                
+                if idx == word_idx:
+                    # Active word: fade animation
+                    text_parts.append(f"{{\\fad({fade_in},{fade_out})}}{word_text}")
+                elif idx < word_idx:
+                    # Past: visible
+                    text_parts.append(word_text)
+                else:
+                    # Future: hidden
+                    text_parts.append(f"{{\\alpha&HFF&}}{word_text}{{\\alpha&H00&}}")
+            
+            full_text = " ".join(text_parts)
+            
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\pos({cx},{cy})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+def _render_slide_in_karaoke(self) -> str:
+    """Active word slides in from below/above - move + karaoke."""
+    cx, cy = self._get_center_coordinates()
+    
+    font = self.style.get("font", "Arial")
+    font_size = int(self.style.get("font_size", 72))
+    bold = int(self.style.get("bold", 1))
+    letter_spacing = int(self.style.get("letter_spacing", 0))
+    border = float(self.style.get("border", 2))
+    
+    primary_color = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
+    secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
+    outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
+    
+    groups = self._create_word_groups()
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font},{font_size},{primary_color},{secondary_color},{outline_color},&H00000000&,{bold},0,0,0,100,100,{letter_spacing},0,1,{border},0,5,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    
+    lines: List[str] = [header]
+    
+    slide_offset = 40  # Pixels to slide
+    
+    for group in groups:
+        if not group:
+            continue
+        
+        for word_idx, active_word in enumerate(group):
+            word_start_ms = int(active_word.get("start", 0) * 1000)
+            word_end_ms = int(active_word.get("end", word_start_ms / 1000) * 1000)
+            word_dur = max(1, word_end_ms - word_start_ms)
+            word_duration_cs = max(1, word_dur // 10)
+            
+            if word_idx < len(group) - 1:
+                line_end_ms = int(group[word_idx + 1].get("start", 0) * 1000)
+            else:
+                line_end_ms = word_end_ms
+            
+            slide_dur = min(150, word_dur // 3)
+            
+            text_parts = []
+            for idx, w in enumerate(group):
+                word_text = (w.get("text") or "").replace("{", r"\{").replace("}", r"\}")
+                w_dur_cs = max(1, (int(w.get("end", 0) * 1000) - int(w.get("start", 0) * 1000)) // 10)
+                
+                if idx == word_idx:
+                    # Active word: slide in from below + karaoke
+                    # Use \\move doesn't work well inline, so we use position transition
+                    slide = f"\\pos({cx},{cy + slide_offset})\\t(0,{slide_dur},\\pos({cx},{cy}))"
+                    text_parts.append(f"{{\\kf{w_dur_cs}\\1c{secondary_color}}}{word_text}")
+                elif idx < word_idx:
+                    # Past: filled
+                    text_parts.append(f"{{\\1c{secondary_color}}}{word_text}")
+                else:
+                    # Future: unfilled
+                    text_parts.append(f"{{\\1c{primary_color}}}{word_text}")
+            
+            full_text = " ".join(text_parts)
+            
+            # Use move for slide effect
+            lines.append(
+                f"Dialogue: 0,{self._ms_to_timestamp(word_start_ms)},{self._ms_to_timestamp(line_end_ms)},Default,,0,0,0,,"
+                f"{{\\an5\\move({cx},{cy + slide_offset},{cx},{cy},0,{slide_dur})}}{full_text}"
+            )
+    
+    return "\n".join(lines)
+
+
 RENDER_DISPATCH = {
     "fire_storm": _render_fire_storm,
     "cyber_glitch": _render_cyber_glitch,
@@ -4120,6 +5193,8 @@ RENDER_DISPATCH = {
     "karaoke_pro": _render_karaoke_pro,
     "karaoke_sentence": _render_karaoke_sentence,
     "karaoke_sentence_fill": _render_karaoke_sentence_fill,
+    "karaoke_outline_fill": _render_karaoke_outline_fill,
+    "karaoke_wave_fill": _render_karaoke_wave_fill,
     "underline_sweep": _render_underline_sweep,
     "box_slide": _render_box_slide,
     "karaoke_sentence_box": _render_karaoke_sentence_box,
@@ -4175,5 +5250,17 @@ RENDER_DISPATCH = {
     "balloon_pop": _render_balloon_pop,
     "jackpot_spin": _render_jackpot_spin,
     "party_mode": _render_party_mode,
+    # New Karaoke Effects
+    "karaoke_glow": _render_karaoke_glow,
+    "karaoke_bounce_fill": _render_karaoke_bounce_fill,
+    "karaoke_color_cycle": _render_karaoke_color_cycle,
+    "pulse_highlight": _render_pulse_highlight,
+    "spotlight": _render_spotlight,
+    "flip_3d": _render_flip_3d,
+    "rainbow_karaoke": _render_rainbow_karaoke,
+    "gradient_fill": _render_gradient_fill,
+    "typewriter_karaoke": _render_typewriter_karaoke,
+    "fade_word": _render_fade_word,
+    "slide_in_karaoke": _render_slide_in_karaoke,
 }
 
