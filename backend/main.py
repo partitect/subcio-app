@@ -83,7 +83,7 @@ def ms_to_ass_timestamp(ms: int) -> str:
 # -----------------------------------------------------------------------------
 # Whisper model bootstrap (cached globally to avoid repeated loads)
 # -----------------------------------------------------------------------------
-DEFAULT_MODEL = os.getenv("WHISPER_MODEL", "medium")
+DEFAULT_MODEL = os.getenv("WHISPER_MODEL", "small")  # Use 'small' for lower memory usage
 DEVICE = "cuda" if shutil.which("nvidia-smi") else "cpu"
 MODEL_CACHE: dict[str, WhisperModel] = {}
 OUTPUT_DIR = Path(__file__).resolve().parent / "exports"
