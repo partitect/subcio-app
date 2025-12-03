@@ -5,9 +5,13 @@ import os
 import httpx
 from datetime import datetime
 from urllib.parse import urlencode
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.orm import Session
+
+# Rate Limiting
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from .database import (
     get_db, 
@@ -40,6 +44,9 @@ from .utils import (
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
 
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # OAuth Configuration
@@ -51,7 +58,8 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user.
     
@@ -88,7 +96,8 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-async def login(user_data: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+async def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db)):
     """
     Authenticate user and return JWT tokens.
     
@@ -247,7 +256,8 @@ async def change_password(
 
 
 @router.post("/forgot-password")
-async def forgot_password(data: PasswordReset, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+async def forgot_password(request: Request, data: PasswordReset, db: Session = Depends(get_db)):
     """
     Request password reset email.
     Always returns success to prevent email enumeration.
@@ -257,9 +267,12 @@ async def forgot_password(data: PasswordReset, db: Session = Depends(get_db)):
     if user:
         # In production, send email with reset link
         reset_token = create_password_reset_token(data.email)
-        # TODO: Send email with reset_token
-        # For now, just print it (remove in production!)
-        print(f"[DEBUG] Password reset token for {data.email}: {reset_token}")
+        # TODO: Implement email sending with SendGrid/SMTP
+        # Email should contain: f"{FRONTEND_URL}/reset-password?token={reset_token}"
+        # For development, token is logged (check APP_ENV)
+        if os.getenv("APP_ENV") != "production":
+            import logging
+            logging.getLogger("auth").debug(f"Password reset token generated for {data.email}")
     
     # Always return success to prevent email enumeration
     return {"message": "If the email exists, a password reset link has been sent"}

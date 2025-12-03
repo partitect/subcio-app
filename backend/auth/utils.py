@@ -14,7 +14,16 @@ from .database import get_db, get_user_by_id
 from .models import TokenData
 
 # Security configuration
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-super-secret-key-change-in-production-2024")
+_DEFAULT_SECRET = "your-super-secret-key-change-in-production-2024"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", _DEFAULT_SECRET)
+
+# Warn if using default secret in production
+if SECRET_KEY == _DEFAULT_SECRET and os.getenv("APP_ENV") == "production":
+    raise ValueError(
+        "CRITICAL: JWT_SECRET_KEY environment variable must be set in production! "
+        "Generate a secure key with: python -c 'import secrets; print(secrets.token_hex(32))'"
+    )
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7

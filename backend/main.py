@@ -815,22 +815,34 @@ async def security_middleware(request: Request, call_next):
     
     return response
 
+# CORS Configuration from environment
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_headers=["*"],
 )
 projects_static = StaticFiles(directory=PROJECTS_DIR)
 projects_cors = CORSMiddleware(
     app=projects_static,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
 )
 app.mount("/projects", projects_cors, name="projects")
+
+# Rate Limiting setup
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Include Auth Router
 app.include_router(auth_router, prefix="/api")
@@ -939,8 +951,30 @@ async def enforce_projects_cors(request: Request, call_next):
     return response
 
 
+# File upload constraints
+MAX_UPLOAD_SIZE = int(os.getenv("MAX_UPLOAD_SIZE", 500 * 1024 * 1024))  # 500MB default
+ALLOWED_UPLOAD_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".mp3", ".wav", ".m4a", ".flac", ".ogg"}
+
+
+def validate_upload_file(filename: str, content_length: int | None = None) -> None:
+    """Validate uploaded file type and size."""
+    ext = Path(filename).suffix.lower()
+    if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type '{ext}'. Allowed: {', '.join(sorted(ALLOWED_UPLOAD_EXTENSIONS))}"
+        )
+    if content_length and content_length > MAX_UPLOAD_SIZE:
+        max_mb = MAX_UPLOAD_SIZE // (1024 * 1024)
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too large. Maximum size: {max_mb}MB"
+        )
+
+
 @app.post("/api/transcribe")
 async def transcribe(
+    request: Request,
     file: UploadFile = File(...),
     model_name: str = Form(DEFAULT_MODEL),
     language: str | None = Form(None),
@@ -952,11 +986,21 @@ async def transcribe(
     """
     Accepts video/audio file and returns word-level timestamps with confidence.
     """
+    # Validate file type
+    validate_upload_file(file.filename, request.headers.get("content-length"))
+    
     model = get_model(model_name)
     with tempfile.TemporaryDirectory() as tmpdir:
         in_path = Path(tmpdir) / file.filename
+        
+        # Read file with size check
+        content = await file.read()
+        if len(content) > MAX_UPLOAD_SIZE:
+            max_mb = MAX_UPLOAD_SIZE // (1024 * 1024)
+            raise HTTPException(status_code=413, detail=f"File too large. Maximum size: {max_mb}MB")
+        
         with in_path.open("wb") as f:
-            f.write(await file.read())
+            f.write(content)
 
         segments, info = model.transcribe(
             str(in_path),
