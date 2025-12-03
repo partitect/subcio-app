@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-dev \
     pkg-config \
     python3-dev \
+    python3-gi \
+    python3-gi-cairo \
     gir1.2-pango-1.0 \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
@@ -34,6 +36,11 @@ COPY backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install PyonFX separately with system-provided PyGObject
+RUN pip install --no-cache-dir --no-build-isolation pycairo pyonfx || \
+    pip install --no-cache-dir pyonfx || \
+    echo "Warning: PyonFX installation failed, effects may not work"
 
 # Install production dependencies
 RUN pip install --no-cache-dir \
