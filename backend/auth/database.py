@@ -58,7 +58,9 @@ def init_db():
     
     # Create auth tables
     Base.metadata.create_all(bind=engine)
-    print(f"[INFO] Database initialized at {DATABASE_PATH}")
+    
+    db_info = "PostgreSQL" if os.getenv("DATABASE_URL") else f"SQLite at {DATABASE_PATH if 'DATABASE_PATH' in dir() else 'local'}"
+    print(f"[INFO] Database initialized ({db_info})")
     print(f"[INFO] Security tables created (audit_logs, device_mappings)")
 
 
