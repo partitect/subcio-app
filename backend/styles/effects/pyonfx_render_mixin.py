@@ -1,8 +1,40 @@
 from typing import Any, List
-from ..utils import hex_to_ass
+from ..utils import hex_to_ass, calculate_optimal_font_size_for_groups, get_font_path
+import os
 
 
 class PyonFXRenderMixin:
+    def _get_optimized_font_size(self) -> int:
+        """Calculate optimized font size that fits within video boundaries."""
+        requested_size = int(self.style.get("font_size", 72))
+        font_name = self.style.get("font", "Arial")
+        
+        # Create word groups to find the longest text
+        groups = self._create_word_groups()
+        
+        # Convert groups to the format expected by the utility function
+        word_groups = []
+        for group in groups:
+            text = " ".join([w.get("text", "") for w in group])
+            word_groups.append({"text": text, "words": group})
+        
+        # Get fonts directory
+        fonts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "fonts")
+        
+        # Calculate optimal size
+        optimal_size = calculate_optimal_font_size_for_groups(
+            word_groups=word_groups,
+            font_name=font_name,
+            requested_font_size=requested_size,
+            play_res_x=1920,
+            play_res_y=1080,
+            max_width_percent=0.90,
+            max_height_percent=0.15,
+            fonts_dir=fonts_dir
+        )
+        
+        return optimal_size
+
     def _get_center_coordinates(self) -> tuple[int, int]:
         """Dikey konum hesaplama.
         
@@ -86,14 +118,21 @@ class PyonFXRenderMixin:
         
         return groups
 
-    def render_ass_header(self) -> str:
-        """Generate ASS file header"""
+    def render_ass_header(self, use_optimized_font: bool = True) -> str:
+        """Generate ASS file header with optional font size optimization."""
         primary = hex_to_ass(self.style.get("primary_color", "&H00FFFFFF"))
         secondary = hex_to_ass(self.style.get("secondary_color", "&H00000000"))
         outline = hex_to_ass(self.style.get("outline_color", "&H00000000"))
         back = hex_to_ass(self.style.get("back_color", self.style.get("shadow_color", "&H00000000")))
         border = self.style.get("border", 2)
         shadow = self.style.get("shadow_blur", self.style.get("shadow", 0))
+        
+        # Use optimized font size if enabled
+        if use_optimized_font:
+            font_size = self._get_optimized_font_size()
+        else:
+            font_size = self.style.get("font_size", 64)
+        
         return """[Script Info]
 ScriptType: v4.00+
 PlayResX: 1920
@@ -102,7 +141,7 @@ Title: PyonFX Effect Subtitle
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,""" + self.style.get("font", "Arial") + f""",{self.style.get("font_size", 64)},{primary},{secondary},{outline},{back},{self.style.get("bold", 1)},{self.style.get("italic", 0)},0,0,100,100,0,0,1,{border},{shadow},{self.style.get("alignment", 2)},{self.style.get("margin_l", 10)},{self.style.get("margin_r", 10)},{self.style.get("margin_v", 10)},0
+Style: Default,""" + self.style.get("font", "Arial") + f""",{font_size},{primary},{secondary},{outline},{back},{self.style.get("bold", 1)},{self.style.get("italic", 0)},0,0,100,100,0,0,1,{border},{shadow},{self.style.get("alignment", 2)},{self.style.get("margin_l", 10)},{self.style.get("margin_r", 10)},{self.style.get("margin_v", 10)},0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

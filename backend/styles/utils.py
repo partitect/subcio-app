@@ -293,3 +293,132 @@ def group_words_smart(words: list, max_per_group: int = 3, max_gap: float = 1.0)
         })
         
     return groups
+
+
+def calculate_optimal_font_size(
+    text: str,
+    font_name: str,
+    requested_font_size: int,
+    play_res_x: int = 1920,
+    play_res_y: int = 1080,
+    max_width_percent: float = 0.90,
+    max_height_percent: float = 0.15,
+    margin_h: int = 20,
+    margin_v: int = 20,
+    fonts_dir: str = None
+) -> int:
+    """
+    Calculate optimal font size that ensures text never overflows video boundaries.
+    
+    Args:
+        text: The longest text line to fit
+        font_name: Font name to use
+        requested_font_size: User's requested font size
+        play_res_x: Video width (ASS PlayResX)
+        play_res_y: Video height (ASS PlayResY)
+        max_width_percent: Maximum width as percentage of video width (0.0-1.0)
+        max_height_percent: Maximum height as percentage of video height (0.0-1.0)
+        margin_h: Horizontal margin in pixels
+        margin_v: Vertical margin in pixels
+        fonts_dir: Directory containing font files
+    
+    Returns:
+        Optimized font size that fits within boundaries
+    """
+    if not text:
+        return requested_font_size
+    
+    # Calculate maximum allowed dimensions
+    max_width = int(play_res_x * max_width_percent) - (margin_h * 2)
+    max_height = int(play_res_y * max_height_percent) - (margin_v * 2)
+    
+    # Get font path
+    if fonts_dir is None:
+        fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_path = get_font_path(font_name, fonts_dir)
+    
+    # Start with requested size
+    optimal_size = requested_font_size
+    
+    # Calculate text width at requested size
+    if font_path:
+        text_width = get_text_width(text, font_path, requested_font_size)
+    else:
+        text_width = estimate_text_width_heuristic(text, requested_font_size)
+    
+    # Check width constraint
+    if text_width > max_width:
+        # Scale down proportionally
+        scale_factor = max_width / text_width
+        optimal_size = int(requested_font_size * scale_factor)
+    
+    # Check height constraint (font size roughly equals height)
+    if optimal_size > max_height:
+        optimal_size = max_height
+    
+    # Ensure minimum readable size
+    min_size = max(16, int(play_res_y * 0.02))  # At least 2% of height or 16px
+    optimal_size = max(optimal_size, min_size)
+    
+    return optimal_size
+
+
+def calculate_optimal_font_size_for_groups(
+    word_groups: list,
+    font_name: str,
+    requested_font_size: int,
+    play_res_x: int = 1920,
+    play_res_y: int = 1080,
+    max_width_percent: float = 0.90,
+    max_height_percent: float = 0.15,
+    fonts_dir: str = None
+) -> int:
+    """
+    Calculate optimal font size based on all word groups.
+    Uses the longest group text to determine the optimal size.
+    
+    Args:
+        word_groups: List of word groups (each with 'text' or 'words' key)
+        font_name: Font name to use
+        requested_font_size: User's requested font size
+        play_res_x: Video width
+        play_res_y: Video height
+        max_width_percent: Maximum width percentage
+        max_height_percent: Maximum height percentage
+        fonts_dir: Directory containing font files
+    
+    Returns:
+        Optimized font size that fits all groups
+    """
+    if not word_groups:
+        return requested_font_size
+    
+    # Find the longest text among all groups
+    longest_text = ""
+    for group in word_groups:
+        if isinstance(group, dict):
+            if 'text' in group:
+                text = group['text']
+            elif 'words' in group:
+                text = " ".join([w.get('text', '') for w in group['words']])
+            else:
+                continue
+        else:
+            continue
+        
+        if len(text) > len(longest_text):
+            longest_text = text
+    
+    if not longest_text:
+        return requested_font_size
+    
+    return calculate_optimal_font_size(
+        text=longest_text,
+        font_name=font_name,
+        requested_font_size=requested_font_size,
+        play_res_x=play_res_x,
+        play_res_y=play_res_y,
+        max_width_percent=max_width_percent,
+        max_height_percent=max_height_percent,
+        fonts_dir=fonts_dir
+    )

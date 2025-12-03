@@ -2,7 +2,7 @@ from typing import Any, List
 import math
 import random
 import os
-from ..utils import hex_to_ass, get_text_width, get_text_metrics, get_font_path, estimate_text_width_heuristic
+from ..utils import hex_to_ass, get_text_width, get_text_metrics, get_font_path, estimate_text_width_heuristic, calculate_optimal_font_size, calculate_optimal_font_size_for_groups
 
 def _render_fire_storm(self) -> str:
     """Port of FireStormRenderer using PyonFX pipeline."""
@@ -1231,6 +1231,18 @@ def _render_tiktok_group(self) -> str:
     secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
     outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: 1920
@@ -1245,7 +1257,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    groups = self._create_word_groups()
     
     for group in groups:
         if not group:
@@ -1350,6 +1361,18 @@ def _render_karaoke_classic(self) -> str:
     secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
     outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: 1920
@@ -1364,7 +1387,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    groups = self._create_word_groups()
     
     for group in groups:
         if not group:
@@ -1419,6 +1441,18 @@ def _render_karaoke_pro(self) -> str:
     color_past = hex_to_ass(self.style.get("color_past", "&H00808080"))
     color_future = hex_to_ass(self.style.get("color_future", "&H00808080"))
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: 1920
@@ -1433,7 +1467,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    groups = self._create_word_groups()
     
     for group in groups:
         if not group:
@@ -1507,6 +1540,18 @@ def _render_karaoke_sentence(self) -> str:
     outline_color = outline_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
     outline_color = f"&H{outline_color.upper()}&"
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     # Header
     header = f"""[Script Info]
 ScriptType: v4.00+
@@ -1522,9 +1567,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    
-    # Use shared helper for dynamic grouping
-    groups = self._create_word_groups()
     
     # Generate dialogue lines for each group
     for group in groups:
@@ -1600,6 +1642,18 @@ def _render_karaoke_sentence_fill(self) -> str:
     shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
     back_color = hex_to_ass(self.style.get("back_color", "&H00000000"))
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     # Header with karaoke style
     # PrimaryColour = unfilled text (primary_color from style)
     # SecondaryColour = fill color (secondary_color from style)
@@ -1617,9 +1671,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    
-    # Use shared helper for dynamic grouping
-    groups = self._create_word_groups()
     
     # Generate dialogue lines for each group
     for group in groups:
@@ -1687,6 +1738,18 @@ def _render_underline_sweep(self) -> str:
     shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
     back_color = hex_to_ass(self.style.get("back_color", "&H00000000"))
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: 1920
@@ -1701,7 +1764,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    groups = self._create_word_groups()
     
     for group in groups:
         if not group:
@@ -1775,6 +1837,18 @@ def _render_box_slide(self) -> str:
     shadow_color = hex_to_ass(self.style.get("shadow_color", "&H00000000"))
     back_color = hex_to_ass(self.style.get("back_color", "&H0000FFFF"))  # Box color
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     # Box padding via outline size
     box_padding = int(font_size * 0.12)
     
@@ -1793,7 +1867,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    groups = self._create_word_groups()
     
     for group in groups:
         if not group:
@@ -1872,6 +1945,18 @@ def _render_karaoke_sentence_box(self) -> str:
     box_color = box_color.replace("&", "").replace("H", "").replace("#", "").replace("h", "")
     box_color = f"&H{box_color.upper()}&"
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     # Box padding via Outline value for active word
     box_padding = int(font_size * 0.15)
     
@@ -1893,9 +1978,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    
-    # Use shared helper for dynamic grouping
-    groups = self._create_word_groups()
     
     # Generate dialogue lines for each group
     for group in groups:
@@ -1976,6 +2058,18 @@ def _render_dynamic_highlight(self) -> str:
     secondary_color = hex_to_ass(self.style.get("secondary_color", "&H0000FFFF"))
     outline_color = hex_to_ass(self.style.get("outline_color", "&H00000000"))
     
+    # Create word groups first to calculate optimal font size
+    groups = self._create_word_groups()
+    
+    # Optimize font size for the longest group
+    fonts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fonts")
+    font_size = calculate_optimal_font_size_for_groups(
+        word_groups=[{"words": g} for g in groups if g],
+        font_name=font,
+        requested_font_size=font_size,
+        fonts_dir=fonts_dir
+    )
+    
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: 1920
@@ -1990,7 +2084,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     
     lines: List[str] = [header]
-    groups = self._create_word_groups()
     
     for group in groups:
         if not group:
