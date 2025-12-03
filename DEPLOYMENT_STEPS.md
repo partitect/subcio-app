@@ -64,13 +64,13 @@ LOG_LEVEL=INFO
 ```bash
 # Railway otomatik deploy eder
 # Deployment başarılı olduğunda URL alırsınız:
-# https://subcio-production.up.railway.app
+# https://subcio-app.up.railway.app
 ```
 
 ### Adım 1.5: Health Check
 
 ```bash
-curl https://subcio-production.up.railway.app/health
+curl https://subcio-app.up.railway.app/health
 
 # Beklenen response:
 # {"status":"healthy","version":"1.0.0","service":"subcio-api"}
@@ -104,7 +104,7 @@ Node version: 18
 Site settings → Environment variables:
 
 ```env
-VITE_API_URL=https://subcio-production.up.railway.app/api
+VITE_API_URL=https://subcio-app.up.railway.app/api
 ```
 
 **Stripe key'i sonra eklenecek**
@@ -146,7 +146,7 @@ VITE_API_URL=https://subcio-production.up.railway.app/api
    ```
 7. Authorized redirect URIs:
    ```
-   https://subcio-production.up.railway.app/api/auth/google/callback
+   https://subcio-app.up.railway.app/api/auth/google/callback
    ```
 8. **Client ID ve Secret'ı kaydet:**
    - Client ID: `___________________________`
@@ -160,7 +160,7 @@ VITE_API_URL=https://subcio-production.up.railway.app/api
    ```
    Application name: Subcio
    Homepage URL: https://subcio.netlify.app
-   Authorization callback URL: https://subcio-production.up.railway.app/api/auth/github/callback
+   Authorization callback URL: https://subcio-app.up.railway.app/api/auth/github/callback
    ```
 4. Register application
 5. **Client ID ve Secret'ı kaydet:**
@@ -236,7 +236,7 @@ Price ID: price_xxxxx (kaydet)
 Developers → Webhooks → Add endpoint:
 
 ```
-Endpoint URL: https://subcio-production.up.railway.app/api/payments/webhook
+Endpoint URL: https://subcio-app.up.railway.app/api/payments/webhook
 
 Events to send:
 ✓ checkout.session.completed
@@ -276,7 +276,7 @@ Netlify'daki proxy ayarını güncelle:
 ```toml
 [[redirects]]
   from = "/api/*"
-  to = "https://subcio-production.up.railway.app/api/:splat"
+  to = "https://subcio-app.up.railway.app/api/:splat"
   status = 200
   force = true
 ```
@@ -305,7 +305,7 @@ Netlify → Deploys → **Trigger deploy**
 
 ### Test 1: Backend Health
 ```bash
-curl https://subcio-production.up.railway.app/health
+curl https://subcio-app.up.railway.app/health
 ```
 
 ### Test 2: Frontend Loading
@@ -361,7 +361,7 @@ https://subcio.netlify.app
 2. Add monitor:
    ```
    Type: HTTPS
-   URL: https://subcio-production.up.railway.app/health
+   URL: https://subcio-app.up.railway.app/health
    Interval: 5 minutes
    ```
 
@@ -371,8 +371,8 @@ https://subcio.netlify.app
 
 **Production URLs:**
 - Frontend: `https://subcio.netlify.app`
-- Backend API: `https://subcio-production.up.railway.app`
-- Health: `https://subcio-production.up.railway.app/health`
+- Backend API: `https://subcio-app.up.railway.app`
+- Health: `https://subcio-app.up.railway.app/health`
 
 **Next Steps:**
 - [ ] Custom domain ekle (opsiyonel)
