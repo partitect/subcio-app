@@ -962,7 +962,7 @@ MAX_UPLOAD_SIZE = int(os.getenv("MAX_UPLOAD_SIZE", 500 * 1024 * 1024))  # 500MB 
 ALLOWED_UPLOAD_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".mp3", ".wav", ".m4a", ".flac", ".ogg"}
 
 
-def validate_upload_file(filename: str, content_length: int | None = None) -> None:
+def validate_upload_file(filename: str, content_length: str | int | None = None) -> None:
     """Validate uploaded file type and size."""
     ext = Path(filename).suffix.lower()
     if ext not in ALLOWED_UPLOAD_EXTENSIONS:
@@ -970,12 +970,18 @@ def validate_upload_file(filename: str, content_length: int | None = None) -> No
             status_code=400,
             detail=f"Invalid file type '{ext}'. Allowed: {', '.join(sorted(ALLOWED_UPLOAD_EXTENSIONS))}"
         )
-    if content_length and content_length > MAX_UPLOAD_SIZE:
-        max_mb = MAX_UPLOAD_SIZE // (1024 * 1024)
-        raise HTTPException(
-            status_code=413,
-            detail=f"File too large. Maximum size: {max_mb}MB"
-        )
+    # Convert content_length to int if it's a string
+    if content_length:
+        try:
+            size = int(content_length)
+            if size > MAX_UPLOAD_SIZE:
+                max_mb = MAX_UPLOAD_SIZE // (1024 * 1024)
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"File too large. Maximum size: {max_mb}MB"
+                )
+        except (ValueError, TypeError):
+            pass  # Ignore invalid content-length
 
 
 @app.post("/api/transcribe")
