@@ -517,5 +517,92 @@ The `GET /api/presets` endpoint automatically checks for existing thumbnails.
 
 ---
 
-*Last Updated: December 2, 2025*
+*Last Updated: December 4, 2025*
 *Purpose: Guide AI assistants in maintaining and extending the Subcio codebase*
+
+---
+
+## 🖥️ Desktop Application (Electron)
+
+### Overview
+
+Subcio can run as a standalone desktop application using Electron.
+
+### Electron Structure
+
+```
+electron/
+├── main.js          # Main process - window management, backend spawning
+├── preload.js       # Context bridge for renderer
+├── package.json     # Electron dependencies and build config
+└── assets/
+    ├── icon.png     # App icon (256x256)
+    ├── icon.ico     # Windows icon
+    └── tray-icon.png # System tray icon (32x32)
+```
+
+### Running in Development
+
+```bash
+# Option 1: Use the batch file
+start-desktop-dev.bat
+
+# Option 2: Manual
+# Terminal 1: Backend
+cd backend && python -m uvicorn main:app --host 127.0.0.1 --port 8000
+
+# Terminal 2: Frontend
+cd frontend && npm run dev
+
+# Terminal 3: Electron
+cd electron && npm start
+```
+
+### Building Portable EXE
+
+```bash
+# Build everything
+build-desktop.bat
+
+# Or manually:
+cd frontend && npm run build
+cd electron && npm run build:portable
+
+# Output: electron/dist/Subcio-Portable-1.0.0.exe
+```
+
+### Build Configuration
+
+The `electron/package.json` uses `electron-builder` with these targets:
+
+| Target | Description | Output |
+|--------|-------------|--------|
+| `nsis` | Installer EXE | Subcio-1.0.0-x64.exe |
+| `portable` | Single EXE, no install | Subcio-Portable-1.0.0.exe |
+
+### How It Works
+
+1. **Startup**: Electron spawns Python backend as child process
+2. **Backend**: Runs on `127.0.0.1:8000` 
+3. **Frontend**: In dev mode loads Vite server, in prod loads bundled files
+4. **System Tray**: App minimizes to tray, double-click to restore
+5. **Cleanup**: Backend process killed on app exit
+
+### Key Features
+
+- **Single Instance**: Only one copy can run (uses `app.requestSingleInstanceLock`)
+- **Tray Support**: Minimize to system tray
+- **Native Menu**: Turkish-localized app menu
+- **External Links**: Open in default browser
+- **Cross-Origin Isolated**: Enables SharedArrayBuffer for FFmpeg.wasm
+
+### Startup Scripts
+
+| Script | Description |
+|--------|-------------|
+| `start-subcio.bat` | Simple batch - starts backend + frontend + opens browser |
+| `start-desktop-dev.bat` | Electron dev mode with hot reload |
+| `build-desktop.bat` | Full production build |
+| `stop-subcio.bat` | Kill all related processes |
+
+
