@@ -1,0 +1,5 @@
+# API proxy
+/api/*  https://subcio-app.up.railway.app/api/:splat  200!
+
+# SPA fallback - only for non-existent paths
+/*  /index.html  200
