@@ -537,11 +537,21 @@ def run_ffmpeg_burn(
     
     cmd.append(str(output_path))
     
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
+    logger.info(f"Running FFmpeg command: {' '.join(cmd[:10])}...")  # Log first 10 args
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)  # 10 min timeout
+    except subprocess.TimeoutExpired:
         raise HTTPException(
             status_code=500,
-            detail=f"FFmpeg failed: {result.stderr}",
+            detail="FFmpeg timed out after 10 minutes. Try a shorter video or lower resolution.",
+        )
+    
+    if result.returncode != 0:
+        logger.error(f"FFmpeg stderr: {result.stderr[:1000]}")  # Log first 1000 chars of error
+        raise HTTPException(
+            status_code=500,
+            detail=f"FFmpeg failed: {result.stderr[:500]}",  # Limit error message length
         )
     
     return output_path
@@ -1131,9 +1141,15 @@ async def export_subtitled_video(
 
     out_path = OUTPUT_DIR / f"export_{uid}.mp4"
     try:
+        logger.info(f"Starting FFmpeg burn: {in_path} -> {out_path}")
         run_ffmpeg_burn(in_path, ass_path, out_path, resolution)
+        logger.info(f"FFmpeg burn completed successfully")
     except Exception as exc:  # return JSON so CORS headers still attach
-        background_tasks.add_task(lambda: in_path.unlink(missing_ok=True))
+        logger.error(f"FFmpeg burn failed: {exc}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        if cleanup_upload:
+            background_tasks.add_task(lambda: in_path.unlink(missing_ok=True))
         raise HTTPException(status_code=500, detail=str(exc))
 
     if not out_path.exists():
