@@ -493,31 +493,35 @@ def run_ffmpeg_burn(
     
     vf = f"ass='{ass_path_str}':fontsdir='{fonts_dir_str}',{scale_filter}"
     
-    # Build FFmpeg command
+    # Build FFmpeg command with memory-optimized settings for low-RAM environments
     cmd = [
         "ffmpeg",
         "-y",
+        "-threads", "1",  # Limit threads to reduce memory usage
         "-i", str(video_path),
         "-vf", vf,
         "-c:v", encoder,
     ]
     
-    # Add codec-specific options
+    # Add codec-specific options (memory-optimized for Railway free tier)
     if codec == "h264":
         cmd.extend([
-            "-preset", "veryfast",
-            "-profile:v", "high",
-            "-level", "4.1",
+            "-preset", "ultrafast",  # Fastest preset, lowest memory
+            "-tune", "fastdecode",   # Optimize for fast decoding
+            "-profile:v", "baseline",  # Simpler profile, less memory
+            "-level", "3.1",
+            "-maxrate", "2M",  # Limit max bitrate
+            "-bufsize", "1M",  # Smaller buffer
         ])
     elif codec == "h265":
         cmd.extend([
-            "-preset", "medium",
-            "-tag:v", "hvc1",  # Better compatibility
+            "-preset", "ultrafast",
+            "-tag:v", "hvc1",
         ])
     elif codec == "vp9":
         cmd.extend([
-            "-deadline", "good",
-            "-cpu-used", "2",
+            "-deadline", "realtime",  # Fastest
+            "-cpu-used", "8",  # Max speed
         ])
     
     # Add bitrate settings
@@ -1022,6 +1026,7 @@ async def transcribe(
     """
     Accepts video/audio file and returns word-level timestamps with confidence.
     Uses Groq API if available, otherwise falls back to local Whisper model.
+    Set USE_LOCAL_WHISPER=true to force local model (saves API tokens in dev).
     """
     # Validate file type
     validate_upload_file(file.filename, request.headers.get("content-length"))
@@ -1041,28 +1046,59 @@ async def transcribe(
         words = []
         detected_language = language or "auto"
         
-        # Try Groq API first (faster, no memory issues)
-        try:
-            from services.groq_transcription import is_groq_available, transcribe_to_words
-            
-            if is_groq_available():
-                logger.info("Using Groq API for transcription")
-                groq_words, info = transcribe_to_words(str(in_path), language)
-                
-                for w in groq_words:
-                    clean_text = w.get("word", "").strip()
+        # Check if we should use local Whisper (for development to save API tokens)
+        use_local = os.getenv("USE_LOCAL_WHISPER", "").lower() in ("true", "1", "yes")
+        
+        if use_local:
+            # Use local Whisper model
+            logger.info("Using local Whisper model (USE_LOCAL_WHISPER=true)")
+            model = get_model(model_name)
+            segments, info = model.transcribe(
+                str(in_path),
+                language=language if language else None,
+                word_timestamps=True,
+                vad_filter=use_vad,
+                vad_parameters={"min_silence_duration_ms": 200} if use_vad else None,
+                beam_size=beam_size,
+                best_of=best_of,
+                temperature=temperature,
+            )
+            for seg in segments:
+                for w in seg.words:
+                    clean_text = w.word.strip()
                     clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
                     if not clean_text:
                         continue
                     words.append({
-                        "start": round(w.get("start", 0), 3),
-                        "end": round(w.get("end", 0), 3),
+                        "start": round(w.start, 3),
+                        "end": round(w.end, 3),
                         "text": clean_text,
-                        "confidence": 0.95,  # Groq doesn't provide confidence
+                        "confidence": round(getattr(w, "probability", 0) or 0, 3),
                     })
-                detected_language = info.get("language", language or "auto")
-            else:
-                raise HTTPException(
+            detected_language = info.language or language or "auto"
+        else:
+            # Try Groq API (production - no memory issues on server)
+            try:
+                from services.groq_transcription import is_groq_available, transcribe_to_words
+                
+                if is_groq_available():
+                    logger.info("Using Groq API for transcription")
+                    groq_words, info = transcribe_to_words(str(in_path), language)
+                    
+                    for w in groq_words:
+                        clean_text = w.get("word", "").strip()
+                        clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+                        if not clean_text:
+                            continue
+                        words.append({
+                            "start": round(w.get("start", 0), 3),
+                            "end": round(w.get("end", 0), 3),
+                            "text": clean_text,
+                            "confidence": 0.95,  # Groq doesn't provide confidence
+                        })
+                    detected_language = info.get("language", language or "auto")
+                else:
+                    raise HTTPException(
                     status_code=503,
                     detail="Transcription service unavailable. GROQ_API_KEY not configured."
                 )
@@ -1114,12 +1150,13 @@ async def export_subtitled_video(
     words_json: str | None = Form(None),
     style_json: str | None = Form(None),
     project_id: str | None = Form(None),
-    resolution: str = Form("1080p"),
+    resolution: str = Form("720p"),  # Default to 720p to save memory on free tier
 ):
     """
     Burns .ass subtitles with provided style and edited words; returns processed video.
     - words_json: JSON list of dicts with start/end/text
     - style_json: JSON object with style parameters
+    Note: Default resolution is 720p to work within Railway free tier memory limits.
     """
     if not words_json and not project_id:
         raise HTTPException(status_code=400, detail="words_json or project_id is required")
@@ -1238,6 +1275,7 @@ async def create_project(
     """
     Create a new project by transcribing (if words not provided) and persisting assets.
     Uses Groq API if available for transcription.
+    Set USE_LOCAL_WHISPER=true to force local model (saves API tokens in dev).
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         in_path = Path(tmpdir) / video.filename
@@ -1248,42 +1286,70 @@ async def create_project(
         detected_language = language or "auto"
 
         if not incoming_words:
-            # Use Groq API for transcription (no local fallback - causes OOM on Railway)
-            try:
-                from services.groq_transcription import is_groq_available, transcribe_to_words
-                
-                if is_groq_available():
-                    logger.info("Using Groq API for project transcription")
-                    groq_words, info = transcribe_to_words(str(in_path), language)
-                    
-                    words = []
-                    for w in groq_words:
-                        clean_text = w.get("word", "").strip()
-                        clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+            # Check if we should use local Whisper (for development)
+            use_local = os.getenv("USE_LOCAL_WHISPER", "").lower() in ("true", "1", "yes")
+            
+            if use_local:
+                # Use local Whisper model
+                logger.info("Using local Whisper model for project (USE_LOCAL_WHISPER=true)")
+                model = get_model(model_name)
+                segments, info = model.transcribe(
+                    str(in_path),
+                    language=language if language else None,
+                    word_timestamps=True,
+                    vad_filter=False,
+                )
+                words = []
+                for seg in segments:
+                    for w in seg.words:
+                        clean_text = w.word.strip().strip('.,!?;:"\'-()[]{}')
                         if not clean_text:
                             continue
                         words.append({
-                            "start": round(w.get("start", 0), 3),
-                            "end": round(w.get("end", 0), 3),
+                            "start": round(w.start, 3),
+                            "end": round(w.end, 3),
                             "text": clean_text,
-                            "confidence": 0.95,
+                            "confidence": round(getattr(w, "probability", 0) or 0, 3),
                         })
-                    incoming_words = words
-                    detected_language = info.get("language", language or "auto")
-                else:
-                    raise HTTPException(
-                        status_code=503,
-                        detail="Transcription service unavailable. GROQ_API_KEY not configured."
-                    )
+                incoming_words = words
+                detected_language = info.language or language or "auto"
+            else:
+                # Use Groq API for transcription (production)
+                try:
+                    from services.groq_transcription import is_groq_available, transcribe_to_words
                     
-            except HTTPException:
-                raise
-            except Exception as e:
-                logger.error(f"Groq API transcription failed: {e}")
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Transcription failed: {str(e)}. Please try again or contact support."
-                )
+                    if is_groq_available():
+                        logger.info("Using Groq API for project transcription")
+                        groq_words, info = transcribe_to_words(str(in_path), language)
+                        
+                        words = []
+                        for w in groq_words:
+                            clean_text = w.get("word", "").strip()
+                            clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+                            if not clean_text:
+                                continue
+                            words.append({
+                                "start": round(w.get("start", 0), 3),
+                                "end": round(w.get("end", 0), 3),
+                                "text": clean_text,
+                                "confidence": 0.95,
+                            })
+                        incoming_words = words
+                        detected_language = info.get("language", language or "auto")
+                    else:
+                        raise HTTPException(
+                            status_code=503,
+                            detail="Transcription service unavailable. GROQ_API_KEY not configured."
+                        )
+                        
+                except HTTPException:
+                    raise
+                except Exception as e:
+                    logger.error(f"Groq API transcription failed: {e}")
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Transcription failed: {str(e)}. Please try again or contact support."
+                    )
 
         incoming_style = json.loads(style_json) if style_json else {}
         project_meta = persist_project(
