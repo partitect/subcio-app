@@ -548,10 +548,16 @@ def run_ffmpeg_burn(
         )
     
     if result.returncode != 0:
-        logger.error(f"FFmpeg stderr: {result.stderr[:1000]}")  # Log first 1000 chars of error
+        # Get the last 500 chars of stderr which contains the actual error
+        stderr_tail = result.stderr[-1500:] if len(result.stderr) > 1500 else result.stderr
+        # Find actual error lines (usually at the end)
+        error_lines = [line for line in stderr_tail.split('\n') if line.strip() and not line.startswith('  ')]
+        actual_error = '\n'.join(error_lines[-10:])  # Last 10 meaningful lines
+        logger.error(f"FFmpeg failed with return code {result.returncode}")
+        logger.error(f"FFmpeg error: {actual_error}")
         raise HTTPException(
             status_code=500,
-            detail=f"FFmpeg failed: {result.stderr[:500]}",  # Limit error message length
+            detail=f"FFmpeg failed: {actual_error[:500]}",
         )
     
     return output_path
