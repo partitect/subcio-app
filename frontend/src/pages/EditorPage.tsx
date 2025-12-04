@@ -24,6 +24,7 @@ import {
   Alert,
   CircularProgress,
   Tooltip,
+  LinearProgress,
 } from "@mui/material";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { ProjectMeta, StyleConfig, WordCue } from "../types";
@@ -47,6 +48,12 @@ import {
   assToHex,
   styleToAssColors,
 } from "../utils/colorConvert";
+
+// Import client-side FFmpeg service
+import {
+  exportAndDownload,
+  checkBrowserSupport,
+} from "../services/ffmpegService";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -168,9 +175,11 @@ export default function EditorPage() {
   const [fontOptions, setFontOptions] = useState<{ name: string; file: string }[]>([]);
   const [activeTab, setActiveTab] = useState<"presets" | "style" | "transcript">("presets");
   const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [exportMessage, setExportMessage] = useState("");
   const [showRenderModal, setShowRenderModal] = useState(false);
   const [exportName, setExportName] = useState("subcio_export");
-  const [exportQuality, setExportQuality] = useState("1080p");
+  const [exportQuality, setExportQuality] = useState<"720p" | "1080p" | "original">("720p");
   const [presetSynced, setPresetSynced] = useState(false);
   const [showBgSelector, setShowBgSelector] = useState(false);
   const [toast, setToast] = useState<{
@@ -403,28 +412,80 @@ export default function EditorPage() {
   );
 
   const handleExport = useCallback(async () => {
+    // Check browser support first
+    const support = checkBrowserSupport();
+    if (!support.supported) {
+      setToast({
+        open: true,
+        message: support.reason || 'Browser not supported for video export',
+        severity: 'error',
+      });
+      return;
+    }
+
     setShowRenderModal(false);
     setExporting(true);
-
-    const form = new FormData();
-    form.append("words_json", JSON.stringify(words));
-    form.append("style_json", JSON.stringify(styleToAssColors(style)));
-    if (projectId && projectId !== "demo") form.append("project_id", projectId);
-    form.append("resolution", exportQuality);
+    setExportProgress(0);
+    setExportMessage('Initializing...');
 
     try {
-      const res = await axios.post(`${API_BASE}/export`, form, { responseType: "blob" });
-      const blobUrl = URL.createObjectURL(res.data);
-      navigate(`/export/${projectId || "latest"}`, {
-        state: { videoUrl: blobUrl, filename: `${exportName}.mp4` },
+      // Get the actual video URL (handle both relative and absolute URLs)
+      const actualVideoUrl = videoUrl.startsWith('http') 
+        ? videoUrl 
+        : videoUrl.startsWith('/') 
+          ? `${window.location.origin}${videoUrl}`
+          : `${API_BASE.replace('/api', '')}${videoUrl}`;
+
+      // Convert style to format expected by FFmpeg service
+      const exportStyle = {
+        fontFamily: style.font || 'Arial',
+        fontSize: style.font_size || 48,
+        primaryColor: style.primary_color || '#FFFFFF',
+        outlineColor: style.outline_color || '#000000',
+        backgroundColor: style.back_color || '#00000000',
+        bold: style.bold === 1,
+        italic: style.italic === 1,
+        outline: style.border || 2,
+        shadow: style.shadow || 1,
+        alignment: style.alignment || 2,
+        marginV: style.margin_v || 50,
+        wordsPerLine: (style.effect_config as any)?.words_per_line || 3,
+      };
+
+      // Export using client-side FFmpeg
+      await exportAndDownload(
+        actualVideoUrl,
+        words.map(w => ({ start: w.start, end: w.end, text: w.text })),
+        exportStyle,
+        `${exportName}.mp4`,
+        {
+          resolution: exportQuality,
+          onProgress: (progress, message) => {
+            setExportProgress(progress);
+            setExportMessage(message);
+          },
+        }
+      );
+
+      setToast({
+        open: true,
+        message: 'Video exported successfully!',
+        severity: 'success',
       });
+
     } catch (err) {
-      console.error(err);
-      alert("Export failed");
+      console.error('Export error:', err);
+      setToast({
+        open: true,
+        message: err instanceof Error ? err.message : 'Export failed',
+        severity: 'error',
+      });
     } finally {
       setExporting(false);
+      setExportProgress(0);
+      setExportMessage('');
     }
-  }, [words, style, projectId, exportQuality, exportName, navigate]);
+  }, [words, style, videoUrl, exportQuality, exportName]);
 
   const handleBgVideoSelect = useCallback((url: string) => {
     setBgVideoUrl(url);
@@ -734,35 +795,63 @@ export default function EditorPage() {
       </Grid>
 
       {/* Render Modal */}
-      <Dialog open={showRenderModal} onClose={() => setShowRenderModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('editor.renderSettings')}</DialogTitle>
+      <Dialog open={showRenderModal || exporting} onClose={() => !exporting && setShowRenderModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {exporting ? t('editor.rendering') : t('editor.renderSettings')}
+        </DialogTitle>
         <DialogContent dividers>
-          <Stack spacing={2}>
-            <TextField
-              label={t('editor.outputName')}
-              fullWidth
-              value={exportName}
-              onChange={(e) => setExportName(e.target.value)}
-            />
-            <TextField
-              select
-              label={t('editor.quality')}
-              fullWidth
-              value={exportQuality}
-              onChange={(e) => setExportQuality(e.target.value)}
-            >
-              <MenuItem value="1080p">1080p</MenuItem>
-              <MenuItem value="4k">4K</MenuItem>
-              <MenuItem value="original">{t('editor.original')}</MenuItem>
-            </TextField>
-          </Stack>
+          {exporting ? (
+            <Stack spacing={3} sx={{ py: 2 }}>
+              <Typography variant="body2" color="text.secondary" textAlign="center">
+                {exportMessage || 'Processing...'}
+              </Typography>
+              <Box sx={{ width: '100%' }}>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={exportProgress} 
+                  sx={{ height: 10, borderRadius: 5 }}
+                />
+              </Box>
+              <Typography variant="h6" textAlign="center" color="primary">
+                {exportProgress}%
+              </Typography>
+              <Typography variant="caption" color="text.secondary" textAlign="center">
+                Video is being processed in your browser. This may take a few minutes.
+              </Typography>
+            </Stack>
+          ) : (
+            <Stack spacing={2}>
+              <TextField
+                label={t('editor.outputName')}
+                fullWidth
+                value={exportName}
+                onChange={(e) => setExportName(e.target.value)}
+              />
+              <TextField
+                select
+                label={t('editor.quality')}
+                fullWidth
+                value={exportQuality}
+                onChange={(e) => setExportQuality(e.target.value as "720p" | "1080p" | "original")}
+              >
+                <MenuItem value="720p">720p (Recommended)</MenuItem>
+                <MenuItem value="1080p">1080p</MenuItem>
+                <MenuItem value="original">{t('editor.original')}</MenuItem>
+              </TextField>
+              <Alert severity="info" sx={{ mt: 1 }}>
+                Export runs in your browser - no server upload needed!
+              </Alert>
+            </Stack>
+          )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowRenderModal(false)}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={handleExport} disabled={exporting}>
-            {exporting ? t('editor.rendering') : t('editor.render')}
-          </Button>
-        </DialogActions>
+        {!exporting && (
+          <DialogActions>
+            <Button onClick={() => setShowRenderModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="contained" onClick={handleExport} disabled={exporting}>
+              {t('editor.render')}
+            </Button>
+          </DialogActions>
+        )}
       </Dialog>
 
       {/* Background Video Selector Dialog */}
