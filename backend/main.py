@@ -1038,35 +1038,19 @@ async def transcribe(
                     })
                 detected_language = info.get("language", language or "auto")
             else:
-                raise ValueError("Groq not available, falling back to local model")
+                raise HTTPException(
+                    status_code=503,
+                    detail="Transcription service unavailable. GROQ_API_KEY not configured."
+                )
                 
+        except HTTPException:
+            raise
         except Exception as e:
-            logger.warning(f"Groq API failed, falling back to local model: {e}")
-            # Fallback to local Whisper model
-            model = get_model(model_name)
-            segments, info = model.transcribe(
-                str(in_path),
-                language=language if language else None,
-                word_timestamps=True,
-                vad_filter=use_vad,
-                vad_parameters={"min_silence_duration_ms": 200} if use_vad else None,
-                beam_size=beam_size,
-                best_of=best_of,
-                temperature=temperature,
+            logger.error(f"Groq API transcription failed: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Transcription failed: {str(e)}. Please try again or contact support."
             )
-            for seg in segments:
-                for w in seg.words:
-                    clean_text = w.word.strip()
-                    clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
-                    if not clean_text:
-                        continue
-                    words.append({
-                        "start": round(w.start, 3),
-                        "end": round(w.end, 3),
-                        "text": clean_text,
-                        "confidence": round(getattr(w, "probability", 0) or 0, 3),
-                    })
-            detected_language = info.language or language or "auto"
         
         project_meta = persist_project(
             in_path,
@@ -1234,7 +1218,7 @@ async def create_project(
         detected_language = language or "auto"
 
         if not incoming_words:
-            # Try Groq API first
+            # Use Groq API for transcription (no local fallback - causes OOM on Railway)
             try:
                 from services.groq_transcription import is_groq_available, transcribe_to_words
                 
@@ -1257,31 +1241,19 @@ async def create_project(
                     incoming_words = words
                     detected_language = info.get("language", language or "auto")
                 else:
-                    raise ValueError("Groq not available")
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Transcription service unavailable. GROQ_API_KEY not configured."
+                    )
                     
+            except HTTPException:
+                raise
             except Exception as e:
-                logger.warning(f"Groq API failed, falling back to local model: {e}")
-                model = get_model(model_name)
-                segments, info = model.transcribe(
-                    str(in_path),
-                    language=language if language else None,
-                    word_timestamps=True,
-                    vad_filter=False,
+                logger.error(f"Groq API transcription failed: {e}")
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Transcription failed: {str(e)}. Please try again or contact support."
                 )
-                words = []
-                for seg in segments:
-                    for w in seg.words:
-                        clean_text = w.word.strip().strip('.,!?;:"\'-()[]{}')
-                        if not clean_text:
-                            continue
-                        words.append({
-                            "start": round(w.start, 3),
-                            "end": round(w.end, 3),
-                            "text": clean_text,
-                            "confidence": round(getattr(w, "probability", 0) or 0, 3),
-                        })
-                incoming_words = words
-                detected_language = info.language or language or "auto"
 
         incoming_style = json.loads(style_json) if style_json else {}
         project_meta = persist_project(
