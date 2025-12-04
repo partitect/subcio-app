@@ -19,7 +19,7 @@
   status = 200
   force = true
 
-# Security headers (without COEP for external resources)
+# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
@@ -28,13 +28,6 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-
-# COEP/COOP only for editor pages (required for FFmpeg.wasm SharedArrayBuffer)
-[[headers]]
-  for = "/editor/*"
-  [headers.values]
-    Cross-Origin-Opener-Policy = "same-origin"
-    Cross-Origin-Embedder-Policy = "credentialless"
 
 # Cache static assets
 [[headers]]

@@ -18,7 +18,7 @@ export type ProgressCallback = (progress: number, message: string) => void;
 
 /**
  * Initialize FFmpeg.wasm
- * Uses CDN for core files to avoid bundling issues
+ * Uses single-threaded version to avoid SharedArrayBuffer requirement
  */
 export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg> {
   if (ffmpeg && isLoaded) {
@@ -34,7 +34,7 @@ export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg>
     ffmpeg = new FFmpeg();
 
     // Set up progress handler
-    ffmpeg.on('progress', ({ progress, time }) => {
+    ffmpeg.on('progress', ({ progress }) => {
       if (onProgress) {
         const percent = Math.round(progress * 100);
         onProgress(percent, `Processing: ${percent}%`);
@@ -48,8 +48,9 @@ export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg>
 
     onProgress?.(5, 'Loading FFmpeg core...');
 
-    // Load FFmpeg core from CDN
-    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+    // Use single-threaded version (no SharedArrayBuffer required)
+    // This works in all browsers without special headers
+    const baseURL = 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/esm';
     
     await ffmpeg.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
@@ -279,13 +280,6 @@ export async function exportAndDownload(
  * Check browser compatibility
  */
 export function checkBrowserSupport(): { supported: boolean; reason?: string } {
-  if (typeof SharedArrayBuffer === 'undefined') {
-    return {
-      supported: false,
-      reason: 'SharedArrayBuffer is not available. Please ensure the page is served with proper CORS headers.',
-    };
-  }
-
   if (!window.WebAssembly) {
     return {
       supported: false,
@@ -293,5 +287,6 @@ export function checkBrowserSupport(): { supported: boolean; reason?: string } {
     };
   }
 
+  // Single-threaded version doesn't require SharedArrayBuffer
   return { supported: true };
 }
