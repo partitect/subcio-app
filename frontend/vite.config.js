@@ -6,9 +6,10 @@ export default defineConfig({
   server: {
     port: 5173,
     // Required headers for FFmpeg.wasm SharedArrayBuffer support
+    // Using 'credentialless' instead of 'require-corp' to allow external resources
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Embedder-Policy': 'credentialless',
     },
   },
   // Optimize deps for FFmpeg.wasm
