@@ -31,33 +31,49 @@ export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg>
   }
 
   loadingPromise = (async () => {
-    ffmpeg = new FFmpeg();
+    try {
+      console.log('[FFmpeg] Starting initialization...');
+      ffmpeg = new FFmpeg();
 
-    // Set up progress handler
-    ffmpeg.on('progress', ({ progress }) => {
-      if (onProgress) {
-        const percent = Math.round(progress * 100);
-        onProgress(percent, `Processing: ${percent}%`);
-      }
-    });
+      // Set up progress handler
+      ffmpeg.on('progress', ({ progress }) => {
+        if (onProgress) {
+          const percent = Math.round(progress * 100);
+          onProgress(percent, `Processing: ${percent}%`);
+        }
+      });
 
-    // Set up log handler for debugging
-    ffmpeg.on('log', ({ message }) => {
-      console.log('[FFmpeg]', message);
-    });
+      // Set up log handler for debugging
+      ffmpeg.on('log', ({ message }) => {
+        console.log('[FFmpeg]', message);
+      });
 
-    onProgress?.(5, 'Loading FFmpeg core...');
+      onProgress?.(5, 'Loading FFmpeg core...');
 
-    // Use jsDelivr CDN - has proper CORS headers
-    const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
-    
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-    });
+      // Use jsDelivr CDN - has proper CORS headers
+      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
+      
+      console.log('[FFmpeg] Loading core from:', baseURL);
+      
+      const coreURL = await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript');
+      console.log('[FFmpeg] Core JS loaded');
+      
+      const wasmURL = await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm');
+      console.log('[FFmpeg] WASM loaded');
+      
+      await ffmpeg.load({
+        coreURL,
+        wasmURL,
+      });
 
-    isLoaded = true;
-    onProgress?.(10, 'FFmpeg loaded');
+      console.log('[FFmpeg] Successfully initialized');
+      isLoaded = true;
+      onProgress?.(10, 'FFmpeg loaded');
+    } catch (error) {
+      console.error('[FFmpeg] Initialization failed:', error);
+      loadingPromise = null;
+      throw error;
+    }
   })();
 
   await loadingPromise;
@@ -183,21 +199,32 @@ export async function exportVideoWithSubtitles(
 ): Promise<Blob> {
   const { resolution = '720p', onProgress } = options;
 
+  console.log('[Export] Starting export with URL:', videoUrl);
+  console.log('[Export] Words count:', words.length);
+  console.log('[Export] Resolution:', resolution);
+
   const ff = await initFFmpeg(onProgress);
 
   try {
     onProgress?.(15, 'Downloading video...');
     
+    console.log('[Export] Fetching video file...');
     // Fetch video file
     const videoData = await fetchFile(videoUrl);
+    console.log('[Export] Video fetched, size:', videoData.byteLength);
+    
     await ff.writeFile('input.mp4', videoData);
+    console.log('[Export] Video written to virtual FS');
 
     onProgress?.(30, 'Generating subtitles...');
 
     // Generate and write ASS file
     const assContent = generateASSContent(words, style as Parameters<typeof generateASSContent>[1]);
+    console.log('[Export] ASS content generated, length:', assContent.length);
+    
     const assEncoder = new TextEncoder();
     await ff.writeFile('subtitles.ass', assEncoder.encode(assContent));
+    console.log('[Export] ASS written to virtual FS');
 
     onProgress?.(35, 'Burning subtitles into video...');
 
@@ -208,8 +235,7 @@ export async function exportVideoWithSubtitles(
       ? 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2'
       : 'scale=iw:ih';
 
-    // Run FFmpeg - burn subtitles
-    await ff.exec([
+    const ffmpegArgs = [
       '-i', 'input.mp4',
       '-vf', `ass=subtitles.ass,${scaleFilter}`,
       '-c:v', 'libx264',
@@ -219,17 +245,25 @@ export async function exportVideoWithSubtitles(
       '-b:a', '128k',
       '-movflags', '+faststart',
       'output.mp4'
-    ]);
+    ];
+    
+    console.log('[Export] Running FFmpeg with args:', ffmpegArgs.join(' '));
+
+    // Run FFmpeg - burn subtitles
+    await ff.exec(ffmpegArgs);
+    console.log('[Export] FFmpeg execution complete');
 
     onProgress?.(90, 'Finalizing...');
 
     // Read output file
     const data = await ff.readFile('output.mp4');
+    console.log('[Export] Output file read, size:', (data as Uint8Array).byteLength);
     
     // Cleanup
     await ff.deleteFile('input.mp4');
     await ff.deleteFile('subtitles.ass');
     await ff.deleteFile('output.mp4');
+    console.log('[Export] Cleanup complete');
 
     onProgress?.(100, 'Complete!');
 
@@ -239,7 +273,7 @@ export async function exportVideoWithSubtitles(
     return new Blob([uint8Array], { type: 'video/mp4' });
 
   } catch (error) {
-    console.error('FFmpeg export error:', error);
+    console.error('[Export] FFmpeg export error:', error);
     throw new Error(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
