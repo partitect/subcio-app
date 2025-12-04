@@ -18,7 +18,7 @@ export type ProgressCallback = (progress: number, message: string) => void;
 
 /**
  * Initialize FFmpeg.wasm
- * Uses single-threaded version to avoid SharedArrayBuffer requirement
+ * Uses jsDelivr CDN which has proper CORS headers
  */
 export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg> {
   if (ffmpeg && isLoaded) {
@@ -48,9 +48,8 @@ export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg>
 
     onProgress?.(5, 'Loading FFmpeg core...');
 
-    // Use single-threaded version (no SharedArrayBuffer required)
-    // This works in all browsers without special headers
-    const baseURL = 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/esm';
+    // Use jsDelivr CDN - has proper CORS headers
+    const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
     
     await ffmpeg.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
