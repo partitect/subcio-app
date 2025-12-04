@@ -49,8 +49,12 @@ RUN pip install --no-cache-dir \
     uvloop \
     httptools
 
-# Copy application code
+# Copy application code (includes fonts/ directory)
 COPY backend/ .
+
+# Create necessary directories and ensure fonts are in place
+RUN mkdir -p /app/exports /app/projects && \
+    if [ ! -d "/app/fonts" ]; then mkdir -p /app/fonts; fi
 
 # Make start script executable before switching user
 RUN chmod +x /app/start.sh

@@ -480,10 +480,18 @@ def run_ffmpeg_burn(
     video_bitrate = custom_bitrate if bitrate == "custom" and custom_bitrate else bitrate_config["video"]
     audio_bitrate = bitrate_config["audio"] or 192
 
-    # Escape Windows drive colon for ffmpeg ass filter (expects \: in path)
-    ass_path_str = ass_path.as_posix().replace(":", r"\:")
-    fonts_dir_str = FONTS_DIR.as_posix().replace(":", r"\:")
-    vf = f"ass=filename='{ass_path_str}':fontsdir='{fonts_dir_str}',{scale_filter}"
+    # Escape path for ffmpeg ass filter
+    # On Windows, colons in drive letters need escaping (C: -> C\:)
+    # On Linux, no escaping needed
+    import platform
+    if platform.system() == "Windows":
+        ass_path_str = ass_path.as_posix().replace(":", r"\:")
+        fonts_dir_str = FONTS_DIR.as_posix().replace(":", r"\:")
+    else:
+        ass_path_str = str(ass_path)
+        fonts_dir_str = str(FONTS_DIR)
+    
+    vf = f"ass='{ass_path_str}':fontsdir='{fonts_dir_str}',{scale_filter}"
     
     # Build FFmpeg command
     cmd = [
