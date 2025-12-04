@@ -997,11 +997,11 @@ async def transcribe(
 ):
     """
     Accepts video/audio file and returns word-level timestamps with confidence.
+    Uses Groq API if available, otherwise falls back to local Whisper model.
     """
     # Validate file type
     validate_upload_file(file.filename, request.headers.get("content-length"))
     
-    model = get_model(model_name)
     with tempfile.TemporaryDirectory() as tmpdir:
         in_path = Path(tmpdir) / file.filename
         
@@ -1014,48 +1014,72 @@ async def transcribe(
         with in_path.open("wb") as f:
             f.write(content)
 
-        segments, info = model.transcribe(
-            str(in_path),
-            language=language if language else None,
-            word_timestamps=True,
-            vad_filter=use_vad,
-            vad_parameters={"min_silence_duration_ms": 200} if use_vad else None,
-            beam_size=beam_size,
-            best_of=best_of,
-            temperature=temperature,
-        )
         words = []
-        for seg in segments:
-            for w in seg.words:
-                # Remove punctuation from word text
-                clean_text = w.word.strip()
-                # Remove common punctuation marks
-                clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+        detected_language = language or "auto"
+        
+        # Try Groq API first (faster, no memory issues)
+        try:
+            from services.groq_transcription import is_groq_available, transcribe_to_words
+            
+            if is_groq_available():
+                logger.info("Using Groq API for transcription")
+                groq_words, info = transcribe_to_words(str(in_path), language)
                 
-                # Skip if text becomes empty after cleaning
-                if not clean_text:
-                    continue
-                    
-                words.append(
-                    {
+                for w in groq_words:
+                    clean_text = w.get("word", "").strip()
+                    clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+                    if not clean_text:
+                        continue
+                    words.append({
+                        "start": round(w.get("start", 0), 3),
+                        "end": round(w.get("end", 0), 3),
+                        "text": clean_text,
+                        "confidence": 0.95,  # Groq doesn't provide confidence
+                    })
+                detected_language = info.get("language", language or "auto")
+            else:
+                raise ValueError("Groq not available, falling back to local model")
+                
+        except Exception as e:
+            logger.warning(f"Groq API failed, falling back to local model: {e}")
+            # Fallback to local Whisper model
+            model = get_model(model_name)
+            segments, info = model.transcribe(
+                str(in_path),
+                language=language if language else None,
+                word_timestamps=True,
+                vad_filter=use_vad,
+                vad_parameters={"min_silence_duration_ms": 200} if use_vad else None,
+                beam_size=beam_size,
+                best_of=best_of,
+                temperature=temperature,
+            )
+            for seg in segments:
+                for w in seg.words:
+                    clean_text = w.word.strip()
+                    clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+                    if not clean_text:
+                        continue
+                    words.append({
                         "start": round(w.start, 3),
                         "end": round(w.end, 3),
                         "text": clean_text,
                         "confidence": round(getattr(w, "probability", 0) or 0, 3),
-                    }
-                )
+                    })
+            detected_language = info.language or language or "auto"
+        
         project_meta = persist_project(
             in_path,
             words,
-            info.language or (language or "auto"),
+            detected_language,
             model_name,
             name=file.filename,
         )
     return JSONResponse(
         {
-            "language": info.language,
+            "language": detected_language,
             "device": DEVICE,
-            "model": model_name,
+            "model": "groq-whisper-large-v3" if is_groq_available() else model_name,
             "words": words,
             "projectId": project_meta["id"],
             "project": project_meta,
@@ -1199,6 +1223,7 @@ async def create_project(
 ):
     """
     Create a new project by transcribing (if words not provided) and persisting assets.
+    Uses Groq API if available for transcription.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         in_path = Path(tmpdir) / video.filename
@@ -1209,29 +1234,54 @@ async def create_project(
         detected_language = language or "auto"
 
         if not incoming_words:
-            model = get_model(model_name)
-            segments, info = model.transcribe(
-                str(in_path),
-                language=language if language else None,
-                word_timestamps=True,
-                vad_filter=False,
-            )
-            words = []
-            for seg in segments:
-                for w in seg.words:
-                    clean_text = w.word.strip().strip('.,!?;:"\'-()[]{}')
-                    if not clean_text:
-                        continue
-                    words.append(
-                        {
+            # Try Groq API first
+            try:
+                from services.groq_transcription import is_groq_available, transcribe_to_words
+                
+                if is_groq_available():
+                    logger.info("Using Groq API for project transcription")
+                    groq_words, info = transcribe_to_words(str(in_path), language)
+                    
+                    words = []
+                    for w in groq_words:
+                        clean_text = w.get("word", "").strip()
+                        clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+                        if not clean_text:
+                            continue
+                        words.append({
+                            "start": round(w.get("start", 0), 3),
+                            "end": round(w.get("end", 0), 3),
+                            "text": clean_text,
+                            "confidence": 0.95,
+                        })
+                    incoming_words = words
+                    detected_language = info.get("language", language or "auto")
+                else:
+                    raise ValueError("Groq not available")
+                    
+            except Exception as e:
+                logger.warning(f"Groq API failed, falling back to local model: {e}")
+                model = get_model(model_name)
+                segments, info = model.transcribe(
+                    str(in_path),
+                    language=language if language else None,
+                    word_timestamps=True,
+                    vad_filter=False,
+                )
+                words = []
+                for seg in segments:
+                    for w in seg.words:
+                        clean_text = w.word.strip().strip('.,!?;:"\'-()[]{}')
+                        if not clean_text:
+                            continue
+                        words.append({
                             "start": round(w.start, 3),
                             "end": round(w.end, 3),
                             "text": clean_text,
                             "confidence": round(getattr(w, "probability", 0) or 0, 3),
-                        }
-                    )
-            incoming_words = words
-            detected_language = info.language or language or "auto"
+                        })
+                incoming_words = words
+                detected_language = info.language or language or "auto"
 
         incoming_style = json.loads(style_json) if style_json else {}
         project_meta = persist_project(
