@@ -1099,18 +1099,18 @@ async def transcribe(
                     detected_language = info.get("language", language or "auto")
                 else:
                     raise HTTPException(
-                    status_code=503,
-                    detail="Transcription service unavailable. GROQ_API_KEY not configured."
-                )
+                        status_code=503,
+                        detail="Transcription service unavailable. GROQ_API_KEY not configured."
+                    )
                 
-        except HTTPException:
-            raise
-        except Exception as e:
-            logger.error(f"Groq API transcription failed: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Transcription failed: {str(e)}. Please try again or contact support."
-            )
+            except HTTPException:
+                raise
+            except Exception as e:
+                logger.error(f"Groq API transcription failed: {e}")
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Transcription failed: {str(e)}. Please try again or contact support."
+                )
         
         project_meta = persist_project(
             in_path,
