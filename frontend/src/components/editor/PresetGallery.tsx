@@ -1,13 +1,13 @@
 import { memo, useState, useMemo, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { 
-  Box, 
-  Grid, 
+import {
+  Box,
+  Grid,
   Card,
   CardActionArea,
   CardContent,
-  Typography, 
-  TextField, 
+  Typography,
+  TextField,
   InputAdornment,
   Chip,
   Stack,
@@ -22,7 +22,7 @@ import { Search, Filter, X, ChevronDown, ChevronUp, Heart, Grid3X3, List } from 
 import { StyleConfig } from "../../types";
 import { useTheme } from "../../ThemeContext";
 import { announce, VisuallyHidden } from "../../utils/a11y";
-import StaticPresetPreview from "../admin/StaticPresetPreview";
+// import StaticPresetPreview from "../admin/StaticPresetPreview"; // REMOVED
 
 type Preset = StyleConfig & { label?: string };
 
@@ -93,7 +93,7 @@ function PresetGalleryComponent({
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(loadFavorites);
   const [viewMode, setViewMode] = useState<"grid" | "list">(loadViewMode);
-  
+
   const muiTheme = useMuiTheme();
   const { isDark } = useTheme();
 
@@ -146,7 +146,7 @@ function PresetGalleryComponent({
    */
   const getPresetCategory = (preset: Preset): string => {
     const searchText = `${preset.id} ${preset.effect_type || ""}`.toLowerCase();
-    
+
     for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
       if (keywords.some(keyword => searchText.includes(keyword))) {
         return category;
@@ -179,12 +179,12 @@ function PresetGalleryComponent({
   // Category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: presets.length, favorites: favorites.size };
-    
+
     presets.forEach((preset) => {
       const category = getPresetCategory(preset);
       counts[category] = (counts[category] || 0) + 1;
     });
-    
+
     return counts;
   }, [presets, favorites.size]);
 
@@ -220,10 +220,10 @@ function PresetGalleryComponent({
       />
 
       {/* Filter Toggle Button */}
-      <Card 
+      <Card
         variant="outlined"
         onClick={() => setShowFilters(!showFilters)}
-        sx={{ 
+        sx={{
           cursor: "pointer",
           borderRadius: 2,
           transition: "all 0.2s ease",
@@ -240,9 +240,9 @@ function PresetGalleryComponent({
                 {t('editor.preset.categories')}
               </Typography>
               {selectedCategory !== "all" && (
-                <Chip 
-                  label={t(`editor.preset.category.${selectedCategory}`)} 
-                  size="small" 
+                <Chip
+                  label={t(`editor.preset.category.${selectedCategory}`)}
+                  size="small"
                   color="primary"
                   sx={{ height: 22, fontSize: "0.75rem" }}
                 />
@@ -255,18 +255,18 @@ function PresetGalleryComponent({
 
       {/* Category Filters */}
       <Collapse in={showFilters}>
-        <Box 
-          sx={{ 
-            display: "flex", 
-            flexWrap: "wrap", 
-            gap: 0.75, 
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 0.75,
             pb: 1,
           }}
         >
           {PRESET_CATEGORY_KEYS.map((key) => {
             const count = categoryCounts[key] || 0;
             if (key !== "all" && count === 0) return null;
-            
+
             return (
               <Chip
                 key={key}
@@ -294,19 +294,19 @@ function PresetGalleryComponent({
         <Typography variant="body2" color="text.secondary" fontWeight={500}>
           {t('editor.preset.found', { count: filteredPresets.length })}
         </Typography>
-        
+
         <ToggleButtonGroup
           value={viewMode}
           exclusive
           onChange={handleViewModeChange}
           size="small"
-          sx={{ 
-            "& .MuiToggleButton-root": { 
-              px: 1, 
+          sx={{
+            "& .MuiToggleButton-root": {
+              px: 1,
               py: 0.5,
               border: "1px solid",
               borderColor: "divider",
-            } 
+            }
           }}
         >
           <ToggleButton value="grid" aria-label="grid view">
@@ -338,9 +338,9 @@ function PresetGalleryComponent({
 
             return (
               <Grid item xs={4} sm={3} key={preset.id} role="option" aria-selected={selected}>
-                <Tooltip 
-                  title={presetName} 
-                  arrow 
+                <Tooltip
+                  title={presetName}
+                  arrow
                   placement="top"
                   enterDelay={500}
                 >
@@ -361,7 +361,7 @@ function PresetGalleryComponent({
                       borderRadius: 2,
                       borderWidth: selected ? 2 : 1,
                       borderColor: selected ? "primary.main" : "divider",
-                      bgcolor: selected 
+                      bgcolor: selected
                         ? isDark ? "rgba(99, 102, 241, 0.12)" : "rgba(99, 102, 241, 0.08)"
                         : "background.paper",
                       transition: "all 0.15s ease",
@@ -374,8 +374,8 @@ function PresetGalleryComponent({
                       "&:hover": {
                         borderColor: "primary.main",
                         transform: "translateY(-2px)",
-                        boxShadow: isDark 
-                          ? "0 8px 24px rgba(0,0,0,0.4)" 
+                        boxShadow: isDark
+                          ? "0 8px 24px rgba(0,0,0,0.4)"
                           : "0 8px 24px rgba(0,0,0,0.12)",
                       },
                       "&:hover .favorite-btn": {
@@ -388,8 +388,8 @@ function PresetGalleryComponent({
                       className="favorite-btn"
                       size="small"
                       onClick={(e) => toggleFavorite(preset.id, e)}
-                      aria-label={isFavorite 
-                        ? t('editor.preset.removeFromFavorites', { name: presetName }) 
+                      aria-label={isFavorite
+                        ? t('editor.preset.removeFromFavorites', { name: presetName })
                         : t('editor.preset.addToFavorites', { name: presetName })
                       }
                       aria-pressed={isFavorite}
@@ -410,9 +410,9 @@ function PresetGalleryComponent({
                         p: 0.5,
                       }}
                     >
-                      <Heart 
-                        size={14} 
-                        fill={isFavorite ? "#ef4444" : "none"} 
+                      <Heart
+                        size={14}
+                        fill={isFavorite ? "#ef4444" : "none"}
                         color={isFavorite ? "#ef4444" : "currentColor"}
                         aria-hidden="true"
                       />
@@ -426,12 +426,9 @@ function PresetGalleryComponent({
                         borderRadius: "8px 8px 0 0",
                       }}
                     >
-                      <StaticPresetPreview 
-                        preset={preset} 
-                        height={50} 
-                        sampleText={preset.label || formatPresetName(preset.id)}
-                        showMultipleWords={false}
-                      />
+                      <Box sx={{ width: "100%", height: "100%", bgcolor: "grey.100", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Typography variant="caption" color="text.secondary">Preview</Typography>
+                      </Box>
                     </Box>
 
                     {/* Preset Name */}
@@ -481,14 +478,14 @@ function PresetGalleryComponent({
                   borderRadius: 2,
                   borderWidth: selected ? 2 : 1,
                   borderColor: selected ? "primary.main" : "divider",
-                  bgcolor: selected 
+                  bgcolor: selected
                     ? isDark ? "rgba(99, 102, 241, 0.12)" : "rgba(99, 102, 241, 0.08)"
                     : "background.paper",
                   transition: "all 0.15s ease",
                   "&:hover": {
                     borderColor: "primary.main",
-                    boxShadow: isDark 
-                      ? "0 4px 12px rgba(0,0,0,0.3)" 
+                    boxShadow: isDark
+                      ? "0 4px 12px rgba(0,0,0,0.3)"
                       : "0 4px 12px rgba(0,0,0,0.08)",
                   },
                 }}
@@ -504,12 +501,9 @@ function PresetGalleryComponent({
                       flexShrink: 0,
                     }}
                   >
-                    <StaticPresetPreview 
-                      preset={preset} 
-                      height={36} 
-                      sampleText={preset.label || formatPresetName(preset.id)}
-                      showMultipleWords={false}
-                    />
+                    <Box sx={{ width: "100%", height: "100%", bgcolor: "grey.100", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: 8 }}>Preview</Typography>
+                    </Box>
                   </Box>
 
                   {/* Name & Category */}
@@ -536,9 +530,9 @@ function PresetGalleryComponent({
                     onClick={(e) => toggleFavorite(preset.id, e)}
                     sx={{ p: 0.5 }}
                   >
-                    <Heart 
-                      size={16} 
-                      fill={isFavorite ? "#ef4444" : "none"} 
+                    <Heart
+                      size={16}
+                      fill={isFavorite ? "#ef4444" : "none"}
                       color={isFavorite ? "#ef4444" : "currentColor"}
                     />
                   </IconButton>
@@ -551,18 +545,18 @@ function PresetGalleryComponent({
 
       {/* No Results */}
       {filteredPresets.length === 0 && (
-        <Card 
-          variant="outlined" 
-          sx={{ 
-            py: 4, 
+        <Card
+          variant="outlined"
+          sx={{
+            py: 4,
             textAlign: "center",
             borderRadius: 2,
             borderStyle: "dashed",
           }}
         >
           <Typography variant="body1" color="text.secondary" fontWeight={500}>
-            {selectedCategory === "favorites" 
-              ? t('editor.preset.noFavorites') 
+            {selectedCategory === "favorites"
+              ? t('editor.preset.noFavorites')
               : t('editor.preset.noResults')}
           </Typography>
           <Typography variant="body2" color="text.disabled" sx={{ mt: 0.5 }}>

@@ -46,30 +46,13 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 # PyonFX Effects Integration
+# PyonFX Effects Integration
 try:
     from .styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from .data_store import load_presets, save_presets, load_effects
-    from .auth.routes import router as auth_router
-    from .auth.admin_routes import router as admin_router
-    from .auth.database import init_db
-    from .payments.routes import router as payment_router
-    from .security import (
-        rate_limiter, rate_limit, InputValidator, AuditLogger,
-        WebhookVerifier, CreditManager, ServiceBlacklist, DeviceManager,
-        AuditLog, DeviceMapping
-    )
 except ImportError:
     from styles.effects import PyonFXRenderer, PyonFXStyleBuilder
     from data_store import load_presets, save_presets, load_effects
-    from auth.routes import router as auth_router
-    from auth.admin_routes import router as admin_router
-    from auth.database import init_db
-    from payments.routes import router as payment_router
-    from security import (
-        rate_limiter, rate_limit, InputValidator, AuditLogger,
-        WebhookVerifier, CreditManager, ServiceBlacklist, DeviceManager,
-        AuditLog, DeviceMapping
-    )
 PYONFX_EFFECT_TYPES = set(PyonFXRenderer.EFFECTS.keys())
 
 def ms_to_ass_timestamp(ms: int) -> str:
@@ -805,7 +788,7 @@ async def health_check():
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
-    init_db()
+    # init_db()  # Auth DB removed
     logger.info("Subcio API started")
     logger.info("Security middleware active")
     logger.info("Request logging enabled")
@@ -872,22 +855,7 @@ projects_cors = CORSMiddleware(
 app.mount("/projects", projects_cors, name="projects")
 
 # Rate Limiting setup
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-
-limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-# Include Auth Router
-app.include_router(auth_router, prefix="/api")
-
-# Include Admin Router
-app.include_router(admin_router)
-
-# Include Payment Router
-app.include_router(payment_router)
+# Rate Limiting and Routers removed for Desktop mode
 
 # -----------------------------------------------------------------------------
 # Byte-range video streaming endpoint (enables seeking)

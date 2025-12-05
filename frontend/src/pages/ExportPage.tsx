@@ -14,13 +14,13 @@ export default function ExportPage() {
   const videoUrl = useMemo(() => (location.state as any)?.videoUrl as string | undefined, [location.state]);
 
   return (
-    <Box 
-      sx={{ 
-        minHeight: "100vh", 
-        bgcolor: "background.default", 
-        color: "text.primary", 
-        display: "flex", 
-        alignItems: "center", 
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
+        display: "flex",
+        alignItems: "center",
         py: { xs: 4, md: 8 },
         position: "relative",
       }}
@@ -34,13 +34,13 @@ export default function ExportPage() {
           pointerEvents: "none",
         }}
       />
-      
+
       <Container maxWidth="md" sx={{ position: "relative" }}>
         <AnimatedContainer delay={0}>
-          <GlassCard 
+          <GlassCard
             glowEffect
-            sx={{ 
-              p: { xs: 3, md: 5 }, 
+            sx={{
+              p: { xs: 3, md: 5 },
               borderRadius: radii.xl,
               textAlign: "center",
             }}
@@ -62,21 +62,21 @@ export default function ExportPage() {
             >
               <CheckCircle2 size={40} color="#fff" />
             </Box>
-            
-            <Chip 
-              label="Export Ready" 
-              color="success" 
+
+            <Chip
+              label="Export Ready"
+              color="success"
               size="small"
-              sx={{ 
+              sx={{
                 mb: 2,
                 fontWeight: 600,
                 borderRadius: radii.full,
               }}
             />
-            
-            <Typography 
-              variant="h3" 
-              fontWeight={800} 
+
+            <Typography
+              variant="h3"
+              fontWeight={800}
               gutterBottom
               sx={{
                 background: colors.gradients.primary,
@@ -87,10 +87,10 @@ export default function ExportPage() {
             >
               Your video is ready!
             </Typography>
-            
-            <Typography 
-              variant="body1" 
-              color="text.secondary" 
+
+            <Typography
+              variant="body1"
+              color="text.secondary"
               sx={{ mb: 4, maxWidth: 400, mx: "auto" }}
             >
               Your subtitled video has been rendered and is ready for download.
@@ -154,15 +154,16 @@ export default function ExportPage() {
               </Box>
             )}
 
-            <Stack 
-              direction={{ xs: "column", sm: "row" }} 
-              spacing={2} 
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
               justifyContent="center"
             >
               {videoUrl && (
                 <GradientButton
                   component="a"
                   href={videoUrl}
+                  // @ts-ignore
                   download={`subcio-${projectId || "export"}.mp4`}
                   size="large"
                   startIcon={<Download size={18} />}
@@ -171,12 +172,12 @@ export default function ExportPage() {
                   Download
                 </GradientButton>
               )}
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 size="large"
-                startIcon={<ArrowLeft size={18} />} 
+                startIcon={<ArrowLeft size={18} />}
                 onClick={() => navigate(`/editor/${projectId || "latest"}`)}
-                sx={{ 
+                sx={{
                   minWidth: 160,
                   borderWidth: 2,
                   "&:hover": { borderWidth: 2 },
@@ -184,12 +185,12 @@ export default function ExportPage() {
               >
                 Back to Editor
               </Button>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 size="large"
-                startIcon={<Plus size={18} />} 
+                startIcon={<Plus size={18} />}
                 onClick={() => navigate("/upload")}
-                sx={{ 
+                sx={{
                   minWidth: 160,
                   borderWidth: 2,
                   "&:hover": { borderWidth: 2 },
@@ -198,7 +199,7 @@ export default function ExportPage() {
                 New Project
               </Button>
             </Stack>
-            
+
             {/* Decorative Elements */}
             <Box
               sx={{

@@ -54,8 +54,7 @@ import {
   PlayCircle,
   RefreshCw,
 } from "lucide-react";
-import { Navbar } from "../components/landing";
-import { getUsageStats, UsageStats } from "../services/authService";
+// Imports removed
 import { ProjectMeta } from "../types";
 import { getLottieUrl } from "../utils/assetPath";
 
@@ -95,7 +94,7 @@ export default function UploadPage() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation();
-  
+
   // File upload state
   const [file, setFile] = useState<File | null>(null);
   const [language, setLanguage] = useState<string>("");
@@ -103,13 +102,12 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [dragOver, setDragOver] = useState(false);
-  
+
   // API data state
-  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
   const [recentProjects, setRecentProjects] = useState<ProjectMeta[]>([]);
-  const [loadingUsage, setLoadingUsage] = useState(true);
+  // const [loadingUsage, setLoadingUsage] = useState(true); // REMOVED
   const [loadingProjects, setLoadingProjects] = useState(true);
-  
+
   // Lottie animations
   const [uploadAnimation, setUploadAnimation] = useState<any>(null);
   const [processingAnimation, setProcessingAnimation] = useState<any>(null);
@@ -121,30 +119,20 @@ export default function UploadPage() {
       .then(res => res.json())
       .then(setUploadAnimation)
       .catch(console.error);
-    
+
     fetch(getLottieUrl("processing-dots.json"))
       .then(res => res.json())
       .then(setProcessingAnimation)
       .catch(console.error);
-    
+
     fetch(getLottieUrl("success-check.json"))
       .then(res => res.json())
       .then(setSuccessAnimation)
       .catch(console.error);
   }, []);
 
-  // Fetch usage stats from API (getUsageStats handles desktop mode internally)
-  const fetchUsageStats = useCallback(async () => {
-    setLoadingUsage(true);
-    try {
-      const stats = await getUsageStats();
-      setUsageStats(stats);
-    } catch (err) {
-      console.error("Failed to load usage stats", err);
-    } finally {
-      setLoadingUsage(false);
-    }
-  }, []);
+  // Usage stats API removed for desktop
+  // const fetchUsageStats = ...
 
   // Fetch recent projects from API
   const fetchRecentProjects = useCallback(async () => {
@@ -163,9 +151,8 @@ export default function UploadPage() {
   }, []);
 
   useEffect(() => {
-    fetchUsageStats();
     fetchRecentProjects();
-  }, [fetchUsageStats, fetchRecentProjects]);
+  }, [fetchRecentProjects]);
 
   const dropLabel = useMemo(() => (
     file ? file.name : t('upload.dropzone.title')
@@ -186,7 +173,7 @@ export default function UploadPage() {
   const simulateProgress = () => {
     const steps = [0, 1, 2, 3, 4];
     const delays = [500, 2000, 8000, 2000, 500];
-    
+
     let currentIndex = 0;
     const advanceStep = () => {
       if (currentIndex < steps.length) {
@@ -205,7 +192,7 @@ export default function UploadPage() {
     setLoading(true);
     setCurrentStep(0);
     simulateProgress();
-    
+
     const form = new FormData();
     form.append("file", file);
     form.append("model_name", model);
@@ -229,12 +216,7 @@ export default function UploadPage() {
   };
 
   // Calculate usage percentages
-  const minutesUsed = usageStats?.usage?.minutes_used ?? 0;
-  const minutesLimit = usageStats?.usage?.minutes_limit ?? 100;
-  const minutesPercentage = minutesLimit > 0 ? (minutesUsed / minutesLimit) * 100 : 0;
-
-  const exportsUsed = usageStats?.usage?.exports_used ?? 0;
-  const exportsLimit = usageStats?.usage?.exports_limit ?? 10;
+  // Usage stats calculation removed
 
   // Format project date
   const formatDate = (dateString?: string) => {
@@ -267,7 +249,7 @@ export default function UploadPage() {
         color: "text.primary",
       }}
     >
-      <Navbar />
+      {/* Navbar Removed */}
 
       {/* Background Effects */}
       <Box
@@ -323,18 +305,17 @@ export default function UploadPage() {
                       p: { xs: 4, md: 6 },
                       textAlign: "center",
                       borderRadius: 3,
-                      border: `2px dashed ${
-                        dragOver
-                          ? theme.palette.primary.main
-                          : file
+                      border: `2px dashed ${dragOver
+                        ? theme.palette.primary.main
+                        : file
                           ? theme.palette.success.main
                           : alpha(theme.palette.divider, 0.3)
-                      }`,
+                        }`,
                       bgcolor: dragOver
                         ? alpha(theme.palette.primary.main, 0.05)
                         : file
-                        ? alpha(theme.palette.success.main, 0.03)
-                        : "transparent",
+                          ? alpha(theme.palette.success.main, 0.03)
+                          : "transparent",
                       m: 2,
                       cursor: "pointer",
                       transition: "all 0.3s ease",
@@ -357,9 +338,9 @@ export default function UploadPage() {
                   >
                     <Stack spacing={3} alignItems="center">
                       {/* Lottie Animation */}
-                      <Box 
-                        sx={{ 
-                          width: 160, 
+                      <Box
+                        sx={{
+                          width: 160,
                           height: 160,
                           display: "flex",
                           alignItems: "center",
@@ -367,21 +348,21 @@ export default function UploadPage() {
                         }}
                       >
                         {loading && processingAnimation ? (
-                          <Lottie 
-                            animationData={processingAnimation} 
-                            loop 
+                          <Lottie
+                            animationData={processingAnimation}
+                            loop
                             style={{ width: 140, height: 140 }}
                           />
                         ) : file && successAnimation ? (
-                          <Lottie 
-                            animationData={successAnimation} 
-                            loop={false} 
+                          <Lottie
+                            animationData={successAnimation}
+                            loop={false}
                             style={{ width: 140, height: 140 }}
                           />
                         ) : uploadAnimation ? (
-                          <Lottie 
-                            animationData={uploadAnimation} 
-                            loop 
+                          <Lottie
+                            animationData={uploadAnimation}
+                            loop
                             style={{ width: 160, height: 160 }}
                           />
                         ) : (
@@ -541,8 +522,8 @@ export default function UploadPage() {
                                   index < currentStep
                                     ? "success.main"
                                     : index === currentStep
-                                    ? "primary.main"
-                                    : alpha(theme.palette.divider, 0.2),
+                                      ? "primary.main"
+                                      : alpha(theme.palette.divider, 0.2),
                                 color:
                                   index <= currentStep ? "white" : "text.disabled",
                                 transition: "all 0.3s ease",
@@ -606,125 +587,7 @@ export default function UploadPage() {
           {/* Sidebar */}
           <Grid item xs={12} lg={4}>
             <Stack spacing={3}>
-              {/* Usage Card - Real Data */}
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  bgcolor: alpha(theme.palette.background.paper, 0.6),
-                  backdropFilter: "blur(20px)",
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <TrendingUp size={18} color={theme.palette.primary.main} />
-                      <Typography variant="subtitle1" fontWeight={700}>
-                        {t('upload.usage.title')}
-                      </Typography>
-                    </Stack>
-                    {loadingUsage ? (
-                      <Skeleton width={60} height={24} />
-                    ) : (
-                      <Chip
-                        label={usageStats?.plan || 'Free'}
-                        size="small"
-                        color="primary"
-                        sx={{ fontWeight: 700 }}
-                      />
-                    )}
-                  </Stack>
-
-                  {loadingUsage ? (
-                    <Stack spacing={2}>
-                      <Skeleton height={40} />
-                      <Skeleton height={8} />
-                      <Skeleton height={40} />
-                    </Stack>
-                  ) : (
-                    <>
-                      {/* Minutes Usage */}
-                      <Box sx={{ mb: 3 }}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <Clock size={14} />
-                            <Typography variant="body2" color="text.secondary">
-                              {t('upload.usage.minutesLabel')}
-                            </Typography>
-                          </Stack>
-                          <Typography variant="body2" fontWeight={600}>
-                            {minutesUsed} / {minutesLimit}
-                          </Typography>
-                        </Stack>
-                        <LinearProgress
-                          variant="determinate"
-                          value={Math.min(minutesPercentage, 100)}
-                          sx={{
-                            height: 8,
-                            borderRadius: 4,
-                            bgcolor: alpha(theme.palette.primary.main, 0.1),
-                            '& .MuiLinearProgress-bar': {
-                              bgcolor: minutesPercentage >= 90 ? 'error.main' : 
-                                       minutesPercentage >= 70 ? 'warning.main' : 'primary.main',
-                            }
-                          }}
-                        />
-                      </Box>
-
-                      {/* Exports Usage */}
-                      <Box sx={{ mb: 2 }}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <Film size={14} />
-                            <Typography variant="body2" color="text.secondary">
-                              {t('upload.usage.exportsLabel')}
-                            </Typography>
-                          </Stack>
-                          <Typography variant="body2" fontWeight={600}>
-                            {exportsUsed} / {exportsLimit}
-                          </Typography>
-                        </Stack>
-                        <LinearProgress
-                          variant="determinate"
-                          value={exportsLimit > 0 ? Math.min((exportsUsed / exportsLimit) * 100, 100) : 0}
-                          color="secondary"
-                          sx={{
-                            height: 8,
-                            borderRadius: 4,
-                            bgcolor: alpha(theme.palette.secondary.main, 0.1),
-                          }}
-                        />
-                      </Box>
-
-                      {minutesPercentage >= 80 && (
-                        <Box
-                          sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: alpha(theme.palette.warning.main, 0.1),
-                          }}
-                        >
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <AlertCircle size={16} color={theme.palette.warning.main} />
-                            <Typography variant="caption" color="warning.main" fontWeight={600}>
-                              {t('upload.usage.lowWarning')}
-                            </Typography>
-                          </Stack>
-                        </Box>
-                      )}
-                    </>
-                  )}
-
-                  <Button
-                    component={RouterLink}
-                    to="/pricing"
-                    variant="outlined"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                  >
-                    {t('upload.usage.upgrade')}
-                  </Button>
-                </CardContent>
-              </Card>
+              {/* Usage Card Removed */}
 
               {/* Recent Projects Card - Real Data */}
               <Card
@@ -804,10 +667,10 @@ export default function UploadPage() {
                                 color: "primary.main",
                               }}
                             >
-                              {project.thumbnail ? (
+                              {project.thumb_url ? (
                                 <Box
                                   component="img"
-                                  src={project.thumbnail}
+                                  src={project.thumb_url}
                                   sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                                 />
                               ) : (
@@ -826,13 +689,14 @@ export default function UploadPage() {
                               <Stack direction="row" spacing={1} alignItems="center">
                                 <Clock size={12} />
                                 <Typography variant="caption" color="text.secondary">
-                                  {formatDuration(project.duration)}
+                                  {/* Duration removed */}
+                                  N/A
                                 </Typography>
                                 <Typography variant="caption" color="text.disabled">
                                   •
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
-                                  {formatDate(project.createdAt)}
+                                  {formatDate(project.created_at)}
                                 </Typography>
                               </Stack>
                             </Box>

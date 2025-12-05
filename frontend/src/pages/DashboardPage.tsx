@@ -48,31 +48,27 @@ import {
 } from "lucide-react";
 import { ProjectMeta } from "../types";
 import { useTheme as useAppTheme } from "../ThemeContext";
-import { useAuth } from "../contexts/AuthContext";
-import { getUsageStats, UsageStats } from "../services/authService";
-import BatchExportDialog from "../components/BatchExportDialog";
+// import { useAuth } from "../contexts/AuthContext"; // REMOVED
 import { getAssetPath } from "../utils/assetPath";
+import BatchExportDialog from "../components/BatchExportDialog";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_BASE = "http://localhost:8000/api";
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<ProjectMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBatchExport, setShowBatchExport] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
-  
+
   const theme = useTheme();
   const { isDark, toggleTheme } = useAppTheme();
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth(); // REMOVED
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchProjects();
-    fetchUsageStats();
   }, []);
 
   const fetchProjects = async () => {
@@ -85,15 +81,6 @@ export default function DashboardPage() {
       console.error("Failed to load projects", err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchUsageStats = async () => {
-    try {
-      const stats = await getUsageStats();
-      setUsageStats(stats);
-    } catch (err) {
-      console.error("Failed to load usage stats", err);
     }
   };
 
@@ -120,11 +107,6 @@ export default function DashboardPage() {
     handleMenuClose();
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
   const resolveAssetUrl = (url?: string) => {
     if (!url) return "";
     if (url.startsWith("http")) return url;
@@ -132,16 +114,8 @@ export default function DashboardPage() {
     return `${apiHost}${url.startsWith("/") ? url : `/${url}`}`;
   };
 
-  // Calculate usage percentages
-  const minutesPercent = usageStats 
-    ? (usageStats.usage.minutes_used / usageStats.usage.minutes_limit) * 100 
-    : 0;
-  const storagePercent = usageStats 
-    ? (usageStats.usage.storage_used_mb / usageStats.usage.storage_limit_mb) * 100 
-    : 0;
-
-  const userName = user?.name || user?.email?.split("@")[0] || "User";
-  const userPlan = user?.plan || "free";
+  const userName = "Desktop User";
+  const userPlan = "Pro";
 
   return (
     <Box
@@ -194,66 +168,19 @@ export default function DashboardPage() {
               <IconButton onClick={toggleTheme} size="small">
                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
               </IconButton>
-              <Chip
-                label={userPlan.toUpperCase()}
+              <IconButton
                 size="small"
-                color="primary"
-                variant="outlined"
-              />
-              <IconButton 
-                size="small"
-                onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+                component={Link}
+                to="/settings"
               >
-                <Avatar 
-                  sx={{ 
-                    width: 32, 
-                    height: 32,
-                    bgcolor: theme.palette.primary.main,
-                    fontSize: 14,
-                  }}
-                >
-                  {userName.charAt(0).toUpperCase()}
-                </Avatar>
+                <Settings size={20} />
               </IconButton>
             </Stack>
           </Stack>
         </Container>
       </Paper>
 
-      {/* User Menu */}
-      <Menu
-        anchorEl={userMenuAnchor}
-        open={Boolean(userMenuAnchor)}
-        onClose={() => setUserMenuAnchor(null)}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        PaperProps={{
-          sx: { minWidth: 200, mt: 1 }
-        }}
-      >
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="subtitle2" fontWeight={600}>
-            {userName}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {user?.email}
-          </Typography>
-        </Box>
-        <Divider />
-        <MenuItem component={Link} to="/settings" onClick={() => setUserMenuAnchor(null)}>
-          <Settings size={16} style={{ marginRight: 8 }} />
-          {t('nav.settings')}
-        </MenuItem>
-        <MenuItem component={Link} to="/pricing" onClick={() => setUserMenuAnchor(null)}>
-          <CreditCard size={16} style={{ marginRight: 8 }} />
-          {t('nav.upgradePlan')}
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
-          <LogOut size={16} style={{ marginRight: 8 }} />
-          {t('nav.logout')}
-        </MenuItem>
-      </Menu>
+      {/* User Menu Removed for Desktop */}
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
@@ -293,148 +220,7 @@ export default function DashboardPage() {
           </Stack>
         </Stack>
 
-        {/* Stats Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: "background.paper", borderRadius: 2 }}>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('dashboard.stats.minutesUsed')}
-                    </Typography>
-                    <Typography variant="h4" fontWeight={700}>
-                      {usageStats?.usage.minutes_used.toFixed(0) || 0}
-                      <Typography component="span" variant="body2" color="text.secondary">
-                        /{usageStats?.usage.minutes_limit || 30} dk
-                      </Typography>
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Clock size={20} color={theme.palette.primary.main} />
-                  </Box>
-                </Stack>
-                <LinearProgress
-                  variant="determinate"
-                  value={Math.min(minutesPercent, 100)}
-                  sx={{ mt: 2, height: 6, borderRadius: 3 }}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: "background.paper", borderRadius: 2 }}>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('dashboard.stats.storage')}
-                    </Typography>
-                    <Typography variant="h4" fontWeight={700}>
-                      {((usageStats?.usage.storage_used_mb || 0) / 1024).toFixed(1)}
-                      <Typography component="span" variant="body2" color="text.secondary">
-                        GB/{((usageStats?.usage.storage_limit_mb || 500) / 1024).toFixed(0)}GB
-                      </Typography>
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      bgcolor: alpha(theme.palette.secondary.main, 0.1),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <FolderOpen size={20} color={theme.palette.secondary.main} />
-                  </Box>
-                </Stack>
-                <LinearProgress
-                  variant="determinate"
-                  value={Math.min(storagePercent, 100)}
-                  color="secondary"
-                  sx={{ mt: 2, height: 6, borderRadius: 3 }}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: "background.paper", borderRadius: 2 }}>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('dashboard.stats.totalProjects')}
-                    </Typography>
-                    <Typography variant="h4" fontWeight={700}>
-                      {projects.length}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      bgcolor: alpha(theme.palette.success.main, 0.1),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Layers size={20} color={theme.palette.success.main} />
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card
-              component={Link}
-              to="/pricing"
-              sx={{
-                bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                borderRadius: 2,
-                textDecoration: "none",
-                color: "white",
-                transition: "transform 0.2s",
-                "&:hover": { transform: "translateY(-2px)" },
-              }}
-            >
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Box>
-                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      {t('dashboard.stats.currentPlan')}
-                    </Typography>
-                    <Typography variant="h5" fontWeight={700}>
-                      {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}
-                    </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                      {t('dashboard.stats.upgrade')}
-                    </Typography>
-                  </Box>
-                  <CreditCard size={24} />
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+        {/* Stats Section Removed for Desktop */}
 
         {/* Projects Section */}
         <Stack

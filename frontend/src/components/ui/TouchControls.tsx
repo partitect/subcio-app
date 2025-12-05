@@ -10,12 +10,12 @@
  */
 
 import { forwardRef, useCallback, useRef, useState } from "react";
-import { 
-  IconButton, 
-  IconButtonProps, 
-  Box, 
-  Typography, 
-  alpha, 
+import {
+  IconButton,
+  IconButtonProps,
+  Box,
+  Typography,
+  alpha,
   styled,
   useTheme,
 } from "@mui/material";
@@ -26,25 +26,25 @@ const StyledTouchButton = styled(IconButton)(({ theme }) => ({
   minWidth: 48,
   minHeight: 48,
   position: "relative",
-  
+
   // Visual feedback
   transition: "transform 0.15s, background-color 0.2s",
-  
+
   "&:active": {
     transform: "scale(0.92)",
   },
-  
+
   // Ripple effect enhancement
   "& .MuiTouchRipple-root": {
     color: alpha(theme.palette.primary.main, 0.3),
   },
-  
+
   // Focus visible for accessibility
   "&.Mui-focusVisible": {
     outline: `2px solid ${theme.palette.primary.main}`,
     outlineOffset: 2,
   },
-  
+
   // Mobile adjustments
   [theme.breakpoints.down("sm")]: {
     minWidth: 52,
@@ -78,7 +78,7 @@ export const TouchButton = forwardRef<HTMLButtonElement, TouchButtonProps>(
       },
       [hapticFeedback, hapticPattern, onClick]
     );
-    
+
     if (label) {
       return (
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5 }}>
@@ -91,7 +91,7 @@ export const TouchButton = forwardRef<HTMLButtonElement, TouchButtonProps>(
         </Box>
       );
     }
-    
+
     return (
       <StyledTouchButton ref={ref} onClick={handleClick} {...props}>
         {children}
@@ -144,38 +144,38 @@ export const SwipeableArea = forwardRef<HTMLDivElement, SwipeableAreaProps>(
   ) => {
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
     const [swiping, setSwiping] = useState(false);
-    
+
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
       const touch = e.touches[0];
       touchStartRef.current = { x: touch.clientX, y: touch.clientY };
       setSwiping(true);
     }, []);
-    
+
     const handleTouchEnd = useCallback(
       (e: React.TouchEvent) => {
         if (!touchStartRef.current) return;
-        
+
         const touch = e.changedTouches[0];
         const deltaX = touch.clientX - touchStartRef.current.x;
         const deltaY = touch.clientY - touchStartRef.current.y;
         const absX = Math.abs(deltaX);
         const absY = Math.abs(deltaY);
-        
+
         let direction: SwipeDirection | null = null;
-        
+
         // Determine swipe direction
         if (absX > absY && absX > minSwipeDistance) {
           direction = deltaX > 0 ? "right" : "left";
         } else if (absY > absX && absY > minSwipeDistance) {
           direction = deltaY > 0 ? "down" : "up";
         }
-        
+
         // Trigger callback
         if (direction) {
           if (hapticFeedback && "vibrate" in navigator) {
             navigator.vibrate(15);
           }
-          
+
           switch (direction) {
             case "left":
               onSwipeLeft?.();
@@ -191,18 +191,18 @@ export const SwipeableArea = forwardRef<HTMLDivElement, SwipeableAreaProps>(
               break;
           }
         }
-        
+
         touchStartRef.current = null;
         setSwiping(false);
       },
       [minSwipeDistance, hapticFeedback, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown]
     );
-    
+
     const handleTouchCancel = useCallback(() => {
       touchStartRef.current = null;
       setSwiping(false);
     }, []);
-    
+
     return (
       <Box
         ref={ref}
@@ -242,36 +242,36 @@ export const TouchProgressBar = forwardRef<HTMLDivElement, TouchProgressBarProps
     const theme = useTheme();
     const barRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
-    
+
     const percentage = Math.min(100, Math.max(0, (value / max) * 100));
-    
+
     const handleInteraction = useCallback(
       (clientX: number) => {
         if (!barRef.current || !onChange) return;
-        
+
         const rect = barRef.current.getBoundingClientRect();
         const x = clientX - rect.left;
         const newPercentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
         const newValue = (newPercentage / 100) * max;
-        
+
         onChange(newValue);
       },
       [max, onChange]
     );
-    
+
     const handleTouchStart = useCallback(
       (e: React.TouchEvent) => {
         e.preventDefault();
         setIsDragging(true);
         handleInteraction(e.touches[0].clientX);
-        
+
         if ("vibrate" in navigator) {
           navigator.vibrate(5);
         }
       },
       [handleInteraction]
     );
-    
+
     const handleTouchMove = useCallback(
       (e: React.TouchEvent) => {
         if (isDragging) {
@@ -280,14 +280,14 @@ export const TouchProgressBar = forwardRef<HTMLDivElement, TouchProgressBarProps
       },
       [isDragging, handleInteraction]
     );
-    
+
     const handleTouchEnd = useCallback(() => {
       setIsDragging(false);
       if ("vibrate" in navigator) {
         navigator.vibrate(10);
       }
     }, []);
-    
+
     const handleMouseDown = useCallback(
       (e: React.MouseEvent) => {
         setIsDragging(true);
@@ -295,10 +295,10 @@ export const TouchProgressBar = forwardRef<HTMLDivElement, TouchProgressBarProps
       },
       [handleInteraction]
     );
-    
+
     return (
       <Box
-        ref={(node) => {
+        ref={(node: HTMLDivElement | null) => {
           barRef.current = node;
           if (typeof ref === "function") ref(node);
           else if (ref) ref.current = node;
@@ -344,7 +344,7 @@ export const TouchProgressBar = forwardRef<HTMLDivElement, TouchProgressBarProps
             }}
           />
         </Box>
-        
+
         {/* Thumb */}
         {showThumb && onChange && (
           <Box
@@ -357,11 +357,11 @@ export const TouchProgressBar = forwardRef<HTMLDivElement, TouchProgressBarProps
               height: isDragging ? 24 : 20,
               borderRadius: "50%",
               bgcolor: theme.palette[color].main,
-              boxShadow: isDragging 
+              boxShadow: isDragging
                 ? `0 0 0 8px ${alpha(theme.palette[color].main, 0.2)}`
                 : `0 2px 4px ${alpha("#000", 0.2)}`,
               transition: isDragging ? "none" : "all 0.15s",
-              
+
               // Touch target
               "&::before": {
                 content: '""',

@@ -15,7 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Home, ArrowLeft, Search } from "lucide-react";
-import { Navbar, Footer } from "../components/landing";
+// Imports removed
 
 export default function NotFoundPage() {
   const theme = useTheme();
@@ -31,7 +31,7 @@ export default function NotFoundPage() {
         color: "text.primary",
       }}
     >
-      <Navbar />
+      {/* Navbar Removed */}
 
       <Container
         maxWidth="md"
@@ -135,9 +135,9 @@ export default function NotFoundPage() {
             >
               {[
                 { label: "Dashboard", to: "/dashboard" },
-                { label: "Pricing", to: "/pricing" },
-                { label: "Login", to: "/login" },
-                { label: "Contact", to: "/contact" },
+                // { label: "Pricing", to: "/pricing" },
+                // { label: "Login", to: "/login" },
+                // { label: "Contact", to: "/contact" },
               ].map((link) => (
                 <Button
                   key={link.label}
@@ -159,7 +159,7 @@ export default function NotFoundPage() {
         </Stack>
       </Container>
 
-      <Footer />
+      {/* Footer Removed */}
     </Box>
   );
 }
