@@ -25,8 +25,20 @@ import time
 # CONFIGURATION
 # ============================================================
 
-LOG_DIR = Path(__file__).parent / "logs"
-LOG_DIR.mkdir(exist_ok=True)
+# Determine log directory
+if os.getenv("SUBCIO_DESKTOP") == "1":
+    # In desktop mode, use AppData
+    app_data = os.getenv("APPDATA")
+    if app_data:
+        LOG_DIR = Path(app_data) / "subcio-desktop" / "logs"
+    else:
+        # Fallback to home dir if APPDATA not set
+        LOG_DIR = Path.home() / ".subcio-desktop" / "logs"
+else:
+    # In dev/server mode, use local logs dir
+    LOG_DIR = Path(__file__).parent / "logs"
+
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Environment
 ENV = os.getenv("ENV", "development")

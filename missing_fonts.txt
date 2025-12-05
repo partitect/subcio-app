@@ -1,0 +1,43 @@
+The following fonts are missing from your 'backend/fonts' directory.
+Please download the .ttf or .otf files for these fonts and place them in:
+C:\Users\TeKa\OneDrive\Desktop\sub-gen-ai\backend\fonts
+
+Nunito
+Grandstander
+Rammetto One
+Road Rage
+Purple Purse
+Original Surfer
+Winky Rough
+Rubik Wet Paint
+Advent Pro
+Rum Raisin
+Peralta
+Winky Sans
+Potta One
+Bricolage Grotesque
+Viaoda Libre
+Crushed
+Gluten
+Dela Gothic One
+Mouse Memoirs
+Hanalei Fill
+Truculenta
+Capriola
+Climate Crisis
+Loved by the King
+Denk One
+Love Ya Like A Sister
+Shojumaru
+Risque
+Marhey
+Spicy Rice
+Oldenburg
+Oswald
+Roboto
+Bebas Neue
+Comic Neue
+Lato
+Courier New
+Open Sans
+Montserrat

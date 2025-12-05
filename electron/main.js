@@ -36,14 +36,32 @@ function getPaths() {
     };
   } else {
     // Production mode - embedded Python and FFmpeg
-    // asar: false olduğu için app.asar yerine app klasörü
-    const appDir = path.join(path.dirname(app.getPath('exe')), 'resources', 'app');
+    // asar: true -> app.asar
+    // asarUnpack -> app.asar.unpacked for binaries
+
+    // Base path for unpacked resources
+    // If asar is enabled, binaries are in app.asar.unpacked
+    // If asar is disabled, they are in app
+
+    const resourcesPath = path.dirname(app.getPath('exe'));
+    const unpackedDir = path.join(resourcesPath, 'resources', 'app.asar.unpacked');
+    const appDir = path.join(resourcesPath, 'resources', 'app');
+
+    // Check if unpacked dir exists (asar enabled)
+    const baseDir = fs.existsSync(unpackedDir) ? unpackedDir : appDir;
+
+    // Frontend is always inside the asar (or app dir if no asar)
+    // But we need to be careful. If asar is on, frontend is in app.asar
+    // If asar is off, frontend is in app
+    // We can just use __dirname which resolves correctly inside asar
+    const frontendDir = path.join(__dirname, 'frontend-dist');
+
     return {
-      pythonExe: path.join(appDir, 'python-embedded', 'python.exe'),
-      backendDir: path.join(appDir, 'backend'),
-      frontendDir: path.join(appDir, 'frontend-dist'),
+      pythonExe: path.join(baseDir, 'python-embedded', 'python.exe'),
+      backendDir: path.join(baseDir, 'backend'),
+      frontendDir: frontendDir,
       frontendUrl: null, // file:// kullan
-      ffmpegDir: path.join(appDir, 'ffmpeg'),
+      ffmpegDir: path.join(baseDir, 'ffmpeg'),
     };
   }
 }

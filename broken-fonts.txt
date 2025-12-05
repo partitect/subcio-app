@@ -1,0 +1,44 @@
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Nunito, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Grandstander, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Rammetto One, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Road Rage, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Purple Purse, 400, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Original Surfer, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Winky Rough, 700, 0)
+jassub - worker.js ? v = 2 : 1 JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Rubik Wet Paint, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Advent Pro, 700, 0)
+jassub - worker.js ? v = 2 : 1 JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Rum Raisin, 700, 0)
+Fairy Dust Preset: vendor - utils - BJ7mREdx.js: 1 
+        
+        
+       POST http://localhost:8000/api/preview-ass 500 (Internal Server Error)
+
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Peralta, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Winky Sans, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Potta One, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Bricolage Grotesque, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x2501 for font: (Viaoda Libre, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Grandstander, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25EF for font: (Crushed, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Gluten, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Winky Sans, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Bricolage Grotesque, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Dela Gothic One, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Advent Pro, 400, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Bricolage Grotesque, 700, 0)
+Party Mode Preset: vendor - utils - BJ7mREdx.js: 1 
+        
+        
+       POST http://localhost:8000/api/preview-ass 500 (Internal Server Error)
+
+JASSUB: fontselect: failed to find any fallback with glyph 0x2588 for font: (Mouse Memoirs, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Hanalei Fill, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Mouse Memoirs, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Truculenta, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x25CF for font: (Capriola, 700, 0)
+JASSUB: fontselect: failed to find any fallback with glyph 0x2726 for font: (Hanalei Fill, 700, 0)
+Trending Fire Preset: vendor - utils - BJ7mREdx.js: 1 
+        
+        
+       POST http://localhost:8000/api/preview-ass 500 
+JASSUB: fontselect: failed to find any fallback with glyph 0x0 for font: (Bricolage Grotesque, 400, 0)

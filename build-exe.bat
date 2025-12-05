@@ -1,6 +1,18 @@
 @echo off
 title Subcio Desktop - EXE Build
-cd /d "E:\Projeler\ReactProjects\pycaps-main\pycaps-main"
+cd /d "%~dp0"
+
+:: Admin check
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    echo Admin privileges confirmed.
+) else (
+    echo UYARI: Yonetici haklariyla calistirilmiyor.
+    echo Electron build islemi sembolik link hatasi verebilir.
+    echo Lutfen bu dosyayi "Yonetici olarak calistir" secenegi ile acin.
+    echo.
+    pause
+)
 
 echo ========================================
 echo   SUBCIO DESKTOP - EXE BUILD

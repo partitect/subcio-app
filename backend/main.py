@@ -72,14 +72,53 @@ def ms_to_ass_timestamp(ms: int) -> str:
 # -----------------------------------------------------------------------------
 # Whisper model bootstrap (cached globally to avoid repeated loads)
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Whisper model bootstrap (cached globally to avoid repeated loads)
+# -----------------------------------------------------------------------------
 DEFAULT_MODEL = os.getenv("WHISPER_MODEL", "small")  # Use 'small' for lower memory usage
 DEVICE = "cuda" if shutil.which("nvidia-smi") else "cpu"
 MODEL_CACHE: dict[str, Any] = {}  # WhisperModel instances, lazy loaded
-OUTPUT_DIR = Path(__file__).resolve().parent / "exports"
+
+# Determine base data directory
+if os.getenv("SUBCIO_DESKTOP") == "1":
+    app_data = os.getenv("APPDATA")
+    if app_data:
+        BASE_DATA_DIR = Path(app_data) / "subcio-desktop"
+    else:
+        BASE_DATA_DIR = Path.home() / ".subcio-desktop"
+else:
+    BASE_DATA_DIR = Path(__file__).resolve().parent
+
+OUTPUT_DIR = BASE_DATA_DIR / "exports"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Fonts are read-only resources, so they should stay in the app dir (unpacked)
+# UNLESS we want to allow user to install new fonts.
+# For now, let's keep reading fonts from the app dir, but maybe allow a user fonts dir?
+# The current code iterates FONTS_DIR.
+# If we want to fix the "mkdir" crash, we should check if it exists first.
+# But wait, FONTS_DIR is where we ship our fonts. It SHOULD be in the app dir.
+# We just shouldn't try to mkdir it if it's read-only.
+# However, if the user wants to add fonts, they can't add to Program Files.
+# Let's define SYSTEM_FONTS_DIR (app) and USER_FONTS_DIR (AppData).
+# For now, to avoid complexity, let's just point FONTS_DIR to the app dir 
+# and suppress the mkdir error or only mkdir if not exists (which it should).
+# Actually, Path.mkdir(exist_ok=True) raises PermissionError if it tries to create it and fails?
+# No, if it exists, it does nothing. But if it tries to create parents?
+# The parent is 'backend' which exists.
+# So FONTS_DIR.mkdir(exist_ok=True) should be fine IF it exists.
+# BUT, if we want to write to it (e.g. temporary fonts?), that's an issue.
+# The app reads from it.
 FONTS_DIR = Path(__file__).resolve().parent / "fonts"
-FONTS_DIR.mkdir(parents=True, exist_ok=True)
-PROJECTS_DIR = Path(__file__).resolve().parent / "projects"
+# We don't need to mkdir FONTS_DIR because it's shipped with the app.
+# But let's wrap it in try-except just in case.
+try:
+    FONTS_DIR.mkdir(parents=True, exist_ok=True)
+except PermissionError:
+    pass # Expected in Program Files
+
+# Projects need to be writable
+PROJECTS_DIR = BASE_DATA_DIR / "projects"
 PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -273,9 +312,29 @@ def build_style(incoming_style: dict) -> dict:
     """Merge preset defaults with incoming style and normalize font."""
     style_id = incoming_style.get("id")
     merged = {**PRESET_STYLE_MAP.get(style_id, {}), **incoming_style}
-    if not merged.get("font") or not font_in_pool(merged["font"]):
-        merged["font"] = pick_font_for_preset(style_id or "default")
-    merged["font"] = resolve_font_name(merged["font"])
+    
+    # Check if font exists in our pool, if not fallback to Arial
+    font_name = merged.get("font")
+    if not font_name or not font_in_pool(font_name):
+        # Try to pick a deterministic font if it's just missing from the style but exists in pool
+        # But if the font is genuinely missing from disk (not in pool), force Arial
+        picked = pick_font_for_preset(style_id or "default")
+        if font_in_pool(picked):
+            merged["font"] = picked
+        else:
+            print(f"[WARN] Font '{font_name}' missing and no valid fallback. Using Arial.")
+            merged["font"] = "Arial"
+    
+    # Final check: if the resolved name isn't in the map, it might be a system font or invalid
+    # We'll allow it but log a warning, or force Arial if we want to be strict.
+    # For now, let's be safe and ensure it maps to something we know if possible.
+    resolved = resolve_font_name(merged["font"])
+    if not font_in_pool(resolved) and resolved != "Arial":
+         print(f"[WARN] Resolved font '{resolved}' not found in pool. Fallback to Arial.")
+         merged["font"] = "Arial"
+    else:
+        merged["font"] = resolved
+        
     return merged
 
 
@@ -2386,24 +2445,46 @@ async def get_fonts():
     for font_file in FONTS_DIR.iterdir():
         if font_file.suffix.lower() in [".ttf", ".otf", ".woff", ".woff2"]:
             try:
-                # specific validation for Winky Rough which seems to be problematic
-                # or just generic robust loading
                 font_name = font_file.stem  # Default to filename
+                font_family = font_file.stem # Default family
                 
                 try:
                     # Try to get actual font family name from file metadata
                     pil_font = ImageFont.truetype(str(font_file), size=12)
                     name_entry = pil_font.getname()
-                    if name_entry and name_entry[0]:
-                        font_name = name_entry[0]
+                    if name_entry:
+                        if name_entry[0]:
+                            font_name = name_entry[0] # Full name e.g. "Nunito Bold" or "Comic Neue"
+                        
+                        # PIL getname() returns (font_name, font_style) usually
+                        # e.g. ('Comic Neue', 'Light') or ('Arial', 'Regular')
+                        # So name_entry[0] is often the Family Name if it's a simple font, 
+                        # OR it's the Full Name. 
+                        # Actually, for "Comic Neue Light", name_entry might be ('Comic Neue', 'Light')
+                        # In that case, name_entry[0] IS the family name!
+                        
+                        if len(name_entry) > 0 and name_entry[0]:
+                            font_family = name_entry[0]
+                        else:
+                            font_family = font_name
+                             
+                        # If the extracted family seems to be just the style (unlikely if index 0), 
+                        # or if we want to be safer, we can try to strip known styles from the full name
+                        
                 except Exception as e:
                     logger.warning(f"Could not extract font name for {font_file.name}: {e}")
                     # improved fallback: separate camelCase or hyphens
                     clean_name = font_file.stem.replace("-", " ").replace("_", " ")
                     font_name = re.sub(r'(?<!^)(?=[A-Z])', ' ', clean_name).strip()
+                    # Try to guess family by removing common style words
+                    style_words = ["Regular", "Bold", "Italic", "Light", "Medium", "Black", "Thin", "Extra", "Semi", "Condensed", "Expanded"]
+                    font_family = font_name
+                    for word in style_words:
+                        font_family = font_family.replace(word, "").strip()
 
                 fonts.append({
                     "name": font_name,
+                    "family": font_family,
                     "file": font_file.name
                 })
             except Exception as e:

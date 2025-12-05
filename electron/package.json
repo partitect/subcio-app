@@ -20,7 +20,12 @@
     "appId": "com.subcio.app",
     "productName": "Subcio",
     "copyright": "Copyright © 2024 Subcio",
-    "asar": false,
+    "asar": true,
+    "asarUnpack": [
+      "python-embedded/**/*",
+      "ffmpeg/**/*",
+      "backend/**/*"
+    ],
     "directories": {
       "output": "dist",
       "buildResources": "assets"
@@ -56,12 +61,14 @@
       "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
-      "oneClick": true,
+      "oneClick": false,
       "perMachine": false,
       "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Subcio"
+      "shortcutName": "Subcio",
+      "installerSidebar": "assets/installerSidebar.png",
+      "installerHeader": "assets/installerHeader.png"
     },
     "portable": {
       "artifactName": "${productName}-Portable-${version}.${ext}"

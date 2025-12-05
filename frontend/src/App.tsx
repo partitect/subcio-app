@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import Onboarding from "./components/Onboarding";
 import { ToastProvider } from "./contexts/ToastContext";
 import UploadPage from "./pages/UploadPage";
 import EditorPage from "./pages/EditorPage";
@@ -11,8 +13,23 @@ import NotFoundPage from "./pages/NotFoundPage";
 // Info pages removed
 
 export default function App() {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setShowOnboarding(false);
+  };
+
   return (
     <ToastProvider>
+      {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       <Routes>
         {/* Main App Routes - Desktop Mode */}
         {/* Home is Dashboard (Project List) */}

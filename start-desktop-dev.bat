@@ -1,6 +1,6 @@
 @echo off
 title Subcio Desktop - Dev Mode
-cd /d "E:\Projeler\ReactProjects\pycaps-main\pycaps-main"
+cd /d "%~dp0"
 
 echo ========================================
 echo   SUBCIO DESKTOP - DEV MODE

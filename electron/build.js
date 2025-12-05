@@ -55,12 +55,17 @@ async function build() {
   console.log('\n[1/4] Frontend kopyalanıyor...');
 
   // Frontend dist varsa build atla
-  // Frontend build zorla yapılıyor
-  console.log('  Frontend build ediliyor...');
-  execSync('npm run build', {
-    cwd: FRONTEND_DIR,
-    stdio: 'inherit'
-  });
+  // Frontend build zaten build-exe.bat tarafindan yapiliyor
+  console.log('  Frontend build kontrol ediliyor...');
+  if (!fs.existsSync(path.join(FRONTEND_DIR, 'dist'))) {
+    console.log('  Frontend dist bulunamadi, build ediliyor...');
+    execSync('npm run build', {
+      cwd: FRONTEND_DIR,
+      stdio: 'inherit'
+    });
+  } else {
+    console.log('  Frontend dist mevcut, build atlanıyor.');
+  }
 
   // Frontend dist'i electron klasörüne kopyala
   if (fs.existsSync(FRONTEND_DIST)) {
