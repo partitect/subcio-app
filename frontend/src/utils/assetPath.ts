@@ -26,8 +26,10 @@ export function getAssetPath(path: string): string {
   }
 
   // In Electron production mode (file://), use relative path
+  // In Electron production mode (file://), use absolute file URL
+  // This is critical for Workers (JASSUB) to resolve WASM/scripts correctly relative to the page
   if (isElectron) {
-    return `./${cleanPath}`;
+    return new URL(cleanPath, window.location.href).href;
   }
 
   // In web production, use absolute path

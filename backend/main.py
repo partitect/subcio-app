@@ -76,6 +76,7 @@ FONTS_DIR = Path(__file__).resolve().parent / "fonts"
 FONTS_DIR.mkdir(parents=True, exist_ok=True)
 PROJECTS_DIR = Path(__file__).resolve().parent / "projects"
 PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
+BASE_URL = "http://127.0.0.1:8000"
 
 # -----------------------------------------------------------------------------
 # Batch Export System
@@ -653,9 +654,9 @@ def persist_project(
         "name": config["name"],
         "created_at": created_at,
         "media_type": media_type,
-        "video_url": media_url if not is_audio else None,
-        "audio_url": media_url if is_audio else None,
-        "thumb_url": f"/projects/{pid}/thumb.jpg" if not is_audio else None,
+        "video_url": f"{BASE_URL}{media_url}" if not is_audio else None,
+        "audio_url": f"{BASE_URL}{media_url}" if is_audio else None,
+        "thumb_url": f"{BASE_URL}/projects/{pid}/thumb.jpg" if not is_audio else None,
         "config": config,
     }
 
@@ -691,9 +692,9 @@ def list_projects() -> List[dict]:
                 "name": config.get("name", path.name),
                 "created_at": config.get("created_at"),
                 "media_type": media_type,
-                "thumb_url": f"/projects/{path.name}/thumb.jpg" if thumb.exists() else None,
-                "video_url": f"/projects/{path.name}/video.mp4" if video.exists() else None,
-                "audio_url": f"/projects/{path.name}/{audio_file.name}" if audio_file else None,
+                "thumb_url": f"{BASE_URL}/projects/{path.name}/thumb.jpg" if thumb.exists() else None,
+                "video_url": f"{BASE_URL}/projects/{path.name}/video.mp4" if video.exists() else None,
+                "audio_url": f"{BASE_URL}/projects/{path.name}/{audio_file.name}" if audio_file else None,
             }
         )
     return sorted(projects, key=lambda x: x.get("created_at") or "", reverse=True)
@@ -750,9 +751,9 @@ def load_project(project_id: str) -> dict:
         "transcript": transcript,
         "config": config,
         "media_type": media_type,
-        "video_url": f"/projects/{project_id}/video.mp4" if video_path.exists() else None,
-        "audio_url": f"/projects/{project_id}/{audio_file.name}" if audio_file else None,
-        "thumb_url": f"/projects/{project_id}/thumb.jpg" if thumb_path.exists() else None,
+        "video_url": f"{BASE_URL}/projects/{project_id}/video.mp4" if video_path.exists() else None,
+        "audio_url": f"{BASE_URL}/projects/{project_id}/{audio_file.name}" if audio_file else None,
+        "thumb_url": f"{BASE_URL}/projects/{project_id}/thumb.jpg" if thumb_path.exists() else None,
     }
 
 

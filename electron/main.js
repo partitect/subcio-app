@@ -384,7 +384,7 @@ async function startBackend() {
       cwd: paths.backendDir,
       env: env,
       windowsHide: true,
-      shell: true,
+      shell: false,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
@@ -476,7 +476,17 @@ function waitForBackend(maxAttempts = 30) {
 function stopBackend() {
   if (backendProcess) {
     log.info('Stopping backend...');
-    backendProcess.kill();
+
+    // Windows: Force kill process tree to avoid zombies
+    if (process.platform === 'win32') {
+      try {
+        require('child_process').execSync(`taskkill /pid ${backendProcess.pid} /T /F`);
+      } catch (e) {
+        // Ignore error if process already dead
+      }
+    }
+
+    backendProcess.kill(); // Fallback / non-Windows
     backendProcess = null;
   }
 }
