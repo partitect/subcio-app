@@ -10,6 +10,10 @@ import sys
 import asyncio
 import threading
 from datetime import datetime
+try:
+    from .ffmpeg_helper import run_ffmpeg_burn_async
+except ImportError:
+    from ffmpeg_helper import run_ffmpeg_burn_async
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from PIL import ImageFont
@@ -176,6 +180,10 @@ class BatchExportQueue:
 # Global batch export storage
 BATCH_EXPORTS: Dict[str, BatchExportQueue] = {}
 BATCH_EXPORT_LOCK = threading.Lock()
+
+# Global single export storage
+EXPORT_JOBS = {}
+EXPORT_LOCK = threading.Lock()
 
 
 _WEIGHT_PATTERNS = [
@@ -436,7 +444,8 @@ def run_ffmpeg_burn(
     resolution: str = "1080p",
     codec: str = "h264",
     bitrate: str = "medium",
-    custom_bitrate: Optional[int] = None
+    custom_bitrate: Optional[int] = None,
+    progress_callback = None
 ):
     """
     Burn subtitles into video with configurable quality settings.
@@ -449,6 +458,7 @@ def run_ffmpeg_burn(
         codec: Video codec (h264, h265, vp9)
         bitrate: Bitrate preset (low, medium, high, ultra, custom)
         custom_bitrate: Custom video bitrate in kbps (when bitrate="custom")
+        progress_callback: Optional callable(float) for progress updates
     """
     # Get resolution settings
     res_config = RESOLUTION_PRESETS.get(resolution, RESOLUTION_PRESETS["1080p"])
@@ -484,7 +494,7 @@ def run_ffmpeg_burn(
     cmd = [
         "ffmpeg",
         "-y",
-        "-threads", "1",  # Limit threads to reduce memory usage
+        "-threads", "0",  # Auto-detect threads
         "-i", str(video_path),
         "-vf", vf,
         "-c:v", encoder,
@@ -493,12 +503,11 @@ def run_ffmpeg_burn(
     # Add codec-specific options (memory-optimized for Railway free tier)
     if codec == "h264":
         cmd.extend([
-            "-preset", "ultrafast",  # Fastest preset, lowest memory
-            "-tune", "fastdecode",   # Optimize for fast decoding
-            "-profile:v", "baseline",  # Simpler profile, less memory
-            "-level", "3.1",
-            "-maxrate", "2M",  # Limit max bitrate
-            "-bufsize", "1M",  # Smaller buffer
+            "-preset", "medium",  # Balance speed/quality
+            "-profile:v", "high",  # Better quality support
+            "-level", "4.2",      # Support for 1080p/60
+            "-pix_fmt", "yuv420p", # Standard compatibility
+            "-bufsize", "4M",  # Reasonable buffer for desktop
         ])
     elif codec == "h265":
         cmd.extend([
@@ -2055,10 +2064,20 @@ def process_batch_export(batch_id: str):
             codec_info = VIDEO_CODECS.get(job.codec, VIDEO_CODECS["h264"])
             out_ext = codec_info["ext"]
             out_path = OUTPUT_DIR / f"batch_{batch_id}_{job.project_id}{out_ext}"
-            run_ffmpeg_burn(video_path, ass_path, out_path, job.resolution, job.codec, job.bitrate)
             
-            with BATCH_EXPORT_LOCK:
-                job.progress = 90.0
+            def batch_progress(p):
+                with BATCH_EXPORT_LOCK:
+                    job.progress = p
+            
+            run_ffmpeg_burn_async(
+                video_path, ass_path, out_path, 
+                resolution=job.resolution, 
+                codec=job.codec, 
+                bitrate=job.bitrate,
+                custom_bitrate=job.custom_bitrate,
+                progress_callback=batch_progress,
+                fonts_dir=FONTS_DIR
+            )
             
             if not out_path.exists():
                 raise Exception("Export failed: output file not created")
@@ -2280,6 +2299,42 @@ async def list_batch_exports():
         ])
 
 
+@app.get("/api/fonts")
+async def get_fonts():
+    """Get list of available fonts from the backend fonts directory."""
+    fonts = []
+    if not FONTS_DIR.exists():
+        return JSONResponse({"fonts": []})
+        
+    for font_file in FONTS_DIR.iterdir():
+        if font_file.suffix.lower() in [".ttf", ".otf", ".woff", ".woff2"]:
+            try:
+                # specific validation for Winky Rough which seems to be problematic
+                # or just generic robust loading
+                font_name = font_file.stem  # Default to filename
+                
+                try:
+                    # Try to get actual font family name from file metadata
+                    pil_font = ImageFont.truetype(str(font_file), size=12)
+                    name_entry = pil_font.getname()
+                    if name_entry and name_entry[0]:
+                        font_name = name_entry[0]
+                except Exception as e:
+                    logger.warning(f"Could not extract font name for {font_file.name}: {e}")
+                    # improved fallback: separate camelCase or hyphens
+                    clean_name = font_file.stem.replace("-", " ").replace("_", " ")
+                    font_name = re.sub(r'(?<!^)(?=[A-Z])', ' ', clean_name).strip()
+
+                fonts.append({
+                    "name": font_name,
+                    "file": font_file.name
+                })
+            except Exception as e:
+                logger.error(f"Error processing font {font_file}: {e}")
+                
+    return JSONResponse({"fonts": fonts})
+
+
 @app.get("/api/export-options")
 async def get_export_options():
     """Get available video export options (codecs, resolutions, bitrates)."""
@@ -2308,6 +2363,148 @@ async def get_export_options():
             "bitrate": "medium"
         }
     })
+
+
+
+# -----------------------------------------------------------------------------
+# Async Export Endpoints
+# -----------------------------------------------------------------------------
+
+def start_export_worker(job_id: str, video_path: Path, ass_path: Path, out_path: Path, resolution: str, codec: str, bitrate: str, custom_bitrate: int = None):
+    """Background worker function for async export"""
+    try:
+        def callback(progress):
+            with EXPORT_LOCK:
+                if job_id in EXPORT_JOBS:
+                    EXPORT_JOBS[job_id]["progress"] = progress
+                    if progress >= 100:
+                        EXPORT_JOBS[job_id]["status"] = ExportStatus.COMPLETED
+                        EXPORT_JOBS[job_id]["completed_at"] = datetime.now().isoformat()
+        
+        with EXPORT_LOCK:
+            EXPORT_JOBS[job_id]["status"] = ExportStatus.PROCESSING
+            EXPORT_JOBS[job_id]["started_at"] = datetime.now().isoformat()
+            
+        run_ffmpeg_burn_async(
+            video_path, ass_path, out_path, 
+            resolution=resolution, codec=codec, bitrate=bitrate, 
+            custom_bitrate=custom_bitrate, 
+            progress_callback=callback,
+            fonts_dir=FONTS_DIR
+        )
+        
+    except Exception as e:
+        print(f"Async Export Error: {e}")
+        with EXPORT_LOCK:
+            if job_id in EXPORT_JOBS:
+                EXPORT_JOBS[job_id]["status"] = ExportStatus.FAILED
+                EXPORT_JOBS[job_id]["error"] = str(e)
+
+
+@app.post("/api/export/start")
+async def start_export(
+    background_tasks: BackgroundTasks,
+    video: UploadFile | None = File(None),
+    words_json: str | None = Form(None),
+    style_json: str | None = Form(None),
+    project_id: str | None = Form(None),
+    resolution: str = Form("1080p"),
+    codec: str = Form("h264"),
+    bitrate: str = Form("medium"),
+):
+    """Start an async export job"""
+    try:
+        if not words_json and not project_id:
+            raise HTTPException(status_code=400, detail="words_json or project_id is required")
+
+        if not video and not project_id:
+            raise HTTPException(status_code=400, detail="video file or project_id is required")
+
+        # Prepare job
+        job_id = uuid.uuid4().hex
+        
+        # Load data
+        words = json.loads(words_json) if words_json else load_project(project_id).get("words", [])
+        incoming_style = json.loads(style_json) if style_json else {}
+        if project_id and not incoming_style:
+            incoming_style = load_project(project_id).get("config", {}).get("style", {})
+        style = build_style(incoming_style)
+
+        # Paths
+        uid = job_id
+        if project_id and not video:
+            in_path = PROJECTS_DIR / project_id / "video.mp4"
+            if not in_path.exists():
+                raise HTTPException(status_code=404, detail="Project video not found")
+        else:
+            suffix = Path(video.filename).suffix or ".mp4"
+            in_path = OUTPUT_DIR / f"upload_{uid}{suffix}"
+            with in_path.open("wb") as f:
+                f.write(await video.read())
+
+        ass_path = OUTPUT_DIR / f"subtitles_{uid}.ass"
+        ass_content = render_ass_content(words, style)
+        ass_path.write_text(ass_content, encoding="utf-8")
+
+        out_path = OUTPUT_DIR / f"export_{uid}.mp4"
+        
+        # Initialize job state
+        with EXPORT_LOCK:
+            EXPORT_JOBS[job_id] = {
+                "id": job_id,
+                "project_id": project_id,
+                "status": ExportStatus.PENDING,
+                "progress": 0,
+                "output_path": str(out_path),
+                "created_at": datetime.now().isoformat()
+            }
+        
+        # Start background thread
+        threading.Thread(
+            target=start_export_worker,
+            args=(job_id, in_path, ass_path, out_path, resolution, codec, bitrate)
+        ).start()
+        
+        return JSONResponse({"job_id": job_id, "status": "pending"})
+        
+    except Exception as e:
+        print(f"Start Export Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/export/{job_id}/status")
+async def get_export_status(job_id: str):
+    """Get status of an export job"""
+    with EXPORT_LOCK:
+        job = EXPORT_JOBS.get(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        return JSONResponse(job)
+
+
+@app.get("/api/export/{job_id}/download")
+async def download_export(job_id: str):
+    """Download completed export"""
+    with EXPORT_LOCK:
+        job = EXPORT_JOBS.get(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        if job["status"] != ExportStatus.COMPLETED:
+            raise HTTPException(status_code=400, detail="Export not completed")
+            
+        out_path = Path(job["output_path"])
+        if not out_path.exists():
+            raise HTTPException(status_code=404, detail="File missing")
+        
+        # Return file but don't delete yet? Or delete after?
+        # Standard flow is usually keeping it for a bit. The periodic cleanup should handle it.
+        return FileResponse(
+            path=out_path,
+            media_type="video/mp4",
+            filename=f"subcio_export_{job_id[:8]}.mp4",
+            headers={"Content-Disposition": f"attachment; filename=subcio_export.mp4"}
+        )
 
 
 if __name__ == "__main__":

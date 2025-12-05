@@ -32,17 +32,24 @@
       "python-embedded/**/*",
       "ffmpeg/**/*",
       "backend/**/*",
+      "!backend/**/__pycache__/**",
+      "!backend/**/venv/**",
+      "!backend/**/.env",
       "frontend-dist/**/*"
     ],
     "win": {
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "assets/icon.ico",

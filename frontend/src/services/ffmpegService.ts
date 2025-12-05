@@ -67,15 +67,15 @@ export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg>
 
       // Use jsDelivr CDN - has proper CORS headers
       const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
-      
+
       console.log('[FFmpeg] Loading core from:', baseURL);
-      
+
       const coreURL = await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript');
       console.log('[FFmpeg] Core JS loaded');
-      
+
       const wasmURL = await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm');
       console.log('[FFmpeg] WASM loaded');
-      
+
       await ffmpeg.load({
         coreURL,
         wasmURL,
@@ -232,12 +232,12 @@ export async function exportVideoWithSubtitles(
 
   try {
     onProgress?.(15, 'Downloading video...');
-    
+
     console.log('[Export] Fetching video file...');
     // Fetch video file
     const videoData = await fetchFile(videoUrl);
     console.log('[Export] Video fetched, size:', videoData.byteLength);
-    
+
     await ff.writeFile('input.mp4', videoData);
     console.log('[Export] Video written to virtual FS');
 
@@ -246,7 +246,7 @@ export async function exportVideoWithSubtitles(
     // Generate and write ASS file
     const assContent = generateASSContent(words, style as Parameters<typeof generateASSContent>[1]);
     console.log('[Export] ASS content generated, length:', assContent.length);
-    
+
     const assEncoder = new TextEncoder();
     await ff.writeFile('subtitles.ass', assEncoder.encode(assContent));
     console.log('[Export] ASS written to virtual FS');
@@ -254,11 +254,11 @@ export async function exportVideoWithSubtitles(
     onProgress?.(35, 'Burning subtitles into video...');
 
     // Build FFmpeg command
-    const scaleFilter = resolution === '1080p' 
+    const scaleFilter = resolution === '1080p'
       ? 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2'
       : resolution === '720p'
-      ? 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2'
-      : 'scale=iw:ih';
+        ? 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2'
+        : 'scale=iw:ih';
 
     const ffmpegArgs = [
       '-i', 'input.mp4',
@@ -271,7 +271,7 @@ export async function exportVideoWithSubtitles(
       '-movflags', '+faststart',
       'output.mp4'
     ];
-    
+
     console.log('[Export] Running FFmpeg with args:', ffmpegArgs.join(' '));
 
     // Run FFmpeg - burn subtitles
@@ -283,7 +283,7 @@ export async function exportVideoWithSubtitles(
     // Read output file
     const data = await ff.readFile('output.mp4');
     console.log('[Export] Output file read, size:', (data as Uint8Array).byteLength);
-    
+
     // Cleanup
     await ff.deleteFile('input.mp4');
     await ff.deleteFile('subtitles.ass');
@@ -320,42 +320,78 @@ async function exportViaBackend(
   const { resolution = '720p', onProgress, projectId } = options;
 
   try {
-    onProgress?.(5, 'Preparing export...');
+    onProgress?.(1, 'Preparing export job...');
 
+    // 1. Start Job
     const formData = new FormData();
     formData.append('words_json', JSON.stringify(words));
     formData.append('style_json', JSON.stringify(style));
     formData.append('resolution', resolution);
-    
+
     if (projectId) {
       formData.append('project_id', projectId);
     } else {
-      // If no project ID, we need to send the video file
-      onProgress?.(10, 'Downloading video...');
+      onProgress?.(5, 'Uploading video...');
+      // Fetch the video first if it's a blob url to send it
       const videoResponse = await fetch(videoUrl);
       const videoBlob = await videoResponse.blob();
       formData.append('video', videoBlob, 'input.mp4');
     }
 
-    onProgress?.(20, 'Sending to processor...');
-
-    const response = await fetch(`${API_BASE}/export`, {
+    onProgress?.(10, 'Starting processing...');
+    const startResponse = await fetch(`${API_BASE}/export/start`, {
       method: 'POST',
       body: formData,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Export failed: ${errorText}`);
+    if (!startResponse.ok) {
+      const err = await startResponse.text();
+      throw new Error(`Failed to start export: ${err}`);
     }
 
-    onProgress?.(80, 'Receiving video...');
+    const { job_id } = await startResponse.json();
+    console.log('[Export] Job started:', job_id);
 
-    const blob = await response.blob();
-    
-    onProgress?.(100, 'Complete!');
-    
-    return blob;
+    // 2. Poll Status
+    let completed = false;
+    let failed = false;
+    let attempts = 0;
+
+    while (!completed && !failed) {
+      const statusRes = await fetch(`${API_BASE}/export/${job_id}/status`);
+      if (!statusRes.ok) throw new Error("Failed to check status");
+
+      const job = await statusRes.json();
+
+      if (job.status === 'completed') {
+        completed = true;
+        onProgress?.(100, 'Finalizing download...');
+      } else if (job.status === 'failed') {
+        failed = true;
+        throw new Error(job.error || 'Export failed on server');
+      } else {
+        // Processing or Pending
+        // Map backend progress (0-100) to UI progress
+        // We'll map backend 0-100 to UI 10-90
+        const backendProgress = job.progress || 0;
+        const uiProgress = 10 + (backendProgress * 0.8);
+        onProgress?.(Math.round(uiProgress), `Processing: ${Math.round(backendProgress)}%`);
+
+        // Wait 1s
+        await new Promise(r => setTimeout(r, 1000));
+        attempts++;
+        if (attempts > 600) { // 10 minutes timeout logic in client
+          throw new Error("Export timed out (client side)");
+        }
+      }
+    }
+
+    // 3. Download
+    onProgress?.(95, 'Downloading result...');
+    const downloadRes = await fetch(`${API_BASE}/export/${job_id}/download`);
+    if (!downloadRes.ok) throw new Error("Failed to download result");
+
+    return await downloadRes.blob();
 
   } catch (error) {
     console.error('[Export] Backend export error:', error);

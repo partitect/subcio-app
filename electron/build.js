@@ -53,18 +53,14 @@ async function build() {
 
   // 1. Frontend Build (sadece kopyala, build zaten yapıldı)
   console.log('\n[1/4] Frontend kopyalanıyor...');
-  
+
   // Frontend dist varsa build atla
-  const frontendDistExists = fs.existsSync(path.join(FRONTEND_DIR, 'dist', 'index.html'));
-  if (!frontendDistExists) {
-    console.log('  Frontend build ediliyor...');
-    execSync('npm run build', {
-      cwd: FRONTEND_DIR,
-      stdio: 'inherit'
-    });
-  } else {
-    console.log('  Frontend zaten build edilmiş, atlanıyor...');
-  }
+  // Frontend build zorla yapılıyor
+  console.log('  Frontend build ediliyor...');
+  execSync('npm run build', {
+    cwd: FRONTEND_DIR,
+    stdio: 'inherit'
+  });
 
   // Frontend dist'i electron klasörüne kopyala
   if (fs.existsSync(FRONTEND_DIST)) {
@@ -89,7 +85,7 @@ async function build() {
   if (fs.existsSync(BACKEND_COPY)) {
     fs.rmSync(BACKEND_COPY, { recursive: true });
   }
-  
+
   copyDir(BACKEND_DIR, BACKEND_COPY, [
     '__pycache__',
     '.pyc',
@@ -99,7 +95,7 @@ async function build() {
     '.env',
     'test_',
   ]);
-  
+
   // Gerekli klasörleri oluştur
   fs.mkdirSync(path.join(BACKEND_COPY, 'uploads'), { recursive: true });
   fs.mkdirSync(path.join(BACKEND_COPY, 'exports'), { recursive: true });

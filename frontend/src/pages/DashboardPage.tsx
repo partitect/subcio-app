@@ -50,14 +50,14 @@ import { ProjectMeta } from "../types";
 import { useTheme as useAppTheme } from "../ThemeContext";
 // import { useAuth } from "../contexts/AuthContext"; // REMOVED
 import { getAssetPath } from "../utils/assetPath";
-import BatchExportDialog from "../components/BatchExportDialog";
+
 
 const API_BASE = "http://localhost:8000/api";
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<ProjectMeta[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showBatchExport, setShowBatchExport] = useState(false);
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
@@ -200,15 +200,7 @@ export default function DashboardPage() {
             </Typography>
           </Box>
           <Stack direction="row" spacing={1}>
-            {projects.length > 0 && (
-              <Button
-                variant="outlined"
-                startIcon={<Layers size={16} />}
-                onClick={() => setShowBatchExport(true)}
-              >
-                {t('dashboard.batchExport')}
-              </Button>
-            )}
+
             <Button
               component={Link}
               to="/upload"
@@ -365,10 +357,7 @@ export default function DashboardPage() {
       </Container>
 
       {/* Batch Export Dialog */}
-      <BatchExportDialog
-        open={showBatchExport}
-        onClose={() => setShowBatchExport(false)}
-      />
+
     </Box>
   );
 }

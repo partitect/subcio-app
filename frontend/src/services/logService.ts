@@ -33,11 +33,13 @@ interface LogEntry {
 }
 
 // Configuration
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
 const CONFIG = {
   minLevel: import.meta.env.DEV ? LogLevel.DEBUG : LogLevel.INFO,
   enableConsole: true,
-  enableRemote: import.meta.env.PROD,
-  remoteEndpoint: '/api/logs',
+  enableRemote: true, // Always valid if backend is running
+  remoteEndpoint: `${API_BASE}/logs`,
   batchSize: 10,
   flushInterval: 30000, // 30 seconds
   maxQueueSize: 100,
@@ -111,18 +113,18 @@ function createLogEntry(
  */
 function logToConsole(entry: LogEntry): void {
   if (!CONFIG.enableConsole) return;
-  
+
   const style = CONSOLE_STYLES[entry.level];
   const icon = LEVEL_ICONS[entry.level];
   const time = entry.timestamp.split('T')[1].split('.')[0];
   const module = entry.module ? `[${entry.module}]` : '';
-  
+
   const prefix = `%c${icon} ${time} ${entry.levelName} ${module}`;
   const consoleMethod = entry.level >= LogLevel.ERROR ? console.error :
-                        entry.level >= LogLevel.WARN ? console.warn :
-                        entry.level >= LogLevel.INFO ? console.info :
-                        console.debug;
-  
+    entry.level >= LogLevel.WARN ? console.warn :
+      entry.level >= LogLevel.INFO ? console.info :
+        console.debug;
+
   if (entry.data || entry.stack) {
     consoleMethod(prefix, style, entry.message);
     if (entry.data) console.dir(entry.data);
@@ -138,14 +140,14 @@ function logToConsole(entry: LogEntry): void {
 function queueForRemote(entry: LogEntry): void {
   if (!CONFIG.enableRemote) return;
   if (entry.level < LogLevel.WARN) return; // Only send warnings and above
-  
+
   logQueue.push(entry);
-  
+
   // Trim queue if too large
   if (logQueue.length > CONFIG.maxQueueSize) {
     logQueue = logQueue.slice(-CONFIG.maxQueueSize);
   }
-  
+
   // Immediate flush for errors
   if (entry.level >= LogLevel.ERROR) {
     flushLogs();
@@ -162,12 +164,12 @@ async function flushLogs(): Promise<void> {
     clearTimeout(flushTimer);
     flushTimer = null;
   }
-  
+
   if (logQueue.length === 0) return;
-  
+
   const logsToSend = [...logQueue];
   logQueue = [];
-  
+
   try {
     await fetch(CONFIG.remoteEndpoint, {
       method: 'POST',
@@ -188,7 +190,7 @@ async function flushLogs(): Promise<void> {
  */
 function log(level: LogLevel, message: string, module?: string, data?: any, error?: Error): void {
   if (level < CONFIG.minLevel) return;
-  
+
   const entry = createLogEntry(level, message, module, data, error);
   logToConsole(entry);
   queueForRemote(entry);
@@ -210,16 +212,16 @@ export function createLogger(module: string) {
       }
     },
     fatal: (message: string, error?: Error, data?: any) => log(LogLevel.FATAL, message, module, data, error),
-    
+
     // API request logging
     requestLog: (method: string, url: string, status: number, duration: number) => {
       const statusEmoji = status === 0 ? '🔴' : status < 400 ? '✅' : status < 500 ? '⚠️' : '❌';
       const message = `${statusEmoji} ${method} ${url} [${status}] ${duration}ms`;
-      const level = status === 0 || status >= 500 ? LogLevel.ERROR : 
-                    status >= 400 ? LogLevel.WARN : LogLevel.DEBUG;
+      const level = status === 0 || status >= 500 ? LogLevel.ERROR :
+        status >= 400 ? LogLevel.WARN : LogLevel.DEBUG;
       log(level, message, module, { method, url, status, duration });
     },
-    
+
     // Performance logging
     time: (label: string) => {
       if (CONFIG.minLevel <= LogLevel.DEBUG) {
@@ -231,7 +233,7 @@ export function createLogger(module: string) {
         console.timeEnd(`[${module}] ${label}`);
       }
     },
-    
+
     // Group logging
     group: (label: string) => {
       if (CONFIG.minLevel <= LogLevel.DEBUG) {
@@ -258,13 +260,13 @@ if (typeof window !== 'undefined') {
       colno: event.colno,
     }, event.error);
   });
-  
+
   window.addEventListener('unhandledrejection', (event) => {
     log(LogLevel.ERROR, 'Unhandled Promise Rejection', 'global', {
       reason: String(event.reason),
     });
   });
-  
+
   // Flush logs before page unload
   window.addEventListener('beforeunload', () => {
     flushLogs();

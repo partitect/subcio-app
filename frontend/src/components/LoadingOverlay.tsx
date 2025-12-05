@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 import Lottie from "lottie-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Box, Typography, alpha } from "@mui/material";
-import { designTokens } from "../theme";
 import { getAssetPath } from "../utils/assetPath";
-
-const { colors, radii } = designTokens;
 
 interface LoadingOverlayProps {
   isLoading: boolean;
@@ -28,12 +24,14 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
   useEffect(() => {
     const fetchLottie = async () => {
       try {
+        // Using local Lottie file from public folder
         const response = await fetch(getAssetPath("Sandy Loading.json"));
         if (!response.ok) throw new Error("Failed to load lottie");
         const data = await response.json();
         setAnimationData(data);
       } catch (e) {
         console.error("Lottie load failed", e);
+        // If fetch fails, we'll just fall back to the spinner in the render method
       }
     };
 
@@ -56,122 +54,28 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: alpha(colors.bg.default, 0.85),
-            backdropFilter: "blur(12px)",
-          }}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-md"
         >
-          {/* Glow Background */}
-          <Box
-            sx={{
-              position: "absolute",
-              width: 400,
-              height: 400,
-              borderRadius: "50%",
-              background: colors.gradients.mesh,
-              filter: "blur(80px)",
-              opacity: 0.4,
-            }}
-          />
-
-          {/* Lottie Container */}
-          <Box
-            sx={{
-              width: { xs: 256, md: 384 },
-              height: { xs: 256, md: 384 },
-              position: "relative",
-              zIndex: 1,
-            }}
-          >
+          <div className="w-64 h-64 md:w-96 md:h-96">
             {animationData ? (
               <Lottie animationData={animationData} loop={true} />
             ) : (
-              // Fallback loader
-              <Box
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: "50%",
-                    border: `4px solid ${colors.brand.accent}`,
-                    borderTopColor: "transparent",
-                    animation: "spin 1s linear infinite",
-                    "@keyframes spin": {
-                      "0%": { transform: "rotate(0deg)" },
-                      "100%": { transform: "rotate(360deg)" },
-                    },
-                  }}
-                />
-              </Box>
+              // Fallback loader if Lottie fails or loading
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              </div>
             )}
-          </Box>
+          </div>
 
-          {/* Message */}
-          <motion.div
+          <motion.p
             key={messageIndex}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            style={{ position: "relative", zIndex: 1 }}
+            className="mt-4 text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400"
           >
-            <Typography
-              variant="h5"
-              sx={{
-                mt: 3,
-                fontWeight: 700,
-                background: colors.gradients.accent,
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                textAlign: "center",
-              }}
-            >
-              {MESSAGES[messageIndex]}
-            </Typography>
-          </motion.div>
-
-          {/* Progress Bar */}
-          <Box
-            sx={{
-              mt: 4,
-              width: { xs: 200, md: 280 },
-              height: 4,
-              borderRadius: radii.full,
-              bgcolor: alpha(colors.brand.primary, 0.2),
-              overflow: "hidden",
-              position: "relative",
-              zIndex: 1,
-            }}
-          >
-            <Box
-              sx={{
-                width: "40%",
-                height: "100%",
-                borderRadius: radii.full,
-                background: colors.gradients.primary,
-                animation: "progress 1.5s ease-in-out infinite",
-                "@keyframes progress": {
-                  "0%": { transform: "translateX(-100%)" },
-                  "100%": { transform: "translateX(350%)" },
-                },
-              }}
-            />
-          </Box>
+            {MESSAGES[messageIndex]}
+          </motion.p>
         </motion.div>
       )}
     </AnimatePresence>

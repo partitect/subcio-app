@@ -175,6 +175,7 @@ function createMainWindow() {
       webSecurity: !isDev, // Disable web security in dev for local file access
     },
     show: false,
+    autoHideMenuBar: false, // Show default menu
   });
 
   mainWindow.once('ready-to-show', () => {

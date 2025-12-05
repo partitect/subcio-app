@@ -93,7 +93,7 @@ function TimelineComponent({
       const percentage = x / rect.width;
       const seekTime = percentage * totalDuration;
       onSeek(Math.max(0, Math.min(totalDuration, seekTime)));
-      
+
       // Haptic feedback
       if ("vibrate" in navigator) {
         navigator.vibrate(5);
@@ -160,10 +160,10 @@ function TimelineComponent({
         mb={2}
       >
         {/* Mobile: Playback Controls on top */}
-        <Stack 
-          direction="row" 
-          spacing={1.5} 
-          alignItems="center" 
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
           justifyContent="center"
           sx={{ display: { xs: "flex", sm: "none" }, order: 0 }}
         >
@@ -326,11 +326,11 @@ function TimelineComponent({
         </Stack>
 
         {/* Right: Volume Control (hidden on mobile) */}
-        <Stack 
-          direction="row" 
-          spacing={1.5} 
-          alignItems="center" 
-          sx={{ 
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+          sx={{
             minWidth: { xs: "auto", sm: 130 },
             display: { xs: "none", sm: "flex" },
             order: { xs: 2, sm: 0 },
@@ -419,8 +419,8 @@ function TimelineComponent({
                 sx={{
                   width: 1,
                   height: tick.isMajor ? 10 : 5,
-                  bgcolor: isDark 
-                    ? tick.isMajor ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)" 
+                  bgcolor: isDark
+                    ? tick.isMajor ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)"
                     : tick.isMajor ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)",
                 }}
               />
@@ -503,10 +503,7 @@ function TimelineComponent({
               arrow
             >
               <Box
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                  onSeek(cue.start);
-                }}
+
                 sx={{
                   position: "absolute",
                   top: 12,
@@ -520,8 +517,8 @@ function TimelineComponent({
                   cursor: "pointer",
                   transition: "all 0.15s ease",
                   border: 1,
-                  borderColor: cue.isActive 
-                    ? "secondary.light" 
+                  borderColor: cue.isActive
+                    ? "secondary.light"
                     : isDark ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.4)",
                   "&:hover": {
                     opacity: 1,
@@ -546,7 +543,7 @@ function TimelineComponent({
               transform: "translateX(-50%)",
               width: 3,
               bgcolor: isDark ? "#fff" : muiTheme.palette.primary.main,
-              boxShadow: isDark 
+              boxShadow: isDark
                 ? `0 0 12px rgba(255,255,255,0.6), 0 0 24px rgba(99, 102, 241, 0.4)`
                 : `0 0 8px rgba(99, 102, 241, 0.5)`,
               zIndex: 10,

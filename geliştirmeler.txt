@@ -1,0 +1,16 @@
+Eksiklikler ve hatalar:
+
+1.  uygulama iconu gözükmyor frontend\public\assets\images\subcio-logo.png
+2.  presetlerin önizlemeleri gözükmüyor.
+3.  toplu dışarı aktarma işini kaldıralım.
+4.  export edilen video 1080p seçilmesine rağmen o kalitede değil. 
+5.  canlı önizlemede timeline ilerletme çalışmıyor.
+6.  üstteki menüleri (dosya, düzen v.b.) bunlkarı kaldırabiliriz.
+7.  gereksiz dosyalar var dockerfile, bat dosyaları, test dosyaları, md dosyaları bunlar temizlenmeli. 
+8.  aaspresets ile işimiz kalmadı bunu silebiliriz.
+9.  gereksiz env dosyaları var bunları temizlemeliyiz.
+10. render proccess doğru şekilde ilerlemiyor.
+11. animasyonlar için lottie kullanabiliriz.
+12. electron.app tarafında ui/ux geliştirmelerini gözden geçir neler yapabiliriz.
+13. db kullanmamız gerekiyor mu? gerekmiyorsa bunu kaldırabiliriz.
+14. benim aklıma gelmeyen bir şey varsa onuları da gözden geçir.

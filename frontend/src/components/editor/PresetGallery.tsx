@@ -1,4 +1,5 @@
 import { memo, useState, useMemo, useCallback, useRef } from "react";
+import { getImageUrl } from "../../utils/assetPath";
 import { useTranslation } from "react-i18next";
 import {
   Box,
@@ -418,17 +419,40 @@ function PresetGalleryComponent({
                       />
                     </IconButton>
 
-                    {/* Static CSS-based Preset Preview */}
+                    {/* Preset Preview - CSS Only */}
                     <Box
                       sx={{
                         height: 50,
                         overflow: "hidden",
                         borderRadius: "8px 8px 0 0",
+                        bgcolor: "grey.900",
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "linear-gradient(45deg, #1a1a2e 0%, #16213e 100%)",
+                        p: 0.5,
                       }}
                     >
-                      <Box sx={{ width: "100%", height: "100%", bgcolor: "grey.100", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Typography variant="caption" color="text.secondary">Preview</Typography>
-                      </Box>
+                      <Typography
+                        sx={{
+                          fontFamily: preset.font || "Inter",
+                          fontWeight: preset.bold ? "bold" : "normal",
+                          color: preset.primary_color?.replace(/&H00/g, "#").replace(/&H/g, "#") || "#ffffff",
+                          fontSize: "1rem",
+                          textShadow: `
+                                -1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},  
+                                 1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
+                                -1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
+                                 1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"}
+                              `,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        Abc
+                      </Typography>
                     </Box>
 
                     {/* Preset Name */}
@@ -491,7 +515,7 @@ function PresetGalleryComponent({
                 }}
               >
                 <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: 1 }}>
-                  {/* Static CSS Thumbnail */}
+                  {/* Preset Preview - CSS Only */}
                   <Box
                     sx={{
                       width: 80,
@@ -499,11 +523,30 @@ function PresetGalleryComponent({
                       overflow: "hidden",
                       borderRadius: 1,
                       flexShrink: 0,
+                      bgcolor: "grey.900",
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "linear-gradient(45deg, #1a1a2e 0%, #16213e 100%)",
                     }}
                   >
-                    <Box sx={{ width: "100%", height: "100%", bgcolor: "grey.100", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: 8 }}>Preview</Typography>
-                    </Box>
+                    <Typography
+                      sx={{
+                        fontFamily: preset.font || "Inter",
+                        fontWeight: preset.bold ? "bold" : "normal",
+                        color: preset.primary_color?.replace(/&H00/g, "#").replace(/&H/g, "#") || "#ffffff",
+                        fontSize: "0.8rem",
+                        textShadow: `
+                                -1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},  
+                                 1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
+                                -1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
+                                 1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"}
+                              `,
+                      }}
+                    >
+                      Abc
+                    </Typography>
                   </Box>
 
                   {/* Name & Category */}
