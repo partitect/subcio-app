@@ -8,6 +8,33 @@ import { logger } from './logService';
 // Re-export types for convenience
 export type { UsageStats } from '../types/auth';
 
+// Check if running in Electron (desktop mode)
+const isElectron = !!(window as any).electron?.isElectron;
+
+// Desktop mode mock user
+const DESKTOP_USER: User = {
+  id: 'desktop-user',
+  email: 'desktop@subcio.local',
+  name: 'Desktop User',
+  role: 'admin',
+  is_active: true,
+  subscription_status: 'premium',
+  credits: 999999,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
+// Desktop mode mock usage stats
+const DESKTOP_USAGE_STATS: UsageStats = {
+  plan: 'Desktop (Unlimited)',
+  usage: {
+    minutes_used: 0,
+    minutes_limit: 999999,
+    exports_used: 0,
+    exports_limit: 999999,
+  },
+};
+
 // API URL from environment or fallback to localhost
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -72,6 +99,10 @@ export function clearTokens(): void {
  * Check if user is authenticated (has valid token)
  */
 export function isAuthenticated(): boolean {
+  // Desktop mode - always authenticated
+  if (isElectron) {
+    return true;
+  }
   return !!getAccessToken();
 }
 
@@ -190,6 +221,11 @@ export async function refreshTokens(): Promise<AuthTokens> {
  * Get current user info
  */
 export async function getCurrentUser(): Promise<User> {
+  // Desktop mode - return mock user
+  if (isElectron) {
+    return DESKTOP_USER;
+  }
+  
   const response = await safeFetch(`${API_BASE}/auth/me`, {
     method: 'GET',
     headers: authHeaders(),
@@ -257,6 +293,11 @@ export async function resetPassword(token: string, newPassword: string): Promise
  * Get usage statistics
  */
 export async function getUsageStats(): Promise<UsageStats> {
+  // Desktop mode - return unlimited stats
+  if (isElectron) {
+    return DESKTOP_USAGE_STATS;
+  }
+  
   const response = await safeFetch(`${API_BASE}/auth/usage`, {
     method: 'GET',
     headers: authHeaders(),
@@ -269,6 +310,11 @@ export async function getUsageStats(): Promise<UsageStats> {
  * Logout user
  */
 export async function logout(): Promise<void> {
+  // Desktop mode - no logout needed
+  if (isElectron) {
+    return;
+  }
+  
   try {
     await fetch(`${API_BASE}/auth/logout`, {
       method: 'POST',

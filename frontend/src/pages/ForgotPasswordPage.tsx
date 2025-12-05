@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import { ArrowBack, CheckCircle, Email } from "@mui/icons-material";
 import { forgotPassword } from "../services/authService";
+import { getAssetPath } from "../utils/assetPath";
 
 export default function ForgotPasswordPage() {
   const theme = useTheme();
@@ -77,7 +78,7 @@ export default function ForgotPasswordPage() {
         >
           <Box
             component="img"
-            src="/assets/images/subcio-logo.png"
+            src={getAssetPath('assets/images/subcio-logo.png')}
             alt="Subcio"
             sx={{
               width: 64,

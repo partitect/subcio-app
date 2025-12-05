@@ -51,6 +51,7 @@ import { useTheme as useAppTheme } from "../ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { getUsageStats, UsageStats } from "../services/authService";
 import BatchExportDialog from "../components/BatchExportDialog";
+import { getAssetPath } from "../utils/assetPath";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -175,7 +176,7 @@ export default function DashboardPage() {
             >
               <Box
                 component="img"
-                src="/assets/images/subcio-logo.png"
+                src={getAssetPath('assets/images/subcio-logo.png')}
                 alt="Subcio"
                 sx={{
                   width: 40,

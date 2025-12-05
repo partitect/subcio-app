@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { ArrowLeft, Download, Settings, Sun, Moon } from "lucide-react";
 import { useTheme } from "../../ThemeContext";
+import { getAssetPath } from "../../utils/assetPath";
 
 interface EditorHeaderProps {
   exporting: boolean;
@@ -88,7 +89,7 @@ function EditorHeaderComponent({ exporting, onExportClick }: EditorHeaderProps) 
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <Box
             component="img"
-            src="/assets/images/subcio-logo.png"
+            src={getAssetPath('assets/images/subcio-logo.png')}
             alt="Subcio"
             sx={{
               width: 40,

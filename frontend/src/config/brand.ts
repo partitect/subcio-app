@@ -4,6 +4,8 @@
  * Central configuration for all brand-related assets and settings
  */
 
+import { getAssetPath } from '../utils/assetPath';
+
 export const BRAND = {
   // Brand Identity
   name: "Subcio",
@@ -84,11 +86,18 @@ export const LOGO_VARIANTS = {
   withTagline: "Subcio - AI-Powered Styled Subtitles",
 } as const;
 
-// Logo Assets
+// Logo Assets - use function to get correct path based on environment
+export const getLogoAssets = () => ({
+  primary: getAssetPath('assets/images/subcio-logo.png'),
+  favicon: getAssetPath('assets/images/subcio-logo.png'),
+  ogImage: getAssetPath('assets/images/subcio-logo.png'),
+});
+
+// Static reference for backward compatibility (web only)
 export const LOGO_ASSETS = {
-  primary: "/assets/images/subcio-logo.png",
-  favicon: "/assets/images/subcio-logo.png",
-  ogImage: "/assets/images/subcio-logo.png",
+  primary: "./assets/images/subcio-logo.png",
+  favicon: "./assets/images/subcio-logo.png",
+  ogImage: "./assets/images/subcio-logo.png",
 } as const;
 
 // SEO Meta Tags

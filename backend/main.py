@@ -21,7 +21,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 import mimetypes
-from faster_whisper import WhisperModel
+# Lazy import for faster_whisper to avoid numpy compatibility issues at startup
+# from faster_whisper import WhisperModel
 import uvicorn
 
 # Import and setup logging system
@@ -85,7 +86,7 @@ def ms_to_ass_timestamp(ms: int) -> str:
 # -----------------------------------------------------------------------------
 DEFAULT_MODEL = os.getenv("WHISPER_MODEL", "small")  # Use 'small' for lower memory usage
 DEVICE = "cuda" if shutil.which("nvidia-smi") else "cpu"
-MODEL_CACHE: dict[str, WhisperModel] = {}
+MODEL_CACHE: dict[str, Any] = {}  # WhisperModel instances, lazy loaded
 OUTPUT_DIR = Path(__file__).resolve().parent / "exports"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 FONTS_DIR = Path(__file__).resolve().parent / "fonts"
@@ -298,7 +299,9 @@ for _pid, _pstyle in PRESET_STYLE_MAP.items():
         _pstyle["font"] = pick_font_for_preset(_pid)
 
 
-def get_model(model_name: str) -> WhisperModel:
+def get_model(model_name: str) -> Any:
+    """Lazy load WhisperModel to avoid numpy compatibility issues at startup."""
+    from faster_whisper import WhisperModel
     if model_name not in MODEL_CACHE:
         MODEL_CACHE[model_name] = WhisperModel(
             model_name,
@@ -775,38 +778,37 @@ def load_project(project_id: str) -> dict:
 # -----------------------------------------------------------------------------
 app = FastAPI(title="Subcio API", version="1.0.0")
 
-# CORS Configuration - Must be added early, before other middleware
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
-# Strip whitespace from origins
-ALLOWED_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS]
-print(f"[INFO] CORS enabled for origins: {ALLOWED_ORIGINS}")
+# CORS Configuration for Electron desktop mode
+# file:// protocol sends null origin, so we need to allow all origins
+ALLOWED_ORIGINS = ["*"]
+print(f"[INFO] CORS enabled for Electron desktop mode")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
-    allow_credentials=True,
+    allow_credentials=False,  # credentials not compatible with *
     allow_headers=["*"],
     expose_headers=["*"],
 )
 
-# Health check endpoint for production monitoring
+# Health check endpoint
 @app.get("/health")
 async def health_check():
-    """Health check endpoint for load balancers and monitoring."""
+    """Health check endpoint for application status."""
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "service": "subcio-api"
+        "service": "subcio-desktop"
     }
 
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
     init_db()
-    logger.info("🚀 Subcio API started")
-    logger.info("🔐 Security middleware active")
-    logger.info("📋 Request logging enabled")
+    logger.info("Subcio API started")
+    logger.info("Security middleware active")
+    logger.info("Request logging enabled")
 
 # Request logging middleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -825,20 +827,20 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         
         start_time = _time.time()
-        logger.info(f"📥 [{request_id}] {method} {path} | IP: {client_ip}")
+        logger.info(f"[{request_id}] --> {method} {path} | IP: {client_ip}")
         
         try:
             response = await call_next(request)
             duration = (_time.time() - start_time) * 1000
             
             status = response.status_code
-            emoji = "✅" if status < 300 else "↩️" if status < 400 else "⚠️" if status < 500 else "❌"
-            logger.info(f"📤 [{request_id}] {method} {path} | {emoji} {status} | {duration:.1f}ms")
+            status_text = "OK" if status < 300 else "REDIRECT" if status < 400 else "WARN" if status < 500 else "ERROR"
+            logger.info(f"[{request_id}] <-- {method} {path} | {status_text} {status} | {duration:.1f}ms")
             
             return response
         except Exception as e:
             duration = (_time.time() - start_time) * 1000
-            logger.error(f"📛 [{request_id}] {method} {path} | ❌ Error: {str(e)[:100]} | {duration:.1f}ms")
+            logger.error(f"[{request_id}] !!! {method} {path} | ERROR: {str(e)[:100]} | {duration:.1f}ms")
             raise
 
 app.add_middleware(LoggingMiddleware)
@@ -1025,8 +1027,7 @@ async def transcribe(
 ):
     """
     Accepts video/audio file and returns word-level timestamps with confidence.
-    Uses Groq API if available, otherwise falls back to local Whisper model.
-    Set USE_LOCAL_WHISPER=true to force local model (saves API tokens in dev).
+    Uses local Whisper model for transcription (Electron desktop mode).
     """
     # Validate file type
     validate_upload_file(file.filename, request.headers.get("content-length"))
@@ -1046,71 +1047,32 @@ async def transcribe(
         words = []
         detected_language = language or "auto"
         
-        # Check if we should use local Whisper (for development to save API tokens)
-        use_local = os.getenv("USE_LOCAL_WHISPER", "").lower() in ("true", "1", "yes")
-        
-        if use_local:
-            # Use local Whisper model
-            logger.info("Using local Whisper model (USE_LOCAL_WHISPER=true)")
-            model = get_model(model_name)
-            segments, info = model.transcribe(
-                str(in_path),
-                language=language if language else None,
-                word_timestamps=True,
-                vad_filter=use_vad,
-                vad_parameters={"min_silence_duration_ms": 200} if use_vad else None,
-                beam_size=beam_size,
-                best_of=best_of,
-                temperature=temperature,
-            )
-            for seg in segments:
-                for w in seg.words:
-                    clean_text = w.word.strip()
-                    clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
-                    if not clean_text:
-                        continue
-                    words.append({
-                        "start": round(w.start, 3),
-                        "end": round(w.end, 3),
-                        "text": clean_text,
-                        "confidence": round(getattr(w, "probability", 0) or 0, 3),
-                    })
-            detected_language = info.language or language or "auto"
-        else:
-            # Try Groq API (production - no memory issues on server)
-            try:
-                from services.groq_transcription import is_groq_available, transcribe_to_words
-                
-                if is_groq_available():
-                    logger.info("Using Groq API for transcription")
-                    groq_words, info = transcribe_to_words(str(in_path), language)
-                    
-                    for w in groq_words:
-                        clean_text = w.get("word", "").strip()
-                        clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
-                        if not clean_text:
-                            continue
-                        words.append({
-                            "start": round(w.get("start", 0), 3),
-                            "end": round(w.get("end", 0), 3),
-                            "text": clean_text,
-                            "confidence": 0.95,  # Groq doesn't provide confidence
-                        })
-                    detected_language = info.get("language", language or "auto")
-                else:
-                    raise HTTPException(
-                        status_code=503,
-                        detail="Transcription service unavailable. GROQ_API_KEY not configured."
-                    )
-                
-            except HTTPException:
-                raise
-            except Exception as e:
-                logger.error(f"Groq API transcription failed: {e}")
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Transcription failed: {str(e)}. Please try again or contact support."
-                )
+        # Use local Whisper model (Electron desktop mode)
+        logger.info(f"Using local Whisper model: {model_name}")
+        model = get_model(model_name)
+        segments, info = model.transcribe(
+            str(in_path),
+            language=language if language else None,
+            word_timestamps=True,
+            vad_filter=use_vad,
+            vad_parameters={"min_silence_duration_ms": 200} if use_vad else None,
+            beam_size=beam_size,
+            best_of=best_of,
+            temperature=temperature,
+        )
+        for seg in segments:
+            for w in seg.words:
+                clean_text = w.word.strip()
+                clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
+                if not clean_text:
+                    continue
+                words.append({
+                    "start": round(w.start, 3),
+                    "end": round(w.end, 3),
+                    "text": clean_text,
+                    "confidence": round(getattr(w, "probability", 0) or 0, 3),
+                })
+        detected_language = info.language or language or "auto"
         
         project_meta = persist_project(
             in_path,
@@ -1123,7 +1085,7 @@ async def transcribe(
         {
             "language": detected_language,
             "device": DEVICE,
-            "model": "groq-whisper-large-v3" if is_groq_available() else model_name,
+            "model": model_name,
             "words": words,
             "projectId": project_meta["id"],
             "project": project_meta,
@@ -1150,13 +1112,12 @@ async def export_subtitled_video(
     words_json: str | None = Form(None),
     style_json: str | None = Form(None),
     project_id: str | None = Form(None),
-    resolution: str = Form("720p"),  # Default to 720p to save memory on free tier
+    resolution: str = Form("1080p"),  # Default to 1080p for desktop
 ):
     """
     Burns .ass subtitles with provided style and edited words; returns processed video.
     - words_json: JSON list of dicts with start/end/text
     - style_json: JSON object with style parameters
-    Note: Default resolution is 720p to work within Railway free tier memory limits.
     """
     if not words_json and not project_id:
         raise HTTPException(status_code=400, detail="words_json or project_id is required")
@@ -1274,8 +1235,7 @@ async def create_project(
 ):
     """
     Create a new project by transcribing (if words not provided) and persisting assets.
-    Uses Groq API if available for transcription.
-    Set USE_LOCAL_WHISPER=true to force local model (saves API tokens in dev).
+    Uses local Whisper model for transcription (Electron desktop mode).
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         in_path = Path(tmpdir) / video.filename
@@ -1286,70 +1246,29 @@ async def create_project(
         detected_language = language or "auto"
 
         if not incoming_words:
-            # Check if we should use local Whisper (for development)
-            use_local = os.getenv("USE_LOCAL_WHISPER", "").lower() in ("true", "1", "yes")
-            
-            if use_local:
-                # Use local Whisper model
-                logger.info("Using local Whisper model for project (USE_LOCAL_WHISPER=true)")
-                model = get_model(model_name)
-                segments, info = model.transcribe(
-                    str(in_path),
-                    language=language if language else None,
-                    word_timestamps=True,
-                    vad_filter=False,
-                )
-                words = []
-                for seg in segments:
-                    for w in seg.words:
-                        clean_text = w.word.strip().strip('.,!?;:"\'-()[]{}')
-                        if not clean_text:
-                            continue
-                        words.append({
-                            "start": round(w.start, 3),
-                            "end": round(w.end, 3),
-                            "text": clean_text,
-                            "confidence": round(getattr(w, "probability", 0) or 0, 3),
-                        })
-                incoming_words = words
-                detected_language = info.language or language or "auto"
-            else:
-                # Use Groq API for transcription (production)
-                try:
-                    from services.groq_transcription import is_groq_available, transcribe_to_words
-                    
-                    if is_groq_available():
-                        logger.info("Using Groq API for project transcription")
-                        groq_words, info = transcribe_to_words(str(in_path), language)
-                        
-                        words = []
-                        for w in groq_words:
-                            clean_text = w.get("word", "").strip()
-                            clean_text = clean_text.strip('.,!?;:"\'-()[]{}')
-                            if not clean_text:
-                                continue
-                            words.append({
-                                "start": round(w.get("start", 0), 3),
-                                "end": round(w.get("end", 0), 3),
-                                "text": clean_text,
-                                "confidence": 0.95,
-                            })
-                        incoming_words = words
-                        detected_language = info.get("language", language or "auto")
-                    else:
-                        raise HTTPException(
-                            status_code=503,
-                            detail="Transcription service unavailable. GROQ_API_KEY not configured."
-                        )
-                        
-                except HTTPException:
-                    raise
-                except Exception as e:
-                    logger.error(f"Groq API transcription failed: {e}")
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"Transcription failed: {str(e)}. Please try again or contact support."
-                    )
+            # Use local Whisper model (Electron desktop mode)
+            logger.info(f"Using local Whisper model for project: {model_name}")
+            model = get_model(model_name)
+            segments, info = model.transcribe(
+                str(in_path),
+                language=language if language else None,
+                word_timestamps=True,
+                vad_filter=False,
+            )
+            words = []
+            for seg in segments:
+                for w in seg.words:
+                    clean_text = w.word.strip().strip('.,!?;:"\'-()[]{}')
+                    if not clean_text:
+                        continue
+                    words.append({
+                        "start": round(w.start, 3),
+                        "end": round(w.end, 3),
+                        "text": clean_text,
+                        "confidence": round(getattr(w, "probability", 0) or 0, 3),
+                    })
+            incoming_words = words
+            detected_language = info.language or language or "auto"
 
         incoming_style = json.loads(style_json) if style_json else {}
         project_meta = persist_project(

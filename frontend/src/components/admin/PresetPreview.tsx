@@ -10,11 +10,12 @@ import JASSUB from 'jassub';
 import axios from 'axios';
 import { StyleConfig } from '../../types';
 import { styleToAssColors } from '../../utils/colorConvert';
+import { getAssetPath, getFontUrl } from '../../utils/assetPath';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Demo video
-const DEMO_VIDEO = '/test-video/export_7ea10b8f2a224be0953d0792b13f7605.mp4';
+const DEMO_VIDEO = getAssetPath('test-video/export_7ea10b8f2a224be0953d0792b13f7605.mp4');
 
 // Global caches - persist across component mounts
 let cachedSampleWords: Array<{ start: number; end: number; text: string }> | null = null;
@@ -176,7 +177,7 @@ const PresetPreviewComponent = forwardRef<PresetPreviewRef, PresetPreviewProps>(
         seen.add(key);
         return true;
       })
-      .map((fname) => `/fonts/${encodeName(fname)}`);
+      .map((fname) => getFontUrl(fname));
   }, [fontOptions, preset.font]);
 
   // Fetch ASS content with cache and reduced debounce (150ms instead of 300ms)
@@ -306,11 +307,11 @@ const PresetPreviewComponent = forwardRef<PresetPreviewRef, PresetPreviewProps>(
 
     // Default fonts
     const defaultFonts = overlayFonts.length ? overlayFonts : [
-      '/fonts/Bungee-Regular.ttf',
-      '/fonts/RubikSprayPaint-Regular.ttf',
-      '/fonts/LuckiestGuy-Regular.ttf',
-      '/fonts/Grandstander-ExtraBold.ttf',
-      '/fonts/Nunito-ExtraBold.ttf',
+      getFontUrl('Bungee-Regular.ttf'),
+      getFontUrl('RubikSprayPaint-Regular.ttf'),
+      getFontUrl('LuckiestGuy-Regular.ttf'),
+      getFontUrl('Grandstander-ExtraBold.ttf'),
+      getFontUrl('Nunito-ExtraBold.ttf'),
     ];
 
     // Minimal valid ASS content to initialize JASSUB (empty string causes errors)
@@ -334,9 +335,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         canvas: canvasElement,
         subContent: minimalAss, // Use minimal valid ASS instead of empty string
         fonts: defaultFonts,
-        workerUrl: '/jassub/jassub-worker.js',
-        wasmUrl: '/jassub/jassub-worker.wasm',
-        legacyWasmUrl: '/jassub/jassub-worker.wasm.js',
+        workerUrl: getAssetPath('jassub/jassub-worker.js'),
+        wasmUrl: getAssetPath('jassub/jassub-worker.wasm'),
+        legacyWasmUrl: getAssetPath('jassub/jassub-worker.wasm.js'),
       });
       
       jassubInitialized.current = true;

@@ -35,6 +35,7 @@ import {
 import { PRICING_PLANS } from "../config/pricing";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { getAssetPath } from "../utils/assetPath";
 
 export default function RegisterPage() {
   const theme = useTheme();
@@ -149,7 +150,7 @@ export default function RegisterPage() {
         >
           <Box
             component="img"
-            src="/assets/images/subcio-logo.png"
+            src={getAssetPath('assets/images/subcio-logo.png')}
             alt="Subcio"
             sx={{
               width: 64,

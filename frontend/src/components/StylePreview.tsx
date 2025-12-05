@@ -3,6 +3,7 @@ import axios from "axios";
 // @ts-ignore
 import JASSUB from 'jassub';
 import { StyleConfig } from "../types";
+import { getAssetPath, getFontUrl } from "../utils/assetPath";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -102,11 +103,11 @@ export default function StylePreview({ style, text, fonts, className }: StylePre
         video.autoplay = true;
 
         const defaultFonts = [
-            "/fonts/Bungee-Regular.ttf",
-            "/fonts/RubikSprayPaint-Regular.ttf",
-            "/fonts/LuckiestGuy-Regular.ttf",
-            "/fonts/Grandstander-ExtraBold.ttf",
-            "/fonts/Nunito-ExtraBold.ttf",
+            getFontUrl("Bungee-Regular.ttf"),
+            getFontUrl("RubikSprayPaint-Regular.ttf"),
+            getFontUrl("LuckiestGuy-Regular.ttf"),
+            getFontUrl("Grandstander-ExtraBold.ttf"),
+            getFontUrl("Nunito-ExtraBold.ttf"),
         ];
 
         let jassub: any = null;
@@ -116,9 +117,9 @@ export default function StylePreview({ style, text, fonts, className }: StylePre
                 canvas: canvasRef.current,
                 subContent: assContent,
                 fonts: fonts || defaultFonts,
-                workerUrl: '/jassub/jassub-worker.js',
-                wasmUrl: '/jassub/jassub-worker.wasm',
-                legacyWasmUrl: '/jassub/jassub-worker.wasm.js',
+                workerUrl: getAssetPath('jassub/jassub-worker.js'),
+                wasmUrl: getAssetPath('jassub/jassub-worker.wasm'),
+                legacyWasmUrl: getAssetPath('jassub/jassub-worker.wasm.js'),
             });
             jassubInstanceRef.current = jassub;
 

@@ -3,6 +3,7 @@ import Lottie from "lottie-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Box, Typography, alpha } from "@mui/material";
 import { designTokens } from "../theme";
+import { getAssetPath } from "../utils/assetPath";
 
 const { colors, radii } = designTokens;
 
@@ -27,7 +28,7 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
   useEffect(() => {
     const fetchLottie = async () => {
       try {
-        const response = await fetch("/Sandy Loading.json");
+        const response = await fetch(getAssetPath("Sandy Loading.json"));
         if (!response.ok) throw new Error("Failed to load lottie");
         const data = await response.json();
         setAnimationData(data);

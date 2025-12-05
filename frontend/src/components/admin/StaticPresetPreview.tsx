@@ -9,6 +9,7 @@ import { Box, Typography, Tooltip, Skeleton } from '@mui/material';
 import { Sparkles, Zap, Wind, Flame, Ghost, Move, RotateCcw } from 'lucide-react';
 import { StyleConfig } from '../../types';
 import { assToHex } from '../../utils/colorConvert';
+import { getFontUrl } from '../../utils/assetPath';
 
 interface StaticPresetPreviewProps {
   preset: StyleConfig;
@@ -183,7 +184,7 @@ const StaticPresetPreviewComponent = forwardRef<StaticPresetPreviewRef, StaticPr
         
         for (const file of possibleFiles) {
           try {
-            const fontUrl = `/fonts/${encodeURIComponent(file)}`;
+            const fontUrl = getFontUrl(file);
             const font = new FontFace(fontName, `url(${fontUrl})`);
             await font.load();
             document.fonts.add(font);

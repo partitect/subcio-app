@@ -14,7 +14,6 @@ interface VideoPlayerProps {
   resolvedAudioUrl: string;
   bgVideoUrl: string;
   assContent: string;
-  overlayFonts: string[];
   isPlaying: boolean;
   assLoading?: boolean;
   assCacheHit?: boolean;
@@ -38,7 +37,6 @@ function VideoPlayerComponent({
   resolvedAudioUrl,
   bgVideoUrl,
   assContent,
-  overlayFonts,
   isPlaying,
   assLoading = false,
   assCacheHit = false,
@@ -223,11 +221,11 @@ function VideoPlayerComponent({
 
       {/* Subtitle overlay - JSOOverlay uses video element */}
       {/* For audio mode, we use bgVideoRef since JASSUB needs a video element */}
+      {/* JSOOverlay now loads fonts dynamically from /api/fonts */}
       {assContent && (
         <JSOOverlay
           videoRef={mediaType === "video" ? videoRef : bgVideoRef}
           assContent={assContent}
-          fonts={overlayFonts}
         />
       )}
     </Box>

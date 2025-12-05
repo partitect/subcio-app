@@ -18,6 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Github, Twitter, Youtube, Linkedin, Mail, Sparkles } from "lucide-react";
+import { getAssetPath } from "../../utils/assetPath";
 
 const FOOTER_LINKS = {
   product: [
@@ -76,7 +77,7 @@ export function Footer() {
               <Stack direction="row" spacing={1.5} alignItems="center">
                 <Box
                   component="img"
-                  src="/assets/images/subcio-logo.png"
+                  src={getAssetPath('assets/images/subcio-logo.png')}
                   alt="Subcio"
                   sx={{
                     width: 44,

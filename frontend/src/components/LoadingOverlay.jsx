@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Lottie from "lottie-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getAssetPath } from "../utils/assetPath";
 
 // Public Lottie URL for a magical loader (Rocket/Magic theme)
 // Using a reliable CDN link for a high-quality animation
@@ -23,7 +24,7 @@ export default function LoadingOverlay({ isLoading }) {
         const fetchLottie = async () => {
             try {
                 // Using local Lottie file from public folder
-                const response = await fetch("/Sandy Loading.json");
+                const response = await fetch(getAssetPath("Sandy Loading.json"));
                 if (!response.ok) throw new Error("Failed to load lottie");
                 const data = await response.json();
                 setAnimationData(data);

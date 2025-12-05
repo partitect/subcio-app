@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { getAssetPath } from "../../utils/assetPath";
 import {
   AppBar,
   Avatar,
@@ -97,7 +98,7 @@ export function Navbar() {
             >
               <Box
                 component="img"
-                src="/assets/images/subcio-logo.png"
+                src={getAssetPath('assets/images/subcio-logo.png')}
                 alt="Subcio"
                 sx={{
                   width: 40,

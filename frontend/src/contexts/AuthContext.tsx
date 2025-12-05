@@ -12,12 +12,35 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Check if running in Electron (desktop mode)
+const isElectron = !!(window as any).electron?.isElectron;
 
-  // Check for existing session on mount
+// Desktop mode user - no auth required
+const DESKTOP_USER: User = {
+  id: 'desktop-user',
+  email: 'desktop@subcio.local',
+  name: 'Desktop User',
+  role: 'admin',
+  is_active: true,
+  subscription_status: 'premium',
+  credits: 999999,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(isElectron ? DESKTOP_USER : null);
+  const [isLoading, setIsLoading] = useState(!isElectron);
+
+  // Check for existing session on mount (skip for Electron)
   useEffect(() => {
+    // Desktop mode - already authenticated
+    if (isElectron) {
+      setUser(DESKTOP_USER);
+      setIsLoading(false);
+      return;
+    }
+
     const initAuth = async () => {
       if (authService.isAuthenticated()) {
         try {
@@ -43,6 +66,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
+    // Desktop mode - auto success
+    if (isElectron) {
+      setUser(DESKTOP_USER);
+      return;
+    }
+    
     setIsLoading(true);
     try {
       await authService.login(credentials);
@@ -54,6 +83,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const register = useCallback(async (credentials: RegisterCredentials) => {
+    // Desktop mode - auto success
+    if (isElectron) {
+      setUser(DESKTOP_USER);
+      return;
+    }
+    
     setIsLoading(true);
     try {
       await authService.register(credentials);
@@ -65,11 +100,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const logout = useCallback(() => {
+    // Desktop mode - don't actually logout
+    if (isElectron) {
+      return;
+    }
+    
     authService.logout();
     setUser(null);
   }, []);
 
   const refreshUser = useCallback(async () => {
+    // Desktop mode - always return desktop user
+    if (isElectron) {
+      setUser(DESKTOP_USER);
+      return;
+    }
+    
     if (authService.isAuthenticated()) {
       const userData = await authService.getCurrentUser();
       setUser(userData);
@@ -77,6 +123,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
+    // Desktop mode - just update local state
+    if (isElectron) {
+      setUser(prev => prev ? { ...prev, ...data } : DESKTOP_USER);
+      return;
+    }
+    
     const updatedUser = await authService.updateProfile({
       name: data.name || undefined,
       email: data.email || undefined,

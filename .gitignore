@@ -39,3 +39,10 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Electron build artifacts (generated files - don't commit)
+electron/python-embedded/
+electron/ffmpeg/
+electron/frontend-dist/
+electron/backend/
+electron/dist/

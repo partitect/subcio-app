@@ -1,8 +1,12 @@
 /**
  * Payment/Subscription API service
+ * NOTE: Payment features are disabled in desktop mode
  */
 
 import { getAccessToken, authFetch } from './authService';
+
+// Check if running in Electron (desktop mode)
+const isElectron = !!(window as any).electron?.isElectron;
 
 const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/payments`;
 
@@ -73,6 +77,11 @@ export async function createCheckoutSession(
   plan: 'creator' | 'pro' | 'enterprise',
   interval: 'monthly' | 'yearly' = 'monthly'
 ): Promise<CheckoutSession> {
+  // Desktop mode - payment not available
+  if (isElectron) {
+    throw new Error('Payment features are not available in desktop mode');
+  }
+  
   const response = await fetch(`${API_BASE}/create-checkout-session`, {
     method: 'POST',
     headers: authHeaders(),
@@ -86,6 +95,11 @@ export async function createCheckoutSession(
  * Create a billing portal session
  */
 export async function createBillingPortal(): Promise<BillingPortal> {
+  // Desktop mode - payment not available
+  if (isElectron) {
+    throw new Error('Payment features are not available in desktop mode');
+  }
+  
   const response = await fetch(`${API_BASE}/create-billing-portal`, {
     method: 'POST',
     headers: authHeaders(),
@@ -98,6 +112,20 @@ export async function createBillingPortal(): Promise<BillingPortal> {
  * Get current subscription
  */
 export async function getSubscription(): Promise<Subscription | null> {
+  // Desktop mode - return premium subscription
+  if (isElectron) {
+    return {
+      id: 'desktop',
+      status: 'active',
+      plan: 'Desktop (Unlimited)',
+      current_period_start: new Date().toISOString(),
+      current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      cancel_at_period_end: false,
+      canceled_at: null,
+      trial_end: null,
+    };
+  }
+  
   const response = await fetch(`${API_BASE}/subscription`, {
     method: 'GET',
     headers: authHeaders(),

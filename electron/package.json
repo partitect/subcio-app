@@ -7,11 +7,12 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\" \"wait-on http://localhost:5173 && electron .\"",
-    "start:backend": "cd ../backend && ../.venv/Scripts/python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000",
+    "dev": "concurrently \"npm run start:frontend\" \"wait-on http://localhost:5173 && electron .\"",
     "start:frontend": "cd ../frontend && npm run dev",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
+    "prepare-python": "node scripts/prepare-python.js",
+    "prebuild": "node build.js",
+    "build": "electron-builder --win",
+    "build:nsis": "electron-builder --win nsis",
     "build:portable": "electron-builder --win portable",
     "pack": "electron-builder --dir"
   },
@@ -19,6 +20,7 @@
     "appId": "com.subcio.app",
     "productName": "Subcio",
     "copyright": "Copyright © 2024 Subcio",
+    "asar": false,
     "directories": {
       "output": "dist",
       "buildResources": "assets"
@@ -26,32 +28,11 @@
     "files": [
       "main.js",
       "preload.js",
-      "assets/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "../backend",
-        "to": "backend",
-        "filter": [
-          "**/*",
-          "!__pycache__/**",
-          "!*.pyc",
-          "!uploads/**",
-          "!exports/**",
-          "!logs/**"
-        ]
-      },
-      {
-        "from": "../frontend/dist",
-        "to": "frontend"
-      },
-      {
-        "from": "../.venv",
-        "to": "python-env",
-        "filter": [
-          "**/*"
-        ]
-      }
+      "assets/**/*",
+      "python-embedded/**/*",
+      "ffmpeg/**/*",
+      "backend/**/*",
+      "frontend-dist/**/*"
     ],
     "win": {
       "target": [
@@ -68,8 +49,9 @@
       "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Subcio"
@@ -79,7 +61,7 @@
     }
   },
   "dependencies": {
-    "electron-is-dev": "^2.0.0"
+    "electron-log": "^5.0.1"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

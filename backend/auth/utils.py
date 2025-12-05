@@ -1,5 +1,6 @@
 """
-Authentication utilities: password hashing, JWT tokens, etc.
+Authentication utilities for Electron Desktop Mode.
+Always returns mock admin user - no external authentication required.
 """
 import os
 from datetime import datetime, timedelta
@@ -14,16 +15,7 @@ from .database import get_db, get_user_by_id
 from .models import TokenData
 
 # Security configuration
-_DEFAULT_SECRET = "your-super-secret-key-change-in-production-2024"
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", _DEFAULT_SECRET)
-
-# Warn if using default secret in production
-if SECRET_KEY == _DEFAULT_SECRET and os.getenv("APP_ENV") == "production":
-    raise ValueError(
-        "CRITICAL: JWT_SECRET_KEY environment variable must be set in production! "
-        "Generate a secure key with: python -c 'import secrets; print(secrets.token_hex(32))'"
-    )
-
+SECRET_KEY = "desktop-mode-secret-key-not-used"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -35,31 +27,32 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 
+# Desktop mock user class
+class DesktopUser:
+    """Mock admin user for Electron desktop mode"""
+    id = 1
+    email = "desktop@subcio.local"
+    name = "Desktop User"
+    role = "admin"
+    is_active = True
+    subscription_status = "premium"
+    credits = 999999
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
-    # Truncate to 72 bytes for bcrypt compatibility
     truncated = plain_password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
     return pwd_context.verify(truncated, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
     """Hash a password using bcrypt (max 72 bytes)"""
-    # Truncate to 72 bytes for bcrypt compatibility
     truncated = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
     return pwd_context.hash(truncated)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """
-    Create a JWT access token.
-    
-    Args:
-        data: Payload data (should include user_id)
-        expires_delta: Optional custom expiration time
-    
-    Returns:
-        Encoded JWT string
-    """
+    """Create a JWT access token."""
     to_encode = data.copy()
     
     if expires_delta:
@@ -77,15 +70,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 def create_refresh_token(data: dict) -> str:
-    """
-    Create a JWT refresh token.
-    
-    Args:
-        data: Payload data (should include user_id)
-    
-    Returns:
-        Encoded JWT string
-    """
+    """Create a JWT refresh token."""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     
@@ -99,20 +84,10 @@ def create_refresh_token(data: dict) -> str:
 
 
 def verify_token(token: str, token_type: str = "access") -> Optional[TokenData]:
-    """
-    Verify and decode a JWT token.
-    
-    Args:
-        token: The JWT token string
-        token_type: Expected token type ("access" or "refresh")
-    
-    Returns:
-        TokenData if valid, None otherwise
-    """
+    """Verify and decode a JWT token."""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         
-        # Verify token type
         if payload.get("type") != token_type:
             return None
         
@@ -134,36 +109,10 @@ async def get_current_user(
 ):
     """
     FastAPI dependency to get current authenticated user.
-    
-    Usage:
-        @app.get("/protected")
-        async def protected_route(user: User = Depends(get_current_user)):
-            return {"user": user.email}
+    In Electron desktop mode, always returns a mock admin user.
     """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
-    token = credentials.credentials
-    token_data = verify_token(token, "access")
-    
-    if token_data is None:
-        raise credentials_exception
-    
-    user = get_user_by_id(db, token_data.user_id)
-    
-    if user is None:
-        raise credentials_exception
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is disabled"
-        )
-    
-    return user
+    # Desktop mode - always return mock admin user
+    return DesktopUser()
 
 
 async def get_current_user_optional(
@@ -171,24 +120,10 @@ async def get_current_user_optional(
     db: Session = Depends(get_db)
 ):
     """
-    Optional authentication - returns None if no valid token.
-    Useful for routes that work for both authenticated and anonymous users.
+    Optional authentication - always returns mock admin user in desktop mode.
     """
-    if credentials is None:
-        return None
-    
-    try:
-        token = credentials.credentials
-        token_data = verify_token(token, "access")
-        
-        if token_data is None:
-            return None
-        
-        user = get_user_by_id(db, token_data.user_id)
-        return user if user and user.is_active else None
-        
-    except Exception:
-        return None
+    # Desktop mode - always return mock admin user
+    return DesktopUser()
 
 
 def create_password_reset_token(email: str) -> str:

@@ -163,7 +163,7 @@ def setup_logging(
     if json_format or ENV == "production":
         console_handler.setFormatter(JSONFormatter())
     else:
-        console_format = "%(timestamp)s │ %(levelname)-17s │ %(name)s │ %(message)s"
+        console_format = "%(timestamp)s | %(levelname)-17s | %(name)s | %(message)s"
         console_handler.setFormatter(ColoredFormatter(console_format))
     
     logger.addHandler(console_handler)
@@ -239,16 +239,16 @@ def log_execution(logger: logging.Logger = None, level: int = logging.DEBUG):
             func_name = f"{func.__module__}.{func.__name__}"
             
             start_time = time.time()
-            _logger.log(level, f"➡️  Calling {func_name}")
+            _logger.log(level, f"[CALL] {func_name}")
             
             try:
                 result = await func(*args, **kwargs)
                 duration = (time.time() - start_time) * 1000
-                _logger.log(level, f"✅ {func_name} completed in {duration:.2f}ms")
+                _logger.log(level, f"[OK] {func_name} completed in {duration:.2f}ms")
                 return result
             except Exception as e:
                 duration = (time.time() - start_time) * 1000
-                _logger.error(f"❌ {func_name} failed after {duration:.2f}ms: {e}")
+                _logger.error(f"[FAIL] {func_name} failed after {duration:.2f}ms: {e}")
                 raise
         
         @wraps(func)
@@ -257,16 +257,16 @@ def log_execution(logger: logging.Logger = None, level: int = logging.DEBUG):
             func_name = f"{func.__module__}.{func.__name__}"
             
             start_time = time.time()
-            _logger.log(level, f"➡️  Calling {func_name}")
+            _logger.log(level, f"[CALL] {func_name}")
             
             try:
                 result = func(*args, **kwargs)
                 duration = (time.time() - start_time) * 1000
-                _logger.log(level, f"✅ {func_name} completed in {duration:.2f}ms")
+                _logger.log(level, f"[OK] {func_name} completed in {duration:.2f}ms")
                 return result
             except Exception as e:
                 duration = (time.time() - start_time) * 1000
-                _logger.error(f"❌ {func_name} failed after {duration:.2f}ms: {e}")
+                _logger.error(f"[FAIL] {func_name} failed after {duration:.2f}ms: {e}")
                 raise
         
         import asyncio
@@ -315,7 +315,7 @@ class RequestLoggingMiddleware:
         start_time = time.time()
         
         # Log request
-        self.logger.info(f"📥 {request_id} | {method} {path} | IP: {client_ip}")
+        self.logger.info(f"[REQ] {request_id} | {method} {path} | IP: {client_ip}")
         
         # Capture response status
         status_code = 500
@@ -329,22 +329,22 @@ class RequestLoggingMiddleware:
         try:
             await self.app(scope, receive, send_wrapper)
         except Exception as e:
-            self.logger.error(f"📛 {request_id} | {method} {path} | Error: {e}")
+            self.logger.error(f"[ERR] {request_id} | {method} {path} | Error: {e}")
             raise
         finally:
             duration = (time.time() - start_time) * 1000
             
-            # Color code status
+            # Status indicator
             if status_code < 300:
-                emoji = "✅"
+                status_indicator = "OK"
             elif status_code < 400:
-                emoji = "↩️"
+                status_indicator = "REDIRECT"
             elif status_code < 500:
-                emoji = "⚠️"
+                status_indicator = "WARN"
             else:
-                emoji = "❌"
+                status_indicator = "ERROR"
             
-            self.logger.info(f"📤 {request_id} | {method} {path} | {emoji} {status_code} | {duration:.2f}ms")
+            self.logger.info(f"[RES] {request_id} | {method} {path} | {status_indicator} {status_code} | {duration:.2f}ms")
 
 
 # ============================================================
@@ -396,6 +396,6 @@ def get_error_summary(log_file: Path = None) -> Dict[str, Any]:
 
 # Setup main logger
 main_logger = setup_logging()
-main_logger.info("📋 Logging system initialized")
-main_logger.info(f"📁 Log directory: {LOG_DIR}")
-main_logger.info(f"🌍 Environment: {ENV}")
+main_logger.info("[LOG] Logging system initialized")
+main_logger.info(f"[DIR] Log directory: {LOG_DIR}")
+main_logger.info(f"[ENV] Environment: {ENV}")

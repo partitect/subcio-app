@@ -33,6 +33,7 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { initiateGoogleOAuth, initiateGitHubOAuth, getOAuthProviders, OAuthProviders } from "../services/authService";
+import { getAssetPath } from "../utils/assetPath";
 
 export default function LoginPage() {
   const theme = useTheme();
@@ -139,7 +140,7 @@ export default function LoginPage() {
         >
           <Box
             component="img"
-            src="/assets/images/subcio-logo.png"
+            src={getAssetPath('assets/images/subcio-logo.png')}
             alt="Subcio"
             sx={{
               width: 64,

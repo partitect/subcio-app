@@ -1,14 +1,20 @@
 /**
- * FFmpeg.wasm Service
+ * FFmpeg Service
  * 
- * Client-side video processing using FFmpeg compiled to WebAssembly.
- * This eliminates server-side video processing costs and memory issues.
+ * Hybrid video processing - uses native FFmpeg in Electron (backend API)
+ * and falls back to FFmpeg.wasm in browser.
+ * 
+ * Electron mode: Uses backend /api/export endpoint with native FFmpeg
+ * Browser mode: Uses FFmpeg.wasm (WebAssembly) for client-side processing
  */
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
-// Singleton FFmpeg instance
+// Detect if running in Electron
+const isElectron = !!(window as any).electron?.isElectron;
+
+// Singleton FFmpeg instance (only for browser mode)
 let ffmpeg: FFmpeg | null = null;
 let isLoaded = false;
 let loadingPromise: Promise<void> | null = null;
@@ -16,11 +22,20 @@ let loadingPromise: Promise<void> | null = null;
 // Progress callback type
 export type ProgressCallback = (progress: number, message: string) => void;
 
+// API base URL
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
 /**
- * Initialize FFmpeg.wasm
+ * Initialize FFmpeg.wasm (only for browser mode)
  * Uses jsDelivr CDN which has proper CORS headers
  */
 export async function initFFmpeg(onProgress?: ProgressCallback): Promise<FFmpeg> {
+  // In Electron, we don't need to load FFmpeg.wasm
+  if (isElectron) {
+    console.log('[FFmpeg] Electron mode - using native FFmpeg via backend');
+    return null as any; // Return null, we'll use backend API
+  }
+
   if (ffmpeg && isLoaded) {
     return ffmpeg;
   }
@@ -187,6 +202,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 /**
  * Export video with burned subtitles
+ * In Electron mode, uses backend API with native FFmpeg
+ * In browser mode, uses FFmpeg.wasm
  */
 export async function exportVideoWithSubtitles(
   videoUrl: string,
@@ -195,14 +212,22 @@ export async function exportVideoWithSubtitles(
   options: {
     resolution?: '720p' | '1080p' | 'original';
     onProgress?: ProgressCallback;
+    projectId?: string;
   } = {}
 ): Promise<Blob> {
-  const { resolution = '720p', onProgress } = options;
+  const { resolution = '720p', onProgress, projectId } = options;
 
   console.log('[Export] Starting export with URL:', videoUrl);
   console.log('[Export] Words count:', words.length);
   console.log('[Export] Resolution:', resolution);
+  console.log('[Export] Mode:', isElectron ? 'Electron (native FFmpeg)' : 'Browser (wasm)');
 
+  // In Electron mode, use backend API for native FFmpeg processing
+  if (isElectron) {
+    return exportViaBackend(videoUrl, words, style, { resolution, onProgress, projectId });
+  }
+
+  // Browser mode: use FFmpeg.wasm
   const ff = await initFFmpeg(onProgress);
 
   try {
@@ -279,6 +304,66 @@ export async function exportVideoWithSubtitles(
 }
 
 /**
+ * Export video using backend API (native FFmpeg)
+ * Used in Electron mode for much faster processing
+ */
+async function exportViaBackend(
+  videoUrl: string,
+  words: Array<{ start: number; end: number; text: string }>,
+  style: Record<string, unknown> = {},
+  options: {
+    resolution?: '720p' | '1080p' | 'original';
+    onProgress?: ProgressCallback;
+    projectId?: string;
+  } = {}
+): Promise<Blob> {
+  const { resolution = '720p', onProgress, projectId } = options;
+
+  try {
+    onProgress?.(5, 'Preparing export...');
+
+    const formData = new FormData();
+    formData.append('words_json', JSON.stringify(words));
+    formData.append('style_json', JSON.stringify(style));
+    formData.append('resolution', resolution);
+    
+    if (projectId) {
+      formData.append('project_id', projectId);
+    } else {
+      // If no project ID, we need to send the video file
+      onProgress?.(10, 'Downloading video...');
+      const videoResponse = await fetch(videoUrl);
+      const videoBlob = await videoResponse.blob();
+      formData.append('video', videoBlob, 'input.mp4');
+    }
+
+    onProgress?.(20, 'Sending to processor...');
+
+    const response = await fetch(`${API_BASE}/export`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Export failed: ${errorText}`);
+    }
+
+    onProgress?.(80, 'Receiving video...');
+
+    const blob = await response.blob();
+    
+    onProgress?.(100, 'Complete!');
+    
+    return blob;
+
+  } catch (error) {
+    console.error('[Export] Backend export error:', error);
+    throw new Error(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
  * Download a blob as a file
  */
 export function downloadBlob(blob: Blob, filename: string): void {
@@ -303,6 +388,7 @@ export async function exportAndDownload(
   options: {
     resolution?: '720p' | '1080p' | 'original';
     onProgress?: ProgressCallback;
+    projectId?: string;
   } = {}
 ): Promise<void> {
   const blob = await exportVideoWithSubtitles(videoUrl, words, style, options);
@@ -310,9 +396,15 @@ export async function exportAndDownload(
 }
 
 /**
- * Check browser compatibility
+ * Check browser/platform compatibility
  */
 export function checkBrowserSupport(): { supported: boolean; reason?: string } {
+  // Electron always supports native FFmpeg
+  if (isElectron) {
+    return { supported: true };
+  }
+
+  // Browser mode requires WebAssembly
   if (!window.WebAssembly) {
     return {
       supported: false,
@@ -322,4 +414,11 @@ export function checkBrowserSupport(): { supported: boolean; reason?: string } {
 
   // Single-threaded version doesn't require SharedArrayBuffer
   return { supported: true };
+}
+
+/**
+ * Check if running in Electron
+ */
+export function isElectronMode(): boolean {
+  return isElectron;
 }

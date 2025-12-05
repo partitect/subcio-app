@@ -48,6 +48,7 @@ import {
   assToHex,
   styleToAssColors,
 } from "../utils/colorConvert";
+import { getFontUrl, getAssetPath } from "../utils/assetPath";
 
 // Import client-side FFmpeg service
 import {
@@ -65,7 +66,7 @@ const PRESET_LABELS: Record<string, string> = {
   mademyday: "Made My Day (3'lü sabit grup)",
 };
 
-const DEFAULT_BG_VIDEO = "/audiobg/audio-bg-1.mp4";
+const DEFAULT_BG_VIDEO = getAssetPath("audiobg/audio-bg-1.mp4");
 
 const defaultWords: WordCue[] = [
   { start: 0, end: 0.8, text: "Grouped" },
@@ -196,11 +197,11 @@ export default function EditorPage() {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   // ASS Preview with caching
-  const { 
-    assContent, 
-    isLoading: assLoading, 
+  const {
+    assContent,
+    isLoading: assLoading,
     cacheHit: assCacheHit,
-    refresh: refreshAss 
+    refresh: refreshAss
   } = useAssPreview({
     words,
     style,
@@ -250,24 +251,7 @@ export default function EditorPage() {
     [words, totalDuration, currentTime]
   );
 
-  const overlayFonts = useMemo(() => {
-    const encodeName = (name: string) => encodeURIComponent(name.trim());
-    const currentFile =
-      fontOptions.find((f) => f.name === style.font)?.file ||
-      fontOptions.find((f) => f.name?.toLowerCase() === (style.font || "").toLowerCase())?.file;
-    const fallbackFiles = fontOptions.slice(0, 10).map((f) => f.file);
-    const ordered = [...(currentFile ? [currentFile] : []), ...fallbackFiles];
-    const seen = new Set<string>();
-    return ordered
-      .filter((f) => f)
-      .filter((f) => {
-        const key = f.toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .map((fname) => `/fonts/${encodeName(fname)}`);
-  }, [style.font, fontOptions]);
+  // NOTE: overlayFonts is no longer needed here - JSOOverlay loads fonts dynamically from /api/fonts
 
   const resolvedVideoUrl = useMemo(() => {
     if (!videoUrl) return "";
@@ -430,29 +414,56 @@ export default function EditorPage() {
 
     try {
       // Get the actual video URL (handle both relative and absolute URLs)
-      const actualVideoUrl = videoUrl.startsWith('http') 
-        ? videoUrl 
-        : videoUrl.startsWith('/') 
+      const actualVideoUrl = videoUrl.startsWith('http')
+        ? videoUrl
+        : videoUrl.startsWith('/')
           ? `${window.location.origin}${videoUrl}`
           : `${API_BASE.replace('/api', '')}${videoUrl}`;
 
       // Convert style to format expected by FFmpeg service
       const exportStyle = {
+        // Browser/Wasm keys (camelCase)
         fontFamily: style.font || 'Arial',
         fontSize: style.font_size || 48,
         primaryColor: style.primary_color || '#FFFFFF',
         outlineColor: style.outline_color || '#000000',
         backgroundColor: style.back_color || '#00000000',
-        bold: style.bold === 1,
-        italic: style.italic === 1,
         outline: style.border || 2,
         shadow: style.shadow || 1,
-        alignment: style.alignment || 2,
         marginV: style.margin_v || 50,
         wordsPerLine: (style.effect_config as any)?.words_per_line || 3,
+
+        // Backend/Python keys (snake_case)
+        font: style.font || 'Arial',
+        font_size: style.font_size || 48,
+        primary_color: style.primary_color || '#FFFFFF',
+        secondary_color: style.secondary_color || '#00FFFF',
+        outline_color: style.outline_color || '#000000',
+        back_color: style.back_color || '#00000000',
+        shadow_color: style.shadow_color || '#000000',
+        border: style.border || 2,
+        shadow_blur: style.shadow_blur || 0,
+        effect_type: style.effect_type,
+        effect_config: style.effect_config,
+
+        // Position & Geometry
+        margin_v: style.margin_v ?? 40,
+        margin_l: style.margin_l ?? 20,
+        margin_r: style.margin_r ?? 20,
+        alignment: style.alignment ?? 2,
+        spacing: style.letter_spacing ?? 0,
+        angle: style.rotation ?? 0,
+        scale_x: style.scale_x ?? 100,
+        scale_y: style.scale_y ?? 100,
+
+        // Toggles (ensure numbers)
+        bold: style.bold !== undefined ? (style.bold ? 1 : 0) : 1,
+        italic: style.italic ? 1 : 0,
+        underline: style.underline ? 1 : 0,
+        strikeout: style.strikeout ? 1 : 0,
       };
 
-      // Export using client-side FFmpeg
+      // Export using FFmpeg (native in Electron, wasm in browser)
       await exportAndDownload(
         actualVideoUrl,
         words.map(w => ({ start: w.start, end: w.end, text: w.text })),
@@ -464,6 +475,8 @@ export default function EditorPage() {
             setExportProgress(progress);
             setExportMessage(message);
           },
+          // Pass projectId for Electron mode to use backend efficiently
+          projectId: projectId !== 'demo' ? projectId : undefined,
         }
       );
 
@@ -765,7 +778,6 @@ export default function EditorPage() {
               resolvedAudioUrl={resolvedAudioUrl}
               bgVideoUrl={bgVideoUrl}
               assContent={assContent}
-              overlayFonts={overlayFonts}
               isPlaying={isPlaying}
               assLoading={assLoading}
               assCacheHit={assCacheHit}
@@ -806,9 +818,9 @@ export default function EditorPage() {
                 {exportMessage || 'Processing...'}
               </Typography>
               <Box sx={{ width: '100%' }}>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={exportProgress} 
+                <LinearProgress
+                  variant="determinate"
+                  value={exportProgress}
                   sx={{ height: 10, borderRadius: 5 }}
                 />
               </Box>
@@ -871,7 +883,7 @@ export default function EditorPage() {
             {t('editor.availableBackgrounds')}
           </Typography>
           <Grid container spacing={1.5} mb={3}>
-            {[{ name: "Default BG 1", url: "/audiobg/audio-bg-1.mp4" }].map((bg, idx) => (
+            {[{ name: "Default BG 1", url: getAssetPath("audiobg/audio-bg-1.mp4") }].map((bg, idx) => (
               <Grid item xs={6} sm={4} md={3} key={idx}>
                 <Paper
                   variant="outlined"
@@ -955,9 +967,9 @@ export default function EditorPage() {
       </Snackbar>
 
       {/* Keyboard Shortcuts Dialog */}
-      <KeyboardShortcutsDialog 
-        open={showShortcuts} 
-        onClose={() => setShowShortcuts(false)} 
+      <KeyboardShortcutsDialog
+        open={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
       />
     </Box>
   );

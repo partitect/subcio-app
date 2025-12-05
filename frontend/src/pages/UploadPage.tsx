@@ -57,6 +57,7 @@ import {
 import { Navbar } from "../components/landing";
 import { getUsageStats, UsageStats } from "../services/authService";
 import { ProjectMeta } from "../types";
+import { getLottieUrl } from "../utils/assetPath";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -116,23 +117,23 @@ export default function UploadPage() {
 
   // Load Lottie animations
   useEffect(() => {
-    fetch("/lottie/upload-animation.json")
+    fetch(getLottieUrl("upload-animation.json"))
       .then(res => res.json())
       .then(setUploadAnimation)
       .catch(console.error);
     
-    fetch("/lottie/processing-dots.json")
+    fetch(getLottieUrl("processing-dots.json"))
       .then(res => res.json())
       .then(setProcessingAnimation)
       .catch(console.error);
     
-    fetch("/lottie/success-check.json")
+    fetch(getLottieUrl("success-check.json"))
       .then(res => res.json())
       .then(setSuccessAnimation)
       .catch(console.error);
   }, []);
 
-  // Fetch usage stats from API
+  // Fetch usage stats from API (getUsageStats handles desktop mode internally)
   const fetchUsageStats = useCallback(async () => {
     setLoadingUsage(true);
     try {
