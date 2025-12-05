@@ -8,21 +8,30 @@ import JSOOverlay from "./components/JSOOverlay";
 import LoadingOverlay from "./components/LoadingOverlay";
 import { Link } from "react-router-dom";
 import { Palette } from "lucide-react";
+import { useSettings } from "./contexts/SettingsContext";
+import useUndo from "./hooks/useUndo";
 
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 
 export default function App() {
+  const { settings, updateSettings } = useSettings();
   const playerRef = useRef(null);
   const overlayRef = useRef(null);
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState("");
-  const [words, setWords] = useState([]);
+  // Undo/Redo for words
+  const [words, setWords, undoWords, redoWords, canUndoWords, canRedoWords] = useUndo([]);
+  const [playing, setPlaying] = useState(false); // For Play/Pause control
+
   const [assContent, setAssContent] = useState(null); // New state for ASS content
   const [language, setLanguage] = useState("");
   const [device, setDevice] = useState("");
-  const [modelName, setModelName] = useState("medium");
+  // Use settings for model and resolution
+  const modelName = settings.modelName;
+  const setModelName = (val) => updateSettings({ modelName: val });
+
   const [videoAspect, setVideoAspect] = useState(9 / 16);
   const [currentTime, setCurrentTime] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -42,7 +51,8 @@ export default function App() {
     shadow_blur: 8,
     alignment: 2,
   });
-  const [resolution, setResolution] = useState("1080p");
+  const resolution = settings.resolution;
+  const setResolution = (val) => updateSettings({ resolution: val });
 
   // Fetch ASS preview when words or style change
   useEffect(() => {
@@ -172,6 +182,39 @@ export default function App() {
       (w) => currentTime >= w.start && currentTime < w.end
     );
   }, [words, currentTime]);
+
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignore if typing in input/textarea
+      if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+
+      // Toggle Play/Pause on Space
+      if (e.code === "Space") {
+        e.preventDefault();
+        setPlaying((p) => !p);
+      }
+
+      // Undo: Ctrl+Z
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (canRedoWords) redoWords();
+        } else {
+          if (canUndoWords) undoWords();
+        }
+      }
+
+      // Redo: Ctrl+Y
+      if ((e.ctrlKey || e.metaKey) && e.key === "y") {
+        e.preventDefault();
+        if (canRedoWords) redoWords();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [canUndoWords, canRedoWords, undoWords, redoWords]);
 
   return (
     <div className="min-h-screen text-white flex flex-col overflow-x-hidden relative">
@@ -305,6 +348,9 @@ export default function App() {
               <ReactPlayer
                 ref={playerRef}
                 url={videoUrl}
+                playing={playing}
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
                 controls
                 width="100%"
                 height="100%"

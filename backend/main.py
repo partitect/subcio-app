@@ -9,6 +9,7 @@ import hashlib
 import sys
 import asyncio
 import threading
+import math
 from datetime import datetime
 try:
     from .ffmpeg_helper import run_ffmpeg_burn_async
@@ -1080,6 +1081,82 @@ async def list_fonts():
         return JSONResponse({"fonts": FONT_ENTRIES})
     except Exception as e:
         return JSONResponse({"fonts": [], "error": str(e)}, status_code=500)
+
+
+# -----------------------------------------------------------------------------
+# Model Management Endpoints
+# -----------------------------------------------------------------------------
+HF_CACHE_DIR = Path(os.getenv("HF_HOME", Path.home() / ".cache" / "huggingface" / "hub"))
+
+def get_human_readable_size(size_bytes):
+    if size_bytes == 0: return "0 B"
+    units = ("B", "KB", "MB", "GB", "TB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return f"{s} {units[i]}"
+
+def get_folder_size(folder: Path):
+    return sum(f.stat().st_size for f in folder.glob('**/*') if f.is_file())
+
+@app.get("/api/models")
+async def list_models():
+    """List downloaded Whisper models in the local cache."""
+    models = []
+    if not HF_CACHE_DIR.exists():
+        return JSONResponse({"models": []})
+        
+    try:
+        # Look for faster-whisper models
+        # Pattern: models--Systran--faster-whisper-{size}
+        for path in HF_CACHE_DIR.iterdir():
+            if path.is_dir() and "faster-whisper" in path.name:
+                # Parse name (e.g., models--Systran--faster-whisper-medium -> medium)
+                parts = path.name.split("faster-whisper-")
+                if len(parts) > 1:
+                    model_name = parts[-1]
+                    size_bytes = get_folder_size(path)
+                    
+                    models.append({
+                        "id": model_name,
+                        "path": str(path),
+                        "size": get_human_readable_size(size_bytes),
+                        "size_bytes": size_bytes,
+                        "created": datetime.fromtimestamp(path.stat().st_ctime).isoformat()
+                    })
+    except Exception as e:
+        logger.error(f"Error listing models: {e}")
+        return JSONResponse({"models": [], "error": str(e)})
+        
+    return JSONResponse({"models": models})
+
+@app.delete("/api/models/{model_name}")
+async def delete_model(model_name: str):
+    """Delete a specific Whisper model from cache."""
+    try:
+        # Clear from memory if loaded
+        if model_name in MODEL_CACHE:
+            del MODEL_CACHE[model_name]
+            import gc
+            gc.collect()
+            
+        deleted = False
+        if HF_CACHE_DIR.exists():
+            for path in HF_CACHE_DIR.iterdir():
+                if path.is_dir() and f"faster-whisper-{model_name}" in path.name:
+                    shutil.rmtree(path)
+                    deleted = True
+                    logger.info(f"Deleted model cache: {path}")
+                    
+        if deleted:
+            return JSONResponse({"success": True})
+        else:
+            raise HTTPException(status_code=404, detail="Model not found in cache")
+            
+    except Exception as e:
+        logger.error(f"Error deleting model {model_name}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 

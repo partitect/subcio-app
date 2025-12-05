@@ -4,6 +4,7 @@ import { HashRouter } from "react-router-dom";
 import { CssBaseline } from "@mui/material";
 import App from "./App.tsx";
 import { ThemeProvider } from "./ThemeContext";
+import { SettingsProvider } from "./contexts/SettingsContext";
 import "./index.css";
 
 // i18n initialization
@@ -12,7 +13,7 @@ import "./i18n";
 // Initialize logging
 import { logger } from "./services/logService";
 logger.info("🚀 Subcio uygulaması başlatılıyor...");
-logger.debug("Environment:", { 
+logger.debug("Environment:", {
   mode: import.meta.env.MODE,
   isDev: import.meta.env.DEV,
   isElectron: !!(window.electron?.isElectron)
@@ -20,11 +21,13 @@ logger.debug("Environment:", {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <CssBaseline />
-      <HashRouter>
-        <App />
-      </HashRouter>
-    </ThemeProvider>
+    <SettingsProvider>
+      <ThemeProvider>
+        <CssBaseline />
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </ThemeProvider>
+    </SettingsProvider>
   </React.StrictMode>
 );

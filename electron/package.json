@@ -65,10 +65,16 @@
     },
     "portable": {
       "artifactName": "${productName}-Portable-${version}.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "subcio",
+      "repo": "subcio-desktop"
     }
   },
   "dependencies": {
-    "electron-log": "^5.0.1"
+    "electron-log": "^5.0.1",
+    "electron-updater": "^6.6.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

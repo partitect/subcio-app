@@ -585,6 +585,18 @@ function createMenu() {
       label: 'Yardım',
       submenu: [
         {
+          label: 'Güncellemeleri Kontrol Et',
+          click: () => {
+            const { autoUpdater } = require('electron-updater');
+            autoUpdater.checkForUpdatesAndNotify();
+            dialog.showMessageBox(mainWindow, {
+              message: "Güncellemeler kontrol ediliyor...",
+              buttons: ["Tamam"]
+            });
+          }
+        },
+        { type: 'separator' },
+        {
           label: 'Log Dosyasını Aç',
           click: () => {
             shell.openPath(log.transports.file.getFile().path);
@@ -607,6 +619,59 @@ function createMenu() {
   ];
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+// Auto Updater Setup
+function setupAutoUpdater() {
+  const { autoUpdater } = require('electron-updater');
+  autoUpdater.logger = log;
+  autoUpdater.logger.transports.file.level = 'info';
+
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for update...');
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    log.info('Update available.', info);
+    if (mainWindow) mainWindow.webContents.send('update-available', info);
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    log.info('Update not available.', info);
+  });
+
+  autoUpdater.on('error', (err) => {
+    log.error('Error in auto-updater. ' + err);
+  });
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    log.info(log_message);
+    if (mainWindow) mainWindow.webContents.send('update-progress', progressObj);
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('Update downloaded');
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: 'Güncelleme Hazır',
+      message: 'Yeni bir versiyon indirildi. Şimdi yükleyip yeniden başlatmak ister misiniz?',
+      buttons: ['Evet, Yeniden Başlat', 'Daha Sonra']
+    }).then((returnValue) => {
+      if (returnValue.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
+  });
+
+  // Check for updates shortly after startup
+  if (!isDev) {
+    setTimeout(() => {
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 10000);
+  }
 }
 
 // App ready
@@ -633,7 +698,11 @@ app.whenReady().then(async () => {
     updateSplashStatus('Arayüz yükleniyor...');
     createMainWindow();
     createMenu();
+    createMenu();
     createTray();
+
+    // Setup Auto Updater
+    setupAutoUpdater();
 
     log.info('Subcio started successfully!');
 
