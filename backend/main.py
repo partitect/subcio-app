@@ -226,58 +226,115 @@ EXPORT_JOBS = {}
 EXPORT_LOCK = threading.Lock()
 
 
-_WEIGHT_PATTERNS = [
-    r"extrabold", r"extra-bold", r"extra bold", r"extrablack", r"ultrabold", r"ultra-bold",
-    r"bold", r"semibold", r"semi-bold", r"semi bold", r"black", r"heavy",
-    r"regular", r"book", r"medium", r"light", r"thin", r"hairline", r"extralight", r"extra light", r"ultralight",
-]
-_WIDTH_PATTERNS = [
-    r"expanded", r"condensed", r"compressed", r"extended", r"narrow", r"wide",
-    r"semi\s*expanded", r"semi\s*condensed", r"semi\s*compressed",
-    r"ultraexpanded", r"extraexpanded", r"ultracondensed", r"extracondensed",
-    r"\d+pt",
-]
 
+# Mapping for standard weights
+WEIGHT_MAP = {
+    "thin": 100, "hairline": 100,
+    "extralight": 200, "extra-light": 200, "ultralight": 200, "ultra-light": 200,
+    "light": 300,
+    "regular": 400, "normal": 400, "book": 400, "medium": 500,
+    "semibold": 600, "semi-bold": 600, "demibold": 600,
+    "bold": 700,
+    "extrabold": 800, "extra-bold": 800, "ultrabold": 800, "ultra-bold": 800, "heavy": 800,
+    "black": 900, "extrablack": 950
+}
 
-def _base_font_name(stem: str) -> str:
-    base = stem.replace("_", " ").replace(",", "-")
-    # Insert spaces between camel-case boundaries so "AdventPro" -> "Advent Pro"
-    base = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", base)
-    base = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", base)
-    for pat in _WIDTH_PATTERNS:
-        base = re.sub(pat, "", base, flags=re.I)
-    for pat in _WEIGHT_PATTERNS:
-        base = re.sub(pat, "", base, flags=re.I)
-    base = re.sub(r"italic|oblique|variablefont.*", "", base, flags=re.I)
-    base = re.sub(r"-+", " ", base)
-    base = re.sub(r"\s+", " ", base).strip()
-    return base or stem
-
-
-def sanitize_font_name_from_path(p: Path) -> tuple[str, str]:
-    """Return (display_name, filename) normalized from path."""
+def parse_font_metadata(path: Path) -> dict:
+    """
+    Extract family name, weight, and style from filename and internal metadata.
+    """
+    filename = path.name
+    stem = path.stem
+    
+    # Defaults
+    weight = 400
+    style = "normal"
+    family_name = stem
+    
+    # 1. Try to get metadata from PIL
     try:
-        font = ImageFont.truetype(str(p), 10)
-        name = font.getname()[0]
-        if name:
-             return name, p.name
+        font = ImageFont.truetype(str(path), 10)
+        pil_names = font.getname()
+        if pil_names and len(pil_names) >= 1:
+            pil_family = pil_names[0]
+            if pil_family and pil_family.lower() not in ["regular", "bold", "italic"]:
+                family_name = pil_family
     except Exception:
         pass
-    return _base_font_name(p.stem), p.name
 
+    # 2. Refine family name using regex cleanup on the stem
+    if re.search(r"italic|oblique", stem, re.I):
+        style = "italic"
+    
+    lower_stem = stem.lower()
+    for w_name, w_val in WEIGHT_MAP.items():
+        if w_name in lower_stem:
+            weight = w_val
+            break
+            
+    clean_name = stem.replace("_", " ").replace("-", " ")
+    clean_name = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", clean_name)
+    clean_name = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", clean_name)
+    
+    # Remove weight/style keywords to isolate the Family Name
+    remove_patterns = [
+        r"\bitalic\b", r"\boblique\b",
+        r"\bvariablefont\b", r"\bregular\b",
+    ]
+    
+    # Add weights to remove patterns
+    for w_name in WEIGHT_MAP.keys():
+        remove_patterns.append(rf"\b{re.escape(w_name)}\b")
+        
+    temp_name = clean_name
+    for pat in remove_patterns:
+        temp_name = re.sub(pat, "", temp_name, flags=re.I)
+        
+    # Clean up extra spaces
+    temp_name = re.sub(r"\s+", " ", temp_name).strip()
+    
+    # Correction for "Semi" leftover
+    if temp_name.lower().endswith(" semi"):
+        temp_name = temp_name[:-5]
+    
+    # Final cleanup of dangling special chars
+    temp_name = temp_name.strip(" -_")
+
+    if temp_name:
+        family_name = temp_name
+        
+    return {
+        "family": family_name,
+        "weight": weight,
+        "style": style,
+        "filename": filename,
+        "path": path
+    }
 
 def load_font_name_list() -> list[dict]:
+    # Group all fonts by family
     fonts = list(FONTS_DIR.glob("*.ttf")) + list(FONTS_DIR.glob("*.otf"))
-    entries = []
-    seen = set()
+    families = {}
+    
     for f in fonts:
-        name, filename = sanitize_font_name_from_path(f)
-        if name in seen:
-            continue
-        seen.add(name)
-        entries.append({"name": name, "file": filename})
+        meta = parse_font_metadata(f)
+        fam = meta["family"]
+        if fam not in families:
+            families[fam] = []
+        families[fam].append(meta)
+    
+    entries = []
+    # For each family, pick the best representative (Regular/Normal)
+    for fam, variants in families.items():
+        # Sort by proximity to Weight 400 and Style Normal
+        # Key: (is_italic, abs(weight - 400))
+        # This puts Normal(false) + 400 at the top (0, 0)
+        variants.sort(key=lambda x: (x["style"] != "normal", abs(x["weight"] - 400)))
+        
+        best = variants[0]
+        entries.append({"name": fam, "file": best["filename"]})
+        
     return sorted(entries, key=lambda x: x["name"])
-
 
 FONT_ENTRIES: list[dict] = load_font_name_list()
 FONT_NAME_LIST: list[str] = [e["name"] for e in FONT_ENTRIES]

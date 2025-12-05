@@ -1,3292 +1,3095 @@
-/* Auto-generated from backend/fonts */
+/* Auto-generated from backend/fonts - Smart Grouping */
 
 @font-face {
-  font-family: "AdventPro Black";
-  src: url("./fonts/AdventPro-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro BlackItalic";
-  src: url("./fonts/AdventPro-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Bold";
-  src: url("./fonts/AdventPro-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro BoldItalic";
-  src: url("./fonts/AdventPro-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraBold";
-  src: url("./fonts/AdventPro-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraBoldItalic";
-  src: url("./fonts/AdventPro-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraLight";
-  src: url("./fonts/AdventPro-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraLightItalic";
-  src: url("./fonts/AdventPro-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Italic";
-  src: url("./fonts/AdventPro-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Light";
-  src: url("./fonts/AdventPro-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro LightItalic";
-  src: url("./fonts/AdventPro-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Medium";
-  src: url("./fonts/AdventPro-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro MediumItalic";
-  src: url("./fonts/AdventPro-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Regular";
-  src: url("./fonts/AdventPro-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiBold";
-  src: url("./fonts/AdventPro-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiBoldItalic";
-  src: url("./fonts/AdventPro-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Thin";
-  src: url("./fonts/AdventPro-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ThinItalic";
+  font-family: "Advent Pro";
   src: url("./fonts/AdventPro-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro Expanded Black";
-  src: url("./fonts/AdventPro_Expanded-Black.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro Expanded BlackItalic";
-  src: url("./fonts/AdventPro_Expanded-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro Expanded Bold";
-  src: url("./fonts/AdventPro_Expanded-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro Expanded BoldItalic";
-  src: url("./fonts/AdventPro_Expanded-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro Expanded ExtraBold";
-  src: url("./fonts/AdventPro_Expanded-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro Expanded ExtraBoldItalic";
-  src: url("./fonts/AdventPro_Expanded-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro";
+  src: url("./fonts/AdventPro-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro Expanded ExtraLight";
-  src: url("./fonts/AdventPro_Expanded-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded ExtraLightItalic";
-  src: url("./fonts/AdventPro_Expanded-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded Italic";
-  src: url("./fonts/AdventPro_Expanded-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded Light";
-  src: url("./fonts/AdventPro_Expanded-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded LightItalic";
-  src: url("./fonts/AdventPro_Expanded-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded Medium";
-  src: url("./fonts/AdventPro_Expanded-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded MediumItalic";
-  src: url("./fonts/AdventPro_Expanded-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded Regular";
-  src: url("./fonts/AdventPro_Expanded-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded SemiBold";
-  src: url("./fonts/AdventPro_Expanded-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded SemiBoldItalic";
-  src: url("./fonts/AdventPro_Expanded-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded Thin";
-  src: url("./fonts/AdventPro_Expanded-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro Expanded ThinItalic";
+  font-family: "Advent Pro Expanded";
   src: url("./fonts/AdventPro_Expanded-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded Black";
-  src: url("./fonts/AdventPro_ExtraExpanded-Black.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded BlackItalic";
-  src: url("./fonts/AdventPro_ExtraExpanded-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded Bold";
-  src: url("./fonts/AdventPro_ExtraExpanded-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded BoldItalic";
-  src: url("./fonts/AdventPro_ExtraExpanded-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded ExtraBold";
-  src: url("./fonts/AdventPro_ExtraExpanded-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded ExtraBoldItalic";
-  src: url("./fonts/AdventPro_ExtraExpanded-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded";
+  src: url("./fonts/AdventPro_Expanded-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded ExtraLight";
-  src: url("./fonts/AdventPro_ExtraExpanded-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded Extra";
+  src: url("./fonts/AdventPro_Expanded-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded Extra";
+  src: url("./fonts/AdventPro_Expanded-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded ExtraLightItalic";
-  src: url("./fonts/AdventPro_ExtraExpanded-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Expanded Extra";
+  src: url("./fonts/AdventPro_Expanded-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Expanded Extra";
+  src: url("./fonts/AdventPro_Expanded-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded Italic";
-  src: url("./fonts/AdventPro_ExtraExpanded-Italic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra";
+  src: url("./fonts/AdventPro-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra";
+  src: url("./fonts/AdventPro-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded Light";
-  src: url("./fonts/AdventPro_ExtraExpanded-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra";
+  src: url("./fonts/AdventPro-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra";
+  src: url("./fonts/AdventPro-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro ExtraExpanded LightItalic";
-  src: url("./fonts/AdventPro_ExtraExpanded-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraExpanded Medium";
-  src: url("./fonts/AdventPro_ExtraExpanded-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraExpanded MediumItalic";
-  src: url("./fonts/AdventPro_ExtraExpanded-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraExpanded Regular";
-  src: url("./fonts/AdventPro_ExtraExpanded-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraExpanded SemiBold";
-  src: url("./fonts/AdventPro_ExtraExpanded-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraExpanded SemiBoldItalic";
-  src: url("./fonts/AdventPro_ExtraExpanded-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraExpanded Thin";
-  src: url("./fonts/AdventPro_ExtraExpanded-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro ExtraExpanded ThinItalic";
+  font-family: "Advent Pro Extra Expanded";
   src: url("./fonts/AdventPro_ExtraExpanded-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded Black";
-  src: url("./fonts/AdventPro_SemiExpanded-Black.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded BlackItalic";
-  src: url("./fonts/AdventPro_SemiExpanded-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded Bold";
-  src: url("./fonts/AdventPro_SemiExpanded-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded BoldItalic";
-  src: url("./fonts/AdventPro_SemiExpanded-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded ExtraBold";
-  src: url("./fonts/AdventPro_SemiExpanded-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded ExtraBoldItalic";
-  src: url("./fonts/AdventPro_SemiExpanded-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded";
+  src: url("./fonts/AdventPro_ExtraExpanded-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded ExtraLight";
-  src: url("./fonts/AdventPro_SemiExpanded-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded Extra";
+  src: url("./fonts/AdventPro_ExtraExpanded-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded Extra";
+  src: url("./fonts/AdventPro_ExtraExpanded-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded ExtraLightItalic";
-  src: url("./fonts/AdventPro_SemiExpanded-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Extra Expanded Extra";
+  src: url("./fonts/AdventPro_ExtraExpanded-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Extra Expanded Extra";
+  src: url("./fonts/AdventPro_ExtraExpanded-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro SemiExpanded Italic";
-  src: url("./fonts/AdventPro_SemiExpanded-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded Light";
-  src: url("./fonts/AdventPro_SemiExpanded-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded LightItalic";
-  src: url("./fonts/AdventPro_SemiExpanded-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded Medium";
-  src: url("./fonts/AdventPro_SemiExpanded-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded MediumItalic";
-  src: url("./fonts/AdventPro_SemiExpanded-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded Regular";
-  src: url("./fonts/AdventPro_SemiExpanded-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded SemiBold";
-  src: url("./fonts/AdventPro_SemiExpanded-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded SemiBoldItalic";
-  src: url("./fonts/AdventPro_SemiExpanded-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded Thin";
-  src: url("./fonts/AdventPro_SemiExpanded-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro SemiExpanded ThinItalic";
+  font-family: "Advent Pro Semi Expanded";
   src: url("./fonts/AdventPro_SemiExpanded-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded Black";
-  src: url("./fonts/AdventPro_UltraExpanded-Black.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded BlackItalic";
-  src: url("./fonts/AdventPro_UltraExpanded-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded Bold";
-  src: url("./fonts/AdventPro_UltraExpanded-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded BoldItalic";
-  src: url("./fonts/AdventPro_UltraExpanded-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded ExtraBold";
-  src: url("./fonts/AdventPro_UltraExpanded-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded ExtraBoldItalic";
-  src: url("./fonts/AdventPro_UltraExpanded-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded";
+  src: url("./fonts/AdventPro_SemiExpanded-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded ExtraLight";
-  src: url("./fonts/AdventPro_UltraExpanded-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded Extra";
+  src: url("./fonts/AdventPro_SemiExpanded-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded Extra";
+  src: url("./fonts/AdventPro_SemiExpanded-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded ExtraLightItalic";
-  src: url("./fonts/AdventPro_UltraExpanded-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Advent Pro Semi Expanded Extra";
+  src: url("./fonts/AdventPro_SemiExpanded-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Semi Expanded Extra";
+  src: url("./fonts/AdventPro_SemiExpanded-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AdventPro UltraExpanded Italic";
-  src: url("./fonts/AdventPro_UltraExpanded-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded Light";
-  src: url("./fonts/AdventPro_UltraExpanded-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded LightItalic";
-  src: url("./fonts/AdventPro_UltraExpanded-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded Medium";
-  src: url("./fonts/AdventPro_UltraExpanded-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded MediumItalic";
-  src: url("./fonts/AdventPro_UltraExpanded-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded Regular";
-  src: url("./fonts/AdventPro_UltraExpanded-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded SemiBold";
-  src: url("./fonts/AdventPro_UltraExpanded-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded SemiBoldItalic";
-  src: url("./fonts/AdventPro_UltraExpanded-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded Thin";
-  src: url("./fonts/AdventPro_UltraExpanded-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "AdventPro UltraExpanded ThinItalic";
+  font-family: "Advent Pro Ultra Expanded";
   src: url("./fonts/AdventPro_UltraExpanded-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AkayaTelivigala Regular";
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded";
+  src: url("./fonts/AdventPro_UltraExpanded-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded Extra";
+  src: url("./fonts/AdventPro_UltraExpanded-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded Extra";
+  src: url("./fonts/AdventPro_UltraExpanded-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded Extra";
+  src: url("./fonts/AdventPro_UltraExpanded-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Advent Pro Ultra Expanded Extra";
+  src: url("./fonts/AdventPro_UltraExpanded-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Akaya Telivigala";
   src: url("./fonts/AkayaTelivigala-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Arbutus Regular";
+  font-family: "Arbutus";
   src: url("./fonts/Arbutus-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "ArchitectsDaughter Regular";
-  src: url("./fonts/ArchitectsDaughter-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Asimovian Regular";
+  font-family: "Asimovian";
   src: url("./fonts/Asimovian-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Atma Bold";
+  font-family: "Atma";
   src: url("./fonts/Atma-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "AutourOne Regular";
-  src: url("./fonts/AutourOne-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Bahiana Regular";
+  font-family: "Bahiana";
   src: url("./fonts/Bahiana-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Bahianita Regular";
-  src: url("./fonts/Bahianita-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Bangers Regular";
+  font-family: "Bangers";
   src: url("./fonts/Bangers-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BebasNeue Regular";
+  font-family: "Bebas Neue";
   src: url("./fonts/BebasNeue-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BerkshireSwash Regular";
-  src: url("./fonts/BerkshireSwash-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BigelowRules Regular";
+  font-family: "Bigelow Rules";
   src: url("./fonts/BigelowRules-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BowlbyOneSC Regular";
+  font-family: "Bowlby One SC";
   src: url("./fonts/BowlbyOneSC-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BraahOne Regular";
+  font-family: "Braah One";
   src: url("./fonts/BraahOne-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Bold";
-  src: url("./fonts/BricolageGrotesque-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque ExtraBold";
-  src: url("./fonts/BricolageGrotesque-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque ExtraLight";
-  src: url("./fonts/BricolageGrotesque-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque Light";
+  font-family: "Bricolage Grotesque";
   src: url("./fonts/BricolageGrotesque-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Medium";
-  src: url("./fonts/BricolageGrotesque-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque Regular";
+  font-family: "Bricolage Grotesque";
   src: url("./fonts/BricolageGrotesque-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque SemiBold";
+  font-family: "Bricolage Grotesque";
+  src: url("./fonts/BricolageGrotesque-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque";
   src: url("./fonts/BricolageGrotesque-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt Bold";
-  src: url("./fonts/BricolageGrotesque_24pt-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque";
+  src: url("./fonts/BricolageGrotesque-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt ExtraBold";
-  src: url("./fonts/BricolageGrotesque_24pt-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 24pt ExtraLight";
-  src: url("./fonts/BricolageGrotesque_24pt-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 24pt Light";
+  font-family: "Bricolage Grotesque 24pt";
   src: url("./fonts/BricolageGrotesque_24pt-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt Medium";
-  src: url("./fonts/BricolageGrotesque_24pt-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 24pt Regular";
+  font-family: "Bricolage Grotesque 24pt";
   src: url("./fonts/BricolageGrotesque_24pt-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt SemiBold";
+  font-family: "Bricolage Grotesque 24pt";
+  src: url("./fonts/BricolageGrotesque_24pt-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 24pt";
   src: url("./fonts/BricolageGrotesque_24pt-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt Condensed Bold";
-  src: url("./fonts/BricolageGrotesque_24pt_Condensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 24pt";
+  src: url("./fonts/BricolageGrotesque_24pt-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt Condensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_24pt_Condensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 24pt Condensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_24pt_Condensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 24pt Condensed Light";
+  font-family: "Bricolage Grotesque 24pt Condensed";
   src: url("./fonts/BricolageGrotesque_24pt_Condensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt Condensed Medium";
-  src: url("./fonts/BricolageGrotesque_24pt_Condensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 24pt Condensed Regular";
+  font-family: "Bricolage Grotesque 24pt Condensed";
   src: url("./fonts/BricolageGrotesque_24pt_Condensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt Condensed SemiBold";
+  font-family: "Bricolage Grotesque 24pt Condensed";
+  src: url("./fonts/BricolageGrotesque_24pt_Condensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 24pt Condensed";
   src: url("./fonts/BricolageGrotesque_24pt_Condensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt SemiCondensed Bold";
-  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 24pt Condensed";
+  src: url("./fonts/BricolageGrotesque_24pt_Condensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt SemiCondensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 24pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_24pt_Condensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt SemiCondensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 24pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_24pt_Condensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt SemiCondensed Light";
+  font-family: "Bricolage Grotesque 24pt Extra";
+  src: url("./fonts/BricolageGrotesque_24pt-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 24pt Extra";
+  src: url("./fonts/BricolageGrotesque_24pt-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 24pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt SemiCondensed Medium";
-  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 24pt SemiCondensed Regular";
+  font-family: "Bricolage Grotesque 24pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 24pt SemiCondensed SemiBold";
+  font-family: "Bricolage Grotesque 24pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 24pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt Bold";
-  src: url("./fonts/BricolageGrotesque_36pt-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 24pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt ExtraBold";
-  src: url("./fonts/BricolageGrotesque_36pt-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 24pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt ExtraLight";
-  src: url("./fonts/BricolageGrotesque_36pt-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 24pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_24pt_SemiCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt Light";
+  font-family: "Bricolage Grotesque 36pt";
   src: url("./fonts/BricolageGrotesque_36pt-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt Medium";
-  src: url("./fonts/BricolageGrotesque_36pt-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 36pt Regular";
+  font-family: "Bricolage Grotesque 36pt";
   src: url("./fonts/BricolageGrotesque_36pt-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt SemiBold";
+  font-family: "Bricolage Grotesque 36pt";
+  src: url("./fonts/BricolageGrotesque_36pt-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 36pt";
   src: url("./fonts/BricolageGrotesque_36pt-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt Condensed Bold";
-  src: url("./fonts/BricolageGrotesque_36pt_Condensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 36pt";
+  src: url("./fonts/BricolageGrotesque_36pt-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt Condensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_36pt_Condensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 36pt Condensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_36pt_Condensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 36pt Condensed Light";
+  font-family: "Bricolage Grotesque 36pt Condensed";
   src: url("./fonts/BricolageGrotesque_36pt_Condensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt Condensed Medium";
-  src: url("./fonts/BricolageGrotesque_36pt_Condensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 36pt Condensed Regular";
+  font-family: "Bricolage Grotesque 36pt Condensed";
   src: url("./fonts/BricolageGrotesque_36pt_Condensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt Condensed SemiBold";
+  font-family: "Bricolage Grotesque 36pt Condensed";
+  src: url("./fonts/BricolageGrotesque_36pt_Condensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 36pt Condensed";
   src: url("./fonts/BricolageGrotesque_36pt_Condensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt SemiCondensed Bold";
-  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 36pt Condensed";
+  src: url("./fonts/BricolageGrotesque_36pt_Condensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt SemiCondensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 36pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_36pt_Condensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt SemiCondensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 36pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_36pt_Condensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt SemiCondensed Light";
+  font-family: "Bricolage Grotesque 36pt Extra";
+  src: url("./fonts/BricolageGrotesque_36pt-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 36pt Extra";
+  src: url("./fonts/BricolageGrotesque_36pt-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 36pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt SemiCondensed Medium";
-  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 36pt SemiCondensed Regular";
+  font-family: "Bricolage Grotesque 36pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 36pt SemiCondensed SemiBold";
+  font-family: "Bricolage Grotesque 36pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 36pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt Bold";
-  src: url("./fonts/BricolageGrotesque_48pt-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 36pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt ExtraBold";
-  src: url("./fonts/BricolageGrotesque_48pt-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 36pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt ExtraLight";
-  src: url("./fonts/BricolageGrotesque_48pt-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 36pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_36pt_SemiCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt Light";
+  font-family: "Bricolage Grotesque 48pt";
   src: url("./fonts/BricolageGrotesque_48pt-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt Medium";
-  src: url("./fonts/BricolageGrotesque_48pt-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 48pt Regular";
+  font-family: "Bricolage Grotesque 48pt";
   src: url("./fonts/BricolageGrotesque_48pt-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt SemiBold";
+  font-family: "Bricolage Grotesque 48pt";
+  src: url("./fonts/BricolageGrotesque_48pt-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 48pt";
   src: url("./fonts/BricolageGrotesque_48pt-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt Condensed Bold";
-  src: url("./fonts/BricolageGrotesque_48pt_Condensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 48pt";
+  src: url("./fonts/BricolageGrotesque_48pt-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt Condensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_48pt_Condensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 48pt Condensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_48pt_Condensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 48pt Condensed Light";
+  font-family: "Bricolage Grotesque 48pt Condensed";
   src: url("./fonts/BricolageGrotesque_48pt_Condensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt Condensed Medium";
-  src: url("./fonts/BricolageGrotesque_48pt_Condensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 48pt Condensed Regular";
+  font-family: "Bricolage Grotesque 48pt Condensed";
   src: url("./fonts/BricolageGrotesque_48pt_Condensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt Condensed SemiBold";
+  font-family: "Bricolage Grotesque 48pt Condensed";
+  src: url("./fonts/BricolageGrotesque_48pt_Condensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 48pt Condensed";
   src: url("./fonts/BricolageGrotesque_48pt_Condensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt SemiCondensed Bold";
-  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 48pt Condensed";
+  src: url("./fonts/BricolageGrotesque_48pt_Condensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt SemiCondensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 48pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_48pt_Condensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt SemiCondensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 48pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_48pt_Condensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt SemiCondensed Light";
+  font-family: "Bricolage Grotesque 48pt Extra";
+  src: url("./fonts/BricolageGrotesque_48pt-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 48pt Extra";
+  src: url("./fonts/BricolageGrotesque_48pt-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 48pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt SemiCondensed Medium";
-  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 48pt SemiCondensed Regular";
+  font-family: "Bricolage Grotesque 48pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 48pt SemiCondensed SemiBold";
+  font-family: "Bricolage Grotesque 48pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 48pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt Bold";
-  src: url("./fonts/BricolageGrotesque_72pt-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 48pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt ExtraBold";
-  src: url("./fonts/BricolageGrotesque_72pt-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 48pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt ExtraLight";
-  src: url("./fonts/BricolageGrotesque_72pt-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 48pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_48pt_SemiCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt Light";
+  font-family: "Bricolage Grotesque 72pt";
   src: url("./fonts/BricolageGrotesque_72pt-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt Medium";
-  src: url("./fonts/BricolageGrotesque_72pt-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 72pt Regular";
+  font-family: "Bricolage Grotesque 72pt";
   src: url("./fonts/BricolageGrotesque_72pt-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt SemiBold";
+  font-family: "Bricolage Grotesque 72pt";
+  src: url("./fonts/BricolageGrotesque_72pt-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 72pt";
   src: url("./fonts/BricolageGrotesque_72pt-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt Condensed Bold";
-  src: url("./fonts/BricolageGrotesque_72pt_Condensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 72pt";
+  src: url("./fonts/BricolageGrotesque_72pt-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt Condensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_72pt_Condensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 72pt Condensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_72pt_Condensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 72pt Condensed Light";
+  font-family: "Bricolage Grotesque 72pt Condensed";
   src: url("./fonts/BricolageGrotesque_72pt_Condensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt Condensed Medium";
-  src: url("./fonts/BricolageGrotesque_72pt_Condensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 72pt Condensed Regular";
+  font-family: "Bricolage Grotesque 72pt Condensed";
   src: url("./fonts/BricolageGrotesque_72pt_Condensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt Condensed SemiBold";
+  font-family: "Bricolage Grotesque 72pt Condensed";
+  src: url("./fonts/BricolageGrotesque_72pt_Condensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 72pt Condensed";
   src: url("./fonts/BricolageGrotesque_72pt_Condensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt SemiCondensed Bold";
-  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 72pt Condensed";
+  src: url("./fonts/BricolageGrotesque_72pt_Condensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt SemiCondensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 72pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_72pt_Condensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt SemiCondensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 72pt Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_72pt_Condensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt SemiCondensed Light";
+  font-family: "Bricolage Grotesque 72pt Extra";
+  src: url("./fonts/BricolageGrotesque_72pt-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 72pt Extra";
+  src: url("./fonts/BricolageGrotesque_72pt-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 72pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt SemiCondensed Medium";
-  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque 72pt SemiCondensed Regular";
+  font-family: "Bricolage Grotesque 72pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque 72pt SemiCondensed SemiBold";
+  font-family: "Bricolage Grotesque 72pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque 72pt Semi Condensed";
   src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Condensed Bold";
-  src: url("./fonts/BricolageGrotesque_Condensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 72pt Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Condensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_Condensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 72pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Condensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_Condensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque 72pt Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_72pt_SemiCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Condensed Light";
+  font-family: "Bricolage Grotesque Condensed";
   src: url("./fonts/BricolageGrotesque_Condensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Condensed Medium";
-  src: url("./fonts/BricolageGrotesque_Condensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque Condensed Regular";
+  font-family: "Bricolage Grotesque Condensed";
   src: url("./fonts/BricolageGrotesque_Condensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque Condensed SemiBold";
+  font-family: "Bricolage Grotesque Condensed";
+  src: url("./fonts/BricolageGrotesque_Condensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque Condensed";
   src: url("./fonts/BricolageGrotesque_Condensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque SemiCondensed Bold";
-  src: url("./fonts/BricolageGrotesque_SemiCondensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque Condensed";
+  src: url("./fonts/BricolageGrotesque_Condensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque SemiCondensed ExtraBold";
-  src: url("./fonts/BricolageGrotesque_SemiCondensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_Condensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque SemiCondensed ExtraLight";
-  src: url("./fonts/BricolageGrotesque_SemiCondensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Bricolage Grotesque Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_Condensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque SemiCondensed Light";
+  font-family: "Bricolage Grotesque Extra";
+  src: url("./fonts/BricolageGrotesque-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque Extra";
+  src: url("./fonts/BricolageGrotesque-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque Semi Condensed";
   src: url("./fonts/BricolageGrotesque_SemiCondensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque SemiCondensed Medium";
-  src: url("./fonts/BricolageGrotesque_SemiCondensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "BricolageGrotesque SemiCondensed Regular";
+  font-family: "Bricolage Grotesque Semi Condensed";
   src: url("./fonts/BricolageGrotesque_SemiCondensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BricolageGrotesque SemiCondensed SemiBold";
+  font-family: "Bricolage Grotesque Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_SemiCondensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque Semi Condensed";
   src: url("./fonts/BricolageGrotesque_SemiCondensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Bungee Regular";
+  font-family: "Bricolage Grotesque Semi Condensed";
+  src: url("./fonts/BricolageGrotesque_SemiCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_SemiCondensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque Semi Condensed Extra";
+  src: url("./fonts/BricolageGrotesque_SemiCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bungee";
   src: url("./fonts/Bungee-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "BungeeInline Regular";
+  font-family: "Bungee Inline";
   src: url("./fonts/BungeeInline-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "CantoraOne Regular";
-  src: url("./fonts/CantoraOne-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Capriola Regular";
+  font-family: "Capriola";
   src: url("./fonts/Capriola-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Caudex Bold";
-  src: url("./fonts/Caudex-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "CaveatBrush Regular";
-  src: url("./fonts/CaveatBrush-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "CherryBombOne Regular";
+  font-family: "Cherry Bomb One";
   src: url("./fonts/CherryBombOne-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "ClimateCrisis Regular VariableFont YEAR";
+  font-family: "Climate Crisis Variable Font YEAR";
   src: url("./fonts/ClimateCrisis-Regular-VariableFont_YEAR.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Coiny Regular";
+  font-family: "Coiny";
   src: url("./fonts/Coiny-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Combo Regular";
-  src: url("./fonts/Combo-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "ComicNeue Bold";
-  src: url("./fonts/ComicNeue-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "ComicNeue BoldItalic";
-  src: url("./fonts/ComicNeue-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "ComicNeue Italic";
-  src: url("./fonts/ComicNeue-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "ComicNeue Light";
-  src: url("./fonts/ComicNeue-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "ComicNeue LightItalic";
+  font-family: "Comic Neue";
   src: url("./fonts/ComicNeue-LightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Comic Neue";
+  src: url("./fonts/ComicNeue-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "ComicNeue Regular";
+  font-family: "Comic Neue";
+  src: url("./fonts/ComicNeue-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Comic Neue";
   src: url("./fonts/ComicNeue-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "CroissantOne Regular";
-  src: url("./fonts/CroissantOne-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Comic Neue";
+  src: url("./fonts/ComicNeue-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Comic Neue";
+  src: url("./fonts/ComicNeue-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Crushed Regular";
+  font-family: "Crushed";
   src: url("./fonts/Crushed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "DelaGothicOne Regular";
+  font-family: "Dela Gothic One";
   src: url("./fonts/DelaGothicOne-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "DenkOne Regular";
+  font-family: "Denk One";
   src: url("./fonts/DenkOne-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "DynaPuff Bold";
-  src: url("./fonts/DynaPuff-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Eater Regular";
+  font-family: "Eater";
   src: url("./fonts/Eater-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Englebert Regular";
+  font-family: "Englebert";
   src: url("./fonts/Englebert-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "FreckleFace Regular";
+  font-family: "Freckle Face";
   src: url("./fonts/FreckleFace-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Fruktur Regular";
+  font-family: "Fruktur";
   src: url("./fonts/Fruktur-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "FuzzyBubbles Bold";
-  src: url("./fonts/FuzzyBubbles-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Galindo Regular";
-  src: url("./fonts/Galindo-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "GloriaHallelujah Regular";
-  src: url("./fonts/GloriaHallelujah-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten Black";
-  src: url("./fonts/Gluten-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten Bold";
-  src: url("./fonts/Gluten-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten ExtraBold";
-  src: url("./fonts/Gluten-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten ExtraLight";
-  src: url("./fonts/Gluten-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten Light";
-  src: url("./fonts/Gluten-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten Medium";
-  src: url("./fonts/Gluten-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten Regular";
-  src: url("./fonts/Gluten-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten SemiBold";
-  src: url("./fonts/Gluten-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gluten Thin";
+  font-family: "Gluten";
   src: url("./fonts/Gluten-Thin.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander Black";
-  src: url("./fonts/Grandstander-Black.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten";
+  src: url("./fonts/Gluten-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander BlackItalic";
-  src: url("./fonts/Grandstander-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten";
+  src: url("./fonts/Gluten-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander Bold";
-  src: url("./fonts/Grandstander-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten";
+  src: url("./fonts/Gluten-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander BoldItalic";
-  src: url("./fonts/Grandstander-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten";
+  src: url("./fonts/Gluten-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander ExtraBold";
-  src: url("./fonts/Grandstander-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten";
+  src: url("./fonts/Gluten-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander ExtraBoldItalic";
-  src: url("./fonts/Grandstander-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten";
+  src: url("./fonts/Gluten-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander ExtraLight";
-  src: url("./fonts/Grandstander-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten Extra";
+  src: url("./fonts/Gluten-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander ExtraLightItalic";
-  src: url("./fonts/Grandstander-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Gluten Extra";
+  src: url("./fonts/Gluten-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Grandstander Italic";
-  src: url("./fonts/Grandstander-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander Light";
-  src: url("./fonts/Grandstander-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander LightItalic";
-  src: url("./fonts/Grandstander-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander Medium";
-  src: url("./fonts/Grandstander-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander MediumItalic";
-  src: url("./fonts/Grandstander-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander Regular";
-  src: url("./fonts/Grandstander-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander SemiBold";
-  src: url("./fonts/Grandstander-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander SemiBoldItalic";
-  src: url("./fonts/Grandstander-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander Thin";
-  src: url("./fonts/Grandstander-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Grandstander ThinItalic";
+  font-family: "Grandstander";
   src: url("./fonts/Grandstander-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "HanaleiFill Regular";
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander";
+  src: url("./fonts/Grandstander-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grandstander Extra";
+  src: url("./fonts/Grandstander-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander Extra";
+  src: url("./fonts/Grandstander-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grandstander Extra";
+  src: url("./fonts/Grandstander-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grandstander Extra";
+  src: url("./fonts/Grandstander-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Hanalei Fill";
   src: url("./fonts/HanaleiFill-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Itim Regular";
-  src: url("./fonts/Itim-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "JotiOne Regular";
-  src: url("./fonts/JotiOne-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "JustAnotherHand Regular";
+  font-family: "Just Another Hand";
   src: url("./fonts/JustAnotherHand-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Katibeh Regular";
-  src: url("./fonts/Katibeh-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato Black";
-  src: url("./fonts/Lato-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato BlackItalic";
-  src: url("./fonts/Lato-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato Bold";
-  src: url("./fonts/Lato-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato BoldItalic";
-  src: url("./fonts/Lato-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato Italic";
-  src: url("./fonts/Lato-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato Light";
-  src: url("./fonts/Lato-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato LightItalic";
-  src: url("./fonts/Lato-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato Regular";
-  src: url("./fonts/Lato-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato Thin";
-  src: url("./fonts/Lato-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato ThinItalic";
+  font-family: "Lato";
   src: url("./fonts/Lato-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Lemon Regular";
+  font-family: "Lato";
+  src: url("./fonts/Lato-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./fonts/Lato-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lemon";
   src: url("./fonts/Lemon-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Lemonada Bold";
+  font-family: "Lemonada";
   src: url("./fonts/Lemonada-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "LovedbytheKing Regular";
-  src: url("./fonts/LovedbytheKing-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "LoveYaLikeASister Regular";
+  font-family: "Love Ya Like A Sister";
   src: url("./fonts/LoveYaLikeASister-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "LuckiestGuy Regular";
+  font-family: "Lovedbythe King";
+  src: url("./fonts/LovedbytheKing-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Luckiest Guy";
   src: url("./fonts/LuckiestGuy-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Mali Bold";
+  font-family: "Mali";
   src: url("./fonts/Mali-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Maname Regular";
-  src: url("./fonts/Maname-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Mansalva Regular";
-  src: url("./fonts/Mansalva-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Marhey Bold";
-  src: url("./fonts/Marhey-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Marhey Light";
+  font-family: "Marhey";
   src: url("./fonts/Marhey-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Marhey Medium";
-  src: url("./fonts/Marhey-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Marhey Regular";
+  font-family: "Marhey";
   src: url("./fonts/Marhey-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Marhey SemiBold";
+  font-family: "Marhey";
+  src: url("./fonts/Marhey-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Marhey";
   src: url("./fonts/Marhey-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Matemasie Regular";
+  font-family: "Marhey";
+  src: url("./fonts/Marhey-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Matemasie";
   src: url("./fonts/Matemasie-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "McLaren Regular";
-  src: url("./fonts/McLaren-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Milonga Regular";
-  src: url("./fonts/Milonga-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat Black";
-  src: url("./fonts/Montserrat-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat BlackItalic";
-  src: url("./fonts/Montserrat-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat Bold";
-  src: url("./fonts/Montserrat-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat BoldItalic";
-  src: url("./fonts/Montserrat-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat ExtraBold";
-  src: url("./fonts/Montserrat-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat ExtraBoldItalic";
-  src: url("./fonts/Montserrat-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat ExtraLight";
-  src: url("./fonts/Montserrat-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat ExtraLightItalic";
-  src: url("./fonts/Montserrat-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat Italic";
-  src: url("./fonts/Montserrat-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat Light";
-  src: url("./fonts/Montserrat-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat LightItalic";
-  src: url("./fonts/Montserrat-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat Medium";
-  src: url("./fonts/Montserrat-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat MediumItalic";
-  src: url("./fonts/Montserrat-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat Regular";
-  src: url("./fonts/Montserrat-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat SemiBold";
-  src: url("./fonts/Montserrat-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat SemiBoldItalic";
-  src: url("./fonts/Montserrat-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat Thin";
-  src: url("./fonts/Montserrat-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat ThinItalic";
+  font-family: "Montserrat";
   src: url("./fonts/Montserrat-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "MouseMemoirs Regular";
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./fonts/Montserrat-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat Extra";
+  src: url("./fonts/Montserrat-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat Extra";
+  src: url("./fonts/Montserrat-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat Extra";
+  src: url("./fonts/Montserrat-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Montserrat Extra";
+  src: url("./fonts/Montserrat-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Mouse Memoirs";
   src: url("./fonts/MouseMemoirs-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "NationalPark ExtraBold";
-  src: url("./fonts/NationalPark-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "NovaMono Regular";
-  src: url("./fonts/NovaMono-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "NovaOval Regular";
+  font-family: "Nova Oval";
   src: url("./fonts/NovaOval-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Nunito Black";
-  src: url("./fonts/Nunito-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito BlackItalic";
-  src: url("./fonts/Nunito-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito Bold";
-  src: url("./fonts/Nunito-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito BoldItalic";
-  src: url("./fonts/Nunito-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito ExtraBold";
-  src: url("./fonts/Nunito-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito ExtraBoldItalic";
-  src: url("./fonts/Nunito-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito ExtraLight";
-  src: url("./fonts/Nunito-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito ExtraLightItalic";
-  src: url("./fonts/Nunito-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito Italic";
-  src: url("./fonts/Nunito-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito Light";
-  src: url("./fonts/Nunito-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito LightItalic";
+  font-family: "Nunito";
   src: url("./fonts/Nunito-LightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Nunito Medium";
-  src: url("./fonts/Nunito-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
 }
 
 @font-face {
-  font-family: "Nunito MediumItalic";
-  src: url("./fonts/Nunito-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito Regular";
+  font-family: "Nunito";
   src: url("./fonts/Nunito-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Nunito SemiBold";
-  src: url("./fonts/Nunito-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Nunito SemiBoldItalic";
+  font-family: "Nunito";
   src: url("./fonts/Nunito-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Oldenburg Regular";
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("./fonts/Nunito-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Nunito Extra";
+  src: url("./fonts/Nunito-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Nunito Extra";
+  src: url("./fonts/Nunito-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Nunito Extra";
+  src: url("./fonts/Nunito-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Nunito Extra";
+  src: url("./fonts/Nunito-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Oldenburg";
   src: url("./fonts/Oldenburg-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans Bold";
-  src: url("./fonts/OpenSans-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans BoldItalic";
-  src: url("./fonts/OpenSans-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans ExtraBold";
-  src: url("./fonts/OpenSans-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans ExtraBoldItalic";
-  src: url("./fonts/OpenSans-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Italic";
-  src: url("./fonts/OpenSans-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Light";
-  src: url("./fonts/OpenSans-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans LightItalic";
+  font-family: "Open Sans";
   src: url("./fonts/OpenSans-LightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans Medium";
-  src: url("./fonts/OpenSans-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
 }
 
 @font-face {
-  font-family: "OpenSans MediumItalic";
-  src: url("./fonts/OpenSans-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Regular";
+  font-family: "Open Sans";
   src: url("./fonts/OpenSans-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiBold";
-  src: url("./fonts/OpenSans-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiBoldItalic";
+  font-family: "Open Sans";
   src: url("./fonts/OpenSans-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans Condensed Bold";
-  src: url("./fonts/OpenSans_Condensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans Condensed BoldItalic";
-  src: url("./fonts/OpenSans_Condensed-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Condensed ExtraBold";
-  src: url("./fonts/OpenSans_Condensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Condensed ExtraBoldItalic";
-  src: url("./fonts/OpenSans_Condensed-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Condensed Italic";
-  src: url("./fonts/OpenSans_Condensed-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Condensed Light";
-  src: url("./fonts/OpenSans_Condensed-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Condensed LightItalic";
+  font-family: "Open Sans Condensed";
   src: url("./fonts/OpenSans_Condensed-LightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Condensed";
+  src: url("./fonts/OpenSans_Condensed-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans Condensed Medium";
-  src: url("./fonts/OpenSans_Condensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+  font-family: "Open Sans Condensed";
+  src: url("./fonts/OpenSans_Condensed-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
 }
 
 @font-face {
-  font-family: "OpenSans Condensed MediumItalic";
-  src: url("./fonts/OpenSans_Condensed-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans Condensed Regular";
+  font-family: "Open Sans Condensed";
   src: url("./fonts/OpenSans_Condensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans Condensed SemiBold";
-  src: url("./fonts/OpenSans_Condensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Open Sans Condensed";
+  src: url("./fonts/OpenSans_Condensed-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Condensed";
+  src: url("./fonts/OpenSans_Condensed-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans Condensed SemiBoldItalic";
+  font-family: "Open Sans Condensed";
   src: url("./fonts/OpenSans_Condensed-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Condensed";
+  src: url("./fonts/OpenSans_Condensed-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed Bold";
-  src: url("./fonts/OpenSans_SemiCondensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Open Sans Condensed";
+  src: url("./fonts/OpenSans_Condensed-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Condensed";
+  src: url("./fonts/OpenSans_Condensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed BoldItalic";
-  src: url("./fonts/OpenSans_SemiCondensed-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Open Sans Condensed Extra";
+  src: url("./fonts/OpenSans_Condensed-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Condensed Extra";
+  src: url("./fonts/OpenSans_Condensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed ExtraBold";
-  src: url("./fonts/OpenSans_SemiCondensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Open Sans Extra";
+  src: url("./fonts/OpenSans-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Extra";
+  src: url("./fonts/OpenSans-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed ExtraBoldItalic";
-  src: url("./fonts/OpenSans_SemiCondensed-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans SemiCondensed Italic";
-  src: url("./fonts/OpenSans_SemiCondensed-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans SemiCondensed Light";
-  src: url("./fonts/OpenSans_SemiCondensed-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans SemiCondensed LightItalic";
+  font-family: "Open Sans Semi Condensed";
   src: url("./fonts/OpenSans_SemiCondensed-LightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Semi Condensed";
+  src: url("./fonts/OpenSans_SemiCondensed-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed Medium";
-  src: url("./fonts/OpenSans_SemiCondensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+  font-family: "Open Sans Semi Condensed";
+  src: url("./fonts/OpenSans_SemiCondensed-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed MediumItalic";
-  src: url("./fonts/OpenSans_SemiCondensed-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "OpenSans SemiCondensed Regular";
+  font-family: "Open Sans Semi Condensed";
   src: url("./fonts/OpenSans_SemiCondensed-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed SemiBold";
-  src: url("./fonts/OpenSans_SemiCondensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Open Sans Semi Condensed";
+  src: url("./fonts/OpenSans_SemiCondensed-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Semi Condensed";
+  src: url("./fonts/OpenSans_SemiCondensed-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OpenSans SemiCondensed SemiBoldItalic";
+  font-family: "Open Sans Semi Condensed";
   src: url("./fonts/OpenSans_SemiCondensed-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Semi Condensed";
+  src: url("./fonts/OpenSans_SemiCondensed-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "OriginalSurfer Regular";
+  font-family: "Open Sans Semi Condensed";
+  src: url("./fonts/OpenSans_SemiCondensed-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Semi Condensed";
+  src: url("./fonts/OpenSans_SemiCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Open Sans Semi Condensed Extra";
+  src: url("./fonts/OpenSans_SemiCondensed-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans Semi Condensed Extra";
+  src: url("./fonts/OpenSans_SemiCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Original Surfer";
   src: url("./fonts/OriginalSurfer-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Oswald Bold";
-  src: url("./fonts/Oswald-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Oswald ExtraLight";
-  src: url("./fonts/Oswald-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Oswald Light";
+  font-family: "Oswald";
   src: url("./fonts/Oswald-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Oswald Medium";
-  src: url("./fonts/Oswald-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Oswald Regular";
+  font-family: "Oswald";
   src: url("./fonts/Oswald-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Oswald SemiBold";
+  font-family: "Oswald";
+  src: url("./fonts/Oswald-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Oswald";
   src: url("./fonts/Oswald-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Pangolin Regular";
+  font-family: "Oswald";
+  src: url("./fonts/Oswald-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Oswald Extra";
+  src: url("./fonts/Oswald-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pangolin";
   src: url("./fonts/Pangolin-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "PatrickHand Regular";
+  font-family: "Patrick Hand";
   src: url("./fonts/PatrickHand-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Peralta Regular";
+  font-family: "Peralta";
   src: url("./fonts/Peralta-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "PottaOne Regular";
+  font-family: "Potta One";
   src: url("./fonts/PottaOne-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "PurplePurse Regular";
+  font-family: "Purple Purse";
   src: url("./fonts/PurplePurse-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Quando Regular";
-  src: url("./fonts/Quando-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "RammettoOne Regular";
+  font-family: "Rammetto One";
   src: url("./fonts/RammettoOne-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Ranchers Regular";
+  font-family: "Ranchers";
   src: url("./fonts/Ranchers-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Ribeye Regular";
+  font-family: "Ribeye";
   src: url("./fonts/Ribeye-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Risque Regular";
+  font-family: "Risque";
   src: url("./fonts/Risque-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "RoadRage Regular";
+  font-family: "Road Rage";
   src: url("./fonts/RoadRage-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Black";
-  src: url("./fonts/Roboto-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto BlackItalic";
-  src: url("./fonts/Roboto-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Bold";
-  src: url("./fonts/Roboto-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto BoldItalic";
-  src: url("./fonts/Roboto-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto ExtraBold";
-  src: url("./fonts/Roboto-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto ExtraBoldItalic";
-  src: url("./fonts/Roboto-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto ExtraLight";
-  src: url("./fonts/Roboto-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto ExtraLightItalic";
-  src: url("./fonts/Roboto-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Italic";
-  src: url("./fonts/Roboto-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Light";
-  src: url("./fonts/Roboto-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto LightItalic";
-  src: url("./fonts/Roboto-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Medium";
-  src: url("./fonts/Roboto-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto MediumItalic";
-  src: url("./fonts/Roboto-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Regular";
-  src: url("./fonts/Roboto-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiBold";
-  src: url("./fonts/Roboto-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiBoldItalic";
-  src: url("./fonts/Roboto-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Thin";
-  src: url("./fonts/Roboto-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto ThinItalic";
+  font-family: "Roboto";
   src: url("./fonts/Roboto-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Condensed Black";
-  src: url("./fonts/Roboto_Condensed-Black.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Condensed BlackItalic";
-  src: url("./fonts/Roboto_Condensed-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Condensed Bold";
-  src: url("./fonts/Roboto_Condensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Condensed BoldItalic";
-  src: url("./fonts/Roboto_Condensed-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Condensed ExtraBold";
-  src: url("./fonts/Roboto_Condensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Condensed ExtraBoldItalic";
-  src: url("./fonts/Roboto_Condensed-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/Roboto-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto Condensed ExtraLight";
-  src: url("./fonts/Roboto_Condensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed ExtraLightItalic";
-  src: url("./fonts/Roboto_Condensed-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed Italic";
-  src: url("./fonts/Roboto_Condensed-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed Light";
-  src: url("./fonts/Roboto_Condensed-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed LightItalic";
-  src: url("./fonts/Roboto_Condensed-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed Medium";
-  src: url("./fonts/Roboto_Condensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed MediumItalic";
-  src: url("./fonts/Roboto_Condensed-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed Regular";
-  src: url("./fonts/Roboto_Condensed-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed SemiBold";
-  src: url("./fonts/Roboto_Condensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed SemiBoldItalic";
-  src: url("./fonts/Roboto_Condensed-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed Thin";
-  src: url("./fonts/Roboto_Condensed-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto Condensed ThinItalic";
+  font-family: "Roboto Condensed";
   src: url("./fonts/Roboto_Condensed-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed Black";
-  src: url("./fonts/Roboto_SemiCondensed-Black.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed BlackItalic";
-  src: url("./fonts/Roboto_SemiCondensed-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed Bold";
-  src: url("./fonts/Roboto_SemiCondensed-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed BoldItalic";
-  src: url("./fonts/Roboto_SemiCondensed-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed ExtraBold";
-  src: url("./fonts/Roboto_SemiCondensed-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed ExtraBoldItalic";
-  src: url("./fonts/Roboto_SemiCondensed-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("./fonts/Roboto_Condensed-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed ExtraLight";
-  src: url("./fonts/Roboto_SemiCondensed-ExtraLight.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed Extra";
+  src: url("./fonts/Roboto_Condensed-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed Extra";
+  src: url("./fonts/Roboto_Condensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed ExtraLightItalic";
-  src: url("./fonts/Roboto_SemiCondensed-ExtraLightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Condensed Extra";
+  src: url("./fonts/Roboto_Condensed-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Condensed Extra";
+  src: url("./fonts/Roboto_Condensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed Italic";
-  src: url("./fonts/Roboto_SemiCondensed-Italic.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Extra";
+  src: url("./fonts/Roboto-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Extra";
+  src: url("./fonts/Roboto-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed Light";
-  src: url("./fonts/Roboto_SemiCondensed-Light.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Extra";
+  src: url("./fonts/Roboto-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Extra";
+  src: url("./fonts/Roboto-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Roboto SemiCondensed LightItalic";
-  src: url("./fonts/Roboto_SemiCondensed-LightItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiCondensed Medium";
-  src: url("./fonts/Roboto_SemiCondensed-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiCondensed MediumItalic";
-  src: url("./fonts/Roboto_SemiCondensed-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiCondensed Regular";
-  src: url("./fonts/Roboto_SemiCondensed-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiCondensed SemiBold";
-  src: url("./fonts/Roboto_SemiCondensed-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiCondensed SemiBoldItalic";
-  src: url("./fonts/Roboto_SemiCondensed-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiCondensed Thin";
-  src: url("./fonts/Roboto_SemiCondensed-Thin.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Roboto SemiCondensed ThinItalic";
+  font-family: "Roboto Semi Condensed";
   src: url("./fonts/Roboto_SemiCondensed-ThinItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-Thin.ttf") format("truetype");
+  font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "RubikSprayPaint Regular";
-  src: url("./fonts/RubikSprayPaint-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "RubikWetPaint Regular";
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed";
+  src: url("./fonts/Roboto_SemiCondensed-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed Extra";
+  src: url("./fonts/Roboto_SemiCondensed-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed Extra";
+  src: url("./fonts/Roboto_SemiCondensed-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed Extra";
+  src: url("./fonts/Roboto_SemiCondensed-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto Semi Condensed Extra";
+  src: url("./fonts/Roboto_SemiCondensed-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Rubik Wet Paint";
   src: url("./fonts/RubikWetPaint-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "RumRaisin Regular";
+  font-family: "Rum Raisin";
   src: url("./fonts/RumRaisin-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "RuslanDisplay Regular";
+  font-family: "Ruslan Display";
   src: url("./fonts/RuslanDisplay-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "SeymourOne Regular";
-  src: url("./fonts/SeymourOne-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "ShantellSans ExtraBold";
-  src: url("./fonts/ShantellSans-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Shojumaru Regular";
+  font-family: "Shojumaru";
   src: url("./fonts/Shojumaru-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "SpicyRice Regular";
+  font-family: "Spicy Rice";
   src: url("./fonts/SpicyRice-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Truculenta ExtraBold";
-  src: url("./fonts/Truculenta-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "UncialAntiqua Regular";
+  font-family: "Uncial Antiqua";
   src: url("./fonts/UncialAntiqua-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "VendSans Bold";
+  font-family: "Vend Sans";
   src: url("./fonts/VendSans-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "ViaodaLibre Regular";
+  font-family: "Viaoda Libre";
   src: url("./fonts/ViaodaLibre-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Wellfleet Regular";
+  font-family: "Wellfleet";
   src: url("./fonts/Wellfleet-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "WinkyRough ExtraBold";
-  src: url("./fonts/WinkyRough-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans Black";
-  src: url("./fonts/WinkySans-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans BlackItalic";
-  src: url("./fonts/WinkySans-BlackItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans Bold";
-  src: url("./fonts/WinkySans-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans BoldItalic";
-  src: url("./fonts/WinkySans-BoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans ExtraBold";
-  src: url("./fonts/WinkySans-ExtraBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans ExtraBoldItalic";
-  src: url("./fonts/WinkySans-ExtraBoldItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans Italic";
-  src: url("./fonts/WinkySans-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans Light";
-  src: url("./fonts/WinkySans-Light.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans LightItalic";
+  font-family: "Winky Sans";
   src: url("./fonts/WinkySans-LightItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-Light.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "WinkySans Medium";
-  src: url("./fonts/WinkySans-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
 }
 
 @font-face {
-  font-family: "WinkySans MediumItalic";
-  src: url("./fonts/WinkySans-MediumItalic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "WinkySans Regular";
+  font-family: "Winky Sans";
   src: url("./fonts/WinkySans-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "WinkySans SemiBold";
-  src: url("./fonts/WinkySans-SemiBold.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "WinkySans SemiBoldItalic";
+  font-family: "Winky Sans";
   src: url("./fonts/WinkySans-SemiBoldItalic.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-SemiBold.ttf") format("truetype");
+  font-weight: 600;
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Winky Sans";
+  src: url("./fonts/WinkySans-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Winky Sans Extra";
+  src: url("./fonts/WinkySans-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Winky Sans Extra";
+  src: url("./fonts/WinkySans-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}

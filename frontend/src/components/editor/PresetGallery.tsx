@@ -23,7 +23,6 @@ import { Search, Filter, X, ChevronDown, ChevronUp, Heart, Grid3X3, List } from 
 import { StyleConfig } from "../../types";
 import { useTheme } from "../../ThemeContext";
 import { announce, VisuallyHidden } from "../../utils/a11y";
-// import StaticPresetPreview from "../admin/StaticPresetPreview"; // REMOVED
 
 type Preset = StyleConfig & { label?: string };
 
@@ -79,10 +78,50 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   text: ["typewriter", "fade", "highlight", "reveal"],
 };
 
-/**
- * Preset Gallery Component
- * Displays a searchable and filterable grid of available presets with preview images
- */
+// Helper to convert ASS color to CSS
+const assToCssColor = (val?: string, fallback = "#ffffff") => {
+  if (!val) return fallback;
+  // Handle direct hex like #ffffff
+  if (val.startsWith("#") && (val.length === 7 || val.length === 9)) return val;
+
+  // Handle ASS &H... format
+  // ASS: &H(Alpha)(Blue)(Green)(Red) - Alpha is 00=Opaque, FF=Transparent
+  // We need to robustly handle &H, &h, and potentially missing alpha
+  let clean = val.replace(/&H|&h/g, "").replace(/&/g, "");
+
+  // Fallback for short codes or bad data
+  if (clean.length < 6) return fallback;
+
+  // Pad if missing alpha (assume opaque i.e. 00 if 6 chars)
+  if (clean.length === 6) clean = "00" + clean;
+
+  // Parse
+  const aHex = clean.slice(0, 2);
+  const bHex = clean.slice(2, 4);
+  const gHex = clean.slice(4, 6);
+  const rHex = clean.slice(6, 8);
+
+  const b = parseInt(bHex, 16);
+  const g = parseInt(gHex, 16);
+  const r = parseInt(rHex, 16);
+  const a = parseInt(aHex, 16);
+
+  // CSS rgba alpha: 0=Transparent, 1=Opaque
+  // ASS alpha: 00=Opaque (0), FF=Transparent (255)
+  // So cssAlpha = 1 - (assAlpha / 255)
+  const alpha = 1 - (isNaN(a) ? 0 : a) / 255;
+
+  return `rgba(${isNaN(r) ? 0 : r}, ${isNaN(g) ? 0 : g}, ${isNaN(b) ? 0 : b}, ${alpha.toFixed(2)})`;
+};
+
+// Heuristic to check if a preset is a "Group" type
+const isGroupPreset = (p: Preset) => {
+  const type = (p.effect_type || "").toLowerCase();
+  const id = p.id.toLowerCase();
+  const markers = ["group", "box", "tiktok", "slide"];
+  return markers.some(m => type.includes(m) || id.includes(m));
+};
+
 function PresetGalleryComponent({
   presets,
   selectedPresetId,
@@ -132,7 +171,6 @@ function PresetGalleryComponent({
 
   /**
    * Format preset ID to display name
-   * Converts "fire-storm" to "Fire Storm"
    */
   const formatPresetName = (id: string): string => {
     return id
@@ -143,7 +181,7 @@ function PresetGalleryComponent({
   };
 
   /**
-   * Get category for a preset based on its effect_type or id
+   * Get category for a preset
    */
   const getPresetCategory = (preset: Preset): string => {
     const searchText = `${preset.id} ${preset.effect_type || ""}`.toLowerCase();
@@ -157,15 +195,13 @@ function PresetGalleryComponent({
   };
 
   /**
-   * Filter presets based on search query and selected category
+   * Filter presets
    */
   const filteredPresets = useMemo(() => {
     return presets.filter((preset) => {
-      // Search filter
       const searchText = `${preset.id} ${preset.label || ""} ${preset.effect_type || ""} ${preset.font || ""}`.toLowerCase();
       const matchesSearch = !searchQuery || searchText.includes(searchQuery.toLowerCase());
 
-      // Category filter
       let matchesCategory = true;
       if (selectedCategory === "favorites") {
         matchesCategory = favorites.has(preset.id);
@@ -188,6 +224,57 @@ function PresetGalleryComponent({
 
     return counts;
   }, [presets, favorites.size]);
+
+  // Helper to render the styled text preview
+  const renderPrevText = (preset: Preset) => {
+    const group = isGroupPreset(preset);
+    const activeColor = assToCssColor(preset.primary_color, "#ffffff");
+    const passiveColor = assToCssColor(preset.secondary_color, "#cccccc");
+    const outlineColor = assToCssColor(preset.outline_color, "#000000");
+
+    const borderSize = (preset.border || 0) * 1;
+    const shadowDist = (preset.shadow || 0) * 2;
+    const shadowColor = assToCssColor(preset.shadow_color, "rgba(0,0,0,0.5)");
+
+    const shadows: string[] = [];
+    if (borderSize > 0) {
+      for (let i = 1; i <= Math.ceil(borderSize); i++) {
+        shadows.push(`${i}px ${i}px 0 ${outlineColor}`);
+        shadows.push(`-${i}px -${i}px 0 ${outlineColor}`);
+        shadows.push(`${i}px -${i}px 0 ${outlineColor}`);
+        shadows.push(`-${i}px ${i}px 0 ${outlineColor}`);
+      }
+    }
+    if (shadowDist > 0) {
+      shadows.push(`${shadowDist}px ${shadowDist}px 0px ${shadowColor}`);
+    }
+
+    const textShadowVal = shadows.join(", ");
+
+    const commonStyle = {
+      fontFamily: `"${preset.font}", "Inter", sans-serif`,
+      fontWeight: preset.bold ? "bold" : "normal",
+      fontStyle: preset.italic ? "italic" : "normal",
+      textShadow: textShadowVal,
+    };
+
+    if (group) {
+      return (
+        <Box sx={{ ...commonStyle, fontSize: "0.9rem", lineHeight: 1.2, textAlign: 'center' }}>
+          <span style={{ color: activeColor }}>Awesome</span>
+          <span style={{ display: 'inline-block', width: '4px' }}></span>
+          <span style={{ color: passiveColor }}>Subcio</span>
+        </Box>
+      );
+    } else {
+      return (
+        <Box sx={{ ...commonStyle, fontSize: "1.2rem", textAlign: 'center' }}>
+          <span style={{ color: activeColor }}>Sub</span>
+          <span style={{ color: passiveColor }}>cio</span>
+        </Box>
+      );
+    }
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -419,10 +506,10 @@ function PresetGalleryComponent({
                       />
                     </IconButton>
 
-                    {/* Preset Preview - CSS Only */}
+                    {/* Preset Preview - Advanced CSS */}
                     <Box
                       sx={{
-                        height: 50,
+                        height: 60, // Sightly taller for group text
                         overflow: "hidden",
                         borderRadius: "8px 8px 0 0",
                         bgcolor: "grey.900",
@@ -431,28 +518,10 @@ function PresetGalleryComponent({
                         alignItems: "center",
                         justifyContent: "center",
                         background: "linear-gradient(45deg, #1a1a2e 0%, #16213e 100%)",
-                        p: 0.5,
+                        p: 1,
                       }}
                     >
-                      <Typography
-                        sx={{
-                          fontFamily: preset.font || "Inter",
-                          fontWeight: preset.bold ? "bold" : "normal",
-                          color: preset.primary_color?.replace(/&H00/g, "#").replace(/&H/g, "#") || "#ffffff",
-                          fontSize: "1rem",
-                          textShadow: `
-                                -1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},  
-                                 1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
-                                -1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
-                                 1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"}
-                              `,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        Abc
-                      </Typography>
+                      {renderPrevText(preset)}
                     </Box>
 
                     {/* Preset Name */}
@@ -531,22 +600,8 @@ function PresetGalleryComponent({
                       background: "linear-gradient(45deg, #1a1a2e 0%, #16213e 100%)",
                     }}
                   >
-                    <Typography
-                      sx={{
-                        fontFamily: preset.font || "Inter",
-                        fontWeight: preset.bold ? "bold" : "normal",
-                        color: preset.primary_color?.replace(/&H00/g, "#").replace(/&H/g, "#") || "#ffffff",
-                        fontSize: "0.8rem",
-                        textShadow: `
-                                -1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},  
-                                 1px -1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
-                                -1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"},
-                                 1px  1px 0 ${preset.outline_color?.replace(/&H00/g, "#") || "#000"}
-                              `,
-                      }}
-                    >
-                      Abc
-                    </Typography>
+                    {/* Simplified mini preview for List View */}
+                    {renderPrevText(preset)}
                   </Box>
 
                   {/* Name & Category */}
